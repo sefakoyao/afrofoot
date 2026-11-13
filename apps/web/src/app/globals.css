@@ -1,2 +1,6 @@
 @import '@afrofoot/ui/styles.css';
 @tailwind base; @tailwind components; @tailwind utilities;
+
+/* Fonts are loaded in app/[locale]/layout.tsx. Headings share the body face (Figtree). */
+html { --font-display: var(--font-body); }
+html[dir='rtl'] body { font-family: var(--font-arabic), Cairo, Tajawal, system-ui, sans-serif; }

@@ -20,3 +20,7 @@ Status: database (26 migrations, 315 tests), design preview v0.15.0 and all 777 
 
 ## Environment variables (names only; values go into Vercel/Supabase, never into chat or the repo)
 `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` (server only), `TORNEOPAL_API_KEY` (server only), `PAYTRAIL_MERCHANT_ID`, `PAYTRAIL_SECRET`, `MOBILEPAY_*` (later).
+
+## Progress
+- 2026-11-14, branch `phase2/foundation` (UNTESTED: written without package installs, only syntax-checked): language routing (next-intl, English without prefix, /fi /fr /ar), layout with Figtree and Cairo, header with utility bar and language switcher, footer, home hero. Links to /news, /team, /membership, /join, /sponsors, /contact, /women, /juniors lead to pages that do not exist yet.
+- Next: run `pnpm install && pnpm typecheck && pnpm build`, fix errors, then add the remaining public pages from `design-preview/`.
