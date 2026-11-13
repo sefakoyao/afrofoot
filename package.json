@@ -1,0 +1,17 @@
+{
+  "name": "afrofoot",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20.11" },
+  "scripts": {
+    "dev:web": "pnpm --filter @afrofoot/web dev",
+    "dev:app": "pnpm --filter @afrofoot/app dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "i18n:check": "node packages/i18n/scripts/check-messages.mjs",
+    "fed:probe": "pnpm --filter @afrofoot/federation probe",
+    "db:test": "sh supabase/tests/run_tests.sh",
+    "db:types": "supabase gen types typescript --local > packages/db/src/database.types.ts"
+  }
+}

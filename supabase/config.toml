@@ -1,0 +1,22 @@
+# Supabase CLI configuration (local development). Project ref is added by `supabase link`.
+project_id = "afrofoot"
+[api]
+port = 54321
+schemas = ["public"]
+[db]
+port = 54322
+major_version = 15
+[auth]
+site_url = "https://app.afrofoot.club"
+additional_redirect_urls = ["https://www.afrofoot.club", "http://localhost:3000", "http://localhost:3001"]
+enable_signup = true
+minimum_password_length = 10
+[auth.email]
+enable_confirmations = true
+[storage]
+file_size_limit = "10MiB"
+
+# Blocks sign-in (and token refresh) for players whose membership fees are overdue. See migration 0022.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"

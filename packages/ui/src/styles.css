@@ -1,0 +1,29 @@
+/* Afro Foot base styles. Values are RGB triplets so Tailwind opacity utilities work. */
+:root {
+  --surface: 247 246 240;   /* off-white page */
+  --raised: 255 255 255;    /* cards */
+  --line: 227 225 214;
+  --fg: 16 21 16;           /* near-black text */
+  --muted: 93 103 95;
+  --accent: 61 175 44;      /* logo green: primary buttons / highlights (black text on it) */
+  --on-accent: 16 21 16;
+  --pitch: 42 138 28;       /* dark green: links, text accents, success (readable on white) */
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --space-section: 5rem;
+  color-scheme: light;
+}
+/* Surface variants — set data-surface on <body> in each app/area. */
+[data-surface='public'] { --radius-card: 20px; --space-section: 6rem; }
+[data-surface='admin']  { --radius-card: 12px; --radius-control: 8px; --space-section: 1.5rem; }
+[data-surface='coach'],
+[data-surface='player'] { --radius-card: 18px; --radius-control: 14px; --space-section: 1.25rem; }
+body { background: rgb(var(--surface)); color: rgb(var(--fg)); font-family: var(--font-body), Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+/* Black: header bar, footer, text. Logo green: button fills. Dark green: text accents. */
+
+/* Arabic: right-to-left, Arabic faces for text and headings. Use logical utilities (ms-*, me-*, ps-*, pe-*, text-start) everywhere. */
+:lang(ar) body, :lang(ar) .font-display { font-family: var(--font-arabic), Cairo, Tajawal, system-ui, sans-serif; letter-spacing: 0; }
+[dir='rtl'] .rtl-flip { transform: scaleX(-1); }
+.pitch { direction: ltr; } /* the pitch diagram is geometric, not text: it never mirrors */
