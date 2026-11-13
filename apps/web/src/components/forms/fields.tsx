@@ -6,7 +6,7 @@ export type Labels = Record<string, string>;
 
 const input = 'w-full rounded-control border border-line bg-raised px-3 py-2 text-fg outline-none focus:border-accent focus:ring-2 focus:ring-accent/30';
 
-export function Field({ label, required, hint, wide, children }: { label: string; required?: boolean; hint?: string; wide?: boolean; children: ReactNode }) {
+export function Field({ label, required, hint, wide, children }: { label: string | undefined; required?: boolean; hint?: string; wide?: boolean; children: ReactNode }) {
   return (
     <label className={`grid gap-1 text-sm font-semibold ${wide ? 'sm:col-span-2' : ''}`}>
       <span>{label}{required ? ' *' : ''}</span>
@@ -121,7 +121,7 @@ export function DatePicker({ name, labels, locale, required, onChange, minYear =
   );
 }
 
-export function SubmitRow({ pending, label, children }: { pending: boolean; label: string; children?: ReactNode }) {
+export function SubmitRow({ pending, label, children }: { pending: boolean; label: string | undefined; children?: ReactNode }) {
   return (
     <div className="mt-4 flex flex-wrap gap-3">
       {children}
@@ -130,7 +130,7 @@ export function SubmitRow({ pending, label, children }: { pending: boolean; labe
   );
 }
 
-export function Check({ name, label, required }: { name: string; label: string; required?: boolean }) {
+export function Check({ name, label, required }: { name: string; label: string | undefined; required?: boolean }) {
   return (
     <label className="mt-3 flex items-start gap-2 text-sm">
       <input type="checkbox" name={name} required={required} className="mt-1 size-4 accent-[rgb(var(--accent))]" />

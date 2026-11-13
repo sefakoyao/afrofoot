@@ -111,7 +111,7 @@ export function EnrolmentForm({ labels, locale, intl, plans, countries }: Common
   const [isMinor, setMinor] = useState(false);
   const [plan, setPlan] = useState('');
   const [method, setMethod] = useState('');
-  const [stepError, setStepError] = useState('');
+  const [stepError, setStepError] = useState<string | undefined>('');
   const steps = [labels.en_s1, labels.en_s2, labels.en_s3, labels.en_s4];
 
   const next = (e: React.MouseEvent<HTMLButtonElement>) => {

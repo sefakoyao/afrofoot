@@ -45,7 +45,7 @@ export function FeeFinder({ labels }: { labels: Record<string, string> }) {
                   <p className="mt-2 text-sm text-muted">{labels.fd_o4}</p>
                 </>
               ) : null}
-              {b.note && band !== 4 ? <p className="mt-2 font-semibold">{labels[b.note]}</p> : null}
+              {b.note ? <p className="mt-2 font-semibold">{labels[b.note]}</p> : null}
             </>
           )}
         </div>
