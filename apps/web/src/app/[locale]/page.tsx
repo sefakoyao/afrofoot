@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { Faq } from '@/components/Faq';
+import { IconMembership, IconPartner, IconTraining } from '@/components/Icons';
 import { NewsCard } from '@/components/NewsCard';
 import { getPosts, type Post } from '@/lib/news';
 import Image from 'next/image';
@@ -131,16 +132,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Section>
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            ...(appUrl ? [{ href: appUrl, k: 'tile1', external: true }] : []),
-            { href: '/membership', k: 'tile2', external: false }, { href: '/sponsors', k: 'tile3', external: false },
-          ].map(({ href, k, external }) => (
-            <Card key={k}>
-              <h3 className="font-display text-xl font-extrabold">{t(k)}</h3><p className="mt-1 text-muted">{t(`${k}p`)}</p>
-              <p className="mt-3">{external
-                ? <a href={href} className="font-semibold text-pitch underline">→</a>
-                : <Link href={href} className="font-semibold text-pitch underline">→</Link>}</p>
-            </Card>
-          ))}
+            ...(appUrl ? [{ href: appUrl, k: 'tile1', external: true, icon: <IconTraining /> }] : []),
+            { href: '/membership', k: 'tile2', external: false, icon: <IconMembership /> },
+            { href: '/sponsors', k: 'tile3', external: false, icon: <IconPartner /> },
+          ].map(({ href, k, external, icon }) => {
+            const body = (
+              <>
+                <span className="grid size-14 place-items-center rounded-2xl bg-accent/15 text-pitch transition duration-300 group-hover:rotate-3 group-hover:bg-accent group-hover:text-on-accent motion-reduce:transition-none">{icon}</span>
+                <h3 className="mt-4 font-display text-xl font-extrabold">{t(k)}</h3>
+                <p className="mt-1 flex-1 text-muted">{t(`${k}p`)}</p>
+                <span aria-hidden className="mt-4 grid size-10 place-items-center rounded-full bg-ink-950 text-white transition duration-300 group-hover:translate-x-1 group-hover:bg-accent group-hover:text-on-accent motion-reduce:transition-none rtl:rotate-180 rtl:group-hover:-translate-x-1">→</span>
+              </>
+            );
+            const cls = 'group flex flex-col rounded-card border border-line bg-raised p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-xl motion-reduce:transition-none';
+            return external
+              ? <a key={k} href={href} className={cls}>{body}</a>
+              : <Link key={k} href={href} className={cls}>{body}</Link>;
+          })}
         </div>
       </Section>
 
@@ -185,6 +193,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </Section>
       ) : null}
 
+
+      <Section>
+        <H2>{t('faq_h')}</H2>
+        <div className="mt-4"><Faq items={[1, 2, 3].map((n) => ({ q: t(`faq${n}q`), a: t(`faq${n}a`) }))} /></div>
+      </Section>
+
       <Section id="sponsors">
         <div className="flex items-center justify-between gap-3"><H2>{t('ourp')} {t('partners')}</H2><Link href="/sponsors" className="font-semibold text-pitch underline">{t('sp_all')} →</Link></div>
         <div className="mt-4 flex flex-wrap gap-3">
@@ -194,11 +208,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </span>
           ))}
         </div>
-      </Section>
-
-      <Section>
-        <H2>{t('faq_h')}</H2>
-        <div className="mt-4"><Faq items={[1, 2, 3].map((n) => ({ q: t(`faq${n}q`), a: t(`faq${n}a`) }))} /></div>
       </Section>
     </>
   );
