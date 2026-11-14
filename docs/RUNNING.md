@@ -31,6 +31,15 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
 4. **Scheduled jobs** (Vercel Cron): federation sync (every 15–60 min), overdue-payment reminders, membership renewals.
 5. Run section 2 step 5 against the production database.
 
+## 3b. Member app sign-in (apps/app)
+- **Hook**: Supabase dashboard → Authentication → Hooks → *Customize Access Token* → Postgres function `public.custom_access_token_hook` (migration 0022). Locally it is enabled by `supabase/config.toml`. Without it, players with overdue fees can still sign in.
+- **Redirect URLs**: Authentication → URL configuration must allow `https://app.afrofoot.club/auth/confirm` (and `http://localhost:3001/auth/confirm` for local work).
+- **Reset email (recommended)**: Authentication → Email templates → *Reset password*: set the link to
+  `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`.
+  The default template also works, but only in the browser that asked for the link (PKCE); the template above works on any device.
+- **Variables** for the Vercel `app` project: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`; optional `APP_URL` and `NEXT_PUBLIC_WEB_URL`. The member app does not use the service-role key.
+- Roles: new accounts are pending players. A super administrator activates them and sets the role (`profiles.role`, `profiles.status`); role changes take effect on the next page load.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
