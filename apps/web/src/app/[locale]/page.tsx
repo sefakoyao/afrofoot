@@ -57,7 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('btn_tr')}</Link>
               </div>
               <dl className="flex flex-wrap gap-x-10 gap-y-3">
-                {([['40+', 'players'], ['20+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
+                {([['102+', 'players'], ['40+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
                   <div key={k}><dt className="font-display text-4xl font-black text-accent">{n}</dt><dd className="text-white/70">{t(k)}</dd></div>
                 ))}
               </dl>
