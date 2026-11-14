@@ -12,6 +12,7 @@ const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', d
 export const metadata: Metadata = {
   title: { default: 'Afro Foot Club', template: '%s · Afro Foot Club' },
   robots: { index: false, follow: false }, // member app: never indexed
+  icons: { icon: '/icon.png', apple: '/icon.png' },
 };
 
 /** Namespaces client components use. The rest of the messages stay on the server. */
