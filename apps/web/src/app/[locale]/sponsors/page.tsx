@@ -3,9 +3,8 @@ import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { SponsorForm } from '@/components/forms/Forms';
 import { Card, Check, H2, Hero, Section, Tag } from '@/components/Page';
 import { FORM_KEYS, pick } from '@/lib/labels';
+import { SPONSORS } from '@/lib/sponsors';
 
-// Sample sponsors from the design preview. TODO: read from the `sponsors` table (public select is already allowed) once the admin CMS exists.
-const SPONSORS = [['Montel Intergalactic', 'sp_main', 'sp_d1'], ['Musine', 'sp_part', 'sp_d2'], ['Dosmar', 'sp_part', 'sp_d3']] as const;
 const PACKAGES = [
   ['pk1', 'pk1s', ['pk1a', 'pk1b', 'pk1c', 'pk1d']], ['pk2', 'pk2s', ['pk2a', 'pk2b', 'pk2c']], ['pk3', 'pk3s', ['pk3a', 'pk3b']], ['pk4', 'pk4s', ['pk4a']],
 ] as const;
@@ -20,7 +19,7 @@ export default async function SponsorsPage({ params }: { params: Promise<{ local
       <Section>
         <div className="flex flex-wrap items-center justify-between gap-2"><H2>{t('sp_cur')}</H2><Tag>{t('sp_sample')}</Tag></div>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {SPONSORS.map(([name, kind, desc]) => (
+          {SPONSORS.map(({ name, kind, desc }) => (
             <Card key={name}><Tag solid>{t(kind)}</Tag><h3 className="mt-2 font-display text-xl font-extrabold">{name}</h3><p className="mt-1 text-muted">{t(desc)}</p></Card>
           ))}
         </div>

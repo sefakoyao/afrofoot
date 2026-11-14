@@ -1,30 +1,171 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { LOCALE_LABELS, localized, type Locale, type Translations } from '@afrofoot/i18n';
+import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
 import { Link } from '@/i18n/routing';
+import { getPublicClient } from '@/lib/supabase';
+import { SPONSORS } from '@/lib/sponsors';
+
+interface Fixture { id: string; team_name: string; opponent: string; home_away: string | null; kickoff_at: string; status: string; goals_for: number | null; goals_against: number | null; venue: string | null; city: string | null }
+interface Record_ { team_season_id: string; team_name: string; competition: string; played: number; won: number; drawn: number; lost: number; points: number }
+interface Post { id: string; title: string; excerpt: string | null; published_at: string; translations: Translations | null }
+
+async function getHomeData() {
+  const db = getPublicClient();
+  if (!db) return { fixtures: [] as Fixture[], records: [] as Record_[], posts: [] as Post[] };
+  const [f, r, n] = await Promise.all([
+    db.from('public_fixtures').select('id,team_name,opponent,home_away,kickoff_at,status,goals_for,goals_against,venue,city').order('kickoff_at', { ascending: false }).limit(40),
+    db.from('public_team_records').select('team_season_id,team_name,competition,played,won,drawn,lost,points').order('points', { ascending: false }).limit(12),
+    db.from('news_posts').select('id,title,excerpt,published_at,translations').eq('status', 'published').order('published_at', { ascending: false }).limit(3),
+  ]);
+  return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: (n.data ?? []) as Post[] };
+}
+
+const vs = (m: Fixture) => (m.home_away === 'away' ? `${m.opponent}  vs  ${m.team_name}` : `${m.team_name}  vs  ${m.opponent}`);
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('site');
+  const l = (locale in LOCALE_LABELS ? locale : 'en') as Locale;
+  const intl = LOCALE_LABELS[l].intl;
+  const when = new Intl.DateTimeFormat(intl, { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Helsinki' });
+  const day = new Intl.DateTimeFormat(intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
+  const short = new Intl.DateTimeFormat(intl, { day: '2-digit', month: '2-digit', timeZone: 'Europe/Helsinki' });
+  const { fixtures, records, posts } = await getHomeData();
+  const now = Date.now();
+  const next = fixtures.filter((m) => m.status === 'scheduled' && new Date(m.kickoff_at).getTime() >= now).sort((a, b) => +new Date(a.kickoff_at) - +new Date(b.kickoff_at))[0];
+  const results = fixtures.filter((m) => m.status === 'played').slice(0, 3);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.afrofoot.club';
 
   return (
     <>
       <section className="bg-ink-950 text-white">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-20 md:py-28">
+          <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('since')}</span>
           <h1 className="font-display text-5xl font-black leading-[1.02] md:text-7xl">
             {t('h1a')} <span className="text-accent">{t('h1b')}</span> {t('h1c')}
           </h1>
-          <p className="max-w-xl text-lg text-white/80">{t('promo_p')}</p>
-          <div>
-            <Link href="/join" className="inline-block rounded-full bg-accent px-7 py-3 font-display text-base font-bold text-on-accent hover:brightness-110">
-              {t('au_join')} →
-            </Link>
+          <p className="max-w-xl text-lg text-white/80">{t('lead')}</p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/join" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent hover:brightness-110">{t('join')}</Link>
+            <Link href="/sponsors#enquiry" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('partner')}</Link>
+            <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('btn_tr')}</Link>
           </div>
+          <dl className="mt-4 flex flex-wrap gap-x-10 gap-y-3">
+            {([['40+', 'players'], ['20+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
+              <div key={k}><dt className="font-display text-4xl font-black text-accent">{n}</dt><dd className="text-white/70">{t(k)}</dd></div>
+            ))}
+          </dl>
         </div>
       </section>
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="font-display text-4xl font-extrabold text-pitch">{t('promo_h')}</h2>
-        <p className="mt-3 max-w-2xl text-muted">{t('promo_p')}</p>
+
+      <section className="bg-accent text-on-accent">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-6">
+          <div><h2 className="font-display text-2xl font-extrabold">{t('promo_h')}</h2><p>{t('promo_p')}</p></div>
+          <Link href="/join" className="rounded-full bg-black px-6 py-2.5 font-display font-bold text-white hover:bg-ink-950">{t('join')} →</Link>
+        </div>
       </section>
+
+      {next ? (
+        <Section>
+          <H2>{t('next')} {t('match')}</H2>
+          <Card className="mt-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <Tag solid>{next.team_name}</Tag>
+              <p className="mt-2 font-display text-2xl font-extrabold">{vs(next)}</p>
+              <p className="text-muted">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
+            </div>
+            <ButtonLink href="/team">{t('cal')}</ButtonLink>
+          </Card>
+        </Section>
+      ) : null}
+
+      {posts.length ? (
+        <Section id="news">
+          <div className="flex items-center justify-between gap-3"><H2>{t('afro')} {t('newsw')}</H2><Link href="/news" className="font-semibold text-pitch underline">{t('allnews')} →</Link></div>
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
+            {posts.map((p) => (
+              <Card key={p.id}>
+                <time className="text-sm text-muted" dateTime={p.published_at}>{day.format(new Date(p.published_at))}</time>
+                <h3 className="mt-1 font-display text-xl font-extrabold">{localized(p.title, p.translations, l, 'title')}</h3>
+                {p.excerpt ? <p className="mt-1 text-muted">{localized(p.excerpt, p.translations, l, 'excerpt')}</p> : null}
+              </Card>
+            ))}
+          </div>
+        </Section>
+      ) : null}
+
+      <Section>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            { href: appUrl, k: 'tile1', external: true }, { href: '/membership', k: 'tile2' }, { href: '/sponsors', k: 'tile3' },
+          ].map(({ href, k, external }) => (
+            <Card key={k}>
+              <h3 className="font-display text-xl font-extrabold">{t(k)}</h3><p className="mt-1 text-muted">{t(`${k}p`)}</p>
+              <p className="mt-3">{external
+                ? <a href={href} className="font-semibold text-pitch underline">→</a>
+                : <Link href={href} className="font-semibold text-pitch underline">→</Link>}</p>
+            </Card>
+          ))}
+        </div>
+      </Section>
+
+      {records.length || results.length ? (
+        <Section id="standings">
+          <H2>{t('stand')}</H2>
+          <p className="mb-4 mt-1 text-sm text-muted">{t('sync')}</p>
+          <div className="grid gap-4 md:grid-cols-2">
+            {results.length ? (
+              <Card>
+                <h3 className="font-display text-xl font-extrabold">{t('res_h')}</h3>
+                <ul className="mt-3 divide-y divide-line">
+                  {results.map((m) => (
+                    <li key={m.id} className="flex flex-wrap items-center gap-x-3 py-2">
+                      <span className="text-sm text-muted">{short.format(new Date(m.kickoff_at))}</span>
+                      <b>{vs(m)}</b><span className="font-display font-black">{m.goals_for} – {m.goals_against}</span><em className="text-sm text-muted">{t('lastm')}</em>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            ) : null}
+            {records.length ? (
+              <Card className="overflow-x-auto">
+                <table className="w-full text-start">
+                  <thead><tr className="text-sm text-muted">
+                    <th className="p-1 text-start">#</th><th className="p-1 text-start">{t('th_team')}</th>
+                    {(['th_p', 'th_w', 'th_d', 'th_l', 'th_pts'] as const).map((k) => <th key={k} className="p-1 text-end">{t(k)}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {records.map((r, i) => (
+                      <tr key={r.team_season_id} className="border-t border-line">
+                        <td className="p-1">{i + 1}</td><td className="p-1 font-bold">{r.team_name}</td>
+                        <td className="p-1 text-end">{r.played}</td><td className="p-1 text-end">{r.won}</td><td className="p-1 text-end">{r.drawn}</td><td className="p-1 text-end">{r.lost}</td>
+                        <td className="p-1 text-end font-black">{r.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            ) : null}
+          </div>
+        </Section>
+      ) : null}
+
+      <Section id="sponsors">
+        <div className="flex items-center justify-between gap-3"><H2>{t('ourp')} {t('partners')}</H2><Link href="/sponsors" className="font-semibold text-pitch underline">{t('sp_all')} →</Link></div>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {SPONSORS.map((s) => <span key={s.name} className={`rounded-card border border-line bg-raised px-5 py-3 font-display font-extrabold ${s.kind === 'sp_main' ? 'border-accent text-pitch' : ''}`}>{s.name}</span>)}
+        </div>
+      </Section>
+
+      <Section>
+        <H2>{t('faq_h')}</H2>
+        <div className="mt-3 grid gap-2">
+          {[1, 2, 3].map((n) => (
+            <details key={n} className="rounded-card border border-line bg-raised p-4"><summary className="cursor-pointer font-bold">{t(`faq${n}q`)}</summary><p className="mt-2 text-muted">{t(`faq${n}a`)}</p></details>
+          ))}
+        </div>
+      </Section>
     </>
   );
 }
