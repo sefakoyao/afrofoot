@@ -5,7 +5,7 @@ import { HeroSlider } from '@/components/HeroSlider';
 import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
 import { Link } from '@/i18n/routing';
 import { getPublicClient } from '@/lib/supabase';
-import { SPONSORS } from '@/lib/sponsors';
+import { STRIP } from '@/lib/sponsors';
 
 interface Fixture { id: string; team_name: string; opponent: string; home_away: string | null; kickoff_at: string; status: string; goals_for: number | null; goals_against: number | null; venue: string | null; city: string | null }
 interface Record_ { team_season_id: string; team_name: string; competition: string; played: number; won: number; drawn: number; lost: number; points: number }
@@ -62,8 +62,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 ))}
               </dl>
             </div>
-            {/* Illustration from the design preview. Replace with a real team photo. */}
-            <Image src="/hero-photo.svg" alt={t('hero_alt')} width={520} height={400} className="hidden h-auto w-full rounded-card md:block" priority unoptimized />
+            <div className="relative hidden aspect-[4/3] overflow-hidden rounded-card md:block">
+              <Image src="/images/hero-team.jpg" alt={t('hero_photo_alt')} fill sizes="(min-width: 768px) 40vw, 0px" className="object-cover" priority />
+            </div>
           </div>,
           ...(next ? [
             <div key="next" className="grid gap-4">
@@ -191,7 +192,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Section id="sponsors">
         <div className="flex items-center justify-between gap-3"><H2>{t('ourp')} {t('partners')}</H2><Link href="/sponsors" className="font-semibold text-pitch underline">{t('sp_all')} →</Link></div>
         <div className="mt-4 flex flex-wrap gap-3">
-          {SPONSORS.map((s) => <span key={s.name} className={`rounded-card border border-line bg-raised px-5 py-3 font-display font-extrabold ${s.kind === 'sp_main' ? 'border-accent text-pitch' : ''}`}>{s.name}</span>)}
+          {STRIP.map((s) => (
+            <span key={s.name} className={`flex min-h-16 items-center rounded-card border bg-white px-5 py-3 font-display font-extrabold text-black ${s.kind === 'sp_main' ? 'border-accent' : 'border-line'}`}>
+              {s.logo ? <Image src={s.logo.src} alt={s.name} width={s.logo.width} height={s.logo.height} className="h-10 w-auto" /> : s.name}
+            </span>
+          ))}
         </div>
       </Section>
 
