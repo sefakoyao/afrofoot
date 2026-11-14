@@ -1,0 +1,1 @@
+Generated files. To rebuild after adding a migration, concatenate supabase/migrations/*.sql and supabase/seed.sql in order into three parts of about 45 KB, each with the header line used in the existing files. Test them on an empty database with supabase/tests/00_stub_supabase.sql first.
