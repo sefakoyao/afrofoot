@@ -13,7 +13,8 @@ const NAV = [
   ['/contact', 'n_contact'],
 ] as const;
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.afrofoot.club';
+// The member app is not live yet. Set NEXT_PUBLIC_APP_URL (for example https://app.afrofoot.club) to show the Sign in button.
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export async function Header() {
   const t = await getTranslations('site');
@@ -44,7 +45,7 @@ export async function Header() {
             {NAV.map(([href, key]) => (
               <Link key={href} href={href} className="hover:text-pitch">{t(key)}</Link>
             ))}
-            <a href={APP_URL} className="rounded-full border-2 border-fg px-4 py-1.5 hover:bg-fg hover:text-raised">{t('signin')}</a>
+            {APP_URL ? <a href={APP_URL} className="rounded-full border-2 border-fg px-4 py-1.5 hover:bg-fg hover:text-raised">{t('signin')}</a> : null}
           </nav>
         </div>
       </div>

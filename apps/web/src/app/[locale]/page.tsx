@@ -37,7 +37,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const now = Date.now();
   const next = fixtures.filter((m) => m.status === 'scheduled' && new Date(m.kickoff_at).getTime() >= now).sort((a, b) => +new Date(a.kickoff_at) - +new Date(b.kickoff_at))[0];
   const results = fixtures.filter((m) => m.status === 'played').slice(0, 3);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.afrofoot.club';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL; // member app not live yet: the training tile is hidden without it
 
   return (
     <>
@@ -134,7 +134,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <Section>
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            { href: appUrl, k: 'tile1', external: true }, { href: '/membership', k: 'tile2' }, { href: '/sponsors', k: 'tile3' },
+            ...(appUrl ? [{ href: appUrl, k: 'tile1', external: true }] : []),
+            { href: '/membership', k: 'tile2', external: false }, { href: '/sponsors', k: 'tile3', external: false },
           ].map(({ href, k, external }) => (
             <Card key={k}>
               <h3 className="font-display text-xl font-extrabold">{t(k)}</h3><p className="mt-1 text-muted">{t(`${k}p`)}</p>
