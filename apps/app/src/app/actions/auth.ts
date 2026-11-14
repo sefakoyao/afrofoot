@@ -15,12 +15,21 @@ import { isFeeBlock } from '@/lib/supabase/middleware';
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
 const fail = (error: string): AuthState => ({ status: 'error', error });
 
+/** Null when NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY were not set when the app was built. */
+async function client() {
+  const supabase = await getSupabase();
+  if (!supabase) console.error('[auth] Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel project, then redeploy');
+  return supabase;
+}
+
 /** Map Supabase Auth errors to message keys without revealing whether an account exists. */
 function authError(e: AuthError): AuthState {
   if (isFeeBlock(e)) return { status: 'blocked' };
   if (e.status === 429 || e.code === 'over_request_rate_limit' || e.code === 'over_email_send_rate_limit') return fail('tooManyAttempts');
   if (e.code === 'email_not_confirmed') return fail('emailNotConfirmed');
   if (e.code === 'invalid_credentials' || e.status === 400) return fail('invalidCredentials');
+  // Unexpected: log the cause for the Vercel runtime logs (no email, password or key).
+  console.error('[auth] Supabase Auth error', { status: e.status, code: e.code, message: e.message });
   return fail('unavailable');
 }
 
@@ -42,7 +51,7 @@ export async function signIn(_: AuthState, fd: FormData): Promise<AuthState> {
 async function signInOnce(fd: FormData): Promise<AuthState> {
   const p = signInSchema.safeParse(fields(fd));
   if (!p.success) return fail(p.error.issues[0]?.message ?? 'invalidCredentials');
-  const supabase = await getSupabase();
+  const supabase = await client();
   if (!supabase) return fail('unavailable');
 
   const { error } = await supabase.auth.signInWithPassword({ email: p.data.email, password: p.data.password });
@@ -67,7 +76,7 @@ export async function signOut(): Promise<void> {
 export async function requestPasswordReset(_: AuthState, fd: FormData): Promise<AuthState> {
   const p = forgotSchema.safeParse(fields(fd));
   if (!p.success) return { status: 'error', error: p.error.issues[0]?.message ?? 'invalidEmail', email: String(fd.get('email') ?? '').slice(0, 200) };
-  const supabase = await getSupabase();
+  const supabase = await client();
   if (!supabase) return fail('unavailable');
   const { error } = await supabase.auth.resetPasswordForEmail(p.data.email, { redirectTo: `${await appOrigin()}/auth/confirm?next=/reset-password` });
   if (error && (error.status === 429 || error.code?.startsWith('over_'))) return { status: 'error', error: 'tooManyAttempts', email: p.data.email };
@@ -78,7 +87,7 @@ export async function requestPasswordReset(_: AuthState, fd: FormData): Promise<
 export async function updatePassword(_: AuthState, fd: FormData): Promise<AuthState> {
   const p = resetSchema.safeParse(fields(fd));
   if (!p.success) return fail(p.error.issues[0]?.message ?? 'passwordTooShort');
-  const supabase = await getSupabase();
+  const supabase = await client();
   if (!supabase) return fail('unavailable');
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return fail('linkInvalid');
