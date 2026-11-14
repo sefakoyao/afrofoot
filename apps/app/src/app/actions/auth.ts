@@ -10,6 +10,7 @@ import { LOCALE_COOKIE, LOCALE_COOKIE_OPTIONS } from '@/lib/locale';
 import { safeNext } from '@/lib/paths';
 import { forgotSchema, resetSchema, signInSchema } from '@/lib/schemas';
 import { getSupabase } from '@/lib/supabase/server';
+import { supabaseEnvReport } from '@/lib/env';
 import { isFeeBlock } from '@/lib/supabase/middleware';
 
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
@@ -18,7 +19,7 @@ const fail = (error: string): AuthState => ({ status: 'error', error });
 /** Null when NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY were not set when the app was built. */
 async function client() {
   const supabase = await getSupabase();
-  if (!supabase) console.error('[auth] Supabase is not configured: set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY on the Vercel project, then redeploy');
+  if (!supabase) console.error('[auth] Supabase is not configured', supabaseEnvReport());
   return supabase;
 }
 
