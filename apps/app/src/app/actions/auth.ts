@@ -10,7 +10,7 @@ import { LOCALE_COOKIE, LOCALE_COOKIE_OPTIONS } from '@/lib/locale';
 import { safeNext } from '@/lib/paths';
 import { forgotSchema, resetSchema, signInSchema } from '@/lib/schemas';
 import { getSupabase } from '@/lib/supabase/server';
-import { supabaseEnvReport } from '@/lib/env';
+import { supabaseEnvReport, supabaseTarget } from '@/lib/env';
 import { isFeeBlock } from '@/lib/supabase/middleware';
 
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
@@ -30,7 +30,7 @@ function authError(e: AuthError): AuthState {
   if (e.code === 'email_not_confirmed') return fail('emailNotConfirmed');
   if (e.code === 'invalid_credentials' || e.status === 400) return fail('invalidCredentials');
   // Unexpected: log the cause for the Vercel runtime logs (no email, password or key).
-  console.error('[auth] Supabase Auth error', { status: e.status, code: e.code, message: e.message });
+  console.error('[auth] Supabase Auth error', { status: e.status, code: e.code, message: e.message, ...supabaseTarget() });
   return fail('unavailable');
 }
 

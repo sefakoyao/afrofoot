@@ -26,5 +26,19 @@ export const supabaseEnvReport = () => ({
   vercelEnv: read('VERCEL_ENV') ?? 'local',
 });
 
+/**
+ * For error logs only: which Supabase project and which kind of key the app uses. The publishable/anon key is
+ * public by design, so its first characters are safe to log; a secret key is never expected here and is not shown.
+ */
+export function supabaseTarget(): Record<string, string> {
+  const env = supabaseEnv();
+  if (!env) return { configured: 'no' };
+  const k = env.anonKey;
+  const kind = k.startsWith('sb_publishable_') ? 'publishable' : k.startsWith('sb_secret_') ? 'SECRET (wrong key type)' : k.split('.').length === 3 ? 'legacy JWT' : 'unknown format';
+  let project = env.url;
+  try { project = new URL(env.url).host; } catch { project = `invalid URL (${env.url.slice(0, 40)})`; }
+  return { project, keyKind: kind, keyStart: kind.startsWith('SECRET') ? '(hidden)' : `${k.slice(0, 20)}…`, keyLength: String(k.length) };
+}
+
 /** Public website, used for the Membership page link shown to fee-blocked players. */
 export const webUrl = (): string => (read('NEXT_PUBLIC_WEB_URL') || 'https://www.afrofoot.club').replace(/\/+$/, '');
