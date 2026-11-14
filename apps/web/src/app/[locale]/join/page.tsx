@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
+import { Faq } from '@/components/Faq';
 import { EnrolmentForm, TryoutForm } from '@/components/forms/Forms';
 import { OpenOnHash } from '@/components/OpenOnHash';
 import { ButtonLink, Card, H2, Hero, Section } from '@/components/Page';
@@ -61,13 +62,7 @@ export default async function JoinPage({ params }: { params: Promise<{ locale: s
       </Accordion>
       <Section>
         <H2>{t('faq_h')}</H2>
-        <div className="mt-3 grid gap-2">
-          {[1, 2, 3].map((n) => (
-            <details key={n} className="rounded-card border border-line bg-raised p-4">
-              <summary className="cursor-pointer font-bold">{t(`faq${n}q`)}</summary><p className="mt-2 text-muted">{t(`faq${n}a`)}</p>
-            </details>
-          ))}
-        </div>
+        <div className="mt-4"><Faq items={[1, 2, 3].map((n) => ({ q: t(`faq${n}q`), a: t(`faq${n}a`) }))} /></div>
       </Section>
     </>
   );

@@ -1,5 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { LOCALE_LABELS, localized, type Locale, type Translations } from '@afrofoot/i18n';
+import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
+import { Faq } from '@/components/Faq';
+import { NewsCard } from '@/components/NewsCard';
+import { getPosts, type Post } from '@/lib/news';
 import Image from 'next/image';
 import { HeroSlider } from '@/components/HeroSlider';
 import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
@@ -9,7 +12,6 @@ import { STRIP } from '@/lib/sponsors';
 
 interface Fixture { id: string; team_name: string; opponent: string; home_away: string | null; kickoff_at: string; status: string; goals_for: number | null; goals_against: number | null; venue: string | null; city: string | null }
 interface Record_ { team_season_id: string; team_name: string; competition: string; played: number; won: number; drawn: number; lost: number; points: number }
-interface Post { id: string; title: string; excerpt: string | null; published_at: string; translations: Translations | null }
 
 async function getHomeData() {
   const db = getPublicClient();
@@ -17,9 +19,9 @@ async function getHomeData() {
   const [f, r, n] = await Promise.all([
     db.from('public_fixtures').select('id,team_name,opponent,home_away,kickoff_at,status,goals_for,goals_against,venue,city').order('kickoff_at', { ascending: false }).limit(40),
     db.from('public_team_records').select('team_season_id,team_name,competition,played,won,drawn,lost,points').order('points', { ascending: false }).limit(12),
-    db.from('news_posts').select('id,title,excerpt,published_at,translations').eq('status', 'published').order('published_at', { ascending: false }).limit(3),
+    getPosts(3),
   ]);
-  return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: (n.data ?? []) as Post[] };
+  return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: n };
 }
 
 const vs = (m: Fixture) => (m.home_away === 'away' ? `${m.opponent}  vs  ${m.team_name}` : `${m.team_name}  vs  ${m.opponent}`);
@@ -121,13 +123,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="flex items-center justify-between gap-3"><H2>{t('afro')} {t('newsw')}</H2><Link href="/news" className="font-semibold text-pitch underline">{t('allnews')} →</Link></div>
         {posts.length ? (
           <div className="mt-4 grid gap-4 md:grid-cols-3">
-            {posts.map((p) => (
-              <Card key={p.id}>
-                <time className="text-sm text-muted" dateTime={p.published_at}>{day.format(new Date(p.published_at))}</time>
-                <h3 className="mt-1 font-display text-xl font-extrabold">{localized(p.title, p.translations, l, 'title')}</h3>
-                {p.excerpt ? <p className="mt-1 text-muted">{localized(p.excerpt, p.translations, l, 'excerpt')}</p> : null}
-              </Card>
-            ))}
+            {posts.map((p, i) => <NewsCard key={p.id} post={p} index={i} locale={l} date={day.format(new Date(p.published_at))} readMore={t('readmore')} />)}
           </div>
         ) : <p className="mt-4 text-muted">{t('news_empty')}</p>}
       </Section>
@@ -202,11 +198,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       <Section>
         <H2>{t('faq_h')}</H2>
-        <div className="mt-3 grid gap-2">
-          {[1, 2, 3].map((n) => (
-            <details key={n} className="rounded-card border border-line bg-raised p-4"><summary className="cursor-pointer font-bold">{t(`faq${n}q`)}</summary><p className="mt-2 text-muted">{t(`faq${n}a`)}</p></details>
-          ))}
-        </div>
+        <div className="mt-4"><Faq items={[1, 2, 3].map((n) => ({ q: t(`faq${n}q`), a: t(`faq${n}a`) }))} /></div>
       </Section>
     </>
   );
