@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, localized, type Locale, type Translations } from '@afrofoot/i18n';
+import Image from 'next/image';
+import { HeroSlider } from '@/components/HeroSlider';
 import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
 import { Link } from '@/i18n/routing';
 import { getPublicClient } from '@/lib/supabase';
@@ -39,25 +41,59 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   return (
     <>
-      <section className="bg-ink-950 text-white">
-        <div className="mx-auto grid max-w-6xl gap-6 px-4 py-20 md:py-28">
-          <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('since')}</span>
-          <h1 className="font-display text-5xl font-black leading-[1.02] md:text-7xl">
-            {t('h1a')} <span className="text-accent">{t('h1b')}</span> {t('h1c')}
-          </h1>
-          <p className="max-w-xl text-lg text-white/80">{t('lead')}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/join" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent hover:brightness-110">{t('join')}</Link>
-            <Link href="/sponsors#enquiry" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('partner')}</Link>
-            <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('btn_tr')}</Link>
-          </div>
-          <dl className="mt-4 flex flex-wrap gap-x-10 gap-y-3">
-            {([['40+', 'players'], ['20+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
-              <div key={k}><dt className="font-display text-4xl font-black text-accent">{n}</dt><dd className="text-white/70">{t(k)}</dd></div>
-            ))}
-          </dl>
-        </div>
-      </section>
+      <HeroSlider
+        labels={{ prev: t('hs_prev'), next: t('hs_next'), pause: t('hs_pause'), play: '▶' }}
+        slides={[
+          <div key="intro" className="grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
+            <div className="grid gap-6">
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('since')}</span>
+              <h1 className="font-display text-5xl font-black leading-[1.02] md:text-7xl">
+                {t('h1a')} <span className="text-accent">{t('h1b')}</span> {t('h1c')}
+              </h1>
+              <p className="max-w-xl text-lg text-white/80">{t('lead')}</p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/join" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent hover:brightness-110">{t('join')}</Link>
+                <Link href="/sponsors#enquiry" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('partner')}</Link>
+                <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('btn_tr')}</Link>
+              </div>
+              <dl className="flex flex-wrap gap-x-10 gap-y-3">
+                {([['40+', 'players'], ['20+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
+                  <div key={k}><dt className="font-display text-4xl font-black text-accent">{n}</dt><dd className="text-white/70">{t(k)}</dd></div>
+                ))}
+              </dl>
+            </div>
+            {/* Illustration from the design preview. Replace with a real team photo. */}
+            <Image src="/hero-photo.svg" alt={t('hero_alt')} width={520} height={400} className="hidden h-auto w-full rounded-card md:block" priority unoptimized />
+          </div>,
+          ...(next ? [
+            <div key="next" className="grid gap-4">
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k2')} · {next.team_name}</span>
+              <h2 className="font-display text-5xl font-black md:text-6xl">{vs(next)}</h2>
+              <p className="text-lg text-white/80">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
+              <div><Link href="/team" className="inline-block rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link></div>
+            </div>,
+          ] : []),
+          ...(results[0] ? [
+            <div key="result" className="grid gap-4">
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k3')} · {results[0].team_name}</span>
+              <h2 className="font-display text-5xl font-black md:text-6xl" dir="ltr">{vs(results[0])} <span className="text-accent">{results[0].goals_for} – {results[0].goals_against}</span></h2>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/#standings" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('stand')}</Link>
+                <Link href="/news" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold">{t('allnews')}</Link>
+              </div>
+            </div>,
+          ] : []),
+          <div key="tryout" className="grid gap-4">
+            <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k4')}</span>
+            <h2 className="font-display text-5xl font-black md:text-6xl">{t('n3')}</h2>
+            <p className="max-w-xl text-lg text-white/80">{t('n3b')}</p>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/join#tryout" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('btn_tr')}</Link>
+              <Link href="/join" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold">{t('join')}</Link>
+            </div>
+          </div>,
+        ]}
+      />
 
       <section className="bg-accent text-on-accent">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-6">
@@ -80,9 +116,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </Section>
       ) : null}
 
-      {posts.length ? (
-        <Section id="news">
-          <div className="flex items-center justify-between gap-3"><H2>{t('afro')} {t('newsw')}</H2><Link href="/news" className="font-semibold text-pitch underline">{t('allnews')} →</Link></div>
+      <Section id="news">
+        <div className="flex items-center justify-between gap-3"><H2>{t('afro')} {t('newsw')}</H2><Link href="/news" className="font-semibold text-pitch underline">{t('allnews')} →</Link></div>
+        {posts.length ? (
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             {posts.map((p) => (
               <Card key={p.id}>
@@ -92,8 +128,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </Card>
             ))}
           </div>
-        </Section>
-      ) : null}
+        ) : <p className="mt-4 text-muted">{t('news_empty')}</p>}
+      </Section>
 
       <Section>
         <div className="grid gap-4 md:grid-cols-3">

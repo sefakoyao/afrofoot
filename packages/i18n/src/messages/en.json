@@ -962,6 +962,7 @@
     "acc_close": "Hide form",
     "nat_sel": "Select country",
     "nat_common": "Common",
-    "nat_all": "All countries"
+    "nat_all": "All countries",
+    "news_empty": "No news yet. Check back soon."
   }
 }

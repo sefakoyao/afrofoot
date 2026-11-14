@@ -962,6 +962,7 @@
     "acc_close": "Masquer le formulaire",
     "nat_sel": "Choisir un pays",
     "nat_common": "Courants",
-    "nat_all": "Tous les pays"
+    "nat_all": "Tous les pays",
+    "news_empty": "Pas encore d'actualités. Revenez bientôt."
   }
 }

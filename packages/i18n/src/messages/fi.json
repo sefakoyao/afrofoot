@@ -962,6 +962,7 @@
     "acc_close": "Piilota lomake",
     "nat_sel": "Valitse maa",
     "nat_common": "Yleisimmät",
-    "nat_all": "Kaikki maat"
+    "nat_all": "Kaikki maat",
+    "news_empty": "Ei vielä uutisia. Palaa pian."
   }
 }
