@@ -24,7 +24,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
     <>
       <Hero title={t('newsw')} />
       <Section>
-        {posts.length === 0 ? <p className="text-muted">{t('none')}</p> : (
+        {posts.length === 0 ? <p className="text-muted">{t('news_empty')}</p> : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((p) => (
               <Card key={p.id}>
