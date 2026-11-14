@@ -15,8 +15,12 @@ export const getMember = cache(async (): Promise<Member | null> => {
   if (!supabase) return null;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data } = await supabase.from('profiles').select('id, email, first_name, last_name, role, status, locale').eq('id', user.id).maybeSingle();
-  if (!data || !isRole(data.role)) return null;
+  const { data, error } = await supabase.from('profiles').select('id, email, first_name, last_name, role, status, locale').eq('id', user.id).maybeSingle();
+  if (error || !data || !isRole(data.role)) {
+    // Signed in with Supabase Auth but the profile cannot be read: log why (no personal data beyond the user id).
+    console.error('[auth] profile not readable', { userId: user.id, code: error?.code, message: error?.message, hint: error?.hint, found: !!data });
+    return null;
+  }
   return { id: data.id, email: data.email, firstName: data.first_name, lastName: data.last_name, role: data.role, status: data.status, locale: data.locale };
 });
 

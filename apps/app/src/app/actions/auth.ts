@@ -59,9 +59,10 @@ async function signInOnce(fd: FormData): Promise<AuthState> {
   if (error) return authError(error);
 
   const member = await getMember();
-  if (!member || member.status !== 'active') {
+  if (!member) { await supabase.auth.signOut(); return fail('unavailable'); } // profile unreadable: logged in getMember
+  if (member.status !== 'active') {
     await supabase.auth.signOut();
-    return fail(member?.status === 'suspended' ? 'suspended' : 'pending');
+    return fail(member.status === 'suspended' ? 'suspended' : 'pending');
   }
   if (isLocale(member.locale)) (await cookies()).set(LOCALE_COOKIE, member.locale, LOCALE_COOKIE_OPTIONS);
   redirect(safeNext(p.data.next) ?? homeFor(member.role));
