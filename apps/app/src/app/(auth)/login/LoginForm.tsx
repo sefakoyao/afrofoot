@@ -18,7 +18,7 @@ export function LoginForm({ next, notice, webUrl }: { next?: string; notice?: st
       {next ? <input type="hidden" name="next" value={next} /> : null}
       {blocked ? <BlockedNotice webUrl={webUrl} /> : null}
       {error ? <Alert tone="error">{t(error)}</Alert> : null}
-      <Field label={t('email')} name="email" type="email" defaultValue={typedEmail(state)} autoComplete="username" inputMode="email" required maxLength={200}
+      <Field label={t('email')} name="email" type="email" defaultValue={typedEmail(state)} autoComplete="username" autoFocus inputMode="email" required maxLength={200}
         aria-invalid={error === 'invalidEmail' || undefined} />
       <PasswordField label={t('password')} name="password" autoComplete="current-password" required maxLength={200}
         aria-invalid={error === 'invalidCredentials' || error === 'passwordRequired' || undefined} />
