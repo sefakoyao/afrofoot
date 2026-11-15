@@ -5,6 +5,7 @@
 -- (sees the warning, can still sign in); player3 is fully paid.
 -- Sport data (needs the sample season from seed_staging_sample.sql, run that first): match stats on the sample's played
 -- matches and 8 past "Demo training" sessions with attendance. player1 also gets a phone and an emergency contact.
+-- The demo coach is assigned to the sample team as head coach.
 -- Password for every demo account: Demo-Afrofoot-2026   (change it below before running if you like)
 -- All addresses end in @example.com, a reserved domain that never receives mail, so password-reset emails go nowhere.
 -- Remove them all: supabase/remove_demo_users.sql
@@ -77,6 +78,13 @@ declare
   m record; i int := 0;
 begin
   if p1 is null or v_ts is null then return; end if;
+  -- The demo coach coaches the sample team (staff record + team assignment), so the coach area has a team to work with.
+  insert into staff_members (profile_id, first_name, last_name, type)
+  select p.id, p.first_name, p.last_name, 'head_coach' from profiles p where p.email = 'demo-coach@example.com'
+  on conflict (profile_id) do nothing;
+  insert into team_staff (team_season_id, staff_id, role_label)
+  select v_ts, s.id, 'Head coach' from staff_members s join profiles p on p.id = s.profile_id where p.email = 'demo-coach@example.com'
+  on conflict (team_season_id, staff_id) do nothing;
   update players set preferred_foot = 'right', height_cm = 181 where id = p1 and preferred_foot is null;
   update players set preferred_foot = 'left' where id = p2 and preferred_foot is null;
   insert into player_private (player_id, phone, emergency_name, emergency_relation, emergency_phone)

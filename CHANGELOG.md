@@ -3,7 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – player portal: sport profile, season stats, training (branch `phase2/player-sport`)
+## Unreleased – admin teams and roster (branch `phase2/teams`)
+- Admin **Teams**: seasons (add, make current — one at a time), teams per season (name, category, division; an existing team with the same name is reused), player and coach counts.
+- Team page: roster with shirt number (1–99, unique among active players), position and captain (one per team); remove keeps history (leave date) and re-adding reopens the row; former players listed. Coaches and staff: assign members with the coach role (role and optional title), remove.
+- Members approved as players get a player record automatically when first added to a team; coaches get a staff record when first assigned. A member without a name is refused with a clear message.
+- Demo script assigns the demo coach to the sample team.
+- No database changes (admin_all policies and the audit trigger cover these tables).
+
+## Player portal: sport profile, season stats, training (merged in #17)
 - Player home: position and shirt number; **This season** (games played, goals, assists, minutes, cards, clean sheets for goalkeepers, last 5 matches with score) from `match_player_stats`; **Training this season** (attended, missed, excused, attendance %, late arrivals) from `session_attendance`; **My player profile** card with missing details flagged.
 - `/me/profile`: preferred foot, height, weight, phone (WhatsApp, with country code), emergency contact (name, relation, phone). Position is shown but stays with the coach (database: `app.restrict_columns`). Players' phone now lives here (`player_private`, visible to their coaches), so the Account page hides its phone field for players.
 - Forms keep what was typed after a validation error (player profile and account).
