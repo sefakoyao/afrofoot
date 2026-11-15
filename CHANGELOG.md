@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – pitch lines watermark (branch `phase2/pitch-watermark`)
+- Faint pitch markings (design canvas "Page watermarks", option A) behind every signed-in page: player, coach and admin. A sideways pitch on wide screens, an upright one on phones.
+- Decorative only: fixed behind the content, never catches clicks or focus, hidden from screen readers, left out in high-contrast mode and when printing. The sign-in screens keep the ball arcs.
+- No database changes.
+
 ## Unreleased – privacy policy (branch `phase2/privacy`)
 - New page **/privacy** on the website in en/fi/fr/ar: who is responsible, what the website and member app collect, purposes and legal bases (GDPR), what is public, who can see what, service providers and transfers, retention periods, rights, **how to delete your data** (`#delete`, the address Facebook Login asks for), children, cookies (only necessary ones; no analytics), security, changes.
 - The club's business ID, address and contact email come from the billing settings (Admin → Invoices), so nothing is typed twice.
