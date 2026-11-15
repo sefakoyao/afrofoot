@@ -17,7 +17,7 @@ const NAV = [
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
 export async function Header() {
-  const t = await getTranslations('site');
+  const [t, tn] = await Promise.all([getTranslations('site'), getTranslations('nav')]);
   return (
     <header className="sticky top-0 z-40">
       {/* Utility bar: audiences, join call to action, language */}
@@ -30,7 +30,7 @@ export async function Header() {
           </nav>
           <div className="flex items-center gap-4">
             <Link href="/join" className="font-bold text-accent hover:underline">{t('au_join')} →</Link>
-            <LanguageSwitcher />
+            <LanguageSwitcher label={tn('language')} />
           </div>
         </div>
       </div>

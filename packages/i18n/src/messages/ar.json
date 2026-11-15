@@ -10,7 +10,8 @@
     "join": "انضم إلى النادي",
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
-    "language": "اللغة"
+    "language": "اللغة",
+    "changeLanguage": "تغيير"
   },
   "common": {
     "save": "حفظ",
@@ -176,7 +177,8 @@
     "signedInAs": "مسجّل الدخول باسم {email}",
     "comingSoon": "ستظهر أدواتك هنا فور إطلاقها.",
     "skipToContent": "انتقل إلى المحتوى",
-    "myAccount": "حسابي"
+    "myAccount": "حسابي",
+    "homeLink": "العودة إلى صفحتي الرئيسية"
   },
   "privacy": {
     "publicConsent": "أوافق على ظهوري في قائمة اللاعبين العامة"

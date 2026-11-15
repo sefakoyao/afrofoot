@@ -10,7 +10,8 @@
     "join": "Rejoindre le club",
     "login": "Connexion",
     "logout": "Déconnexion",
-    "language": "Langue"
+    "language": "Langue",
+    "changeLanguage": "Changer"
   },
   "common": {
     "save": "Enregistrer",
@@ -176,7 +177,8 @@
     "signedInAs": "Connecté en tant que {email}",
     "comingSoon": "Vos outils apparaîtront ici au fur et à mesure de leur mise en ligne.",
     "skipToContent": "Aller au contenu",
-    "myAccount": "Mon compte"
+    "myAccount": "Mon compte",
+    "homeLink": "Retour à ma page d'accueil"
   },
   "privacy": {
     "publicConsent": "M'afficher dans la liste publique des joueurs"

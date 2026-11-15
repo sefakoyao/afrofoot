@@ -10,6 +10,8 @@ import { PitchWatermark } from './PitchWatermark';
 
 const SURFACE: Record<Area, 'admin' | 'coach' | 'player'> = { admin: 'admin', coach: 'coach', me: 'player' };
 const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: 'areaAdmin', coach: 'areaCoach', me: 'areaPlayer' };
+/** Main page of each area: the logo and area name lead back there. */
+const HOME: Record<Area, string> = { admin: '/admin', coach: '/coach', me: '/me' };
 
 export interface NavItem { href: string; label: string; badge?: number }
 
@@ -23,7 +25,7 @@ export async function AppShell({ area, member, nav, children }: { area: Area; me
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent">{t('skipToContent')}</a>
       <header className="bg-ink-950 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-          <span className="flex items-center gap-2 font-display font-extrabold"><Logo size={36} /> {t(TITLE[area])}</span>
+          <a href={HOME[area]} title={t('homeLink')} data-home-link className="flex min-h-11 items-center gap-2 rounded-full font-display font-extrabold hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"><Logo size={36} /> {t(TITLE[area])}</a>
           <div className="ms-auto flex flex-wrap items-center gap-3">
             <span className="text-sm">
               <a href="/account" className="font-semibold underline-offset-4 hover:underline" title={t('myAccount')}>{name}</a>

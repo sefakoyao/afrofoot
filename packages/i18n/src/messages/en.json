@@ -10,7 +10,8 @@
     "join": "Join the club",
     "login": "Sign in",
     "logout": "Sign out",
-    "language": "Language"
+    "language": "Language",
+    "changeLanguage": "Change"
   },
   "common": {
     "save": "Save",
@@ -176,7 +177,8 @@
     "signedInAs": "Signed in as {email}",
     "comingSoon": "Your tools will appear here as they are released.",
     "skipToContent": "Skip to content",
-    "myAccount": "My account"
+    "myAccount": "My account",
+    "homeLink": "Back to my home page"
   },
   "privacy": {
     "publicConsent": "Show me on the public player list"

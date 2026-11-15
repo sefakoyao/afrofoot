@@ -10,7 +10,8 @@
     "join": "Liity seuraan",
     "login": "Kirjaudu",
     "logout": "Kirjaudu ulos",
-    "language": "Kieli"
+    "language": "Kieli",
+    "changeLanguage": "Vaihda"
   },
   "common": {
     "save": "Tallenna",
@@ -176,7 +177,8 @@
     "signedInAs": "Kirjautunut: {email}",
     "comingSoon": "Työkalusi tulevat tähän sitä mukaa kuin ne julkaistaan.",
     "skipToContent": "Siirry sisältöön",
-    "myAccount": "Oma tili"
+    "myAccount": "Oma tili",
+    "homeLink": "Takaisin omalle etusivulle"
   },
   "privacy": {
     "publicConsent": "Näytä minut julkisella pelaajalistalla"
