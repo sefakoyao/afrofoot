@@ -163,8 +163,11 @@ export default async function PlayerHome() {
                     <td className="px-3 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[p.display_status] ?? ''}`}>{p.display_status === 'overdue' ? t('st_overdue') : ts(p.display_status)}</span></td>
                     <td className="px-3 py-2" dir="ltr"><bdi>{p.reference ?? p.invoice_number ?? '–'}</bdi></td>
                     <td className="px-3 py-2 text-end">
-                      {p.checkout_url && p.display_status !== 'paid' && /^https:\/\//.test(p.checkout_url)
-                        ? <a href={p.checkout_url} rel="noopener noreferrer" className="font-semibold text-pitch underline">{t('payNow')}</a> : null}
+                      <span className="flex flex-wrap justify-end gap-3">
+                        {p.invoice_number ? <a href={`/invoices/${p.id}`} target="_blank" rel="noopener" data-invoice={p.invoice_number} className="font-semibold text-pitch underline">{t('invoicePdf')}</a> : null}
+                        {p.checkout_url && p.display_status !== 'paid' && /^https:\/\//.test(p.checkout_url)
+                          ? <a href={p.checkout_url} rel="noopener noreferrer" className="font-semibold text-pitch underline">{t('payNow')}</a> : null}
+                      </span>
                     </td>
                   </tr>
                 ))}

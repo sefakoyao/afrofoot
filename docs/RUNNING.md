@@ -40,6 +40,16 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
 - **Variables** for the Vercel `app` project: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`; optional `APP_URL` and `NEXT_PUBLIC_WEB_URL`. The member app does not use the service-role key.
 - Roles: new accounts are pending players. A super administrator activates them and sets the role (`profiles.role`, `profiles.status`); role changes take effect on the next page load.
 
+## 3c. Automatic membership invoices (migration 0027, release 0.16.0)
+1. **Database:** paste `supabase/migrations/20260101000027_automatic_invoices.sql` into Supabase → SQL Editor and run it once (fresh installs get it with `supabase/paste/part3.sql`).
+   - It schedules a nightly job with `pg_cron`. If the run shows the notice *Could not schedule the invoice job*, enable **pg_cron** under Database → Extensions and run the `select cron.schedule(...)` line from the notice. Check: `select jobname, schedule from cron.job;` lists `afrofoot-invoices`.
+2. **Admin → Invoices → Club billing details:** legal name, address, business ID, **IBAN** (validated) and BIC, contact details, payment terms, how many days before a period the invoice goes out, late interest. No invoice is created while the IBAN is missing. These details are public (printed on invoices).
+3. **Plans:** add the membership plans (price and period: month, quarter, year, season; one-off plans are never invoiced automatically).
+4. **Memberships:** put each player on a plan with the date their first period starts, "Invoice automatically" ticked. The nightly job (04:15 UTC) issues each invoice `lead_days` before its period starts; "Create due invoices now" does the same on demand. An invoice covers one plan period: one line per month, one line for a season.
+5. **Payments:** when the money arrives, click **Mark paid**. Unpaid invoices past their due date count as overdue and, after the grace period, block the player's sign-in (migration 0022) — the public Membership page stays open for paying.
+6. **Players** open their invoices from their page ("Invoice (PDF)"). The PDF's QR code and link point to `APP_URL` (or the app's address) + `/me`; set `APP_URL` on Vercel to the final domain.
+7. Not yet: sending invoices by email (needs an email provider / custom SMTP).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
