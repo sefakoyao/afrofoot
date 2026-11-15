@@ -50,7 +50,9 @@ select t.admin();
 
 -- ---------- coach, other player, anonymous ----------
 select t.login('a1000000-0000-0000-0000-000000000002');
-select t.check('coach cannot read contracts (confidential)', (select count(*) from player_contracts) = 0 and (select count(*) from contract_templates) = 0);
+select t.check('coach reads the sent contract of own team player, not drafts or the template (0031)', (select count(*) from player_contracts) = 1
+  and (select id from player_contracts) = 'a7000000-0000-0000-0000-000000000001' and (select count(*) from contract_templates) = 0);
+select t.check('coach cannot change a contract', t.rows($$update player_contracts set title = 'Coach edit'$$) = 0);
 select t.admin();
 select t.login('a1000000-0000-0000-0000-000000000004');
 select t.check('another player sees nothing', (select count(*) from player_contracts) = 0);

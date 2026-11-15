@@ -10,6 +10,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const member = await requireArea('coach');
   const [t, supabase] = await Promise.all([getTranslations('coach'), getSupabase()]);
   const teams = supabase ? await myTeams(supabase, member.id) : [];
-  const nav = [{ href: '/coach', label: t('navHome') }, ...teams.map((x) => ({ href: `/coach/teams/${x.id}`, label: x.name }))];
+  const tc = await getTranslations('conduct');
+  const nav = [{ href: '/coach', label: t('navHome') }, ...teams.map((x) => ({ href: `/coach/teams/${x.id}`, label: x.name })), { href: '/coach/conduct', label: tc('title') }];
   return <AppShell area="coach" member={member} nav={nav}>{children}</AppShell>;
 }

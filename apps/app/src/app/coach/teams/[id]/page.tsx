@@ -4,11 +4,13 @@ import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { createSessions } from '@/app/actions/coach';
+import { createMatch } from '@/app/actions/match';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
+import { STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
 import { helsinkiToday } from '@/lib/time';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,7 +50,14 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     : { data: [] };
   const contact = new Map((contacts ?? []).map((c) => [c.player_id, c]));
   // Upcoming matches and friendlies with the players' sign in / out (Calendar tab, migration 0029).
-  const { data: matchRows } = await supabase.from('matches').select('id, opponent, event_type, kickoff_at, status').eq('team_season_id', id).gte('kickoff_at', now).order('kickoff_at').limit(8);
+  const { data: matchRows } = await supabase.from('matches').select('id, opponent, event_type, kickoff_at, status, live_state, squad_published').eq('team_season_id', id).gte('kickoff_at', new Date(Date.now() - 3 * 3600000).toISOString()).order('kickoff_at').limit(8);
+  const { data: recent } = await supabase.from('matches').select('id, opponent, kickoff_at, goals_for, goals_against').eq('team_season_id', id).eq('status', 'played').order('kickoff_at', { ascending: false }).limit(5);
+  // Players' contracts (migration 0031: coaches read the contracts of their own players, never drafts) and the coach's own Code of Conduct status.
+  const { data: contractRows } = await supabase.from('player_contracts').select('id, player_id, status, ends_on, starts_on').in('player_id', roster.map((r) => r.players.id)).order('starts_on', { ascending: false });
+  const contractOf = new Map<string, { id: string; status: ContractStatus; ends_on: string }>();
+  for (const c of (contractRows ?? []) as { id: string; player_id: string; status: ContractStatus; ends_on: string }[]) if (!contractOf.has(c.player_id)) contractOf.set(c.player_id, c);
+  const tk = await getTranslations('contract');
+  const tm = await getTranslations('match');
   const { data: matchReplies } = (matchRows ?? []).length
     ? await supabase.from('match_availability').select('match_id, player_id, availability, note').in('match_id', (matchRows ?? []).map((m) => m.id)) : { data: [] };
   const nameOf = new Map(roster.map((r) => [r.players.id, `${r.players.first_name} ${r.players.last_name}`]));
@@ -77,6 +86,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
         <p className="mt-1 text-muted">{team.season}{team.division ? ` · ${team.division}` : ''}</p>
       </header>
       <ResultBanner ns="coach" result={sp.result} />
+      <ResultBanner ns="match" result={sp.result} />
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="sched-h">
         <h2 id="sched-h" className="font-display text-xl font-extrabold">{t('schedule')}</h2>
@@ -112,7 +122,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
       </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="matches-h">
-        <h2 id="matches-h" className="font-display text-xl font-extrabold">{t('upcomingMatches')}</h2>
+        <h2 id="matches-h" className="font-display text-xl font-extrabold">{tm('matchesTitle')}</h2>
         {(matchRows ?? []).length === 0 ? <p className="mt-2 text-muted">{t('noMatches')}</p> : (
           <ul className="mt-2 divide-y divide-line">
             {(matchRows ?? []).map((m) => {
@@ -121,7 +131,9 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
               const none = rs.filter((r) => r.availability === 'pending' || r.availability === 'maybe');
               return (
                 <li key={m.id} className="py-3" data-match={m.opponent} data-replies={`${who('yes').length}/${who('no').length}/${none.length}`}>
-                  <p><span className="font-semibold">{when.format(new Date(m.kickoff_at))}</span> · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi>
+                  <p><Link href={`/coach/matches/${m.id}`} data-match-link={m.id} className="font-semibold text-pitch underline underline-offset-2">{when.format(new Date(m.kickoff_at))} · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi></Link>
+                    {m.live_state !== 'not_started' && m.live_state !== 'full_time' ? <span className="ms-2 rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white">{tm('liveBadge')}</span> : null}
+                    {m.squad_published ? <span className="ms-2 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-bold text-pitch">{tm('published')}</span> : null}
                     {m.event_type === 'friendly' ? <span className="ms-2 rounded-full bg-line px-2 py-0.5 text-xs font-bold">{t('friendly')}</span> : null}
                     {m.status !== 'scheduled' ? <span className="ms-2 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">{t(`ms_${m.status}` as 'ms_cancelled')}</span> : null}</p>
                   <details className="mt-1">
@@ -139,6 +151,40 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
             })}
           </ul>
         )}
+        {(recent ?? []).length ? (
+          <>
+            <h3 className="mt-5 text-xs font-bold uppercase tracking-widest text-muted">{tm('results')}</h3>
+            <ul className="mt-1 divide-y divide-line">
+              {(recent ?? []).map((m) => (
+                <li key={m.id}><Link href={`/coach/matches/${m.id}`} className="flex min-h-11 items-center justify-between gap-2 py-1 hover:text-pitch">
+                  <span>{when.format(new Date(m.kickoff_at))} · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi></span>
+                  <b className="tabular-nums" dir="ltr">{m.goals_for ?? 0}–{m.goals_against ?? 0}</b></Link></li>
+              ))}
+            </ul>
+          </>
+        ) : null}
+        <details id="add-match" className="mt-4 rounded-card bg-surface p-4">
+          <summary className="cursor-pointer font-semibold">{tm('addMatch')}</summary>
+          <form action={createMatch} className="mt-3 grid gap-3 sm:grid-cols-2">
+            <input type="hidden" name="team_season_id" value={id} /><input type="hidden" name="back" value={back} />
+            <fieldset className="grid gap-1 sm:col-span-2"><legend className="text-sm font-semibold">{tm('kind')}</legend>
+              <div className="flex gap-2">{(['game', 'friendly'] as const).map((k) => (
+                <label key={k} className="relative"><input type="radio" name="kind" value={k} defaultChecked={k === 'game'} className="peer sr-only" />
+                  <span className="flex min-h-11 cursor-pointer items-center rounded-full border-2 border-line px-4 font-bold peer-checked:border-accent peer-checked:bg-accent peer-checked:text-on-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent">{tm(k)}</span></label>))}</div>
+            </fieldset>
+            <label className="grid gap-1 text-sm font-semibold">{tm('opponent')}<input name="opponent" required maxLength={120} className={input} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{tm('division')}<input name="division" maxLength={60} defaultValue={team.division ?? ''} placeholder="M4 Group A" className={input} />
+              <span className="text-xs font-normal text-muted">{tm('divisionHint')}</span></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('date')}<input name="date" type="date" required min={helsinkiToday()} defaultValue={helsinkiToday()} className={input} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{tm('kickoffTime')}<input name="time" type="time" required defaultValue="18:00" className={input} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{tm('homeAway')}
+              <select name="home_away" defaultValue="home" className={input}><option value="home">{tm('home')}</option><option value="away">{tm('away')}</option></select></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('location')}
+              <select name="location_id" defaultValue="" className={input}><option value="">–</option>{(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
+            <p className="text-xs text-muted sm:col-span-2">{tm('addMatchNote')}</p>
+            <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{tm('addMatchButton')}</button>
+          </form>
+        </details>
       </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="roster-h">
@@ -153,6 +199,9 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
                     <p className="font-semibold"><span className="inline-block w-8 text-muted" dir="ltr">{r.jersey_number ? `#${r.jersey_number}` : ''}</span>
                       <bdi>{r.players.first_name} {r.players.last_name}</bdi>{r.captain ? <span className="ms-2 rounded-full bg-accent px-2 text-xs font-bold text-on-accent">C</span> : null}
                       {r.players.profile_id && noConduct.has(r.players.profile_id) ? <span className="ms-2 whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flagShort')}</span> : null}</p>
+                    {(() => { const k = contractOf.get(r.players.id); if (!k) return <p className="ps-8 text-xs text-muted" data-contract="none">{tm('noContract')}</p>;
+                      const st = shownStatus(k, helsinkiToday());
+                      return <p className="ps-8 text-xs" data-contract={st}><Link href={`/coach/contracts/${k.id}`} className="font-semibold text-pitch underline underline-offset-2">{tk('myContract')}</Link> <span className={`ms-1 rounded-full px-2 py-0.5 font-bold ${STATUS_BADGE[st]}`}>{tk(`st_${st}`)}</span></p>; })()}
                     <p className="ps-8 text-sm text-muted">{r.players.position ? tpos(r.players.position) : '–'} · <span data-rate>{pct === null ? t('noAttendance') : t('attendanceRate', { rate: pct })}</span></p>
                     {c?.emergency_name ? <p className="ps-8 text-xs text-muted">{t('emergency')}: <bdi>{c.emergency_name}</bdi>{c.emergency_relation ? ` (${c.emergency_relation})` : ''}{c.emergency_phone ? <> · <a href={`tel:${c.emergency_phone}`} className="underline" dir="ltr">{c.emergency_phone}</a></> : null}</p> : null}
                   </div>
