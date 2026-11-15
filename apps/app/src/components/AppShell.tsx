@@ -6,18 +6,20 @@ import { signOut } from '@/app/actions/auth';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Logo } from './Logo';
 import { AreaNav } from './AreaNav';
+import { PitchWatermark } from './PitchWatermark';
 
 const SURFACE: Record<Area, 'admin' | 'coach' | 'player'> = { admin: 'admin', coach: 'coach', me: 'player' };
 const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: 'areaAdmin', coach: 'areaCoach', me: 'areaPlayer' };
 
 export interface NavItem { href: string; label: string; badge?: number }
 
-/** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out; optional area navigation. */
+/** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out; optional area navigation; faint pitch lines behind the page. */
 export async function AppShell({ area, member, nav, children }: { area: Area; member: Member; nav?: NavItem[]; children: ReactNode }) {
   const [t, tn, tr] = await Promise.all([getTranslations('app'), getTranslations('nav'), getTranslations('role')]);
   const name = `${member.firstName} ${member.lastName}`.trim() || member.email;
   return (
-    <div data-surface={SURFACE[area]} className="flex min-h-screen flex-col">
+    <div data-surface={SURFACE[area]} className="relative isolate flex min-h-screen flex-col">
+      <PitchWatermark />
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent">{t('skipToContent')}</a>
       <header className="bg-ink-950 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
