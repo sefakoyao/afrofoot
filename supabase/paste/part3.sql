@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -1235,6 +1235,31 @@ grant execute on function public.save_lineup(uuid, text, jsonb, jsonb, uuid, jso
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.20.0','feature','Lineup board',
   'Lineup style drop-down with description beside the pitch; formats 5 v 5 to 11 v 11; drag and drop; player cards with photo, positions, contact, attendance and season minutes; rotation plan with planned minutes; availability summary; PNG, JPG, share and video export. Fixes the lineup style not applying to the formation.','2026-11-15')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000033_social_sign_in.sql =====
+-- 0033 Sign in with Google or Facebook. Release 0.21.0.
+-- New accounts still start as pending players (an admin approves them and sets the role); the fee block (0022) applies
+-- to every sign-in method. Google and Facebook send the name as full_name / name (Google also given_name, family_name)
+-- instead of first_name / last_name, so the profile takes the name from whichever is there.
+
+create or replace function app.handle_new_user() returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  m jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+  full_name text := btrim(regexp_replace(coalesce(nullif(m->>'full_name', ''), nullif(m->>'name', ''), ''), '\s+', ' ', 'g'));
+  first text := coalesce(nullif(btrim(m->>'first_name'), ''), nullif(btrim(m->>'given_name'), ''),
+                         nullif(split_part(full_name, ' ', 1), ''), '');
+  last text := coalesce(nullif(btrim(m->>'last_name'), ''), nullif(btrim(m->>'family_name'), ''),
+                        nullif(btrim(substr(full_name, length(split_part(full_name, ' ', 1)) + 1)), ''), '');
+begin
+  insert into profiles (id, email, first_name, last_name) values (new.id, new.email, left(first, 80), left(last, 80));
+  return new;
+end $$;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.21.0','feature','Sign in with Google or Facebook',
+  'Members can sign in with their Google or Facebook account as well as with email and password. New accounts still wait for approval; an existing account with the same email is used.','2026-11-15')
 on conflict (version) do nothing;
 
 

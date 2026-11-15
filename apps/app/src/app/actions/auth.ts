@@ -12,6 +12,7 @@ import { forgotSchema, resetSchema, signInSchema } from '@/lib/schemas';
 import { getSupabase } from '@/lib/supabase/server';
 import { supabaseEnvReport, supabaseTarget } from '@/lib/env';
 import { isFeeBlock } from '@/lib/supabase/middleware';
+import { isSocialProvider } from '@/lib/auth-providers';
 
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
 const fail = (error: string): AuthState => ({ status: 'error', error });
@@ -66,6 +67,30 @@ async function signInOnce(fd: FormData): Promise<AuthState> {
   }
   if (isLocale(member.locale)) (await cookies()).set(LOCALE_COOKIE, member.locale, LOCALE_COOKIE_OPTIONS);
   redirect(safeNext(p.data.next) ?? homeFor(member.role));
+}
+
+/**
+ * "Continue with Google / Facebook": asks Supabase for the provider's sign-in page (PKCE; the code verifier is kept in
+ * a cookie) and sends the browser there. The provider returns to /auth/callback, which finishes the sign-in and applies
+ * the same checks as the password sign-in (pending, suspended, fee block).
+ */
+export async function signInWithProvider(fd: FormData): Promise<void> {
+  const provider = fd.get('provider');
+  if (!isSocialProvider(provider)) redirect('/login?reason=oauthFailed');
+  const supabase = await client();
+  if (!supabase) redirect('/login?reason=unavailable');
+  const next = safeNext(fd.get('next'));
+  const callback = `${await appOrigin()}/auth/callback${next ? `?next=${encodeURIComponent(next)}` : ''}`;
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    // Supabase asks Google and Facebook for the email address by default; the club needs it to match existing members.
+    options: { redirectTo: callback, skipBrowserRedirect: true },
+  });
+  if (error || !data?.url) {
+    console.error('[auth] provider sign-in could not start', { provider, status: error?.status, code: error?.code, message: error?.message, ...supabaseTarget() });
+    redirect('/login?reason=oauthFailed');
+  }
+  redirect(data.url);
 }
 
 export async function signOut(): Promise<void> {

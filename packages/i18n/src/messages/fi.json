@@ -73,7 +73,13 @@
     "linkInvalid": "Tämä nollauslinkki on virheellinen tai vanhentunut.",
     "requestNewLink": "Pyydä uusi linkki",
     "continue": "Jatka",
-    "blockedHow": "Maksa tilisiirtona seuran tilille. Maksusivulla on tiedot."
+    "blockedHow": "Maksa tilisiirtona seuran tilille. Maksusivulla on tiedot.",
+    "continueGoogle": "Jatka Googlella",
+    "continueFacebook": "Jatka Facebookilla",
+    "orContinue": "tai",
+    "oauthCancelled": "Kirjautuminen peruttiin. Yritä uudelleen tai käytä sähköpostia ja salasanaa.",
+    "oauthFailed": "Kirjautuminen tällä tilillä ei onnistunut. Yritä uudelleen tai käytä sähköpostia ja salasanaa.",
+    "oauthNoEmail": "Tili ei jakanut sähköpostiosoitetta, jota seura tarvitsee. Salli sähköpostin käyttö tai käytä Googlea tai sähköpostia ja salasanaa."
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
