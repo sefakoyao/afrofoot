@@ -11,6 +11,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const nav = [
     { href: '/admin', label: t('navOverview') },
     { href: '/admin/members', label: t('navMembers'), badge: pending },
+    { href: '/admin/teams', label: t('navTeams') },
     { href: '/admin/audit', label: t('navAudit') },
   ];
   return <AppShell area="admin" member={member} nav={nav}>{children}</AppShell>;
