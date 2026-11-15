@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { requireArea } from '@/lib/auth';
 import { loadPlayerSport } from '@/lib/player';
 import { getSupabase } from '@/lib/supabase/server';
+import { PhotoForm } from './PhotoForm';
 import { PlayerProfileForm } from './PlayerProfileForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -14,6 +15,9 @@ export default async function PlayerProfilePage() {
   const member = await requireArea('me');
   const [t, tpos, supabase] = await Promise.all([getTranslations('pp'), getTranslations('position'), getSupabase()]);
   const sport = supabase ? await loadPlayerSport(supabase, member.id) : null;
+  // own photo (storage, own folder): a short-lived signed address
+  const { data: me } = supabase ? await supabase.from('players').select('photo_path').eq('profile_id', member.id).maybeSingle() : { data: null };
+  const signed = supabase && me?.photo_path ? await supabase.storage.from('player-photos').createSignedUrl(me.photo_path, 3600) : null;
   return (
     <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)] gap-5">
       <Link href="/me" className="text-sm font-semibold text-pitch underline underline-offset-2">← {t('back')}</Link>
@@ -28,6 +32,12 @@ export default async function PlayerProfilePage() {
           </dl>
         ) : <p role="alert" className="mt-4 rounded-card bg-line/60 p-3">{t('e_noPlayer')}</p>}
       </section>
+      {sport ? (
+        <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="photo-h">
+          <h2 id="photo-h" className="mb-3 font-display text-lg font-extrabold">{t('photoTitle')}</h2>
+          <PhotoForm current={signed?.data?.signedUrl ?? null} name={`${member.firstName} ${member.lastName}`.trim() || member.email} />
+        </section>
+      ) : null}
       {sport ? (
         <section className="rounded-card border border-line bg-raised p-6">
           <PlayerProfileForm initial={{

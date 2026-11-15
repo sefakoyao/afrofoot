@@ -19,7 +19,7 @@ const KEYS = {
   },
   match: {
     ok: ['r_matchCreated', 'r_protocolSaved', 'r_planSaved', 'r_styleApplied', 'r_lineupSaved', 'r_published', 'r_unpublished', 'r_evAdded', 'r_evVoided', 'r_kickoff', 'r_half_time', 'r_second_half', 'r_full_time'],
-    err: ['r_invalid', 'r_error', 'r_notYourTeam', 'r_opponent', 'r_division', 'r_date', 'r_time', 'r_protocolTimes', 'r_planLong', 'r_lineupInvalid', 'r_lineupLocked', 'r_notRoster',
+    err: ['r_invalid', 'r_error', 'r_notYourTeam', 'r_opponent', 'r_division', 'r_date', 'r_time', 'r_protocolTimes', 'r_planLong', 'r_lineupInvalid', 'r_lineupLocked', 'r_notRoster', 'r_rotationInvalid',
       'r_evInvalid', 'r_evPlayer', 'r_evNotSquad', 'r_evNotOnPitch', 'r_evAlreadyPlayed', 'r_evOnlySub', 'r_evFinished', 'r_phaseOrder'],
   },
   contract: {

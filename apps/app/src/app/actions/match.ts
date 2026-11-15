@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam } from '@/lib/coach';
-import { LINES, PRESETS, PRESSING, PROTOCOL_DEFAULTS, STYLES, TEMPOS, WIDTHS } from '@/lib/match';
+import { LINES, PRESSING, PROTOCOL_DEFAULTS, STYLES, TEMPOS, WIDTHS } from '@/lib/match';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToIso, helsinkiToday } from '@/lib/time';
 
@@ -87,49 +87,37 @@ export async function saveProtocol(fd: FormData): Promise<void> {
   back(fd, 'r_protocolSaved', '#protocol');
 }
 
-// ---------- game plan (lineup style + instructions) ----------
-const planSchema = z.object({
-  match_id: uuid, op: z.enum(['save', 'preset']), style: z.enum(STYLES),
-  line: z.enum(LINES), press: z.enum(PRESSING), width: z.enum(WIDTHS), tempo: z.enum(TEMPOS),
-  game_plan: z.string().max(4000),
-});
-
-export async function saveGamePlan(fd: FormData): Promise<void> {
-  const { supabase } = await db(fd);
-  const parsed = planSchema.safeParse(Object.fromEntries(['match_id', 'op', 'style', 'line', 'press', 'width', 'tempo', 'game_plan'].map((k) => [k, fd.get(k) ?? ''])));
-  if (!parsed.success) back(fd, 'r_invalid', '#plan');
-  const v = parsed.data;
-  const plan = v.game_plan.replace(/\r\n/g, '\n').trim();
-  if (plan.length > 2000) back(fd, 'r_planLong', '#plan');
-  const p = PRESETS[v.style];
-  const values = v.op === 'preset'
-    ? { tactic_style: v.style, formation: p.formation, defensive_line: p.line, pressing: p.press, width: p.width, tempo: p.tempo, game_plan: plan || null }
-    : { tactic_style: v.style, defensive_line: v.line, pressing: v.press, width: v.width, tempo: v.tempo, game_plan: plan || null };
-  const { data, error } = await supabase.from('matches').update(values).eq('id', v.match_id).select('id');
-  if (error) { console.error('[match] plan refused', { code: error.code, message: error.message }); back(fd, 'r_error', '#plan'); }
-  if (!data?.length) back(fd, 'r_notYourTeam');
-  refresh(v.match_id);
-  back(fd, v.op === 'preset' ? 'r_styleApplied' : 'r_planSaved', '#plan');
-}
-
 // ---------- lineup ----------
 const lineupSchema = z.object({
   match_id: uuid, formation: z.string().regex(/^[0-9-]{3,12}$/),
   starters: z.array(z.object({ slot: z.number().int().min(1).max(11), player: uuid })).max(11),
   subs: z.array(uuid).max(12), captain: z.union([z.literal(''), uuid]),
+  rotation: z.array(z.object({ minute: z.number().int().min(1).max(120), off: uuid, on: uuid })).max(24),
+  plan: z.object({
+    style: z.enum(STYLES), line: z.enum(LINES), press: z.enum(PRESSING), width: z.enum(WIDTHS), tempo: z.enum(TEMPOS),
+    text: z.string().max(2000).transform((v) => v.replace(/\r\n/g, '\n').trim()),
+  }),
 });
 
 export async function saveLineup(fd: FormData): Promise<void> {
   const { supabase } = await db(fd);
   let raw: unknown;
-  try { raw = { match_id: fd.get('match_id'), formation: fd.get('formation'), starters: JSON.parse(String(fd.get('starters') ?? '[]')), subs: JSON.parse(String(fd.get('subs') ?? '[]')), captain: fd.get('captain') ?? '' }; } catch { back(fd, 'r_invalid', '#lineup'); }
+  try {
+    const j = (k: string, d: string) => JSON.parse(String(fd.get(k) ?? d));
+    raw = { match_id: fd.get('match_id'), formation: fd.get('formation'), starters: j('starters', '[]'), subs: j('subs', '[]'), captain: fd.get('captain') ?? '', rotation: j('rotation', '[]'), plan: j('plan', '{}') };
+  } catch { back(fd, 'r_invalid', '#lineup'); }
   const parsed = lineupSchema.safeParse(raw);
   if (!parsed.success) back(fd, 'r_invalid', '#lineup');
   const v = parsed.data;
-  const { error } = await supabase.rpc('save_lineup', { p_match: v.match_id, p_formation: v.formation, p_starters: v.starters, p_subs: v.subs, p_captain: v.captain || null });
+  // the whole board in one step: formation, players, bench, captain, rotation plan, style, instructions and plan (migration 0032)
+  const { error } = await supabase.rpc('save_lineup', {
+    p_match: v.match_id, p_formation: v.formation, p_starters: v.starters, p_subs: v.subs, p_captain: v.captain || null, p_rotation: v.rotation,
+    p_plan: { style: v.plan.style, line: v.plan.line, press: v.plan.press, width: v.plan.width, tempo: v.plan.tempo, text: v.plan.text },
+  });
   if (error) {
     console.error('[match] lineup refused', { code: error.code, message: error.message });
-    back(fd, /locked/i.test(error.message) ? 'r_lineupLocked' : error.code === '42501' ? 'r_notYourTeam' : /roster/i.test(error.message) ? 'r_notRoster' : 'r_lineupInvalid', '#lineup');
+    back(fd, /locked/i.test(error.message) ? 'r_lineupLocked' : error.code === '42501' ? 'r_notYourTeam' : /roster/i.test(error.message) ? 'r_notRoster'
+      : /substitute|pitch then|goes off once/i.test(error.message) ? 'r_rotationInvalid' : 'r_lineupInvalid', '#lineup');
   }
   refresh(v.match_id);
   back(fd, 'r_lineupSaved', '#lineup');
