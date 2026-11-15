@@ -2,11 +2,16 @@
 -- Purpose: lets the public pages show a next match, a latest result, standings and news while the real data is entered.
 -- Dates are relative to "now", so the sample always looks current. Every row is marked "sample" so it can be removed.
 -- Remove it all: run supabase/remove_staging_sample.sql
+-- Safe to run again: if the sample is already loaded it does nothing (to reload it, run the remove script first).
 
 do $$
 declare
   v_season uuid; v_team uuid; v_ts uuid; v_loc uuid; v_comp uuid;
 begin
+  if exists (select 1 from locations where lower(name) = 'sample pitch' and lower(coalesce(city, '')) = 'helsinki') then
+    raise notice 'The staging sample is already loaded; nothing to do. Run remove_staging_sample.sql first to reload it.';
+    return;
+  end if;
   insert into seasons (name, starts_on, ends_on, is_current)
   values ('Sample season', current_date - 200, current_date + 160, not exists (select 1 from seasons where is_current))
   on conflict (name) do nothing;
