@@ -73,7 +73,13 @@
     "linkInvalid": "Ce lien de réinitialisation est invalide ou a expiré.",
     "requestNewLink": "Demander un nouveau lien",
     "continue": "Continuer",
-    "blockedHow": "Payez par virement sur le compte du club. La page de paiement donne les coordonnées."
+    "blockedHow": "Payez par virement sur le compte du club. La page de paiement donne les coordonnées.",
+    "continueGoogle": "Continuer avec Google",
+    "continueFacebook": "Continuer avec Facebook",
+    "orContinue": "ou",
+    "oauthCancelled": "La connexion a été annulée. Réessayez ou utilisez votre e-mail et votre mot de passe.",
+    "oauthFailed": "La connexion avec ce compte n'a pas fonctionné. Réessayez ou utilisez votre e-mail et votre mot de passe.",
+    "oauthNoEmail": "Ce compte n'a pas partagé d'adresse e-mail, nécessaire au club. Autorisez l'accès à l'e-mail, ou utilisez Google ou votre e-mail et mot de passe."
   },
   "role": {
     "super_admin": "Super administrateur",

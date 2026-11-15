@@ -1,5 +1,5 @@
 /** Pages reachable without a session. Everything else needs a signed-in user (middleware) and the right role (area layouts). */
-export const PUBLIC_PATHS = ['/login', '/forgot-password', '/reset-password', '/auth/confirm', '/pay'] as const;
+export const PUBLIC_PATHS = ['/login', '/forgot-password', '/reset-password', '/auth/confirm', '/auth/callback', '/pay'] as const;
 export const isPublicPath = (p: string): boolean => PUBLIC_PATHS.some((x) => p === x || p.startsWith(`${x}/`));
 
 /** Only same-site absolute paths, never "//host" or "/\host", so ?next= cannot redirect off the site. */
