@@ -58,6 +58,16 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     ...((sessReplies ?? []) as (Reply & { session_id: string })[]).map((r) => [r.session_id, r] as const),
     ...((matchReplies ?? []) as (Reply & { match_id: string })[]).map((r) => [r.match_id, r] as const),
   ]);
+  // Match day details (migration 0031): protocol times, and once the lineup is published the player's role and the game plan.
+  type MatchInfo = { id: string; meet_at: string | null; meeting_point: string | null; warmup_at: string | null; briefing_at: string | null; squad_published: boolean;
+    tactic_style: string | null; formation: string | null; game_plan: string | null; goals_for: number | null; goals_against: number | null; live_state: string };
+  const [{ data: matchInfo }, { data: mySquad }] = supabase && matchIds.length ? await Promise.all([
+    supabase.from('matches').select('id, meet_at, meeting_point, warmup_at, briefing_at, squad_published, tactic_style, formation, game_plan, goals_for, goals_against, live_state').in('id', matchIds),
+    me ? supabase.from('match_squad').select('match_id, status, captain').eq('player_id', me.id).in('match_id', matchIds) : Promise.resolve({ data: [] }),
+  ]) : [{ data: [] }, { data: [] }];
+  const info = new Map(((matchInfo as MatchInfo[] | null) ?? []).map((x) => [x.id, x]));
+  const role = new Map(((mySquad ?? []) as { match_id: string; status: string; captain: boolean }[]).map((x) => [x.match_id, x]));
+  const tmatch = await getTranslations('match');
   const nowIso = new Date().toISOString();
   const place = new Map(((places as Place[] | null) ?? []).map((p) => [p.id, p]));
   const teamName = new Map(((teams as unknown as { id: string; teams: { name: string } }[] | null) ?? []).map((x) => [x.id, x.teams.name]));
@@ -86,6 +96,33 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     if (!open) return r.availability === 'pending' ? null : <p className="text-sm">{t('yourReply')}: {label}{r.note ? <span className="ms-2 text-muted">“{r.note}”</span> : null}</p>;
     return <ReplyForm eventId={e.id} kind={e.event_type} availability={r.availability} note={r.note} eventLabel={title(e)} />;
   };
+  const MatchDay = ({ e }: { e: Event }) => {
+    const x = info.get(e.id);
+    if (!x) return null;
+    const steps = ([['meet', x.meet_at], ['warmup', x.warmup_at], ['briefing', x.briefing_at]] as const).filter(([, at]) => at);
+    const mine = role.get(e.id);
+    return (
+      <div className="mt-1 grid gap-2" data-matchday>
+        {x.live_state === 'full_time' || (x.live_state !== 'not_started' && x.goals_for !== null) ? (
+          <p className="font-display text-2xl font-black tabular-nums" dir="ltr" data-result>{x.goals_for ?? 0}–{x.goals_against ?? 0}
+            {x.live_state !== 'full_time' ? <span className="ms-2 rounded-full bg-danger px-2 py-0.5 align-middle text-xs font-bold text-white">{tmatch('liveBadge')}</span> : null}</p>
+        ) : null}
+        {steps.length && !CANCELLED.has(e.status) ? (
+          <ol className="flex flex-wrap gap-2 text-sm" aria-label={tmatch('protocolTitle')} data-player-protocol>
+            {steps.map(([k, at]) => <li key={k} className="rounded-full bg-surface px-3 py-1"><span className="text-muted">{tmatch(`step_${k}`)}</span> <b dir="ltr">{hm.format(new Date(at!))}</b>{k === 'meet' && x.meeting_point ? <> · <bdi>{x.meeting_point}</bdi></> : null}</li>)}
+            <li className="rounded-full bg-fg px-3 py-1 text-raised"><span>{tmatch('step_kickoff')}</span> <b dir="ltr">{hm.format(new Date(e.starts_at))}</b></li>
+          </ol>
+        ) : null}
+        {x.squad_published ? (
+          <div className="rounded-card bg-surface p-3 text-sm" data-my-role={mine?.status ?? 'not_selected'}>
+            <p className="font-semibold">{tmatch(`myRole_${mine?.status ?? 'not_selected'}`)}{mine?.captain ? ` · ${tmatch('youCaptain')}` : ''}</p>
+            {x.tactic_style ? <p className="mt-1">{tmatch(`style_${x.tactic_style}`)}{x.formation ? <span className="ms-1 text-muted" dir="ltr">({x.formation})</span> : null}</p> : null}
+            {x.game_plan ? <p className="mt-1 whitespace-pre-line text-muted">{x.game_plan}</p> : null}
+          </div>
+        ) : null}
+      </div>
+    );
+  };
   const Item = ({ e, anchor }: { e: Event; anchor?: boolean }) => {
     const off = CANCELLED.has(e.status);
     const r = reply.get(e.id);
@@ -98,6 +135,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
         </div>
         <p className={`font-display text-lg font-extrabold ${off ? 'line-through' : ''}`}><bdi>{title(e)}</bdi>{e.division ? <span className="ms-2 text-sm font-normal text-muted">{e.division}</span> : null}</p>
         <p className="text-sm text-muted"><Where e={e} />{manyTeams ? <> · {teamName.get(e.team_season_id)}</> : null}</p>
+        {e.event_type !== 'practice' ? <MatchDay e={e} /> : null}
         {r ? <ReplyBox e={e} r={r} /> : null}
       </li>
     );

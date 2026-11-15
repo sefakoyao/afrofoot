@@ -17,6 +17,11 @@ const KEYS = {
     ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved'],
     err: ['r_invalid', 'r_error', 'r_title', 'r_date', 'r_time', 'r_endAfterStart', 'r_repeat', 'r_notYourTeam', 'r_cancelled', 'r_tooEarly'],
   },
+  match: {
+    ok: ['r_matchCreated', 'r_protocolSaved', 'r_planSaved', 'r_styleApplied', 'r_lineupSaved', 'r_published', 'r_unpublished', 'r_evAdded', 'r_evVoided', 'r_kickoff', 'r_half_time', 'r_second_half', 'r_full_time'],
+    err: ['r_invalid', 'r_error', 'r_notYourTeam', 'r_opponent', 'r_division', 'r_date', 'r_time', 'r_protocolTimes', 'r_planLong', 'r_lineupInvalid', 'r_lineupLocked', 'r_notRoster',
+      'r_evInvalid', 'r_evPlayer', 'r_evNotSquad', 'r_evNotOnPitch', 'r_evAlreadyPlayed', 'r_evOnlySub', 'r_evFinished', 'r_phaseOrder'],
+  },
   contract: {
     ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined'],
     err: ['r_invalid', 'r_error', 'r_dates', 'r_blanks', 'r_overlap', 'r_notAllowed', 'r_name', 'r_tick', 'r_gone', 'r_noPlayer', 'r_reason'],

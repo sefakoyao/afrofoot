@@ -28,3 +28,21 @@ export async function agreeToConduct(fd: FormData): Promise<void> {
   revalidatePath('/coach', 'layout');
   redirect('/me/membership?result=r_agreed#conduct');
 }
+
+/** Coaches agree to the same Code of Conduct (section V applies to coaches and officials). Same database rules as players. */
+export async function agreeToConductCoach(fd: FormData): Promise<void> {
+  const member = await requireArea('coach');
+  if (fd.get('agree') !== 'on') redirect('/coach/conduct?result=r_tick');
+  const supabase = await getSupabase();
+  if (!supabase) redirect('/coach/conduct?result=r_error');
+  const version = await currentConduct(supabase);
+  if (!version || fd.get('version_id') !== version.id) redirect('/coach/conduct?result=r_changed');
+  const { error } = await supabase.from('conduct_consents').insert({ version_id: version.id, profile_id: member.id });
+  if (error && error.code !== '23505') {
+    console.error('[conduct] coach consent refused', { code: error.code, message: error.message });
+    redirect('/coach/conduct?result=r_error');
+  }
+  revalidatePath('/coach', 'layout');
+  revalidatePath('/admin', 'layout');
+  redirect('/coach/conduct?result=r_agreed');
+}

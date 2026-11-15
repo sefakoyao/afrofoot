@@ -12,3 +12,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/20_invoices.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/30_conduct.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/40_event_replies.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/50_contracts.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/60_match_day.sql

@@ -5,6 +5,7 @@ import { requireArea } from '@/lib/auth';
 import { myTeams } from '@/lib/coach';
 import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
+import { loadConductStatus } from '@/lib/conduct';
 
 type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; team_season_id: string };
 
@@ -28,6 +29,12 @@ export default async function CoachHome() {
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, team_season_id').in('team_season_id', ids).lt('starts_at', now).gte('starts_at', since).eq('status', 'scheduled').order('starts_at', { ascending: false }),
     supabase.from('team_players').select('team_season_id').in('team_season_id', ids).is('left_on', null),
   ]) : [{ data: [] }, { data: [] }, { data: [] }];
+  const [{ data: nextMatches }, conduct] = supabase && ids.length ? await Promise.all([
+    supabase.from('matches').select('id, opponent, kickoff_at, team_season_id, live_state, meet_at').in('team_season_id', ids).gte('kickoff_at', new Date(Date.now() - 3 * 3600000).toISOString()).neq('status', 'cancelled').order('kickoff_at').limit(3),
+    loadConductStatus(supabase, member.id),
+  ]) : [{ data: [] }, supabase ? await loadConductStatus(supabase, member.id) : null];
+  const tm = await getTranslations('match');
+  const tc = await getTranslations('conduct');
   const count = (id: string) => (roster ?? []).filter((r) => r.team_season_id === id).length;
 
   const SessionItem = ({ s, cta }: { s: Session; cta: string }) => (
@@ -45,6 +52,26 @@ export default async function CoachHome() {
         <h1 className="font-display text-2xl font-extrabold">{ta('welcome', { name: isolate(member.firstName || member.email) })}</h1>
         <p className="mt-1 text-muted">{t('lead')}</p>
       </section>
+
+      {conduct?.version && !conduct.agreedAt ? (
+        <div data-conduct-banner className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-danger/40 bg-danger/5 p-4">
+          <p className="font-semibold">{tc('coachBanner')}</p>
+          <Link href="/coach/conduct" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tc('readAndAgree')}</Link>
+        </div>
+      ) : null}
+      {(nextMatches ?? []).length ? (
+        <section aria-labelledby="nm-h" className="rounded-card border-2 border-fg bg-raised p-6">
+          <h2 id="nm-h" className="font-display text-xl font-extrabold">{tm('nextMatches')}</h2>
+          <ul className="mt-3 grid gap-2">
+            {(nextMatches ?? []).map((m) => (
+              <li key={m.id}><Link href={`/coach/matches/${m.id}`} data-next-match={m.id} className="flex min-h-14 flex-wrap items-center justify-between gap-2 rounded-card border border-line bg-surface px-4 py-3 hover:border-accent">
+                <span><span className="font-semibold">{when.format(new Date(m.kickoff_at))}</span> · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi><span className="block text-sm text-muted">{name.get(m.team_season_id)}</span></span>
+                <span className="text-sm font-bold text-pitch">{m.live_state !== 'not_started' && m.live_state !== 'full_time' ? tm('liveBadge') : tm('openMatchDay')} <span aria-hidden className="rtl-flip inline-block">→</span></span>
+              </Link></li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {teams.length === 0 ? <p role="status" className="rounded-card border border-line bg-raised p-6">{t('noTeams')}</p> : (
         <>
