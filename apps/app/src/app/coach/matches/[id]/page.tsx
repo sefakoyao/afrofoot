@@ -26,7 +26,7 @@ type Match = {
 };
 type RosterRow = { jersey_number: number | null; players: { id: string; first_name: string; last_name: string; position: string | null; secondary_position: string | null; photo_path: string | null } };
 
-/** Match day: pre-game protocol, game plan (lineup style), lineup on a pitch, live scoreboard, timeline and statistics. */
+/** Match day: game plan (lineup style) and lineup on a pitch, then the pre-game protocol, live scoreboard, timeline and statistics. */
 export default async function MatchDayPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const member = await requireArea('coach');
   const [{ id }, sp] = await Promise.all([params, searchParams]);
@@ -123,12 +123,36 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         <p className="mt-1 font-semibold">{longDay.format(new Date(m.kickoff_at))} · <span dir="ltr">{hmIn(m.kickoff_at)}</span></p>
         {place ? <p className="text-muted">{[place.name, place.address, place.city].filter(Boolean).join(', ')}</p> : null}
         <nav className="mt-4 flex flex-wrap gap-2 text-sm" aria-label={t('sections')}>
-          {(['protocol', 'lineup', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
+          {(['lineup', 'protocol', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
         </nav>
       </header>
       <ResultBanner ns="match" result={sp.result} />
 
       {started ? Live : null}
+
+      <section id="lineup" aria-labelledby="lineup-h" className="rounded-card border border-line bg-raised p-4 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 id="lineup-h" className="font-display text-xl font-extrabold">{t('boardTitle')}</h2>
+            <p className="mt-1 flex flex-wrap gap-2 text-sm" data-availability={`${count('yes')}/${count('no')}/${count('pending') + count('maybe')}`}>
+              <span className="rounded-full bg-accent/20 px-3 py-0.5 font-bold text-pitch">{t('availIn', { count: count('yes') })}</span>
+              <span className="rounded-full bg-danger/10 px-3 py-0.5 font-bold text-danger">{t('availOut', { count: count('no') })}</span>
+              <span className="rounded-full bg-line px-3 py-0.5 font-bold">{t('availNone', { count: count('pending') + count('maybe') })}</span>
+            </p>
+          </div>
+          <form action={publishLineup} className="flex items-center gap-2">
+            <input type="hidden" name="match_id" value={id} /><input type="hidden" name="back" value={back} /><input type="hidden" name="publish" value={m.squad_published ? 'false' : 'true'} />
+            <span className={`rounded-full px-3 py-1 text-xs font-bold ${m.squad_published ? 'bg-accent/20 text-pitch' : 'bg-line'}`} data-published={m.squad_published}>{m.squad_published ? t('published') : t('notPublished')}</span>
+            <button disabled={!m.squad_published && starters.length === 0} className="min-h-11 rounded-full border-2 border-fg px-4 font-bold hover:bg-fg hover:text-raised disabled:opacity-50">{m.squad_published ? t('unpublish') : t('publish')}</button>
+          </form>
+        </div>
+        <p className="mb-4 mt-1 text-xs text-muted">{t('publishNote')}</p>
+        <LineupBoard matchId={id} back={back} team={team} opponent={m.opponent} whenLabel={`${longDay.format(new Date(m.kickoff_at))} · ${hmIn(m.kickoff_at)}`} locked={started}
+          formations={formationList} roster={boardPlayers}
+          initial={{ formation: boardFormation, starters: Object.fromEntries(starters.filter((s) => s.slot).map((s) => [s.slot!, s.player_id])), subs: subs.map((s) => s.player_id),
+            captain: (squad ?? []).find((s) => s.captain)?.player_id ?? null, rotation: plannedSubs,
+            plan: { style, line: m.defensive_line ?? PRESETS[style].line, press: m.pressing ?? PRESETS[style].press, width: m.width ?? PRESETS[style].width, tempo: m.tempo ?? PRESETS[style].tempo, text: m.game_plan ?? '' } }} />
+      </section>
 
       <section id="protocol" aria-labelledby="protocol-h" className="rounded-card border border-line bg-raised p-6">
         <h2 id="protocol-h" className="font-display text-xl font-extrabold">{t('protocolTitle')}</h2>
@@ -158,30 +182,6 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
             </div>
           </form>
         </details>
-      </section>
-
-      <section id="lineup" aria-labelledby="lineup-h" className="rounded-card border border-line bg-raised p-4 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 id="lineup-h" className="font-display text-xl font-extrabold">{t('boardTitle')}</h2>
-            <p className="mt-1 flex flex-wrap gap-2 text-sm" data-availability={`${count('yes')}/${count('no')}/${count('pending') + count('maybe')}`}>
-              <span className="rounded-full bg-accent/20 px-3 py-0.5 font-bold text-pitch">{t('availIn', { count: count('yes') })}</span>
-              <span className="rounded-full bg-danger/10 px-3 py-0.5 font-bold text-danger">{t('availOut', { count: count('no') })}</span>
-              <span className="rounded-full bg-line px-3 py-0.5 font-bold">{t('availNone', { count: count('pending') + count('maybe') })}</span>
-            </p>
-          </div>
-          <form action={publishLineup} className="flex items-center gap-2">
-            <input type="hidden" name="match_id" value={id} /><input type="hidden" name="back" value={back} /><input type="hidden" name="publish" value={m.squad_published ? 'false' : 'true'} />
-            <span className={`rounded-full px-3 py-1 text-xs font-bold ${m.squad_published ? 'bg-accent/20 text-pitch' : 'bg-line'}`} data-published={m.squad_published}>{m.squad_published ? t('published') : t('notPublished')}</span>
-            <button disabled={!m.squad_published && starters.length === 0} className="min-h-11 rounded-full border-2 border-fg px-4 font-bold hover:bg-fg hover:text-raised disabled:opacity-50">{m.squad_published ? t('unpublish') : t('publish')}</button>
-          </form>
-        </div>
-        <p className="mb-4 mt-1 text-xs text-muted">{t('publishNote')}</p>
-        <LineupBoard matchId={id} back={back} team={team} opponent={m.opponent} whenLabel={`${longDay.format(new Date(m.kickoff_at))} · ${hmIn(m.kickoff_at)}`} locked={started}
-          formations={formationList} roster={boardPlayers}
-          initial={{ formation: boardFormation, starters: Object.fromEntries(starters.filter((s) => s.slot).map((s) => [s.slot!, s.player_id])), subs: subs.map((s) => s.player_id),
-            captain: (squad ?? []).find((s) => s.captain)?.player_id ?? null, rotation: plannedSubs,
-            plan: { style, line: m.defensive_line ?? PRESETS[style].line, press: m.pressing ?? PRESETS[style].press, width: m.width ?? PRESETS[style].width, tempo: m.tempo ?? PRESETS[style].tempo, text: m.game_plan ?? '' } }} />
       </section>
 
       {started ? null : Live}

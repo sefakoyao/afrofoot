@@ -1933,7 +1933,11 @@
     "videoUnsupported": "Tämä selain ei voi tallentaa videota. Käytä kuvan jakamista.",
     "exportFailed": "Ei onnistunut. Yritä uudelleen.",
     "saveBoard": "Tallenna kokoonpano ja suunnitelma",
-    "r_rotationInvalid": "Vaihtosuunnitelma ei sovi kokoonpanoon: vain vaihtopelaajat tulevat sisään ja vain kentällä olevat lähtevät."
+    "r_rotationInvalid": "Vaihtosuunnitelma ei sovi kokoonpanoon: vain vaihtopelaajat tulevat sisään ja vain kentällä olevat lähtevät.",
+    "you": "Sinä",
+    "seeLineup": "Näytä kokoonpano",
+    "lineupPendingTitle": "Kokoonpano tulossa",
+    "lineupPendingText": "Avauskokoonpano ja vaihtopenkki näkyvät tässä heti, kun valmentaja julkaisee ne."
   },
   "privacyPolicy": {
     "title": "Tietosuojaseloste",

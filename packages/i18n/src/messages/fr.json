@@ -1933,7 +1933,11 @@
     "videoUnsupported": "Ce navigateur ne peut pas enregistrer de vidéo. Utilisez Partager l'image.",
     "exportFailed": "Cela n'a pas fonctionné. Réessayez.",
     "saveBoard": "Enregistrer la composition et le plan",
-    "r_rotationInvalid": "Le plan de rotation ne correspond pas : seuls les remplaçants entrent et seuls les joueurs sur le terrain sortent."
+    "r_rotationInvalid": "Le plan de rotation ne correspond pas : seuls les remplaçants entrent et seuls les joueurs sur le terrain sortent.",
+    "you": "Vous",
+    "seeLineup": "Voir la composition",
+    "lineupPendingTitle": "Composition bientôt disponible",
+    "lineupPendingText": "Le onze de départ et le banc s'afficheront ici dès que l'entraîneur les publiera."
   },
   "privacyPolicy": {
     "title": "Politique de confidentialité",

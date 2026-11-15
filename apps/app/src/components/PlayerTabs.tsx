@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { Spinner } from './AreaNav';
+import { usePendingHref } from './usePendingHref';
 
 /**
  * Player area tabs (Calendar, Membership, My season) and, until the player has agreed to the current Code of Conduct,
@@ -11,6 +13,7 @@ import { useTranslations } from 'next-intl';
 export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing: boolean; contractToSign?: string | null }) {
   const t = useTranslations('me');
   const path = usePathname();
+  const { pending, onNavigate } = usePendingHref();
   const tabs = [
     { href: '/me', label: t('tabCalendar'), active: path === '/me' },
     { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
@@ -34,9 +37,10 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
         <ul className="flex gap-2 border-b border-line">
           {tabs.map((x) => (
             <li key={x.href}>
-              <Link href={x.href} aria-current={x.active ? 'page' : undefined}
-                className={`-mb-px inline-flex min-h-12 items-center whitespace-nowrap border-b-4 px-4 font-display text-base font-extrabold ${x.active ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
+              <Link href={x.href} onClick={onNavigate(x.href)} aria-current={x.active ? 'page' : undefined} aria-busy={pending === x.href || undefined} data-pending={pending === x.href || undefined}
+                className={`-mb-px inline-flex min-h-12 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-4 px-4 font-display text-base font-extrabold transition duration-100 active:scale-[.97] active:bg-accent/10 ${(pending ? pending === x.href : x.active) ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
                 {x.label}
+                {pending === x.href ? <Spinner /> : null}
               </Link>
             </li>
           ))}

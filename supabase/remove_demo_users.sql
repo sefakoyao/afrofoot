@@ -5,6 +5,7 @@ delete from staff_members where profile_id in (select id from profiles where ema
 delete from training_sessions where title = 'Demo training';   -- their attendance rows go with them
 delete from match_player_stats where player_id in (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email like 'demo-%@example.com');
 delete from payments where player_id in (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email like 'demo-%@example.com');
+delete from match_squad where player_id in (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email like 'demo-%@example.com');   -- lineups they were put in
 delete from team_players where player_id in (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email like 'demo-%@example.com');
 delete from players where profile_id in (select id from profiles where email like 'demo-%@example.com');
 delete from auth.users where email like 'demo-%@example.com';   -- also removes their profiles and identities (on delete cascade)
