@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – language drop-down and home link (branch `phase2/lang-home`)
+- **Language:** the website and the member app now share one language drop-down (globe, the language's own name: English, Suomi, Français, العربية) instead of four small pills that did not line up. Choosing a language switches at once; on the website you stay on the same page. Without JavaScript a "Change" button (app) or the old links (website) still work.
+- **Back home:** on player, coach and admin pages the club logo and area name (My Afro Foot / Coaching / Admin) link back to that area's main page from anywhere, including My account. The member's name still opens My account.
+- No database changes.
+
 ## Unreleased – pitch lines watermark (branch `phase2/pitch-watermark`)
 - Faint pitch markings (design canvas "Page watermarks", option A) behind every signed-in page: player, coach and admin. A sideways pitch on wide screens, an upright one on phones.
 - Decorative only: fixed behind the content, never catches clicks or focus, hidden from screen readers, left out in high-contrast mode and when printing. The sign-in screens keep the ball arcs.
