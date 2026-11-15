@@ -1,2 +1,4 @@
 @import '@afrofoot/ui/styles.css';
 @tailwind base; @tailwind components; @tailwind utilities;
+/* Sticky action bars (e.g. Save attendance) sit at the bottom: keep scrolled-to and focused elements clear of them (WCAG 2.4.11). */
+html { scroll-padding-bottom: 6rem; }
