@@ -42,3 +42,6 @@ export function supabaseTarget(): Record<string, string> {
 
 /** Public website, used for the Membership page link shown to fee-blocked players. */
 export const webUrl = (): string => (read('NEXT_PUBLIC_WEB_URL') || 'https://www.afrofoot.club').replace(/\/+$/, '');
+
+/** Public Membership page in the member's language (English has no prefix). Players pay there, also when sign-in is blocked. */
+export const membershipUrl = (locale: string): string => `${webUrl()}${locale === 'en' ? '' : `/${locale}`}/membership`;

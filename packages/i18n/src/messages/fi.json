@@ -167,7 +167,8 @@
     "welcome": "Tervetuloa, {name}",
     "signedInAs": "Kirjautunut: {email}",
     "comingSoon": "Työkalusi tulevat tähän sitä mukaa kuin ne julkaistaan.",
-    "skipToContent": "Siirry sisältöön"
+    "skipToContent": "Siirry sisältöön",
+    "myAccount": "Oma tili"
   },
   "privacy": {
     "publicConsent": "Näytä minut julkisella pelaajalistalla"
@@ -1068,5 +1069,51 @@
     "tbl_profiles": "Tili",
     "hidden": "(yksityinen)",
     "noAudit": "Muutoksia ei ole vielä kirjattu."
+  },
+  "me": {
+    "team": "Joukkue",
+    "noTeam": "ei vielä joukkueessa",
+    "editProfile": "Muokkaa profiiliani",
+    "paymentsTitle": "Omat maksuni",
+    "paid": "Maksettu",
+    "owed": "Maksamatta",
+    "overdue": "Erääntynyt",
+    "upToDate": "Kaikki on maksettu. Kiitos!",
+    "owedNotice": "Maksettavaa on {amount}. Seuraava eräpäivä: {date}.",
+    "overdueWarn": "{amount} on erääntynyt. Maksa ennen {date}, niin pääsy sovellukseen säilyy.",
+    "overdueNoBlock": "{amount} on erääntynyt. Maksathan mahdollisimman pian.",
+    "exempt": "Seura on keskeyttänyt kirjautumisen eston sinulta {date} asti.",
+    "payOptions": "Katso maksutavat",
+    "payHelp": "Jo maksettu? Näkyminen voi kestää päivän. Ota yhteyttä seuraan, jos ei näy.",
+    "historyTitle": "Maksuhistoria",
+    "noPayments": "Ei vielä maksuja.",
+    "colDue": "Eräpäivä",
+    "colAmount": "Summa",
+    "colStatus": "Tila",
+    "colReference": "Viite",
+    "payNow": "Maksa nyt",
+    "st_overdue": "Erääntynyt"
+  },
+  "account": {
+    "title": "Oma tili",
+    "lead": "Nimesi ja puhelinnumerosi näkyvät seuran toimihenkilöille.",
+    "back": "Takaisin",
+    "email": "Sähköposti",
+    "emailNote": "Ota yhteyttä seuraan, jos haluat vaihtaa sähköpostiosoitteen.",
+    "role": "Rooli",
+    "firstName": "Etunimi",
+    "lastName": "Sukunimi",
+    "phone": "Puhelin",
+    "phoneHint": "Maatunnuksen kanssa, esimerkiksi +358 40 123 4567.",
+    "language": "Kieli",
+    "save": "Tallenna",
+    "saving": "Tallennetaan…",
+    "saved": "Tallennettu.",
+    "e_name": "Anna etu- ja sukunimesi (enintään 80 merkkiä kumpikin).",
+    "e_phone": "Anna puhelinnumero maatunnuksen kanssa, esimerkiksi +358 40 123 4567.",
+    "e_failed": "Tallennus epäonnistui. Yritä uudelleen.",
+    "passwordTitle": "Salasana",
+    "passwordLead": "Valitse uusi salasana. Muut laitteesi kirjataan ulos.",
+    "changePassword": "Vaihda salasana"
   }
 }

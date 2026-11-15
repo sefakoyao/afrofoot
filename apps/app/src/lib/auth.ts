@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { HOME_BY_ROLE, canEnter, isRole, type Area, type Role } from '@afrofoot/db';
 import { getSupabase } from './supabase/server';
 
-export interface Member { id: string; email: string; firstName: string; lastName: string; role: Role; status: 'pending' | 'active' | 'suspended'; locale: string }
+export interface Member { id: string; email: string; firstName: string; lastName: string; role: Role; status: 'pending' | 'active' | 'suspended'; locale: string; phone: string | null }
 
 /**
  * The signed-in user's profile, read through RLS (profiles_self_read). Role comes from the database, never from the token or user metadata.
@@ -15,13 +15,13 @@ export const getMember = cache(async (): Promise<Member | null> => {
   if (!supabase) return null;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data, error } = await supabase.from('profiles').select('id, email, first_name, last_name, role, status, locale').eq('id', user.id).maybeSingle();
+  const { data, error } = await supabase.from('profiles').select('id, email, first_name, last_name, role, status, locale, phone').eq('id', user.id).maybeSingle();
   if (error || !data || !isRole(data.role)) {
     // Signed in with Supabase Auth but the profile cannot be read: log why (no personal data beyond the user id).
     console.error('[auth] profile not readable', { userId: user.id, code: error?.code, message: error?.message, hint: error?.hint, found: !!data });
     return null;
   }
-  return { id: data.id, email: data.email, firstName: data.first_name, lastName: data.last_name, role: data.role, status: data.status, locale: data.locale };
+  return { id: data.id, email: data.email, firstName: data.first_name, lastName: data.last_name, role: data.role, status: data.status, locale: data.locale, phone: data.phone ?? null };
 });
 
 export const homeFor = (role: Role): string => HOME_BY_ROLE[role];

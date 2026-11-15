@@ -53,14 +53,14 @@ export default async function AuditPage({ searchParams }: { searchParams: Promis
   const who = new Map((people ?? []).map((p) => [p.id, `${p.first_name} ${p.last_name}`.trim() || p.email]));
 
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>
         <h1 className="font-display text-2xl font-extrabold">{t('auditTitle')}</h1>
         <p className="mt-1 text-muted">{t('auditLead')}</p>
       </header>
 
       {rows.length === 0 ? <p className="rounded-card border border-line bg-raised p-6 text-center text-muted">{t('noAudit')}</p> : (
-        <div className="overflow-x-auto rounded-card border border-line bg-raised">
+        <div className="relative overflow-x-auto rounded-card border border-line bg-raised">
           <table className="w-full text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
               <tr>

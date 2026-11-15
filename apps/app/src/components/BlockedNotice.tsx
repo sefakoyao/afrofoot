@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from 'next-intl';
 export function BlockedNotice({ webUrl }: { webUrl: string }) {
   const t = useTranslations();
   const locale = useLocale();
-  const href = `${webUrl}${locale === 'en' ? '' : `/${locale}`}/membership`;
+  const href = `${webUrl}${locale === 'en' ? '' : `/${locale}`}/membership`; // same as membershipUrl() in lib/env (server)
   return (
     <div role="alert" className="grid gap-2 rounded-card border border-danger/30 bg-danger/5 p-4">
       <p className="font-display text-lg font-extrabold">{t('site.bl_h')}</p>
