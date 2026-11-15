@@ -17,6 +17,10 @@ const KEYS = {
     ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved'],
     err: ['r_invalid', 'r_error', 'r_title', 'r_date', 'r_time', 'r_endAfterStart', 'r_repeat', 'r_notYourTeam', 'r_cancelled', 'r_tooEarly'],
   },
+  contract: {
+    ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined'],
+    err: ['r_invalid', 'r_error', 'r_dates', 'r_blanks', 'r_overlap', 'r_notAllowed', 'r_name', 'r_tick', 'r_gone', 'r_noPlayer', 'r_reason'],
+  },
 } as const;
 
 export async function ResultBanner({ ns, result }: { ns: keyof typeof KEYS; result: unknown }) {

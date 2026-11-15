@@ -8,7 +8,7 @@ import { Alert, Field, PasswordField, SubmitButton } from '@/components/fields';
 import { BlockedNotice } from '@/components/BlockedNotice';
 import { IDLE, typedEmail } from '@/lib/formState';
 
-export function LoginForm({ next, notice, webUrl }: { next?: string; notice?: string; webUrl: string }) {
+export function LoginForm({ next, notice }: { next?: string; notice?: string }) {
   const t = useTranslations('auth');
   const [state, action] = useActionState(signIn, IDLE);
   const blocked = state.status === 'blocked' || (state.status === 'idle' && notice === 'blocked');
@@ -16,7 +16,7 @@ export function LoginForm({ next, notice, webUrl }: { next?: string; notice?: st
   return (
     <form action={action} className="grid gap-4" noValidate={false}>
       {next ? <input type="hidden" name="next" value={next} /> : null}
-      {blocked ? <BlockedNotice webUrl={webUrl} /> : null}
+      {blocked ? <BlockedNotice /> : null}
       {error ? <Alert tone="error">{t(error)}</Alert> : null}
       <Field label={t('email')} name="email" type="email" defaultValue={typedEmail(state)} autoComplete="username" autoFocus inputMode="email" required maxLength={200}
         aria-invalid={error === 'invalidEmail' || undefined} />

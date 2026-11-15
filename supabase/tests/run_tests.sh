@@ -10,3 +10,5 @@ psql -q -v ON_ERROR_STOP=1 -d $DB -f seed.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/10_rls.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/20_invoices.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/30_conduct.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/40_event_replies.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/50_contracts.sql

@@ -147,7 +147,7 @@ select t.login('00000000-0000-0000-0000-000000000011');
 select t.check('player sees only own attendance row', (select count(*) from session_attendance) = 1);
 select t.check('player can answer availability', not t.raises($$update session_attendance set availability = 'yes', responded_at = now() where player_id = auth.uid() or true$$));
 select t.check('player cannot mark own attendance', t.raises($$update session_attendance set attendance = 'late'$$));
-select t.check('player availability for match', not t.raises($$update match_availability set availability = 'yes', responded_at = now()$$));
+select t.check('player cannot answer for a match already played (0029)', t.raises($$update match_availability set availability = 'yes', responded_at = now()$$));
 select t.check('squad hidden until published', (select count(*) from match_squad) = 0);
 select t.check('evaluation hidden until shared', (select count(*) from evaluations) = 0);
 select t.check('player sees team match', (select count(*) from matches) = 1);

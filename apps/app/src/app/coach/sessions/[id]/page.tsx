@@ -43,13 +43,15 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
 
   const [{ data: rosterData }, { data: rows }] = await Promise.all([
     supabase.from('team_players').select('jersey_number, players!inner(id, first_name, last_name)').eq('team_season_id', s.team_season_id).is('left_on', null),
-    supabase.from('session_attendance').select('player_id, availability, attendance').eq('session_id', id),
+    supabase.from('session_attendance').select('player_id, availability, attendance, note').eq('session_id', id),
   ]);
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []).sort((a, b) => (a.jersey_number ?? 999) - (b.jersey_number ?? 999) || a.players.last_name.localeCompare(b.players.last_name));
   const byPlayer = new Map((rows ?? []).map((r) => [r.player_id, r]));
   const markable = s.status !== 'cancelled' && helsinkiToday(new Date(s.starts_at)) <= helsinkiToday();
   const marked = roster.filter((r) => byPlayer.get(r.players.id)?.attendance).length;
   const back = `/coach/sessions/${id}`;
+  // Players' own sign in / out (Calendar tab, migration 0029).
+  const count = (a: string) => roster.filter((r) => (byPlayer.get(r.players.id)?.availability ?? 'pending') === a).length;
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -68,6 +70,11 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
           <h2 id="att-h" className="font-display text-xl font-extrabold">{t('attendance')}</h2>
           <span className="text-sm text-muted" data-marked>{t('markedCount', { marked, total: roster.length })}</span>
         </div>
+        <p className="mt-2 flex flex-wrap gap-2 text-sm" data-replies={`${count('yes')}/${count('no')}/${count('pending') + count('maybe')}`}>
+          <span className="rounded-full bg-accent/20 px-3 py-1 font-bold text-pitch">{t('repliesIn', { count: count('yes') })}</span>
+          <span className="rounded-full bg-danger/10 px-3 py-1 font-bold text-danger">{t('repliesOut', { count: count('no') })}</span>
+          <span className="rounded-full bg-line px-3 py-1 font-bold">{t('repliesNone', { count: count('pending') + count('maybe') })}</span>
+        </p>
         {s.status === 'cancelled' ? <p className="mt-2 text-muted">{t('r_cancelled')}</p> : !markable ? <p className="mt-2 text-muted">{t('notYet')}</p> : null}
         {roster.length === 0 ? <p className="mt-2 text-muted">{t('noPlayers')}</p> : (
           <form action={saveAttendance} className="mt-3">
@@ -79,7 +86,7 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
                 return (
                   <div key={r.players.id} role="radiogroup" aria-label={`${r.players.first_name} ${r.players.last_name}`} data-player={`${r.players.first_name} ${r.players.last_name}`} className="rounded-card bg-surface p-3">
                     <p className="font-semibold"><span className="text-muted" dir="ltr">{r.jersey_number ? `#${r.jersey_number} ` : ''}</span><bdi>{r.players.first_name} {r.players.last_name}</bdi>
-                      {row && row.availability !== 'pending' ? <span className="ms-2 text-xs font-normal text-muted">({t('replied')}: {tav(row.availability)})</span> : null}</p>
+                      {row && row.availability !== 'pending' ? <span className="ms-2 text-xs font-normal text-muted">({t('replied')}: {tav(row.availability)}{row.note ? <> · “<bdi>{row.note}</bdi>”</> : null})</span> : null}</p>
                     <div className="mt-2 grid grid-cols-5 gap-1.5">
                       {[...ATTENDANCE, ''].map((a) => (
                         <label key={a || 'none'} className="relative block">
