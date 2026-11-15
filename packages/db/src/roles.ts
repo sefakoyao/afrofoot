@@ -39,3 +39,20 @@ export const AREA_ROLES = {
 export type Area = keyof typeof AREA_ROLES;
 export const isRole = (v: unknown): v is Role => typeof v === 'string' && (ROLES as readonly string[]).includes(v);
 export const canEnter = (role: Role, area: Area): boolean => (AREA_ROLES[area] as readonly Role[]).includes(role);
+
+export const ACCOUNT_STATUSES = ['pending', 'active', 'suspended'] as const;
+export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
+const ADMIN_ROLES: readonly Role[] = ['super_admin', 'club_admin'];
+export const isAdminRole = (r: Role): boolean => ADMIN_ROLES.includes(r);
+
+/**
+ * Mirror of the database trigger app.guard_profiles (migration 0007), used only to decide which buttons to show.
+ * Admins manage accounts; only a super admin touches administrator accounts or grants an admin role; nobody changes their own role
+ * or status here (the database also keeps at least one active super admin).
+ */
+export function canManageMember(actor: { id: string; role: Role }, target: { id: string; role: Role }): boolean {
+  if (actor.id === target.id || !isAdminRole(actor.role)) return false;
+  return actor.role === 'super_admin' || !isAdminRole(target.role);
+}
+export const assignableRoles = (actorRole: Role): readonly Role[] =>
+  actorRole === 'super_admin' ? ROLES : actorRole === 'club_admin' ? ROLES.filter((r) => !isAdminRole(r)) : [];
