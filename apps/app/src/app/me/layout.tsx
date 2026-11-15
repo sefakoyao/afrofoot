@@ -21,7 +21,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     <AppShell area="me" member={member}>
       <div className="grid grid-cols-[minmax(0,1fr)] gap-4">
         <header>
-          <h1 className="font-display text-2xl font-extrabold">{ta('welcome', { name: isolate(member.firstName || member.email) })}</h1>
+          <h1 className="font-display text-2xl font-extrabold">{ta('welcome', { name: isolate(member.firstName || member.email || member.phone || '') })}</h1>
           <p className="mt-1 text-muted" data-player-header>{t('team')}: <span className="font-semibold text-fg">{team ?? t('noTeam')}</span>
             {sport?.position ? <> · {tpos(sport.position)}</> : null}{sport?.shirt ? <> · <bdi dir="ltr">#{sport.shirt}</bdi></> : null}</p>
         </header>

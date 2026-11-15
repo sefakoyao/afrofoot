@@ -35,7 +35,7 @@ export default async function PlayerProfilePage() {
       {sport ? (
         <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="photo-h">
           <h2 id="photo-h" className="mb-3 font-display text-lg font-extrabold">{t('photoTitle')}</h2>
-          <PhotoForm current={signed?.data?.signedUrl ?? null} name={`${member.firstName} ${member.lastName}`.trim() || member.email} />
+          <PhotoForm current={signed?.data?.signedUrl ?? null} name={`${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || ''} />
         </section>
       ) : null}
       {sport ? (

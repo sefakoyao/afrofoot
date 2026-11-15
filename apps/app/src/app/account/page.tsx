@@ -18,7 +18,8 @@ export default async function AccountPage() {
         <h1 className="font-display text-2xl font-extrabold">{t('title')}</h1>
         <p className="mt-1 text-muted">{t('lead')}</p>
         <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
-          <div><dt className="text-muted">{t('email')}</dt><dd className="font-semibold"><bdi>{member.email}</bdi></dd><dd className="text-xs text-muted">{t('emailNote')}</dd></div>
+          {member.email ? <div><dt className="text-muted">{t('email')}</dt><dd className="font-semibold"><bdi>{member.email}</bdi></dd><dd className="text-xs text-muted">{t('emailNote')}</dd></div>
+            : <div><dt className="text-muted">{t('signInPhone')}</dt><dd className="font-semibold" dir="ltr" style={{ textAlign: 'start' }}><bdi>{member.phone}</bdi></dd><dd className="text-xs text-muted">{t('signInPhoneNote')}</dd></div>}
           <div><dt className="text-muted">{t('role')}</dt><dd className="font-semibold">{tr(member.role)}</dd></div>
         </dl>
       </section>

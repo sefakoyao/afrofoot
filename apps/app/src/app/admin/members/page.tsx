@@ -33,10 +33,10 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   const page = Math.max(1, Number.parseInt(one(sp.page), 10) || 1);
   const result = one(sp.result);
 
-  let query = supabase?.from('profiles').select('id, email, first_name, last_name, role, status, created_at', { count: 'exact' })
+  let query = supabase?.from('profiles').select('id, email, phone, first_name, last_name, role, status, created_at', { count: 'exact' })
     .order('status', { ascending: true }).order('created_at', { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-  if (query && q) query = query.or(`email.ilike.*${q}*,first_name.ilike.*${q}*,last_name.ilike.*${q}*`);
+  if (query && q) query = query.or(`email.ilike.*${q}*,phone.ilike.*${q}*,first_name.ilike.*${q}*,last_name.ilike.*${q}*`);
   if (query && role) query = query.eq('role', role);
   if (query && status) query = query.eq('status', status);
   // Code of Conduct filter: active players who have not agreed to the current version (migration 0028).
@@ -122,12 +122,12 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                 const manageable = canManageMember(actor, { id: m.id, role: mRole });
                 const name = `${m.first_name} ${m.last_name}`.trim();
                 return (
-                  <tr key={m.id} data-member={m.email} className="align-top">
+                  <tr key={m.id} data-member={m.email ?? m.phone} className="align-top">
                     <td className="px-4 py-3">
                       <p className="font-semibold">{name ? isolate(name) : <span className="text-muted">{t('noName')}</span>}
                         {m.id === actor.id ? <span className="ms-2 rounded-full bg-line px-2 text-xs">{t('you')}</span> : null}</p>
                       {noConduct.has(m.id) ? <p className="mt-1"><span className="rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flag')}</span></p> : null}
-                      <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email}</bdi></p>
+                      <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email ?? m.phone}</bdi>{m.email ? null : <span className="ms-2 rounded-full bg-line px-2 text-xs" dir="auto">{t('phoneAccount')}</span>}</p>
                     </td>
                     <td className="px-4 py-3">{tr(mRole)}
                       {playerOf.get(m.id) ? <a href={`/admin/invoices?player=${playerOf.get(m.id)}#list-h`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-invoices-link>{tInv('invoicesLink')}</a> : null}</td>
@@ -141,7 +141,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                           {m.status !== 'suspended' ? <ActionButton id={m.id} back={back} op="suspend" label={t('suspend')} /> : null}
                           <form action={updateMember} className="flex items-center gap-1">
                             <input type="hidden" name="id" value={m.id} /><input type="hidden" name="back" value={back} /><input type="hidden" name="op" value="role" />
-                            <select name="role" defaultValue={mRole} aria-label={`${t('colRole')}: ${m.email}`} className="min-h-9 rounded-control border border-line bg-raised px-2">
+                            <select name="role" defaultValue={mRole} aria-label={`${t('colRole')}: ${m.email ?? m.phone}`} className="min-h-9 rounded-control border border-line bg-raised px-2">
                               {choices.map((r) => <option key={r} value={r}>{tr(r)}</option>)}
                             </select>
                             <button className="min-h-9 rounded-full border border-fg px-3 font-semibold hover:bg-fg hover:text-raised">{t('saveRole')}</button>

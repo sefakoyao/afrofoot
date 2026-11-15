@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -1356,6 +1356,36 @@ grant select on public_schedule to anon, authenticated;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.22.0','feature','Events, meeting times and the calendar on the website',
   'Coaches and admins add training, games and other events (meetings, social events, tournaments, camps) with a meeting time and a place with a Google Maps link. Everything marked public appears on the website calendar automatically.','2026-11-16')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000035_phone_sign_up.sql =====
+-- 0035 Sign-up in the member app, also with a phone number (SMS code). Release 0.23.0.
+-- An account made with a phone number has no email address: profiles.email becomes optional, but every profile still
+-- has an email or a phone. The profile takes the phone from Supabase Auth (stored there without "+"), with the country code.
+-- New accounts are still pending players until an admin approves them; the fee block (0022) applies to every sign-in method.
+
+alter table profiles alter column email drop not null;
+alter table profiles add constraint profiles_email_or_phone check (email is not null or phone is not null);
+
+create or replace function app.handle_new_user() returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  m jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+  full_name text := btrim(regexp_replace(coalesce(nullif(m->>'full_name', ''), nullif(m->>'name', ''), ''), '\s+', ' ', 'g'));
+  first text := coalesce(nullif(btrim(m->>'first_name'), ''), nullif(btrim(m->>'given_name'), ''),
+                         nullif(split_part(full_name, ' ', 1), ''), '');
+  last text := coalesce(nullif(btrim(m->>'last_name'), ''), nullif(btrim(m->>'family_name'), ''),
+                        nullif(btrim(substr(full_name, length(split_part(full_name, ' ', 1)) + 1)), ''), '');
+  digits text := nullif(regexp_replace(coalesce(new.phone, ''), '[^0-9]', '', 'g'), '');
+begin
+  insert into profiles (id, email, phone, first_name, last_name)
+  values (new.id, nullif(new.email, ''), case when digits ~ '^[1-9][0-9]{6,14}$' then '+' || digits end, left(first, 80), left(last, 80));
+  return new;
+end $$;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.23.0','feature','Create an account in the app, also with a phone number',
+  'New members can create an account on the sign-in page with their email address or their phone number (a code by text message). A short football check keeps robots out. New accounts wait for approval as before.','2026-11-16')
 on conflict (version) do nothing;
 
 

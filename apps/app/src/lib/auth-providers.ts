@@ -6,19 +6,29 @@ export const SOCIAL_PROVIDERS = ['google', 'facebook'] as const;
 export type SocialProvider = (typeof SOCIAL_PROVIDERS)[number];
 export const isSocialProvider = (v: unknown): v is SocialProvider => (SOCIAL_PROVIDERS as readonly unknown[]).includes(v);
 
-/**
- * The providers switched on in Supabase (Authentication → Sign In / Providers), read from Supabase Auth's public
- * settings and cached for 5 minutes. A button only shows once its provider is set up, so nobody meets a broken button.
- */
-export async function enabledProviders(): Promise<SocialProvider[]> {
+/** Supabase Auth's public settings (which sign-in methods are on), cached for 5 minutes. */
+async function authSettings(): Promise<Record<string, boolean>> {
   const env = supabaseEnv();
-  if (!env) return [];
+  if (!env) return {};
   try {
     const r = await fetch(`${env.url}/auth/v1/settings`, { headers: { apikey: env.anonKey }, next: { revalidate: 300 } });
-    if (!r.ok) return [];
-    const s = (await r.json()) as { external?: Record<string, boolean> };
-    return SOCIAL_PROVIDERS.filter((p) => s.external?.[p] === true);
+    if (!r.ok) return {};
+    return ((await r.json()) as { external?: Record<string, boolean> }).external ?? {};
   } catch {
-    return [];
+    return {};
   }
+}
+
+/**
+ * The providers switched on in Supabase (Authentication → Sign In / Providers). A button only shows once its provider
+ * is set up, so nobody meets a broken button.
+ */
+export async function enabledProviders(): Promise<SocialProvider[]> {
+  const s = await authSettings();
+  return SOCIAL_PROVIDERS.filter((p) => s[p] === true);
+}
+
+/** Phone sign-in (a code by text message) is offered only once Phone is switched on in Supabase with an SMS provider (RUNNING §3k). */
+export async function phoneEnabled(): Promise<boolean> {
+  return (await authSettings()).phone === true;
 }
