@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
+import { BallArcs } from '@afrofoot/ui/ball-arcs';
 
 /**
- * Home page hero: a looping background video behind rotating slides (intro, next match, latest result, tryout call).
+ * Home page hero: the animated "ball arcs" background (passing lines, design option C) behind rotating slides (intro, next match, latest result, tryout call).
  * Slides are rendered on the server and passed in. Autoplay pauses on hover, focus or when the visitor asks;
  * it stays off for people who prefer reduced motion.
  */
@@ -24,8 +25,8 @@ export function HeroSlider({ slides, labels }: { slides: ReactNode[]; labels: { 
 
   return (
     <section className="relative isolate overflow-hidden bg-ink-950 text-white" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)} onFocus={() => setHold(true)} onBlur={() => setHold(false)}>
-      <video className="absolute inset-0 -z-20 size-full object-cover opacity-40" src="/hero.mp4" autoPlay muted loop playsInline preload="auto" aria-hidden />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/85 via-black/60 to-black/20" aria-hidden />
+      <div className="absolute inset-0 -z-20 bg-[radial-gradient(90%_80%_at_85%_70%,#123b0e_0%,#0b0f0a_62%)]" aria-hidden><BallArcs shape="wide" /></div>
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/80 via-black/45 to-transparent" aria-hidden />
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-16 md:pb-28 md:pt-24">
         {slides.map((s, k) => <div key={k} hidden={k !== i} aria-hidden={k !== i}>{s}</div>)}
       </div>

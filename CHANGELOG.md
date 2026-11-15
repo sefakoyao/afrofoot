@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – "ball arcs" background (branch `phase2/ball-arcs`)
+- New shared background `@afrofoot/ui/ball-arcs` (design canvas option C): passing lines draw themselves between players, a ball travels along each pass and the players pulse. One self-contained SVG (CSS and SVG animation, no JavaScript), decorative (`aria-hidden`), scales to any screen. With "reduce motion" on, the lines stay still and the balls and pulses are hidden.
+- **Website:** the home page hero uses it instead of the background video (`/hero.mp4` is still in `public/`, so it can come back).
+- **Member app:** sign-in, forgot password, reset password and the public payment page show it behind the card (a tall version on phones, a wide one on larger screens).
+- No database changes.
+
 ## Unreleased – lineup board, release 0.20.0 (branch `phase2/lineup-board`)
 - **Fix:** the chosen lineup style did not reach the lineup formation (the style was saved separately and the board then saved its old formation over it). Style, formation, instructions, plan, lineup, bench, captain and rotation plan are now one board saved in one step.
 - **Lineup style drop-down** with the description, shape, line counts and a mini pitch beside the pitch; **format and formation** drop-down grouped 11, 9, 8, 7 and 5 v 5; quick format buttons. Changing style or format keeps the players and re-places them by position. **Migration 0032 (run it once in the SQL Editor):** formations get a size; 18 new shapes for 9, 8, 7 and 5 v 5.
