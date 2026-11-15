@@ -85,6 +85,39 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
    - **Share:** image (PNG or JPG), **Share image** (phone share sheet: WhatsApp, Spond, …), a 5-second **video clip** (MP4 or WebM, depending on the browser), or copy as text.
    - **Save lineup and plan** stores everything in one step, so the style, the formation and the lineup always match.
 
+## 3h. Sign in with Google or Facebook (migration 0033, release 0.21.0)
+The buttons appear on the sign-in page by themselves once a provider is switched on in Supabase (the app reads Supabase's public settings every 5 minutes). Nothing goes into the code or into Vercel: the keys are kept by Supabase.
+
+**Database:** paste `supabase/migrations/20260101000033_social_sign_in.sql` into Supabase → SQL Editor and run it once (it takes the member's name from their Google or Facebook account).
+
+**Return address (once):** Supabase → Authentication → URL Configuration → Redirect URLs: add `https://app.afrofoot.club/auth/callback` (and the preview address if you test there, e.g. `https://afrofoot-app-*.vercel.app/auth/callback`). Then open Supabase → Authentication → Sign In / Providers → Google: the page shows the **Callback URL** of your project (`https://<project>.supabase.co/auth/v1/callback`). Copy it; both providers need it.
+
+**Google (about 15 minutes, free):**
+1. https://console.cloud.google.com → create a project "Afro Foot Club".
+2. APIs & Services → OAuth consent screen (Google Auth Platform → Branding): user type **External**; app name "Afro Foot Club"; support email; app domain `https://www.afrofoot.club`; authorised domains `afrofoot.club` and `supabase.co`. Audience → **Publish app** (otherwise only test users can sign in). The basic scopes (email, profile, openid) need no review.
+3. Clients (Credentials) → Create client → **Web application**. Authorised JavaScript origins: `https://app.afrofoot.club`. Authorised redirect URIs: the Supabase **Callback URL** from above. Create, then copy the Client ID and Client secret.
+4. Supabase → Authentication → Sign In / Providers → **Google** → enable, paste Client ID and Client secret, Save.
+
+**Facebook (about 20 minutes):**
+1. https://developers.facebook.com → My Apps → Create app → use case **Authenticate and request data from users with Facebook Login**; app name "Afro Foot Club".
+2. Use cases → Facebook Login → Customise: make sure **email** (and public_profile) are added. Settings → **Valid OAuth Redirect URIs**: the Supabase **Callback URL**.
+3. App settings → Basic: **Privacy policy URL** `https://www.afrofoot.club/privacy`, **User data deletion** → Data deletion instructions URL `https://www.afrofoot.club/privacy#delete`. App domain `afrofoot.club`, category, icon.
+4. Switch the app from **Development** to **Live** (top of the dashboard). In Development mode only people listed as app testers can sign in.
+5. Copy App ID and App secret (App settings → Basic) to Supabase → Authentication → Sign In / Providers → **Facebook** → enable, Save.
+
+**How it behaves:**
+- New accounts are pending players, as with email sign-up: an admin approves them and sets the role (Admin → Members). The name comes from the Google or Facebook account; the phone number (with country code) is still added in the profile.
+- Someone who already has an account with the same (verified) email is the same member: Supabase links the identities, so they can use either way to sign in.
+- The fee block (migration 0022) applies to every sign-in: players with overdue fees see the payment notice and the /pay page.
+- A Facebook account without an email address cannot be used (the club needs the email); the member sees a message and can use Google or email and password.
+- Instagram is not offered: it has no sign-in for personal accounts.
+
+## 3i. Privacy policy (website)
+- `https://www.afrofoot.club/privacy` (all four languages), linked from the website footer, the membership and tryout forms and the member app's sign-in page. `#delete` holds the data deletion instructions.
+- The club's business ID, address and contact email are taken from Admin → Invoices → Club billing details; until an email is entered there, `info@afrofoot.club` is shown.
+- The text is a draft written from what the apps collect: the club board should read and approve it (and adjust retention periods if needed) before Facebook sign-in goes live. If the club's practice changes (new data, new service provider, payments by MobilePay), update the text in `packages/i18n/src/messages/*.json` → `privacyPolicy` and the date.
+- Retention periods are a commitment: deleting old data is not automatic yet; until it is, an admin removes or anonymises it by hand (for example once a year).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

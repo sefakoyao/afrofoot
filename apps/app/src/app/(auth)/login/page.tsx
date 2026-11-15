@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getMember, homeFor } from '@/lib/auth';
 import { safeNext } from '@/lib/paths';
+import { SocialSignIn } from '@/components/SocialSignIn';
+import { enabledProviders } from '@/lib/auth-providers';
+import { webUrl } from '@/lib/env';
 import { LoginForm } from './LoginForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -10,7 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 /** ?reason= comes from the middleware, area guards and email links; only known values are shown. */
-const REASONS: Record<string, string> = { blocked: 'blocked', pending: 'pending', suspended: 'suspended', link: 'linkProblem', unavailable: 'unavailable' };
+const REASONS: Record<string, string> = {
+  blocked: 'blocked', pending: 'pending', suspended: 'suspended', link: 'linkProblem', unavailable: 'unavailable',
+  oauthCancelled: 'oauthCancelled', oauthFailed: 'oauthFailed', oauthNoEmail: 'oauthNoEmail',
+};
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const q = await searchParams;
@@ -19,11 +25,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const t = await getTranslations('auth');
   const reason = typeof q.reason === 'string' ? REASONS[q.reason] : undefined;
   const next = safeNext(q.next) ?? undefined;
+  const providers = await enabledProviders();
   return (
     <>
       <h1 className="font-display text-2xl font-extrabold">{t('signInTitle')}</h1>
       <p className="mb-5 mt-1 text-muted">{t('signInLead')}</p>
       <LoginForm next={next} notice={reason ?? (member ? member.status : undefined)} />
+      <SocialSignIn providers={providers} next={next} />
+      <p className="mt-6 text-center text-xs text-muted"><a href={`${webUrl()}/privacy`} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-pitch" data-privacy-link>{t('privacy')}</a></p>
     </>
   );
 }

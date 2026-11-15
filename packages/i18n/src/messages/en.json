@@ -73,7 +73,14 @@
     "linkInvalid": "This reset link is invalid or has expired.",
     "requestNewLink": "Ask for a new link",
     "continue": "Continue",
-    "blockedHow": "Pay by bank transfer to the club's account. The payment page has the details."
+    "blockedHow": "Pay by bank transfer to the club's account. The payment page has the details.",
+    "continueGoogle": "Continue with Google",
+    "continueFacebook": "Continue with Facebook",
+    "orContinue": "or",
+    "oauthCancelled": "Sign-in was cancelled. Try again or use your email and password.",
+    "oauthFailed": "Sign-in with that account did not work. Please try again, or use your email and password.",
+    "oauthNoEmail": "That account did not share an email address, which the club needs. Allow email access, or use Google or your email and password.",
+    "privacy": "Privacy policy"
   },
   "role": {
     "super_admin": "Super administrator",
@@ -1007,7 +1014,8 @@
     "nat_all": "All countries",
     "news_empty": "No news yet. Check back soon.",
     "hero_photo_alt": "Four Afro Foot players smiling on the pitch",
-    "montel_deal_alt": "Montel Intergalactic and Afro Foot representatives holding the new black kit"
+    "montel_deal_alt": "Montel Intergalactic and Afro Foot representatives holding the new black kit",
+    "priv_read": "Read the privacy policy"
   },
   "admin": {
     "navOverview": "Overview",
@@ -1924,5 +1932,46 @@
     "exportFailed": "That did not work. Please try again.",
     "saveBoard": "Save lineup and plan",
     "r_rotationInvalid": "The rotation plan does not fit the lineup: only substitutes come on, and only players on the pitch go off."
+  },
+  "privacyPolicy": {
+    "title": "Privacy policy",
+    "updated": "Updated 15 November 2026",
+    "intro": "This policy explains what personal data Afro Foot Club ry collects through its website (www.afrofoot.club) and its member app (app.afrofoot.club), why, who can see it, how long it is kept and what your rights are. It follows the EU General Data Protection Regulation (GDPR) and the Finnish Data Protection Act.",
+    "h_controller": "Who is responsible",
+    "controller": "Afro Foot Club ry, a registered association in Helsinki, Finland, is the controller of your personal data.",
+    "controller_details": "Business ID: {id}",
+    "contact": "Privacy questions and requests: <mail>{email}</mail>",
+    "h_data": "What we collect",
+    "data_lead": "We only collect what we need to run the club. Depending on how you use our services:",
+    "data_items": "Account: email address, name, language, role (player, coach or administrator) and account status. Your password is stored only in hashed (unreadable) form. If you sign in with Google or Facebook, we receive your name, email address and an account identifier from them – never your password or your posts.\nPlayer profile: date of birth, nationality, positions, shirt number and, if you add them, preferred foot, height, weight, a short bio and your photo.\nContact details: phone number, address and an emergency contact (name, relationship and phone).\nTeam activity: training attendance, your replies to events (in or out, and any note you write), match lineups, goals, assists, cards, minutes played and coaches' evaluations.\nMembership and payments: membership plan, invoices, amounts, due dates, reference numbers and payment status. We do not collect card or bank account numbers; you pay by bank transfer from your own bank.\nAgreements: your acceptance of the club's Code of Conduct and, for contracted players, the player contract and your electronic signature (typed name and time).\nApplications and messages: tryout and membership applications (including your previous team, a link to your public Palloliitto profile and, for under-18s, a parent's or guardian's name and phone), and messages sent through the contact form.\nTechnical data: sign-in sessions and a log of changes made in the member app (who changed what and when), kept for security.",
+    "data_health": "We do not ask for health information. If you write a reason for being absent (for example an injury), only your coaches and the club's administrators see it – please share no more than needed.",
+    "h_purposes": "Why we use it, and on what legal basis",
+    "purposes_items": "Running your membership – teams, trainings, matches, communication and your member account: to perform the membership agreement (GDPR Art. 6(1)(b)).\nFees, invoices and bookkeeping: to perform the agreement and to meet the Finnish Accounting Act (Art. 6(1)(b) and (c)).\nPlayer contracts and the Code of Conduct: to perform the agreement, and the club's legitimate interest in fair and safe football (Art. 6(1)(b) and (f)).\nEmergency contacts: to protect players' vital interests and the club's legitimate interest in safe activities (Art. 6(1)(d) and (f)).\nShowing your name or photo publicly (website player list, public lineups, club media): only with your consent, which you can withdraw at any time (Art. 6(1)(a)).\nSecurity and change logs: the club's legitimate interest in protecting members' data (Art. 6(1)(f)).",
+    "h_public": "What is public",
+    "public_text": "Match fixtures, results and team standings are public on our website. Your name appears on the website's player list and in public lineups only if you have agreed to it; otherwise you are shown as \"Player #\" and your shirt number. Results and statistics from official competitions also come from the Football Association of Finland's public results service.",
+    "h_who": "Who can see your data",
+    "who_items": "You: your own profile, replies, statistics, invoices, agreements and contract.\nYour coaches: the players of their own teams – contact and emergency details, attendance and replies, lineups, Code of Conduct status and player contracts (read-only).\nTeammates: team schedules and, once published, the match lineup.\nClub administrators: what is needed to run the club.\nService providers working for the club (below). We never sell your data or use it for advertising.",
+    "h_processors": "Service providers",
+    "processors_items": "Supabase – database, sign-in, email for sign-in links, and file storage (photos).\nVercel – hosting of the website and the member app.\nGoogle and Meta (Facebook) – only if you choose to sign in with them.\nThe Football Association of Finland (Palloliitto) and its results service – official competition data.",
+    "processors_transfer": "Some of these companies are based outside the EU/EEA. Where personal data is transferred outside the EU/EEA, this is done with the safeguards the GDPR requires, such as the European Commission's standard contractual clauses or the EU–US Data Privacy Framework.",
+    "h_retention": "How long we keep it",
+    "retention_items": "Member and player data: while you are a member and up to 2 years after your membership ends; then deleted or anonymised.\nInvoices and payment records: 6 years from the end of the financial year, as the Finnish Accounting Act requires.\nPlayer contracts: for the contract period and 3 years after it ends.\nTryout and membership applications that do not lead to membership: 12 months.\nContact form messages: 2 years.\nMatch results and team statistics: kept as club history; on request we anonymise your name in them.\nChange logs: 2 years.",
+    "h_rights": "Your rights",
+    "rights_lead": "You have the right to:",
+    "rights_items": "see the personal data we hold about you and get a copy of it;\nhave incorrect data corrected – much of it you can update yourself in the member app;\nhave your data deleted when it is no longer needed or you withdraw your consent (records we must keep by law are kept for the time required);\nrestrict or object to processing based on legitimate interest;\nreceive the data you gave us in a common machine-readable format;\nwithdraw your consent at any time, for example to being shown publicly.",
+    "rights_how": "Send your request to <mail>{email}</mail>. We answer within one month. If you think we handle your data unlawfully, you can complain to the Office of the Data Protection Ombudsman in Finland (tietosuoja.fi).",
+    "h_delete": "How to delete your data",
+    "delete_text": "Email <mail>{email}</mail> from the address of your account and ask us to delete your account and data. We confirm your identity, delete or anonymise your data within 30 days and tell you what we must keep by law (for example invoices). If you used \"Continue with Google\" or \"Continue with Facebook\", you can also remove Afro Foot Club from the apps connected to your Google or Facebook account; this stops that way of signing in but does not delete what the club holds, so please send us the request as well.",
+    "h_children": "Children",
+    "children_text": "Junior players can be members. For applicants under 18 we ask for a parent's or guardian's name and phone number. Children under 13 may use the member app only with a parent's or guardian's consent, and parents can exercise these rights on their child's behalf.",
+    "h_cookies": "Cookies",
+    "cookies_text": "We only use cookies that the services need to work: one keeps you signed in to the member app and one remembers your language. We do not use analytics, advertising or tracking cookies.",
+    "h_security": "Security",
+    "security_text": "Access is limited by role: the database checks every request, so each member sees only what they need. Connections are encrypted (HTTPS), passwords are stored hashed, and changes in the member app are logged.",
+    "h_changes": "Changes to this policy",
+    "changes_text": "We update this policy when our services change. The date at the top shows the current version; important changes are announced in the member app.",
+    "contents": "Contents",
+    "link": "Privacy policy",
+    "readFull": "Read the privacy policy"
   }
 }

@@ -73,7 +73,14 @@
     "linkInvalid": "Ce lien de réinitialisation est invalide ou a expiré.",
     "requestNewLink": "Demander un nouveau lien",
     "continue": "Continuer",
-    "blockedHow": "Payez par virement sur le compte du club. La page de paiement donne les coordonnées."
+    "blockedHow": "Payez par virement sur le compte du club. La page de paiement donne les coordonnées.",
+    "continueGoogle": "Continuer avec Google",
+    "continueFacebook": "Continuer avec Facebook",
+    "orContinue": "ou",
+    "oauthCancelled": "La connexion a été annulée. Réessayez ou utilisez votre e-mail et votre mot de passe.",
+    "oauthFailed": "La connexion avec ce compte n'a pas fonctionné. Réessayez ou utilisez votre e-mail et votre mot de passe.",
+    "oauthNoEmail": "Ce compte n'a pas partagé d'adresse e-mail, nécessaire au club. Autorisez l'accès à l'e-mail, ou utilisez Google ou votre e-mail et mot de passe.",
+    "privacy": "Politique de confidentialité"
   },
   "role": {
     "super_admin": "Super administrateur",
@@ -1007,7 +1014,8 @@
     "nat_all": "Tous les pays",
     "news_empty": "Pas encore d'actualités. Revenez bientôt.",
     "hero_photo_alt": "Quatre joueurs d’Afro Foot souriants sur le terrain",
-    "montel_deal_alt": "Des représentants de Montel Intergalactic et d’Afro Foot présentent le nouveau maillot noir"
+    "montel_deal_alt": "Des représentants de Montel Intergalactic et d’Afro Foot présentent le nouveau maillot noir",
+    "priv_read": "Lire la politique de confidentialité"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",
@@ -1924,5 +1932,46 @@
     "exportFailed": "Cela n'a pas fonctionné. Réessayez.",
     "saveBoard": "Enregistrer la composition et le plan",
     "r_rotationInvalid": "Le plan de rotation ne correspond pas : seuls les remplaçants entrent et seuls les joueurs sur le terrain sortent."
+  },
+  "privacyPolicy": {
+    "title": "Politique de confidentialité",
+    "updated": "Mise à jour le 15 novembre 2026",
+    "intro": "Cette politique explique quelles données personnelles Afro Foot Club ry collecte via son site (www.afrofoot.club) et son application membres (app.afrofoot.club), pourquoi, qui peut les voir, combien de temps elles sont conservées et quels sont vos droits. Elle suit le Règlement général sur la protection des données (RGPD) et la loi finlandaise sur la protection des données.",
+    "h_controller": "Responsable du traitement",
+    "controller": "Afro Foot Club ry, association enregistrée à Helsinki (Finlande), est responsable du traitement de vos données personnelles.",
+    "controller_details": "Numéro d'entreprise : {id}",
+    "contact": "Questions et demandes relatives à la vie privée : <mail>{email}</mail>",
+    "h_data": "Les données que nous collectons",
+    "data_lead": "Nous ne collectons que ce dont nous avons besoin pour faire vivre le club. Selon votre utilisation de nos services :",
+    "data_items": "Compte : adresse e-mail, nom, langue, rôle (joueur, entraîneur ou administrateur) et statut du compte. Votre mot de passe n'est conservé que sous forme hachée (illisible). Si vous vous connectez avec Google ou Facebook, nous recevons votre nom, votre adresse e-mail et un identifiant de compte – jamais votre mot de passe ni vos publications.\nProfil de joueur : date de naissance, nationalité, postes, numéro de maillot et, si vous les ajoutez, pied fort, taille, poids, une courte présentation et votre photo.\nCoordonnées : numéro de téléphone, adresse et une personne à prévenir en cas d'urgence (nom, lien et téléphone).\nActivité de l'équipe : présence aux entraînements, vos réponses aux événements (présent ou absent, et le message que vous écrivez), compositions, buts, passes décisives, cartons, minutes jouées et évaluations des entraîneurs.\nAdhésion et paiements : formule d'adhésion, factures, montants, échéances, références et statut des paiements. Nous ne collectons aucun numéro de carte ou de compte bancaire ; vous payez par virement depuis votre propre banque.\nEngagements : votre acceptation du code de conduite du club et, pour les joueurs sous contrat, le contrat de joueur et votre signature électronique (nom saisi et heure).\nCandidatures et messages : demandes d'essai et d'adhésion (y compris votre ancien club, un lien vers votre profil public Palloliitto et, pour les moins de 18 ans, le nom et le téléphone d'un parent ou tuteur), et messages envoyés via le formulaire de contact.\nDonnées techniques : sessions de connexion et journal des modifications faites dans l'application (qui a modifié quoi et quand), conservés pour la sécurité.",
+    "data_health": "Nous ne demandons pas d'informations de santé. Si vous indiquez la raison d'une absence (par exemple une blessure), seuls vos entraîneurs et les administrateurs du club la voient – n'en dites pas plus que nécessaire.",
+    "h_purposes": "Finalités et bases légales",
+    "purposes_items": "Gestion de votre adhésion – équipes, entraînements, matchs, communication et compte membre : exécution du contrat d'adhésion (RGPD art. 6(1)(b)).\nCotisations, factures et comptabilité : exécution du contrat et respect de la loi finlandaise sur la comptabilité (art. 6(1)(b) et (c)).\nContrats de joueur et code de conduite : exécution du contrat et intérêt légitime du club à un football loyal et sûr (art. 6(1)(b) et (f)).\nPersonnes à prévenir en cas d'urgence : protection des intérêts vitaux des joueurs et intérêt légitime du club à des activités sûres (art. 6(1)(d) et (f)).\nAffichage public de votre nom ou de votre photo (liste des joueurs du site, compositions publiques, médias du club) : uniquement avec votre consentement, que vous pouvez retirer à tout moment (art. 6(1)(a)).\nSécurité et journal des modifications : intérêt légitime du club à protéger les données des membres (art. 6(1)(f)).",
+    "h_public": "Ce qui est public",
+    "public_text": "Le calendrier, les résultats et les classements sont publics sur notre site. Votre nom n'apparaît dans la liste des joueurs et les compositions publiques que si vous l'avez accepté ; sinon vous êtes affiché comme « Joueur # » avec votre numéro. Les résultats et statistiques des compétitions officielles proviennent aussi du service public de résultats de la Fédération finlandaise de football.",
+    "h_who": "Qui peut voir vos données",
+    "who_items": "Vous : votre profil, vos réponses, statistiques, factures, engagements et contrat.\nVos entraîneurs : les joueurs de leurs propres équipes – coordonnées et contacts d'urgence, présences et réponses, compositions, statut du code de conduite et contrats (lecture seule).\nVos coéquipiers : le calendrier de l'équipe et, une fois publiée, la composition du match.\nLes administrateurs du club : ce qui est nécessaire pour gérer le club.\nLes prestataires travaillant pour le club (ci-dessous). Nous ne vendons jamais vos données et ne les utilisons pas pour la publicité.",
+    "h_processors": "Prestataires de services",
+    "processors_items": "Supabase – base de données, connexion, e-mails de connexion et stockage de fichiers (photos).\nVercel – hébergement du site et de l'application membres.\nGoogle et Meta (Facebook) – uniquement si vous choisissez de vous connecter avec eux.\nLa Fédération finlandaise de football (Palloliitto) et son service de résultats – données des compétitions officielles.",
+    "processors_transfer": "Certaines de ces entreprises sont établies hors de l'UE/EEE. Lorsque des données personnelles sont transférées hors de l'UE/EEE, c'est avec les garanties exigées par le RGPD, comme les clauses contractuelles types de la Commission européenne ou le cadre de protection des données UE–États-Unis.",
+    "h_retention": "Durées de conservation",
+    "retention_items": "Données des membres et des joueurs : pendant l'adhésion et jusqu'à 2 ans après sa fin ; elles sont ensuite supprimées ou anonymisées.\nFactures et paiements : 6 ans à compter de la fin de l'exercice, comme l'exige la loi finlandaise sur la comptabilité.\nContrats de joueur : pendant la durée du contrat et 3 ans après sa fin.\nDemandes d'essai et d'adhésion qui n'aboutissent pas : 12 mois.\nMessages du formulaire de contact : 2 ans.\nRésultats et statistiques d'équipe : conservés comme histoire du club ; sur demande, nous anonymisons votre nom.\nJournal des modifications : 2 ans.",
+    "h_rights": "Vos droits",
+    "rights_lead": "Vous avez le droit de :",
+    "rights_items": "consulter les données que nous détenons sur vous et en obtenir une copie ;\nfaire corriger les données inexactes – vous pouvez en mettre à jour une grande partie vous-même dans l'application ;\nfaire supprimer vos données lorsqu'elles ne sont plus nécessaires ou que vous retirez votre consentement (les données que la loi nous oblige à garder sont conservées le temps requis) ;\nlimiter un traitement fondé sur l'intérêt légitime ou vous y opposer ;\nrecevoir les données que vous nous avez fournies dans un format courant lisible par machine ;\nretirer votre consentement à tout moment, par exemple à l'affichage public.",
+    "rights_how": "Envoyez votre demande à <mail>{email}</mail>. Nous répondons dans un délai d'un mois. Si vous estimez que nous traitons vos données de manière illicite, vous pouvez saisir le Bureau du médiateur finlandais de la protection des données (tietosuoja.fi).",
+    "h_delete": "Comment supprimer vos données",
+    "delete_text": "Écrivez à <mail>{email}</mail> depuis l'adresse de votre compte et demandez la suppression de votre compte et de vos données. Nous vérifions votre identité, supprimons ou anonymisons vos données sous 30 jours et vous indiquons ce que la loi nous oblige à garder (par exemple les factures). Si vous avez utilisé « Continuer avec Google » ou « Continuer avec Facebook », vous pouvez aussi retirer Afro Foot Club des applications liées à votre compte Google ou Facebook ; cela empêche ce mode de connexion mais ne supprime pas les données du club, envoyez-nous donc aussi la demande.",
+    "h_children": "Enfants",
+    "children_text": "Les jeunes joueurs peuvent être membres. Pour les candidats de moins de 18 ans, nous demandons le nom et le téléphone d'un parent ou tuteur. Les enfants de moins de 13 ans ne peuvent utiliser l'application qu'avec le consentement d'un parent ou tuteur, qui peut exercer ces droits pour l'enfant.",
+    "h_cookies": "Cookies",
+    "cookies_text": "Nous n'utilisons que les cookies nécessaires au fonctionnement : l'un vous garde connecté à l'application membres, l'autre retient votre langue. Nous n'utilisons pas de cookies d'analyse, de publicité ou de suivi.",
+    "h_security": "Sécurité",
+    "security_text": "L'accès est limité par rôle : la base de données vérifie chaque requête, chacun ne voit que ce dont il a besoin. Les connexions sont chiffrées (HTTPS), les mots de passe sont hachés et les modifications dans l'application sont journalisées.",
+    "h_changes": "Modifications",
+    "changes_text": "Nous mettons à jour cette politique lorsque nos services évoluent. La date en haut indique la version en vigueur ; les changements importants sont annoncés dans l'application membres.",
+    "contents": "Sommaire",
+    "link": "Politique de confidentialité",
+    "readFull": "Lire la politique de confidentialité"
   }
 }
