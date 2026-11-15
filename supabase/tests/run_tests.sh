@@ -9,3 +9,4 @@ for f in migrations/*.sql; do echo "migrate $f"; psql -q -v ON_ERROR_STOP=1 -d $
 psql -q -v ON_ERROR_STOP=1 -d $DB -f seed.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/10_rls.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/20_invoices.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/30_conduct.sql

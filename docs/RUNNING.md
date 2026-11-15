@@ -47,8 +47,15 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
 3. **Plans:** add the membership plans (price and period: month, quarter, year, season; one-off plans are never invoiced automatically).
 4. **Memberships:** put each player on a plan with the date their first period starts, "Invoice automatically" ticked. The nightly job (04:15 UTC) issues each invoice `lead_days` before its period starts; "Create due invoices now" does the same on demand. An invoice covers one plan period: one line per month, one line for a season.
 5. **Payments:** when the money arrives, click **Mark paid**. Unpaid invoices past their due date count as overdue and, after the grace period, block the player's sign-in (migration 0022) — the public Membership page stays open for paying.
-6. **Players** open their invoices from their page ("Invoice (PDF)"). The PDF's QR code and link point to `APP_URL` (or the app's address) + `/me`; set `APP_URL` on Vercel to the final domain.
+6. **Players** open their invoices from the **Membership** tab of their page ("Invoice (PDF)"). The PDF's QR code and link point to `APP_URL` (or the app's address) + `/me/membership`; set `APP_URL` on Vercel to the final domain.
 7. Not yet: sending invoices by email (needs an email provider / custom SMTP).
+
+## 3d. Player tabs and Code of Conduct (migration 0028, release 0.17.0)
+1. **Database:** paste `supabase/migrations/20260101000028_code_of_conduct.sql` into Supabase → SQL Editor and run it once (fresh installs get it with `supabase/paste/part3.sql`). It adds `conduct_versions` and `conduct_consents` and publishes the club's Code of Ethics (version 2027) as the current version.
+2. The PDF is served by the app from `apps/app/public/documents/afro-foot-club-code-of-ethics-2027.pdf`.
+3. **Players** see three tabs: **Calendar** (all trainings, matches and friendlies of their teams, month by month), **Membership** (Code of Conduct, payments, invoices) and **My season** (stats, attendance, player profile). Until they agree to the current version, a red banner on every tab links to the text and the "I agree" form.
+4. **Admins** see the number of players without consent on the overview, a "Code of Conduct: not agreed" filter and a flag in Members, and a flag in team rosters. Coaches see the flag in their team rosters.
+5. **New version later:** an admin inserts a new row in `conduct_versions` and sets it as the only `is_current` one; every player must then agree again.
 
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
