@@ -23,7 +23,7 @@ export default async function AccountPage() {
         </dl>
       </section>
       <section className="rounded-card border border-line bg-raised p-6">
-        <ProfileForm initial={{ first_name: member.firstName, last_name: member.lastName, phone: member.phone ?? '', locale: member.locale }} />
+        <ProfileForm showPhone={member.role !== 'player'} initial={{ first_name: member.firstName, last_name: member.lastName, phone: member.phone ?? '', locale: member.locale }} />
       </section>
       <section className="rounded-card border border-line bg-raised p-6">
         <h2 className="font-display text-lg font-extrabold">{t('passwordTitle')}</h2>

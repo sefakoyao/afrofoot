@@ -7,13 +7,21 @@ import { LOCALE_COOKIE, LOCALE_COOKIE_OPTIONS } from '@/lib/locale';
 import { profileSchema } from '@/lib/schemas';
 import { getSupabase } from '@/lib/supabase/server';
 
-export type ProfileState = { status: 'idle' } | { status: 'ok' } | { status: 'error'; error: string };
+/** On error the submitted values come back, so the form shows them again (React resets a form after every action). */
+export type ProfileState = { status: 'idle' } | { status: 'ok' } | { status: 'error'; error: string; values?: Record<string, string> };
 
 /**
  * Save the signed-in member's own name, phone and language. RLS (profiles_self_update) limits the row to their own;
  * the guard_profiles trigger stops any change to role, status or email. Error values are keys under `account.*`.
  */
 export async function updateProfile(_: ProfileState, fd: FormData): Promise<ProfileState> {
+  const r = await update(fd);
+  return r.status === 'error'
+    ? { ...r, values: Object.fromEntries(['first_name', 'last_name', 'phone', 'locale'].map((k) => [k, String(fd.get(k) ?? '').slice(0, 120)])) }
+    : r;
+}
+
+async function update(fd: FormData): Promise<ProfileState> {
   const member = await requireMember('/account');
   const p = profileSchema.safeParse(Object.fromEntries(fd));
   if (!p.success) return { status: 'error', error: p.error.issues[0]?.message ?? 'e_failed' };

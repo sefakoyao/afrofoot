@@ -3,7 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – member app, part 3: player page and account (branch `phase2/player-page`)
+## Unreleased – player portal: sport profile, season stats, training (branch `phase2/player-sport`)
+- Player home: position and shirt number; **This season** (games played, goals, assists, minutes, cards, clean sheets for goalkeepers, last 5 matches with score) from `match_player_stats`; **Training this season** (attended, missed, excused, attendance %, late arrivals) from `session_attendance`; **My player profile** card with missing details flagged.
+- `/me/profile`: preferred foot, height, weight, phone (WhatsApp, with country code), emergency contact (name, relation, phone). Position is shown but stays with the coach (database: `app.restrict_columns`). Players' phone now lives here (`player_private`, visible to their coaches), so the Account page hides its phone field for players.
+- Forms keep what was typed after a validation error (player profile and account).
+- Demo script adds sport data on the sample season: positions, a phone and emergency contact, match stats and 8 training sessions with attendance.
+- No database changes.
+
+## Member app, part 3: player page and account (merged in #16)
 - Player home (`/me`): team, paid / still owed / overdue totals, a clear status message (all paid, amount and next due date, or overdue with the date sign-in will be blocked), the club's exemption if any, a "See payment options" button to the public Membership page, and the payment history. Data comes from `my_payment_summary()` and `my_payments` (migration 0022), which only return the signed-in player's own payments.
 - Account page (`/account`, all roles; open it by clicking your name in the black bar): edit first and last name, phone (with country code, stored as +358…) and language; change password. Role, status and email cannot be changed here (database trigger).
 - Phone layout: wide tables scroll inside their card instead of widening the page (also on the admin Members and Audit log pages).

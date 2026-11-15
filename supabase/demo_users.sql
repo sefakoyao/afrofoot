@@ -3,6 +3,8 @@
 -- Creates: 1 coach and 3 players who can sign in, plus 1 player waiting for approval (to try the Members page).
 -- Sample payments: player1 paid last month and has one coming up; player2 is overdue but still inside the grace period
 -- (sees the warning, can still sign in); player3 is fully paid.
+-- Sport data (needs the sample season from seed_staging_sample.sql, run that first): match stats on the sample's played
+-- matches and 8 past "Demo training" sessions with attendance. player1 also gets a phone and an emergency contact.
 -- Password for every demo account: Demo-Afrofoot-2026   (change it below before running if you like)
 -- All addresses end in @example.com, a reserved domain that never receives mail, so password-reset emails go nowhere.
 -- Remove them all: supabase/remove_demo_users.sql
@@ -63,6 +65,47 @@ begin
       end if;
     end if;
   end loop;
+end $$;
+
+-- Sport data for the active demo players: profile details, match stats and training attendance (current season only).
+do $$
+declare
+  v_ts uuid := (select ts.id from team_seasons ts join seasons s on s.id = ts.season_id where s.is_current order by ts.created_at limit 1);
+  p1 uuid := (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email = 'demo-player1@example.com');
+  p2 uuid := (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email = 'demo-player2@example.com');
+  p3 uuid := (select pl.id from players pl join profiles p on p.id = pl.profile_id where p.email = 'demo-player3@example.com');
+  m record; i int := 0;
+begin
+  if p1 is null or v_ts is null then return; end if;
+  update players set preferred_foot = 'right', height_cm = 181 where id = p1 and preferred_foot is null;
+  update players set preferred_foot = 'left' where id = p2 and preferred_foot is null;
+  insert into player_private (player_id, phone, emergency_name, emergency_relation, emergency_phone)
+  values (p1, '+358401110001', 'Fatou Diallo', 'mother', '+358401110002') on conflict (player_id) do nothing;
+
+  -- Stats on the played matches, newest first (skipped if this player already has stats for the match).
+  for m in select id, goals_for, goals_against from matches where team_season_id = v_ts and status = 'played' order by kickoff_at desc loop
+    i := i + 1;
+    insert into match_player_stats (match_id, player_id, minutes, goals, assists, yellow_cards, clean_sheet) values
+      (m.id, p1, case i when 4 then 0 else 90 - (i - 1) * 5 end, (array[2,0,1,0])[least(i,4)], (array[0,1,1,0])[least(i,4)], 0, false),
+      (m.id, p2, 90, (array[0,1,0,0])[least(i,4)], (array[2,0,1,0])[least(i,4)], case i when 2 then 1 else 0 end, false),
+      (m.id, p3, 90, 0, 0, 0, m.goals_against = 0)
+    on conflict (match_id, player_id) do nothing;
+  end loop;
+
+  -- 8 past training sessions (the database adds an attendance row for every player in the team), then mark the demo players.
+  if not exists (select 1 from training_sessions where team_season_id = v_ts and title = 'Demo training') then
+    insert into training_sessions (team_season_id, title, starts_at, ends_at, status)
+    select v_ts, 'Demo training', date_trunc('day', now()) - (n * 3 || ' days')::interval + interval '17 hours',
+           date_trunc('day', now()) - (n * 3 || ' days')::interval + interval '18 hours 30 minutes', 'completed'
+    from generate_series(1, 8) n;
+    update session_attendance sa set attendance = x.att::attendance_status, marked_at = now()
+    from (select ts.id, row_number() over (order by ts.starts_at desc) as k from training_sessions ts where ts.team_season_id = v_ts and ts.title = 'Demo training') s,
+         lateral (values
+           (p1, (array['present','present','late','present','absent','present','present','present'])[s.k]),
+           (p2, (array['present','absent','excused','present','absent','present','excused','present'])[s.k]),
+           (p3, 'present')) as x(pid, att)
+    where sa.session_id = s.id and sa.player_id = x.pid;
+  end if;
 end $$;
 
 select p.email, p.first_name || ' ' || p.last_name as name, p.role, p.status, (pl.id is not null) as has_player_record
