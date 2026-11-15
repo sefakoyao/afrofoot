@@ -1113,7 +1113,14 @@
     "tr_rate": "Attendance",
     "tr_late": "Late arrivals: {count}",
     "tr_none": "No training sessions have been marked for you this season yet.",
-    "invoicePdf": "Invoice (PDF)"
+    "invoicePdf": "Invoice (PDF)",
+    "myInvoices": "My invoices",
+    "noInvoices": "No invoices yet.",
+    "invoiceNo": "Invoice",
+    "st_open": "Open",
+    "dueOn": "Due {date}",
+    "paidOn": "Paid on {date}",
+    "openPdf": "Open invoice (PDF)"
   },
   "account": {
     "title": "My account",
@@ -1401,6 +1408,20 @@
     "r_planName": "Enter a plan name of 2 to 80 characters.",
     "r_price": "Enter the price in euros, for example 20 or 20.50.",
     "r_date": "Choose a date.",
-    "r_noSeason": "There is no current season. Create one under Teams first."
+    "r_noSeason": "There is no current season. Create one under Teams first.",
+    "invoicesOf": "Invoices of {name}",
+    "search": "Player or invoice number",
+    "searchEg": "for example Diallo or 2026-01168",
+    "all": "All",
+    "month": "Issued in",
+    "filter": "Filter",
+    "clear": "Clear",
+    "noMatch": "No invoices match these filters.",
+    "colIssued": "Issued",
+    "found": "Invoices found: {count}",
+    "pageOf": "Page {page} of {pages}",
+    "prev": "Previous",
+    "next": "Next",
+    "invoicesLink": "Invoices"
   }
 }

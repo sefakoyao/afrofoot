@@ -7,6 +7,7 @@ import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
 import { formatIban, ibanValid } from '@/lib/invoice/barcode';
 import { loadBilling } from '@/lib/invoice/data';
+import { INVOICE_STATUSES, effectiveStatus, listInvoices, parseFilters } from '@/lib/invoice/list';
 import { getSupabase } from '@/lib/supabase/server';
 import { addDays, helsinkiToday } from '@/lib/time';
 
@@ -19,7 +20,6 @@ const input = 'min-h-10 w-full rounded-control border border-line bg-raised px-3
 const btn = 'min-h-10 rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110';
 const BADGE: Record<string, string> = { paid: 'bg-accent/20 text-pitch', pending: 'bg-line', failed: 'bg-danger/10 text-danger', refunded: 'bg-line text-muted', overdue: 'bg-danger/10 text-danger' };
 
-type InvoiceRow = { id: string; invoice_number: string; amount_cents: number; due_on: string | null; status: string; players: { first_name: string; last_name: string } | null };
 type MembershipRow = { id: string; status: string; auto_renew: boolean; next_due_on: string | null; players: { first_name: string; last_name: string }; membership_plans: { name: string; amount_cents: number; period: string } };
 
 /** Admin → Invoices. The nightly job (pg_cron, migration 0027) issues the invoices; this page sets it up and follows it. */
@@ -34,9 +34,10 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const day = (iso: string | null) => (iso ? fmt.date.format(new Date(`${iso}T12:00:00Z`)) : '–');
   const today = helsinkiToday();
 
-  const [billing, { data: invoices }, { data: memberships }, { data: plans }, { data: players }, { data: season }] = await Promise.all([
+  const filters = parseFilters(sp);
+  const [billing, list, { data: memberships }, { data: plans }, { data: players }, { data: season }] = await Promise.all([
     loadBilling(supabase),
-    supabase.from('payments').select('id, invoice_number, amount_cents, due_on, status, players(first_name, last_name)').not('invoice_number', 'is', null).order('created_at', { ascending: false }).limit(40),
+    listInvoices(supabase, filters, today),
     supabase.from('memberships').select('id, status, auto_renew, next_due_on, players!inner(first_name, last_name), membership_plans!inner(name, amount_cents, period), seasons!inner(is_current)').eq('seasons.is_current', true).order('next_due_on', { nullsFirst: false }),
     supabase.from('membership_plans').select('id, name, amount_cents, period, active').order('active', { ascending: false }).order('name'),
     supabase.from('players').select('id, first_name, last_name').order('last_name'),
@@ -45,7 +46,15 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const ready = ibanValid(billing.iban) && !!billing.legal_name;
   const firstOfNextMonth = (() => { const [y, m] = today.split('-').map(Number) as [number, number]; return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); })();
   const result = typeof sp.result === 'string' ? sp.result : '';
-  const status = (r: InvoiceRow) => (r.status === 'pending' && r.due_on && r.due_on < today ? 'overdue' : r.status);
+  const playerName = filters.player ? (players ?? []).find((p) => p.id === filters.player) : null;
+  /** Address of the list with the current filters, changed by `over` (page resets unless given). */
+  const listUrl = (over: Record<string, string | number> = {}) => {
+    const u = new URLSearchParams();
+    for (const [k, v] of Object.entries({ q: filters.q, status: filters.status, month: filters.month, player: filters.player, ...over })) if (v !== '' && v !== undefined) u.set(k, String(v));
+    return `/admin/invoices${u.size ? `?${u}` : ''}`;
+  };
+  const back = `${listUrl(filters.page > 1 ? { page: filters.page } : {})}#list-h`;
+  const filtered = !!(filters.q || filters.status || filters.month || filters.player);
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -66,38 +75,73 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         <p className="mt-2 text-xs text-muted">{t('runNowNote')}</p>
       </section>
 
-      {/* 2. invoices */}
+      {/* 2. invoices: search, filters, totals, paging */}
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="list-h">
-        <h2 id="list-h" className="font-display text-xl font-extrabold">{t('invoices')}</h2>
-        {(invoices ?? []).length === 0 ? <p className="mt-2 text-muted">{t('noInvoices')}</p> : (
+        <h2 id="list-h" className="scroll-mt-4 font-display text-xl font-extrabold">{playerName ? t('invoicesOf', { name: `${playerName.first_name} ${playerName.last_name}` }) : t('invoices')}</h2>
+        <form role="search" action="/admin/invoices#list-h" className="mt-3 grid gap-3 rounded-card bg-surface p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
+          {filters.player ? <input type="hidden" name="player" value={filters.player} /> : null}
+          <label className="grid gap-1 text-sm font-semibold">{t('search')}<input name="q" type="search" defaultValue={filters.q} maxLength={60} placeholder={t('searchEg')} className={input} /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('colStatus')}
+            <select name="status" defaultValue={filters.status} className={input}><option value="">{t('all')}</option>{INVOICE_STATUSES.map((s) => <option key={s} value={s}>{t(`st_${s === 'open' ? 'pending' : s}` as 'st_paid')}</option>)}</select></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('month')}<input name="month" type="month" defaultValue={filters.month} className={input} /></label>
+          <div className="flex gap-2">
+            <button className={btn}>{t('filter')}</button>
+            {filtered ? <a href="/admin/invoices#list-h" className="inline-flex min-h-10 items-center rounded-full border border-line px-4 font-semibold hover:border-accent">{t('clear')}</a> : null}
+          </div>
+        </form>
+
+        <dl className="mt-3 grid grid-cols-3 gap-2 text-sm" data-totals>
+          {(['open', 'overdue', 'paid'] as const).map((s) => (
+            <div key={s} className={`rounded-card p-3 ${s === 'overdue' && list.totals.overdue.n ? 'bg-danger/10' : s === 'paid' ? 'bg-accent/10' : 'bg-surface'}`} data-total={s}>
+              <dt className="text-muted">{t(`st_${s === 'open' ? 'pending' : s}` as 'st_paid')} ({list.totals[s].n})</dt>
+              <dd className="font-display text-lg font-black">{eur(list.totals[s].cents)}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {list.rows.length === 0 ? <p className="mt-3 text-muted">{filtered ? t('noMatch') : t('noInvoices')}</p> : (
           <div className="relative mt-3 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
-                <tr>{['colNumber', 'colPlayer', 'colAmount', 'colDue', 'colStatus'].map((k) => <th key={k} scope="col" className="px-2 py-2 text-start">{t(k as 'colNumber')}</th>)}<th scope="col" className="px-2 py-2"><span className="sr-only">{t('colActions')}</span></th></tr>
+                <tr>{['colNumber', 'colPlayer', 'colIssued', 'colAmount', 'colDue', 'colStatus'].map((k) => <th key={k} scope="col" className="px-2 py-2 text-start">{t(k as 'colNumber')}</th>)}<th scope="col" className="px-2 py-2"><span className="sr-only">{t('colActions')}</span></th></tr>
               </thead>
               <tbody className="divide-y divide-line">
-                {(invoices as unknown as InvoiceRow[]).map((r) => (
-                  <tr key={r.id} data-invoice={r.invoice_number}>
-                    <td className="px-2 py-2 font-semibold" dir="ltr">{r.invoice_number}</td>
-                    <td className="px-2 py-2"><bdi>{r.players ? `${r.players.first_name} ${r.players.last_name}` : '–'}</bdi></td>
-                    <td className="whitespace-nowrap px-2 py-2">{eur(r.amount_cents)}</td>
-                    <td className="whitespace-nowrap px-2 py-2">{day(r.due_on)}</td>
-                    <td className="px-2 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[status(r)] ?? ''}`}>{t(`st_${status(r)}` as 'st_paid')}</span></td>
-                    <td className="px-2 py-2">
-                      <div className="flex flex-wrap justify-end gap-2">
-                        <a href={`/invoices/${r.id}`} target="_blank" rel="noopener" className="inline-flex min-h-9 items-center rounded-full border border-line px-3 font-semibold hover:border-accent">PDF</a>
-                        {r.status === 'pending' || r.status === 'failed' ? (
-                          <form action={markPaid}><input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value="/admin/invoices" />
-                            <button className="min-h-9 rounded-full bg-accent px-3 font-bold text-on-accent hover:brightness-110">{t('markPaid')}</button></form>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {list.rows.map((r) => {
+                  const st = effectiveStatus(r.status, r.dueOn, today);
+                  return (
+                    <tr key={r.id} data-invoice={r.invoiceNumber}>
+                      <td className="px-2 py-2 font-semibold" dir="ltr">{r.invoiceNumber}</td>
+                      <td className="px-2 py-2"><a href={listUrl({ player: r.playerId }) + '#list-h'} className="underline-offset-2 hover:underline"><bdi>{r.playerName}</bdi></a></td>
+                      <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(r.issuedAt))}</td>
+                      <td className="whitespace-nowrap px-2 py-2">{eur(r.amountCents)}</td>
+                      <td className="whitespace-nowrap px-2 py-2">{day(r.dueOn)}</td>
+                      <td className="px-2 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{t(`st_${st === 'open' ? 'pending' : st}` as 'st_paid')}</span></td>
+                      <td className="px-2 py-2">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <a href={`/invoices/${r.id}`} target="_blank" rel="noopener" className="inline-flex min-h-9 items-center rounded-full border border-line px-3 font-semibold hover:border-accent">PDF</a>
+                          {r.status === 'pending' || r.status === 'failed' ? (
+                            <form action={markPaid}><input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value={back} />
+                              <button className="min-h-9 rounded-full bg-accent px-3 font-bold text-on-accent hover:brightness-110">{t('markPaid')}</button></form>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         )}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+          <span className="text-muted" data-count>{t('found', { count: list.count })}</span>
+          {list.pages > 1 ? (
+            <nav className="flex items-center gap-2" aria-label={t('pageOf', { page: filters.page, pages: list.pages })}>
+              {filters.page > 1 ? <a href={listUrl({ page: filters.page - 1 }) + '#list-h'} className="rounded-full border border-line px-4 py-1.5 font-semibold hover:border-accent">{t('prev')}</a> : null}
+              <span className="text-muted">{t('pageOf', { page: filters.page, pages: list.pages })}</span>
+              {filters.page < list.pages ? <a href={listUrl({ page: filters.page + 1 }) + '#list-h'} className="rounded-full border border-line px-4 py-1.5 font-semibold hover:border-accent">{t('next')}</a> : null}
+            </nav>
+          ) : null}
+        </div>
       </section>
 
       {/* 3. memberships */}

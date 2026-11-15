@@ -36,6 +36,18 @@ export default async function PlayerHome() {
   const [stats, training]: [SeasonStats | null, Training | null] = supabase && sport
     ? await Promise.all([loadSeasonStats(supabase, sport.id), loadTraining(supabase, sport.id)]) : [null, null];
   const s = ((summaryRows as Summary[] | null) ?? [])[0];
+  // My invoices: the invoice payments, newest first, with the months they cover (payment_lines, readable for own invoices only).
+  const invoices = ((paymentRows as Payment[] | null) ?? []).filter((p) => p.invoice_number);
+  const { data: lineRows } = supabase && invoices.length
+    ? await supabase.from('payment_lines').select('payment_id, line_date').in('payment_id', invoices.map((p) => p.id)) : { data: [] };
+  const span = new Map<string, { from: string; to: string }>();
+  for (const l of lineRows ?? []) {
+    if (!l.line_date) continue;
+    const cur = span.get(l.payment_id);
+    span.set(l.payment_id, { from: !cur || l.line_date < cur.from ? l.line_date : cur.from, to: !cur || l.line_date > cur.to ? l.line_date : cur.to });
+  }
+  const monthYear = new Intl.DateTimeFormat(LOCALE_LABELS[isLocale(rawLocale) ? rawLocale : 'en'].intl, { month: 'short', year: 'numeric', timeZone: 'UTC' });
+  const period = (id: string) => { const x = span.get(id); if (!x) return null; const a = monthYear.format(day(x.from)), b = monthYear.format(day(x.to)); return a === b ? a : `${a} – ${b}`; };
   const payments = (paymentRows as Payment[] | null) ?? [];
   const today = new Date().toISOString().slice(0, 10);
   const exempt = s?.exempt_until && s.exempt_until >= today ? s.exempt_until : null;
@@ -139,6 +151,32 @@ export default async function PlayerHome() {
             <p className="text-sm text-muted">{t('payHelp')}</p>
           </div>
         ) : null}
+      </section>
+
+      <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="inv-h">
+        <h2 id="inv-h" className="font-display text-xl font-extrabold">{t('myInvoices')}</h2>
+        {invoices.length === 0 ? <p className="mt-2 text-muted">{t('noInvoices')}</p> : (
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {invoices.map((p) => {
+              const st = p.display_status === 'overdue' ? 'overdue' : p.display_status === 'paid' ? 'paid' : 'open';
+              const per = period(p.id);
+              return (
+                <li key={p.id} data-my-invoice={p.invoice_number} className={`grid gap-2 rounded-card border-2 p-4 ${st === 'overdue' ? 'border-danger/40 bg-danger/5' : st === 'paid' ? 'border-line' : 'border-accent/50'}`}>
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm text-muted">{t('invoiceNo')} <span dir="ltr" className="font-semibold text-fg">{p.invoice_number}</span></p>
+                      {per ? <p className="font-semibold">{per}</p> : null}
+                    </div>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{st === 'overdue' ? t('st_overdue') : st === 'paid' ? ts('paid') : t('st_open')}</span>
+                  </div>
+                  <p className="font-display text-2xl font-black">{eur(p.amount_cents)}</p>
+                  <p className="text-sm text-muted">{st === 'paid' ? t('paidOn', { date: p.paid_at ? fmt.date.format(new Date(p.paid_at)) : '–' }) : t('dueOn', { date: p.due_on ? fmt.date.format(day(p.due_on)) : '–' })}</p>
+                  <a href={`/invoices/${p.id}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center justify-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('openPdf')}</a>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="hist-h">

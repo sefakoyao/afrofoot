@@ -49,6 +49,10 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   };
   const back = params({});
   const choices = assignableRoles(actor.role);
+  // Player records of the listed members, for the "Invoices" link (invoices belong to player records).
+  const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
+  const playerOf = new Map((playerLinks ?? []).map((p) => [p.profile_id, p.id]));
+  const tInv = await getTranslations('inv');
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -108,7 +112,8 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                         {m.id === actor.id ? <span className="ms-2 rounded-full bg-line px-2 text-xs">{t('you')}</span> : null}</p>
                       <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email}</bdi></p>
                     </td>
-                    <td className="px-4 py-3">{tr(mRole)}</td>
+                    <td className="px-4 py-3">{tr(mRole)}
+                      {playerOf.get(m.id) ? <a href={`/admin/invoices?player=${playerOf.get(m.id)}#list-h`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-invoices-link>{tInv('invoicesLink')}</a> : null}</td>
                     <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[m.status] ?? ''}`}>{ts(m.status)}</span></td>
                     <td className="whitespace-nowrap px-4 py-3">{fmt.date.format(new Date(m.created_at))}</td>
                     <td className="px-4 py-3">

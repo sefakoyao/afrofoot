@@ -1113,7 +1113,14 @@
     "tr_rate": "Osallistuminen",
     "tr_late": "Myöhästymisiä: {count}",
     "tr_none": "Sinulle ei ole vielä merkitty harjoituksia tällä kaudella.",
-    "invoicePdf": "Lasku (PDF)"
+    "invoicePdf": "Lasku (PDF)",
+    "myInvoices": "Omat laskuni",
+    "noInvoices": "Ei vielä laskuja.",
+    "invoiceNo": "Lasku",
+    "st_open": "Avoin",
+    "dueOn": "Eräpäivä {date}",
+    "paidOn": "Maksettu {date}",
+    "openPdf": "Avaa lasku (PDF)"
   },
   "account": {
     "title": "Oma tili",
@@ -1401,6 +1408,20 @@
     "r_planName": "Anna 2–80 merkin nimi.",
     "r_price": "Anna hinta euroina, esimerkiksi 20 tai 20.50.",
     "r_date": "Valitse päivä.",
-    "r_noSeason": "Nykyistä kautta ei ole. Luo se ensin kohdassa Joukkueet."
+    "r_noSeason": "Nykyistä kautta ei ole. Luo se ensin kohdassa Joukkueet.",
+    "invoicesOf": "Laskut: {name}",
+    "search": "Pelaaja tai laskun numero",
+    "searchEg": "esimerkiksi Diallo tai 2026-01168",
+    "all": "Kaikki",
+    "month": "Lähetetty",
+    "filter": "Suodata",
+    "clear": "Tyhjennä",
+    "noMatch": "Hakuehtoja vastaavia laskuja ei löytynyt.",
+    "colIssued": "Päivätty",
+    "found": "Laskuja löytyi: {count}",
+    "pageOf": "Sivu {page}/{pages}",
+    "prev": "Edellinen",
+    "next": "Seuraava",
+    "invoicesLink": "Laskut"
   }
 }
