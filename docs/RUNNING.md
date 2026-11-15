@@ -118,6 +118,17 @@ The buttons appear on the sign-in page by themselves once a provider is switched
 - The text is a draft written from what the apps collect: the club board should read and approve it (and adjust retention periods if needed) before Facebook sign-in goes live. If the club's practice changes (new data, new service provider, payments by MobilePay), update the text in `packages/i18n/src/messages/*.json` → `privacyPolicy` and the date.
 - Retention periods are a commitment: deleting old data is not automatic yet; until it is, an admin removes or anonymises it by hand (for example once a year).
 
+## 3j. Events, meeting times and the website calendar (migration 0034, release 0.22.0)
+**Database:** paste `supabase/migrations/20260101000034_events_public_schedule.sql` into Supabase → SQL Editor and run it once. It adds meeting times and a "show on the website" switch to training, the new table `club_events` (team meetings, social events, tournaments, camps), and the view `public_schedule` the website reads.
+
+**Who adds what:**
+- **Coaches** (team page): training, games and friendlies, and other events for their teams.
+- **Admins** (Admin → Events): club-wide events, events for any team, and the list of saved places.
+
+Every form has an optional meeting time and meeting point and a place. A new place can be added right in the form; if no Google Maps link is pasted, one is made from the address.
+
+**Website:** the new **Calendar** page (`/calendar`) and the home page refresh from the database at most once a minute, so whatever is marked "Show on the club website" appears there without a deploy. Only public teams are shown, and visitors never see meeting points, replies or player details.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

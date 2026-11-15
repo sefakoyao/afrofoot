@@ -5,6 +5,8 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { createSessions } from '@/app/actions/coach';
 import { createMatch } from '@/app/actions/match';
+import { EventForm, EventList, MeetFields, PublicField, type EventRow } from '@/components/events/EventParts';
+import { LocationPicker } from '@/components/events/LocationPicker';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
@@ -42,7 +44,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
       .eq('training_sessions.team_season_id', id).lt('training_sessions.starts_at', now).neq('training_sessions.status', 'cancelled').not('attendance', 'is', null),
-    supabase.from('locations').select('id, name').order('name'),
+    supabase.from('locations').select('id, name, city').eq('active', true).order('name'),
   ]);
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []).sort((a, b) => (a.jersey_number ?? 999) - (b.jersey_number ?? 999) || a.players.last_name.localeCompare(b.players.last_name));
   const { data: contacts } = roster.length
@@ -71,6 +73,12 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     return rows.length ? Math.round((rows.filter((a) => a.attendance === 'present' || a.attendance === 'late').length / rows.length) * 100) : null;
   };
   const back = `/coach/teams/${id}`;
+  // Other events (migration 0034): this team's and the club-wide ones, from yesterday on.
+  const { data: eventRows } = await supabase.from('club_events')
+    .select('id, kind, title, starts_at, ends_at, meet_at, meeting_point, status, public, team_season_id, description, locations(name, address, city, maps_url)')
+    .or(`team_season_id.eq.${id},team_season_id.is.null`).gte('ends_at', new Date(Date.now() - 86400000).toISOString()).order('starts_at').limit(20);
+  const hm = new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
+  const te = await getTranslations('events');
 
   const SessionRow = ({ s }: { s: Session }) => (
     <li>
@@ -90,6 +98,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
       </header>
       <ResultBanner ns="coach" result={sp.result} />
       <ResultBanner ns="match" result={sp.result} />
+      <ResultBanner ns="events" result={sp.result} />
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="sched-h">
         <h2 id="sched-h" className="font-display text-xl font-extrabold">{t('schedule')}</h2>
@@ -106,11 +115,12 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
               <label className="grid gap-1 text-sm font-semibold">{t('start')}<input name="start" type="time" required defaultValue="18:00" className={input} /></label>
               <label className="grid gap-1 text-sm font-semibold">{t('end')}<input name="end" type="time" required defaultValue="19:30" className={input} /></label>
             </div>
-            <label className="grid gap-1 text-sm font-semibold">{t('location')}
-              <select name="location_id" defaultValue="" className={input}><option value="">–</option>{(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
             <label className="grid gap-1 text-sm font-semibold">{t('repeat')}
               <select name="repeat" defaultValue="1" className={input}>{[1, 2, 4, 6, 8, 10, 12, 16, 20].map((n) => <option key={n} value={n}>{n === 1 ? t('once') : t('weeks', { count: n })}</option>)}</select></label>
+            <MeetFields />
+            <LocationPicker places={locations ?? []} className="sm:col-span-2" />
             <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('focus')}<input name="focus" maxLength={200} placeholder={t('focusEg')} className={input} /></label>
+            <PublicField className="sm:col-span-2" />
             <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{t('add')}</button>
           </form>
           <p className="mt-2 text-xs text-muted">{t('timesNote')}</p>
@@ -182,11 +192,21 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
             <label className="grid gap-1 text-sm font-semibold">{tm('kickoffTime')}<input name="time" type="time" required defaultValue="18:00" className={input} /></label>
             <label className="grid gap-1 text-sm font-semibold">{tm('homeAway')}
               <select name="home_away" defaultValue="home" className={input}><option value="home">{tm('home')}</option><option value="away">{tm('away')}</option></select></label>
-            <label className="grid gap-1 text-sm font-semibold">{t('location')}
-              <select name="location_id" defaultValue="" className={input}><option value="">–</option>{(locations ?? []).map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
+            <MeetFields match />
+            <LocationPicker places={locations ?? []} className="sm:col-span-2" />
             <p className="text-xs text-muted sm:col-span-2">{tm('addMatchNote')}</p>
             <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{tm('addMatchButton')}</button>
           </form>
+        </details>
+      </section>
+
+      <section id="events" className="rounded-card border border-line bg-raised p-6" aria-labelledby="events-h">
+        <h2 id="events-h" className="font-display text-xl font-extrabold">{te('eventsTitle')}</h2>
+        <EventList events={(eventRows ?? []) as unknown as EventRow[]} back={back} canChange={(e) => e.team_season_id === id} fmt={{ when, hm }}
+          teamName={(x) => (x ? team.name : null)} />
+        <details className="mt-4 rounded-card bg-surface p-4">
+          <summary className="cursor-pointer font-semibold">{te('addEvent')}</summary>
+          <EventForm back={back} places={locations ?? []} fixedTeam={id} />
         </details>
       </section>
 

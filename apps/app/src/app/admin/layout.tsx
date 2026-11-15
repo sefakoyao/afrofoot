@@ -13,6 +13,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin', label: t('navOverview') },
     { href: '/admin/members', label: t('navMembers'), badge: pending },
     { href: '/admin/teams', label: t('navTeams') },
+    { href: '/admin/events', label: t('navEvents') },
     { href: '/admin/invoices', label: t('navInvoices') },
     { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign },
     { href: '/admin/audit', label: t('navAudit') },

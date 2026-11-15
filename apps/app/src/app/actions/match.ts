@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam } from '@/lib/coach';
 import { LINES, PRESSING, PROTOCOL_DEFAULTS, STYLES, TEMPOS, WIDTHS } from '@/lib/match';
+import { meetingTime, resolveLocation } from '@/lib/locations';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToIso, helsinkiToday } from '@/lib/time';
 
@@ -40,23 +41,30 @@ const createSchema = z.object({
   division: z.string().trim().max(60, 'r_division').transform((v) => v || null),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_date'), time: hhmm,
   home_away: z.enum(['home', 'away']),
-  location_id: z.union([z.literal(''), uuid]).transform((v) => v || null),
+  meet: optTime,
+  meeting_point: z.string().trim().max(120, 'r_invalid').transform((v) => v || null),
 });
 
 export async function createMatch(fd: FormData): Promise<void> {
   const { member, supabase } = await db(fd);
-  const parsed = createSchema.safeParse(Object.fromEntries(['team_season_id', 'kind', 'opponent', 'division', 'date', 'time', 'home_away', 'location_id'].map((k) => [k, fd.get(k) ?? ''])));
+  const parsed = createSchema.safeParse(Object.fromEntries(['team_season_id', 'kind', 'opponent', 'division', 'date', 'time', 'home_away', 'meet', 'meeting_point'].map((k) => [k, fd.get(k) ?? ''])));
   if (!parsed.success) back(fd, parsed.error.issues[0]?.message?.startsWith('r_') ? parsed.error.issues[0].message : 'r_invalid', '#add-match');
   const v = parsed.data;
   if (v.kind === 'game' && !v.division) back(fd, 'r_division', '#add-match');
   if (v.date < helsinkiToday()) back(fd, 'r_date', '#add-match');
   if (!(await coachesTeam(supabase, member.id, v.team_season_id))) back(fd, 'r_notYourTeam');
+  if (meetingTime(v.meet, v.time) === 'bad') back(fd, 'e_meet', '#add-match');
+  const place = await resolveLocation(supabase, fd, member.id);
+  if ('error' in place) back(fd, place.error, '#add-match');
   const kickoff = helsinkiToIso(v.date, v.time);
+  const meet = v.meet ? helsinkiToIso(v.date, v.meet) : minus(kickoff, PROTOCOL_DEFAULTS.meet);
+  const after = (iso: string) => (iso >= meet ? iso : null);
   const { data, error } = await supabase.from('matches').insert({
     team_season_id: v.team_season_id, event_type: v.kind, opponent: v.opponent, division: v.division, kickoff_at: kickoff,
-    home_away: v.home_away, location_id: v.location_id, created_by: member.id,
-    // standard pre-game protocol; the coach can change it on the match page
-    meet_at: minus(kickoff, PROTOCOL_DEFAULTS.meet), warmup_at: minus(kickoff, PROTOCOL_DEFAULTS.warmup), briefing_at: minus(kickoff, PROTOCOL_DEFAULTS.briefing),
+    home_away: v.home_away, location_id: place.id, created_by: member.id, meeting_point: v.meeting_point,
+    // standard pre-game protocol (or the meeting time given); the coach can change it on the match page
+    // (standard steps that would fall before a later meeting time are left out)
+    meet_at: meet, warmup_at: after(minus(kickoff, PROTOCOL_DEFAULTS.warmup)), briefing_at: after(minus(kickoff, PROTOCOL_DEFAULTS.briefing)),
   }).select('id').single();
   if (error || !data) { console.error('[match] create refused', { code: error?.code, message: error?.message }); back(fd, 'r_error', '#add-match'); }
   refresh();

@@ -11,6 +11,9 @@ import { Link } from '@/i18n/routing';
 import { getPublicClient } from '@/lib/supabase';
 import { STRIP } from '@/lib/sponsors';
 
+// Rebuilt at most once a minute so the next match and results follow the member app without a deploy.
+export const revalidate = 60;
+
 interface Fixture { id: string; team_name: string; opponent: string; home_away: string | null; kickoff_at: string; status: string; goals_for: number | null; goals_against: number | null; venue: string | null; city: string | null }
 interface Record_ { team_season_id: string; team_name: string; competition: string; played: number; won: number; drawn: number; lost: number; points: number }
 
@@ -74,7 +77,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k2')} · {next.team_name}</span>
               <h2 className="font-display text-5xl font-black md:text-6xl">{vs(next)}</h2>
               <p className="text-lg text-white/80">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
-              <div><Link href="/team" className="inline-block rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link></div>
+              <div><Link href="/calendar" className="inline-block rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link></div>
             </div>,
           ] : []),
           ...(results[0] ? [
@@ -115,7 +118,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p className="mt-2 font-display text-2xl font-extrabold">{vs(next)}</p>
               <p className="text-muted">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
             </div>
-            <ButtonLink href="/team">{t('cal')}</ButtonLink>
+            <ButtonLink href="/calendar">{t('cal')}</ButtonLink>
           </Card>
         </Section>
       ) : null}

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
 import { ATTENDANCE, coachesTeam } from '@/lib/coach';
+import { meetingTime, resolveLocation } from '@/lib/locations';
 import { getSupabase } from '@/lib/supabase/server';
 import { addDays, helsinkiToIso, helsinkiToday } from '@/lib/time';
 
@@ -35,26 +36,36 @@ const createSchema = z.object({
   title: z.string().trim().min(2, 'r_title').max(120, 'r_title'),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_date'),
   start: hhmm, end: hhmm,
-  location_id: z.union([z.literal(''), uuid]).transform((v) => v || null),
+  meet: z.union([z.literal(''), hhmm]),
+  meeting_point: z.string().trim().max(120, 'r_invalid').transform((v) => v || null),
   focus: z.string().trim().max(200, 'r_invalid').transform((v) => v || null),
   repeat: z.coerce.number().int().min(1, 'r_repeat').max(20, 'r_repeat'),
 }).refine((v) => v.end > v.start, { message: 'r_endAfterStart' });
 
-/** Adds one session, or the same session weekly for up to 20 weeks. The database seeds an attendance row per player. */
+/**
+ * Adds one session, or the same session weekly for up to 20 weeks. The database seeds an attendance row per player.
+ * Optional meeting time and point (migration 0034); the place can be a new one saved on the way; "show on the website" puts
+ * the session on the club website's calendar.
+ */
 export async function createSessions(fd: FormData): Promise<void> {
-  const p = createSchema.safeParse(Object.fromEntries(fd));
+  const p = createSchema.safeParse(Object.fromEntries(['team_season_id', 'title', 'date', 'start', 'end', 'meet', 'meeting_point', 'focus', 'repeat'].map((k) => [k, fd.get(k) ?? ''])));
   if (!p.success) back(fd, p.error.issues[0]?.message ?? 'r_invalid');
   const { member, supabase } = await session(fd);
   if (!(await coachesTeam(supabase, member.id, p.data.team_season_id))) back(fd, 'r_notYourTeam');
   if (p.data.date < addDays(helsinkiToday(), -30)) back(fd, 'r_date'); // no back-filling more than a month
+  if (meetingTime(p.data.meet, p.data.start) === 'bad') back(fd, 'e_meet');
+  const place = await resolveLocation(supabase, fd, member.id);
+  if ('error' in place) back(fd, place.error);
+  const pub = fd.get('public') === 'on';
   const rows = Array.from({ length: p.data.repeat }, (_, i) => {
     const day = addDays(p.data.date, i * 7);
-    return { team_season_id: p.data.team_season_id, title: p.data.title, focus: p.data.focus, location_id: p.data.location_id,
-      starts_at: helsinkiToIso(day, p.data.start), ends_at: helsinkiToIso(day, p.data.end), status: 'scheduled', created_by: member.id };
+    return { team_season_id: p.data.team_season_id, title: p.data.title, focus: p.data.focus, location_id: place.id,
+      starts_at: helsinkiToIso(day, p.data.start), ends_at: helsinkiToIso(day, p.data.end), status: 'scheduled', created_by: member.id,
+      meet_at: p.data.meet ? helsinkiToIso(day, p.data.meet) : null, meeting_point: p.data.meeting_point, public: pub };
   });
   const { error } = await supabase.from('training_sessions').insert(rows);
   if (error) { console.error('[coach] create sessions refused', { code: error.code, message: error.message }); back(fd, error.code === '42501' ? 'r_notYourTeam' : 'r_error'); }
-  revalidatePath('/coach', 'layout');
+  revalidatePath('/coach', 'layout'); revalidatePath('/me', 'layout');
   back(fd, p.data.repeat > 1 ? 'r_sessionsCreated' : 'r_sessionCreated');
 }
 

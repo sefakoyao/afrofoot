@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 
-const LINKS = [['/news', 'n_news'], ['/team', 'n_team'], ['/membership', 'n_mem'], ['/join', 'n_join'], ['/sponsors', 'n_sp'], ['/contact', 'n_contact']] as const;
+const LINKS = [['/news', 'n_news'], ['/team', 'n_team'], ['/calendar', 'n_cal'], ['/membership', 'n_mem'], ['/join', 'n_join'], ['/sponsors', 'n_sp'], ['/contact', 'n_contact']] as const;
 
 export async function Footer() {
   const t = await getTranslations('site');
