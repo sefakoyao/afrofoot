@@ -3,7 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – member app, part 1 (branch `phase2/auth`)
+## Unreleased – member app, part 2a: admin user management (branch `phase2/admin-users`)
+- Admin area gets a sidebar: Overview (active, pending and suspended counts, members per role, pending approvals), Members and Audit log.
+- Members: search by name or email, filter by role and status, approve pending accounts, suspend and reactivate, change roles. Club administrators manage coaches and players; only a super administrator manages administrator accounts; nobody changes their own account here. The database trigger `guard_profiles` and RLS enforce the same rules.
+- Audit log: every change, newest first, with who, what and old → new values (redacted fields shown as private). Read-only.
+- No database changes.
+
+## Member app, part 1 (merged in #13)
 - Member app (`apps/app`): sign in with email and password, sign out, password reset by email, and role-based routing: super and club administrators → `/admin`, coaches → `/coach`, players → `/me`. Other areas send a member back to their own.
 - Pending and suspended accounts are refused with a message. Players blocked for overdue fees (hook from migration 0022) see "Sign-in blocked" with a link to the public Membership page, also when an open session's token refresh is refused.
 - Language follows the profile (saved when the member switches), or the browser language when signed out. English, Finnish, French and Arabic (right to left).

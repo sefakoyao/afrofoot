@@ -5,12 +5,15 @@ import type { Member } from '@/lib/auth';
 import { signOut } from '@/app/actions/auth';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Logo } from './Logo';
+import { AreaNav } from './AreaNav';
 
 const SURFACE: Record<Area, 'admin' | 'coach' | 'player'> = { admin: 'admin', coach: 'coach', me: 'player' };
 const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: 'areaAdmin', coach: 'areaCoach', me: 'areaPlayer' };
 
-/** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out. */
-export async function AppShell({ area, member, children }: { area: Area; member: Member; children: ReactNode }) {
+export interface NavItem { href: string; label: string; badge?: number }
+
+/** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out; optional area navigation. */
+export async function AppShell({ area, member, nav, children }: { area: Area; member: Member; nav?: NavItem[]; children: ReactNode }) {
   const [t, tn, tr] = await Promise.all([getTranslations('app'), getTranslations('nav'), getTranslations('role')]);
   const name = `${member.firstName} ${member.lastName}`.trim() || member.email;
   return (
@@ -31,7 +34,10 @@ export async function AppShell({ area, member, children }: { area: Area; member:
           </div>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 md:flex-row md:py-8">
+        {nav ? <AreaNav items={nav} /> : null}
+        <main id="main" className="min-w-0 flex-1">{children}</main>
+      </div>
     </div>
   );
 }
