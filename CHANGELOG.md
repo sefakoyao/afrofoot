@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – privacy policy (branch `phase2/privacy`)
+- New page **/privacy** on the website in en/fi/fr/ar: who is responsible, what the website and member app collect, purposes and legal bases (GDPR), what is public, who can see what, service providers and transfers, retention periods, rights, **how to delete your data** (`#delete`, the address Facebook Login asks for), children, cookies (only necessary ones; no analytics), security, changes.
+- The club's business ID, address and contact email come from the billing settings (Admin → Invoices), so nothing is typed twice.
+- Links from the website footer, the membership and tryout forms (next to the consent boxes) and the member app's sign-in page.
+- Draft for the club board to approve. No database changes.
+
 ## Unreleased – sign in with Google or Facebook, release 0.21.0 (branch `phase2/social-login`)
 - **Continue with Google / Continue with Facebook** on the sign-in page, under the email form. A button only shows once that provider is switched on in Supabase; setup steps in docs/RUNNING.md §3h (the keys stay in Supabase, nothing in the code or on Vercel).
 - New route `/auth/callback` finishes the sign-in (PKCE) with the same rules as the password sign-in: new accounts wait for approval as pending players, suspended accounts are refused, players with overdue fees get the payment notice, and the member returns to the page they wanted. An existing account with the same email is the same member.

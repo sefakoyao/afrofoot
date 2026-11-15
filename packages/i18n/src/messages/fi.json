@@ -79,7 +79,8 @@
     "orContinue": "tai",
     "oauthCancelled": "Kirjautuminen peruttiin. Yritä uudelleen tai käytä sähköpostia ja salasanaa.",
     "oauthFailed": "Kirjautuminen tällä tilillä ei onnistunut. Yritä uudelleen tai käytä sähköpostia ja salasanaa.",
-    "oauthNoEmail": "Tili ei jakanut sähköpostiosoitetta, jota seura tarvitsee. Salli sähköpostin käyttö tai käytä Googlea tai sähköpostia ja salasanaa."
+    "oauthNoEmail": "Tili ei jakanut sähköpostiosoitetta, jota seura tarvitsee. Salli sähköpostin käyttö tai käytä Googlea tai sähköpostia ja salasanaa.",
+    "privacy": "Tietosuojaseloste"
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
@@ -1013,7 +1014,8 @@
     "nat_all": "Kaikki maat",
     "news_empty": "Ei vielä uutisia. Palaa pian.",
     "hero_photo_alt": "Neljä Afro Footin pelaajaa hymyilee kentällä",
-    "montel_deal_alt": "Montel Intergalacticin ja Afro Footin edustajat esittelevät uutta mustaa pelipaitaa"
+    "montel_deal_alt": "Montel Intergalacticin ja Afro Footin edustajat esittelevät uutta mustaa pelipaitaa",
+    "priv_read": "Lue tietosuojaseloste"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
@@ -1930,5 +1932,46 @@
     "exportFailed": "Ei onnistunut. Yritä uudelleen.",
     "saveBoard": "Tallenna kokoonpano ja suunnitelma",
     "r_rotationInvalid": "Vaihtosuunnitelma ei sovi kokoonpanoon: vain vaihtopelaajat tulevat sisään ja vain kentällä olevat lähtevät."
+  },
+  "privacyPolicy": {
+    "title": "Tietosuojaseloste",
+    "updated": "Päivitetty 15.11.2026",
+    "intro": "Tässä selosteessa kerrotaan, mitä henkilötietoja Afro Foot Club ry kerää verkkosivuillaan (www.afrofoot.club) ja jäsensovelluksessaan (app.afrofoot.club), miksi, kuka niitä näkee, kuinka kauan niitä säilytetään ja mitkä ovat oikeutesi. Noudatamme EU:n yleistä tietosuoja-asetusta (GDPR) ja Suomen tietosuojalakia.",
+    "h_controller": "Rekisterinpitäjä",
+    "controller": "Henkilötietojesi rekisterinpitäjä on Afro Foot Club ry, helsinkiläinen rekisteröity yhdistys.",
+    "controller_details": "Y-tunnus: {id}",
+    "contact": "Tietosuojaa koskevat kysymykset ja pyynnöt: <mail>{email}</mail>",
+    "h_data": "Mitä tietoja keräämme",
+    "data_lead": "Keräämme vain seuran toiminnassa tarvittavat tiedot. Sen mukaan, miten käytät palvelujamme:",
+    "data_items": "Käyttäjätili: sähköpostiosoite, nimi, kieli, rooli (pelaaja, valmentaja tai ylläpitäjä) ja tilin tila. Salasana tallennetaan vain tiivistettynä (lukukelvottomana). Jos kirjaudut Googlella tai Facebookilla, saamme niiltä nimesi, sähköpostiosoitteesi ja tilin tunnisteen – emme koskaan salasanaasi tai julkaisujasi.\nPelaajaprofiili: syntymäaika, kansalaisuus, pelipaikat, pelinumero sekä, jos lisäät ne, vahvempi jalka, pituus, paino, lyhyt esittely ja valokuvasi.\nYhteystiedot: puhelinnumero, osoite ja hätäyhteyshenkilö (nimi, suhde ja puhelinnumero).\nJoukkuetoiminta: harjoituksiin osallistuminen, vastauksesi tapahtumiin (tulossa tai ei, ja kirjoittamasi viesti), ottelukokoonpanot, maalit, syötöt, kortit, peliminuutit ja valmentajien arviot.\nJäsenyys ja maksut: jäsenyystyyppi, laskut, summat, eräpäivät, viitenumerot ja maksujen tila. Emme kerää kortti- tai tilinumeroita; maksat tilisiirtona omasta pankistasi.\nSopimukset: hyväksyntäsi seuran toimintaohjeille sekä sopimuspelaajien pelaajasopimus ja sähköinen allekirjoitus (kirjoitettu nimi ja aika).\nHakemukset ja viestit: kokeilu- ja jäsenhakemukset (mukaan lukien edellinen joukkue, linkki julkiseen Palloliiton profiiliisi ja alle 18-vuotiailta huoltajan nimi ja puhelinnumero) sekä yhteydenottolomakkeella lähetetyt viestit.\nTekniset tiedot: kirjautumisistunnot ja loki jäsensovelluksessa tehdyistä muutoksista (kuka muutti mitä ja milloin) tietoturvan vuoksi.",
+    "data_health": "Emme kysy terveystietoja. Jos kirjoitat poissaolon syyn (esimerkiksi loukkaantumisen), sen näkevät vain valmentajasi ja seuran ylläpitäjät – kerro vain tarpeellinen.",
+    "h_purposes": "Käyttötarkoitukset ja oikeusperusteet",
+    "purposes_items": "Jäsenyytesi hoitaminen – joukkueet, harjoitukset, ottelut, viestintä ja käyttäjätilisi: jäsensopimuksen täyttäminen (GDPR 6.1 b).\nMaksut, laskut ja kirjanpito: sopimuksen täyttäminen ja kirjanpitolain vaatimukset (6.1 b ja c).\nPelaajasopimukset ja toimintaohjeet: sopimuksen täyttäminen sekä seuran oikeutettu etu reiluun ja turvalliseen jalkapalloon (6.1 b ja f).\nHätäyhteystiedot: pelaajien elintärkeiden etujen suojaaminen ja seuran oikeutettu etu turvalliseen toimintaan (6.1 d ja f).\nNimesi tai kuvasi julkinen näyttäminen (pelaajalista verkkosivuilla, julkiset kokoonpanot, seuran media): vain suostumuksellasi, jonka voit perua milloin tahansa (6.1 a).\nTietoturva ja muutosloki: seuran oikeutettu etu suojata jäsenten tietoja (6.1 f).",
+    "h_public": "Mikä on julkista",
+    "public_text": "Otteluohjelma, tulokset ja sarjataulukot ovat julkisia verkkosivuillamme. Nimesi näkyy pelaajalistassa ja julkisissa kokoonpanoissa vain, jos olet antanut siihen luvan; muuten sinut näytetään muodossa \"Pelaaja #\" ja pelinumero. Virallisten sarjojen tulokset ja tilastot tulevat myös Palloliiton julkisesta tulospalvelusta.",
+    "h_who": "Kuka näkee tietosi",
+    "who_items": "Sinä: oma profiilisi, vastauksesi, tilastosi, laskusi, hyväksyntäsi ja sopimuksesi.\nValmentajasi: omien joukkueidensa pelaajat – yhteys- ja hätäyhteystiedot, osallistuminen ja vastaukset, kokoonpanot, toimintaohjeiden hyväksyntä ja pelaajasopimukset (vain luku).\nJoukkuekaverit: joukkueen aikataulut ja julkaistu ottelukokoonpano.\nSeuran ylläpitäjät: seuran toiminnassa tarvittavat tiedot.\nSeuran puolesta toimivat palveluntarjoajat (alla). Emme koskaan myy tietojasi emmekä käytä niitä mainontaan.",
+    "h_processors": "Palveluntarjoajat",
+    "processors_items": "Supabase – tietokanta, kirjautuminen, kirjautumislinkkien sähköpostit ja tiedostojen (kuvien) tallennus.\nVercel – verkkosivujen ja jäsensovelluksen ylläpito.\nGoogle ja Meta (Facebook) – vain jos valitset kirjautumisen niiden kautta.\nSuomen Palloliitto ja sen tulospalvelu – virallisten sarjojen tiedot.",
+    "processors_transfer": "Osa näistä yrityksistä toimii EU:n/ETA:n ulkopuolella. Jos henkilötietoja siirretään EU:n/ETA:n ulkopuolelle, siirto tehdään tietosuoja-asetuksen edellyttämin suojatoimin, kuten Euroopan komission vakiosopimuslausekkein tai EU:n ja Yhdysvaltojen tietosuojakehyksen perusteella.",
+    "h_retention": "Säilytysajat",
+    "retention_items": "Jäsen- ja pelaajatiedot: jäsenyyden ajan ja enintään 2 vuotta jäsenyyden päättymisen jälkeen; sen jälkeen ne poistetaan tai anonymisoidaan.\nLaskut ja maksutiedot: 6 vuotta tilikauden päättymisestä kirjanpitolain mukaisesti.\nPelaajasopimukset: sopimuskauden ajan ja 3 vuotta sen päättymisen jälkeen.\nKokeilu- ja jäsenhakemukset, jotka eivät johda jäsenyyteen: 12 kuukautta.\nYhteydenottolomakkeen viestit: 2 vuotta.\nOttelutulokset ja joukkuetilastot: säilytetään seuran historiana; pyynnöstä anonymisoimme nimesi niistä.\nMuutosloki: 2 vuotta.",
+    "h_rights": "Oikeutesi",
+    "rights_lead": "Sinulla on oikeus:",
+    "rights_items": "tarkastaa sinusta tallennetut tiedot ja saada niistä kopio;\nsaada virheelliset tiedot korjatuksi – suurimman osan voit päivittää itse jäsensovelluksessa;\nsaada tietosi poistetuksi, kun niitä ei enää tarvita tai perut suostumuksesi (lain vaatimat tiedot säilytetään vaaditun ajan);\nrajoittaa oikeutettuun etuun perustuvaa käsittelyä tai vastustaa sitä;\nsaada antamasi tiedot yleisesti käytetyssä koneluettavassa muodossa;\nperua suostumuksesi milloin tahansa, esimerkiksi julkiseen näkymiseen.",
+    "rights_how": "Lähetä pyyntösi osoitteeseen <mail>{email}</mail>. Vastaamme kuukauden kuluessa. Jos katsot, että käsittelemme tietojasi lainvastaisesti, voit tehdä valituksen tietosuojavaltuutetun toimistolle (tietosuoja.fi).",
+    "h_delete": "Näin poistat tietosi",
+    "delete_text": "Lähetä sähköpostia osoitteeseen <mail>{email}</mail> tilisi sähköpostiosoitteesta ja pyydä poistamaan tilisi ja tietosi. Varmistamme henkilöllisyytesi, poistamme tai anonymisoimme tietosi 30 päivän kuluessa ja kerromme, mitä meidän on lain mukaan säilytettävä (esimerkiksi laskut). Jos käytit \"Jatka Googlella\"- tai \"Jatka Facebookilla\" -kirjautumista, voit myös poistaa Afro Foot Clubin Google- tai Facebook-tiliisi liitetyistä sovelluksista; tämä estää kirjautumisen sitä kautta mutta ei poista seuran tietoja, joten lähetä meille myös pyyntö.",
+    "h_children": "Lapset",
+    "children_text": "Junioripelaajat voivat olla jäseniä. Alle 18-vuotiailta hakijoilta pyydämme huoltajan nimen ja puhelinnumeron. Alle 13-vuotiaat voivat käyttää jäsensovellusta vain huoltajan suostumuksella, ja huoltaja voi käyttää näitä oikeuksia lapsen puolesta.",
+    "h_cookies": "Evästeet",
+    "cookies_text": "Käytämme vain palvelujen toiminnan kannalta välttämättömiä evästeitä: yksi pitää sinut kirjautuneena jäsensovellukseen ja yksi muistaa kielesi. Emme käytä analytiikka-, mainos- tai seurantaevästeitä.",
+    "h_security": "Tietoturva",
+    "security_text": "Pääsy tietoihin on rajattu roolin mukaan: tietokanta tarkistaa jokaisen pyynnön, joten jokainen näkee vain tarvitsemansa. Yhteydet ovat salattuja (HTTPS), salasanat tallennetaan tiivistettyinä ja jäsensovelluksen muutokset kirjataan lokiin.",
+    "h_changes": "Muutokset",
+    "changes_text": "Päivitämme selostetta, kun palvelumme muuttuvat. Ylhäällä oleva päivämäärä kertoo voimassa olevan version; tärkeistä muutoksista kerromme jäsensovelluksessa.",
+    "contents": "Sisältö",
+    "link": "Tietosuojaseloste",
+    "readFull": "Lue tietosuojaseloste"
   }
 }

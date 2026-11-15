@@ -25,7 +25,10 @@ export async function Footer() {
             {LINKS.map(([href, k]) => <Link key={href} href={href} className="text-white/80 hover:text-accent">{t(k)}</Link>)}
           </nav>
         </div>
-        <p className="mt-8 border-t border-white/15 pt-4 text-sm text-white/60">{t('ft_rights')}</p>
+        <p className="mt-8 flex flex-wrap justify-between gap-3 border-t border-white/15 pt-4 text-sm text-white/60">
+          <span>{t('ft_rights')}</span>
+          <Link href="/privacy" className="text-white/80 underline-offset-2 hover:text-accent hover:underline" data-privacy-link>{t('ft_priv')}</Link>
+        </p>
       </div>
     </footer>
   );

@@ -98,10 +98,10 @@ The buttons appear on the sign-in page by themselves once a provider is switched
 3. Clients (Credentials) → Create client → **Web application**. Authorised JavaScript origins: `https://app.afrofoot.club`. Authorised redirect URIs: the Supabase **Callback URL** from above. Create, then copy the Client ID and Client secret.
 4. Supabase → Authentication → Sign In / Providers → **Google** → enable, paste Client ID and Client secret, Save.
 
-**Facebook (about 20 minutes; needs a privacy policy page):**
+**Facebook (about 20 minutes):**
 1. https://developers.facebook.com → My Apps → Create app → use case **Authenticate and request data from users with Facebook Login**; app name "Afro Foot Club".
 2. Use cases → Facebook Login → Customise: make sure **email** (and public_profile) are added. Settings → **Valid OAuth Redirect URIs**: the Supabase **Callback URL**.
-3. App settings → Basic: **Privacy policy URL** and **User data deletion** (instructions URL) are required before the app can go live. The public website has no privacy page yet: add one (or ask me to add the page once the club has the text). App domain `afrofoot.club`, category, icon.
+3. App settings → Basic: **Privacy policy URL** `https://www.afrofoot.club/privacy`, **User data deletion** → Data deletion instructions URL `https://www.afrofoot.club/privacy#delete`. App domain `afrofoot.club`, category, icon.
 4. Switch the app from **Development** to **Live** (top of the dashboard). In Development mode only people listed as app testers can sign in.
 5. Copy App ID and App secret (App settings → Basic) to Supabase → Authentication → Sign In / Providers → **Facebook** → enable, Save.
 
@@ -111,6 +111,12 @@ The buttons appear on the sign-in page by themselves once a provider is switched
 - The fee block (migration 0022) applies to every sign-in: players with overdue fees see the payment notice and the /pay page.
 - A Facebook account without an email address cannot be used (the club needs the email); the member sees a message and can use Google or email and password.
 - Instagram is not offered: it has no sign-in for personal accounts.
+
+## 3i. Privacy policy (website)
+- `https://www.afrofoot.club/privacy` (all four languages), linked from the website footer, the membership and tryout forms and the member app's sign-in page. `#delete` holds the data deletion instructions.
+- The club's business ID, address and contact email are taken from Admin → Invoices → Club billing details; until an email is entered there, `info@afrofoot.club` is shown.
+- The text is a draft written from what the apps collect: the club board should read and approve it (and adjust retention periods if needed) before Facebook sign-in goes live. If the club's practice changes (new data, new service provider, payments by MobilePay), update the text in `packages/i18n/src/messages/*.json` → `privacyPolicy` and the date.
+- Retention periods are a commitment: deleting old data is not automatic yet; until it is, an admin removes or anonymises it by hand (for example once a year).
 
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.

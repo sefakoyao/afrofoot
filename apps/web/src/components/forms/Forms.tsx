@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react';
 import { submitContact, submitEnrolment, submitInvoice, submitSponsor, submitTryout } from '@/app/actions';
+import { Link } from '@/i18n/routing';
 import { IDLE, type FormState } from '@/lib/formState';
 import { ageOn } from '@/lib/schemas';
 import { Check, DatePicker, Field, Honeypot, type Labels, PhoneInput, Result, Select, SubmitRow, TextArea, TextInput } from './fields';
@@ -93,6 +94,7 @@ export function TryoutForm({ labels, locale, intl }: Common) {
       <Guardian labels={labels} show={isMinor} required={isMinor} />
       <Field label={labels.tr_msg} wide><TextArea name="message" rows={3} maxLength={2000} /></Field>
       <Check name="consent" label={labels.tr_consent} required />
+      <Link href="/privacy" target="_blank" className="ms-6 text-sm font-semibold text-pitch underline" data-privacy-link>{labels.priv_read}</Link>
       <Result state={state} labels={labels} okKey="tr_ok" />
       <SubmitRow pending={pending} label={labels.tr_send} />
     </form>
@@ -189,6 +191,7 @@ export function EnrolmentForm({ labels, locale, intl, plans, countries }: Common
         </dl>
         <Check name="terms" label={labels.en_terms} required />
         <Check name="privacy" label={labels.en_priv} required />
+        <Link href="/privacy" target="_blank" className="ms-6 text-sm font-semibold text-pitch underline" data-privacy-link>{labels.priv_read}</Link>
         <Check name="photo_consent" label={labels.en_photo} />
         <Check name="public_listing" label={labels.en_pub} />
       </div>
