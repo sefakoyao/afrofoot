@@ -407,9 +407,9 @@ h3[data-t=rev_h]{display:block}.card thead th{padding:8px 10px;text-align:start;
 .lubench{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.lubench b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-inline-end:4px}
 .lubc{display:inline-flex;gap:6px;align-items:center;padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:99px;font-size:13px;background:#fff}.lubc i{font-style:normal;font-weight:800;color:var(--green)}.lubc button{border:0;background:none;cursor:pointer;font-size:15px;line-height:1;color:var(--mut)}
 .luv{margin-top:12px;border:1px solid var(--line);border-radius:14px;padding:10px 14px;background:#f7faf6}.luv h4{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-.luv ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}.luv li{display:flex;gap:8px;align-items:baseline}.luv li::before{content:"✓";font-weight:800;color:var(--green)}.luv li.w::before{content:"!";color:#9a6a00}.luv li.e::before{content:"✕";color:#b3261e}.luv li.e{color:#b3261e;font-weight:600}.luv li.i::before{content:"•";color:var(--mut)}
+.luv ul{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13px}.luv li{display:flex;gap:8px;align-items:baseline}.luv li::before{content:"✓";font-weight:800;color:var(--green)}.luv li.w::before{content:"!";color:#101510}.luv li.e::before{content:"✕";color:#b3261e}.luv li.e{color:#b3261e;font-weight:600}.luv li.i::before{content:"•";color:var(--mut)}
 .lufil{display:flex;flex-direction:column;gap:8px;margin-top:12px}.lufil input[type=search]{width:100%}
-.mini.av{padding:2px 8px}.av-late{border-color:#c9a227;color:#7a5a00}.av-inj,.av-away{border-color:#e3a39d;color:#b3261e;background:#fde8e6}.pp.unav{opacity:.55}
+.mini.av{padding:2px 8px}.av-late{border-color:#101510;color:#101510}.av-inj,.av-away{border-color:#e3a39d;color:#b3261e;background:#fde8e6}.pp.unav{opacity:.55}
 #lu-txt{width:100%;margin-top:10px;font:13px/1.5 ui-monospace,monospace;border:1px solid var(--line);border-radius:10px;padding:10px}
 @media(max-width:520px){.lutb{gap:6px}}
 
@@ -458,7 +458,47 @@ details.acc>summary:focus-visible{outline:3px solid #3daf2c;outline-offset:2px;b
 .dpf button{color:#7ee06a}.dpf button:hover{background:#ffffff14}
 
 .acch h2,.acch h2 span{color:var(--green)}
-</style></head><body>
+</style><style id="lu16">
+/* v0.16 lineup board */
+.lug>.lubdcard{grid-column:1/-1}
+.lug>div:nth-child(2){grid-column:1/-1;display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+@media(max-width:1100px){.lug>div:nth-child(2){grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+@media(max-width:700px){.lug>div:nth-child(2){grid-template-columns:1fr !important}}
+.lubd{display:grid;grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:28px;align-items:start;margin-top:4px}
+@media(max-width:960px){.lubd{grid-template-columns:1fr}}
+.lubd-main,.lubd-side{min-width:0}.lubd-side{display:flex;flex-direction:column;gap:16px;padding-top:10px}
+.lubd-side .pool{margin-top:0;max-height:480px;overflow:auto;padding-inline-end:2px}
+.lubd-main .pitchbox{max-width:none;border-width:0;border-radius:22px;box-shadow:0 14px 34px #0a2a0a33,inset 0 0 0 3px #ffffff22}
+.slot .dot{transition:transform .12s,box-shadow .12s !important}.slot:hover .dot{transform:scale(1.06)}
+.slot.dt .dot{outline:3px solid #fff;box-shadow:0 0 0 7px #3DAF2Cd9;transform:scale(1.12)}
+.lustyle{border-radius:22px;background:radial-gradient(120% 90% at 100% 0,#1f5a17 0,#0b0f0a 58%);color:#fff;padding:18px 18px 20px;box-shadow:0 12px 30px #0a1a0840}
+.ls-sel{display:flex;flex-direction:column;gap:6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#b9c9b5;font-weight:700}
+.ls-sel select{width:100%;border-radius:99px;padding:11px 16px;background:#fff;color:#101510;font:700 16px Figtree,Cairo,sans-serif;text-transform:none;letter-spacing:0;border:0}
+.ls-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px}
+.ls-shape{font:800 40px/1 Figtree,sans-serif;letter-spacing:-.02em;direction:ltr}
+.ls-tags{display:flex;gap:6px;flex-wrap:wrap}.ls-tags span{padding:4px 11px;border-radius:99px;background:#3DAF2C;color:#fff;font:700 12px Figtree,Cairo,sans-serif}
+.ls-body{display:grid;grid-template-columns:96px minmax(0,1fr);gap:16px;margin-top:14px;align-items:start}
+.ls-mini{width:96px;border-radius:12px;background:#ffffff12;border:1px solid #ffffff30;direction:ltr;display:block}
+.ls-mini .ln{stroke:#ffffff55;fill:none;stroke-width:.9}.ls-mini circle{fill:#fff}.ls-mini circle.r-GK{fill:#3DAF2C}
+.ls-desc{margin:0;font-size:14px;line-height:1.55;color:#e8efe5}
+.ls-lines{list-style:none;margin:12px 0 0;padding:0;display:flex;gap:8px;flex-wrap:wrap}.ls-lines li{display:flex;align-items:baseline;gap:6px;padding:6px 12px;border-radius:99px;background:#ffffff14;font-size:12px}.ls-lines b{font:800 16px Figtree,sans-serif;color:#7fe06b}
+@media(max-width:520px){.ls-body{grid-template-columns:1fr}.ls-mini{width:120px}}
+.lubench{margin-top:14px;padding:10px 12px;border:2px dashed #c8d1c4;border-radius:16px;min-height:56px;background:#f7faf6;transition:border-color .15s,background .15s}
+.lubench.dt,#pool.dt{border-color:#3DAF2C;background:#eaf7e6}#pool.dt{outline:2px dashed #3DAF2C;outline-offset:4px;border-radius:12px}
+.gh{cursor:grab;color:#9aa396;font-size:14px;letter-spacing:-3px;touch-action:none;user-select:none;padding-inline-end:4px;line-height:1}
+.pp,.lubc{user-select:none}.pp .pav{pointer-events:none;-webkit-user-drag:none}.lubc{cursor:grab}
+.lug-ghost{position:fixed;z-index:300;pointer-events:none;display:flex;gap:8px;align-items:center;padding:6px 14px 6px 6px;border-radius:99px;background:#101510;color:#fff;font:700 14px Figtree,Cairo,sans-serif;box-shadow:0 10px 24px #0006;transform:translate(-50%,-60%)}
+.lug-ghost img{width:30px;height:30px;border-radius:50%}body.lu-dnd{user-select:none;cursor:grabbing}
+.lursvp,.lurot{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:#fff}.lurot{margin-top:14px}
+.lursvp h4,.lurot h4{margin:0 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.rs-bar{display:flex;height:8px;border-radius:99px;overflow:hidden;background:#e6ebe3;margin:8px 0 10px}.rs-bar i{display:block}
+.rs-ok{background:#3DAF2C}.rs-late{background:#101510}.rs-inj{background:#b3261e}.rs-away{background:#9aa396}
+.rotf{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:8px}.rotf label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut)}.rotf select{width:auto;max-width:150px;padding:5px 8px;border-radius:8px}
+.rotl{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.rotl .lubc.bad{opacity:.5;text-decoration:line-through}
+.rbars{display:grid;gap:5px;margin-top:12px}.rb{display:grid;grid-template-columns:minmax(80px,28%) 1fr 38px;gap:8px;align-items:center;font-size:12px}.rb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rb u{display:block;height:8px;border-radius:99px;background:#e6ebe3;text-decoration:none;overflow:hidden}.rb u i{display:block;height:100%;background:#3DAF2C;border-radius:99px}.rb em{font-style:normal;font-weight:700;text-align:end;direction:ltr}.rb.z u i{background:#9aa396}
+.luclk{font:800 22px Figtree,sans-serif;background:#101510;color:#fff;padding:4px 14px;border-radius:99px;direction:ltr}
+</style>
+</head><body>
 <div class="switch"><div class="wrap"><b class="disp" style="font-size:22px"><span data-t="title">Afro Foot 2.0 · design preview</span></b>
 <button class="tab" role="tab" aria-selected="true" data-v="pub"><span data-t="tab_pub">Public site</span></button><button class="tab gated" role="tab" data-roles="admin" data-v="adm"><span data-t="tab_adm">Administrator</span></button><button class="tab gated" role="tab" data-roles="admin coach" data-v="md"><span data-t="tab_md">Match day</span></button><button class="tab gated" role="tab" data-roles="admin coach" data-v="trn"><span data-t="tab_trn">Training</span></button><button class="tab gated" role="tab" data-roles="admin coach player" data-v="prof"><span data-t="tab_prof">My profile</span></button><button class="tab gated" role="tab" data-roles="admin coach player" data-v="pay"><span data-t="tab_pay">Membership</span></button><button class="tab gated" role="tab" data-roles="admin coach player" data-v="mob"><span data-t="tab_mob">Coach &amp; Player</span></button>
 <button class="tabx" id="loginbtn" type="button"><span data-t="signin">Sign in</span></button><span class="chip" id="whoami" hidden></span><div class="lang" role="group" aria-label="Language"><button data-l="en" aria-pressed="true">EN</button><button data-l="fi" aria-pressed="false">FI</button><button data-l="fr" aria-pressed="false">FR</button><button data-l="ar" aria-pressed="false">AR</button></div></div></div>
@@ -502,7 +542,7 @@ details.acc>summary:focus-visible{outline:3px solid #3daf2c;outline-offset:2px;b
 <div class="card" style="margin-top:16px"><div class="row2" style="flex-wrap:wrap"><h3 style="font-size:22px" data-t="rt_h"></h3><span class="tag warn" data-t="rt_admin"></span></div>
 <div class="frm frm4"><label class="field"><span data-t="who">Player</span><select id="rtp"></select></label><label class="field"><span data-t="rt_cat"></span><select id="rtc"></select></label><label class="field"><span><span data-t="rt_score"></span>: <b id="rtv">7.0</b></span><input class="rng" id="rts" type="range" min="1" max="10" step="0.5" value="7"></label><label class="field"><span data-t="rt_note"></span><input id="rtn" maxlength="200"></label></div>
 <div class="ctl"><button class="btn" id="rtb" type="button" data-t="rt_save"></button><span class="ok2" id="rtm" hidden></span></div><div style="overflow-x:auto"><table><tr><th data-t="who">Player</th><th data-t="rt_avg"></th><th data-t="rt_note"></th></tr><tbody id="rtt"></tbody></table></div></div><div class="card" style="margin-top:16px"><div class="row2"><h3 style="font-size:22px"><span data-t="fed">Federation sync</span></h3><span class="tag ok" data-t="on">On</span></div><p class="mut" data-t="fed_ok">Last sync OK</p><div class="row2" style="padding:8px 0;border-top:1px solid #eeece3"><span data-t="fed_pub">Publish M4 standings</span><span class="tag ok" data-t="on">On</span></div><div class="row2" style="padding:8px 0;border-top:1px solid #eeece3"><span data-t="fed_link">3 players to link</span><a class="btn" href="#" style="padding:8px 14px" data-t="fed_btn">Link players</a></div></div>
- <div class="card" style="margin-top:16px"><h3 style="font-size:22px;display:block;margin-bottom:12px" data-t="fp_h"></h3><div class="row" style="gap:20px;align-items:center;flex-wrap:wrap"><label class="chkl" style="margin:0"><input type="checkbox" id="fpon" checked> <span data-t="fp_on"></span></label><label class="field" style="width:200px"><span data-t="fp_grace"></span><input id="fpgr" type="number" min="0" max="120" value="14"></label></div><div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th data-t="fp_player"></th><th>Team</th><th data-t="fp_owed"></th><th data-t="fp_late"></th><th data-t="fp_state"></th><th></th></tr></thead><tbody id="fprows"></tbody></table></div></div><div class="grid g2" style="margin-top:16px"><div class="card"><div class="row2" style="flex-wrap:wrap"><h3 style="font-size:22px" data-t="ver_h"></h3><span class="tag g"><span data-t="ver_cur"></span>: <b>0.15.0</b></span></div><div style="overflow-x:auto"><table><thead><tr><th data-t="ver_d"></th><th>v</th><th data-t="ver_k"></th><th data-t="ver_t"></th></tr></thead><tbody id="vrel"></tbody></table></div></div>
+ <div class="card" style="margin-top:16px"><h3 style="font-size:22px;display:block;margin-bottom:12px" data-t="fp_h"></h3><div class="row" style="gap:20px;align-items:center;flex-wrap:wrap"><label class="chkl" style="margin:0"><input type="checkbox" id="fpon" checked> <span data-t="fp_on"></span></label><label class="field" style="width:200px"><span data-t="fp_grace"></span><input id="fpgr" type="number" min="0" max="120" value="14"></label></div><div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th data-t="fp_player"></th><th>Team</th><th data-t="fp_owed"></th><th data-t="fp_late"></th><th data-t="fp_state"></th><th></th></tr></thead><tbody id="fprows"></tbody></table></div></div><div class="grid g2" style="margin-top:16px"><div class="card"><div class="row2" style="flex-wrap:wrap"><h3 style="font-size:22px" data-t="ver_h"></h3><span class="tag g"><span data-t="ver_cur"></span>: <b>0.16.0</b></span></div><div style="overflow-x:auto"><table><thead><tr><th data-t="ver_d"></th><th>v</th><th data-t="ver_k"></th><th data-t="ver_t"></th></tr></thead><tbody id="vrel"></tbody></table></div></div>
 <div class="card"><h3 style="font-size:22px;margin-bottom:6px" data-t="rev_h"></h3><p class="mut" style="font-size:13px;margin:0 0 12px" data-t="rev_hint"></p><div class="ul" id="vrev"></div><div id="vcmp" class="vcmp" hidden></div><div class="ok2" id="vok" hidden></div></div></div>
 <div class="card" style="margin-top:16px"><h3 style="font-size:22px;margin-bottom:12px"><span data-t="audit">Audit log</span></h3><table><tr><td class="mut">08:12</td><td><span data-t="au1">Role of “Sample” changed to coach</span></td><td class="mut"><span data-t="sa">Super admin</span></td></tr><tr><td class="mut">07:55</td><td><span data-t="au2">Payment recorded</span></td><td class="mut"><span data-t="ca">Club admin</span></td></tr></table></div>
  </div></div></section>
@@ -510,21 +550,35 @@ details.acc>summary:focus-visible{outline:3px solid #3daf2c;outline-offset:2px;b
 <div id="route" class="card" hidden style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:70;width:min(440px,92vw);max-height:84vh;overflow:auto"></div><div id="pickbg" hidden style="position:fixed;inset:0;background:#0006;z-index:59"></div><div id="pick" class="card" hidden style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;width:min(380px,92vw);max-height:80vh;overflow:auto"></div><section class="view" id="md"><div class="wrap md">
  <div class="md-top"><div><h2 class="disp" style="font-size:34px"><span data-t="md_head">Match day</span></h2><p class="mut" style="margin:6px 0 0;font-size:13px" data-t="md_sample">Sample data.</p></div>
   <div class="card" style="padding:14px 20px;display:flex;gap:20px;align-items:center;flex-wrap:wrap"><div><div class="mut" style="font-size:12px"><span data-t="for_us">Afro Foot A</span> · <span data-t="vs_name">Sample FC</span></div><div class="score"><span id="sc-us">0</span><small>–</small><span id="sc-them">0</span></div></div><span class="chip" id="stchip"></span></div></div>
- <div class="md-grid">
-  <div class="card"><div class="row2" style="flex-wrap:wrap"><h3 class="disp" style="font-size:22px" data-t="lineup">Lineup</h3><label class="field" style="flex-direction:row;align-items:center;gap:8px"><span data-t="formation">Formation</span><select id="fsel" style="width:auto"></select></label></div>
-   <p class="mut" style="font-size:12px;margin:10px 0 0" data-t="drag_hint"></p><div class="lutb" id="lutb"><button class="mini" id="lu-auto" type="button" data-t="lu_auto"></button><button class="mini" id="lu-undo" type="button" data-t="lu_undo"></button><button class="mini" id="lu-redo" type="button" data-t="lu_redo"></button><button class="mini" id="lu-draw" type="button" aria-pressed="false" data-t="lu_draw"></button><button class="mini" id="lu-clra" type="button" data-t="lu_clra"></button></div>
-<div class="lutb"><label class="lufld"><span data-t="lu_kit"></span><select id="lu-kit"><option value="green" data-t="lu_k_green"></option><option value="black" data-t="lu_k_black"></option><option value="white" data-t="lu_k_white"></option></select></label><label class="lufld"><span data-t="lu_pitch"></span><select id="lu-pitch"><option value="stripes" data-t="lu_p_stripes"></option><option value="plain" data-t="lu_p_plain"></option><option value="dark" data-t="lu_p_dark"></option><option value="board" data-t="lu_p_board"></option></select></label><label class="lufld"><input type="checkbox" id="lu-names" checked><span data-t="lu_names"></span></label></div><div id="pitch" class="pitchbox" style="margin-top:14px"><div class="box1"></div><div class="box2"></div><div class="circ"></div></div>
-   <div class="lubench" id="lubench"></div><div id="tips" class="tips"><p id="ftip" style="margin:0 0 8px;font-weight:600"></p><h4 class="mut" style="margin:6px 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase" data-t="tips_h"></h4><ul style="margin:0;padding-inline-start:18px;font-size:13px;line-height:1.5"><li data-t="tip1"></li><li data-t="tip2"></li><li data-t="tip3"></li></ul></div><div class="row2" style="margin-top:12px;flex-wrap:wrap"><span><b id="cnt">0/11</b> <span class="mut" data-t="starters">Starting XI</span></span><span class="mut" id="hint" style="font-size:13px"></span></div>
-   <div id="luv" class="luv"></div><div class="ctl"><button class="btn" id="bpub"><span data-t="publish">Publish lineup</span></button><button class="btn ghost" id="bclr"><span data-t="clear">Clear</span></button></div><div id="pubmsg"></div>
-   <div class="lufil"><input id="lu-q" type="search" autocomplete="off"><div class="chips" id="lu-pos"><button class="chipb" data-p="all" aria-pressed="true" data-t="lu_all"></button><button class="chipb" data-p="GK" aria-pressed="false">GK</button><button class="chipb" data-p="DF" aria-pressed="false">DF</button><button class="chipb" data-p="MF" aria-pressed="false">MF</button><button class="chipb" data-p="FW" aria-pressed="false">FW</button></div><label class="lufld"><input type="checkbox" id="lu-hide"><span data-t="lu_hide"></span></label></div><h4 class="mut" style="margin:14px 0 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase" data-t="pool">Available players</h4><div class="pool" id="pool"></div></div>
+<div class="md-grid lug">
+  <div class="card lubdcard"><div class="row2" style="flex-wrap:wrap"><h3 class="disp" style="font-size:22px" data-t="lineup">Lineup</h3><span class="mut" style="font-size:13px;direction:ltr" id="lu-sub"></span></div>
+   <div class="lubd">
+    <div class="lubd-main">
+     <p class="mut" style="font-size:12px;margin:10px 0 0" data-t="drag_hint"></p><div class="lutb" id="lutb"><button class="mini" id="lu-auto" type="button" data-t="lu_auto"></button><button class="mini" id="lu-undo" type="button" data-t="lu_undo"></button><button class="mini" id="lu-redo" type="button" data-t="lu_redo"></button><button class="mini" id="lu-draw" type="button" aria-pressed="false" data-t="lu_draw"></button><button class="mini" id="lu-clra" type="button" data-t="lu_clra"></button></div>
+     <div class="lutb"><label class="lufld"><span data-t="lu_kit"></span><select id="lu-kit"><option value="green" data-t="lu_k_green"></option><option value="black" data-t="lu_k_black"></option><option value="white" data-t="lu_k_white"></option></select></label><label class="lufld"><span data-t="lu_pitch"></span><select id="lu-pitch"><option value="stripes" data-t="lu_p_stripes"></option><option value="plain" data-t="lu_p_plain"></option><option value="dark" data-t="lu_p_dark"></option><option value="board" data-t="lu_p_board"></option></select></label><label class="lufld"><input type="checkbox" id="lu-names" checked><span data-t="lu_names"></span></label></div>
+     <div id="pitch" class="pitchbox" style="margin-top:14px"><div class="box1"></div><div class="box2"></div><div class="circ"></div></div>
+     <div class="lubench" id="lubench"></div>
+     <div class="lurot" id="lu-rot"></div>
+     <div class="row2" style="margin-top:14px;flex-wrap:wrap"><span><b id="cnt">0/11</b> <span class="mut" data-t="starters">Starting lineup</span></span><span class="mut" id="hint" style="font-size:13px"></span></div>
+     <div id="luv" class="luv"></div><div class="ctl"><button class="btn" id="bpub"><span data-t="publish">Publish lineup</span></button><button class="btn ghost" id="bclr"><span data-t="clear">Clear</span></button></div><div id="pubmsg"></div>
+    </div>
+    <aside class="lubd-side">
+     <div class="lustyle" id="lu-style"><label class="ls-sel"><span data-t="formation">Lineup style</span><select id="fsel"></select></label><div id="lu-sd"></div></div>
+     <p id="ftip" hidden></p>
+     <div class="lursvp" id="lu-rsvp"></div>
+     <div class="lufil"><input id="lu-q" type="search" autocomplete="off"><div class="chips" id="lu-pos"><button class="chipb" data-p="all" aria-pressed="true" data-t="lu_all"></button><button class="chipb" data-p="GK" aria-pressed="false">GK</button><button class="chipb" data-p="DF" aria-pressed="false">DF</button><button class="chipb" data-p="MF" aria-pressed="false">MF</button><button class="chipb" data-p="FW" aria-pressed="false">FW</button></div><label class="lufld"><input type="checkbox" id="lu-hide"><span data-t="lu_hide"></span></label></div>
+     <h4 class="mut" style="margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase" data-t="pool">Available players</h4><div class="pool" id="pool"></div>
+     <div id="tips" class="tips"><h4 class="mut" style="margin:6px 0;font-size:12px;letter-spacing:.08em;text-transform:uppercase" data-t="tips_h"></h4><ul style="margin:0;padding-inline-start:18px;font-size:13px;line-height:1.5"><li data-t="tip1"></li><li data-t="tip2"></li><li data-t="tip3"></li></ul></div>
+    </aside>
+   </div></div>
   <div style="display:flex;flex-direction:column;gap:18px">
    <div class="card" id="lutools"><h3 class="disp" style="font-size:22px;margin-bottom:10px" data-t="lu_tools"></h3>
 <label class="field"><span data-t="lu_tname"></span><span style="display:flex;gap:8px"><input id="lu-tn" maxlength="80" style="flex:1;min-width:0"><button class="btn" id="lu-save" type="button" data-t="lu_save"></button></span></label>
 <label class="field" style="margin-top:10px"><span data-t="lu_saved"></span><select id="lu-list"></select></label>
 <div class="ctl"><button class="btn ghost" id="lu-load" type="button" data-t="lu_load"></button><button class="btn ghost" id="lu-del" type="button" data-t="lu_del"></button></div>
 <label class="field"><span data-t="lu_notes"></span><textarea id="lu-notes" rows="4" maxlength="2000"></textarea></label><p class="mut" style="font-size:12px;margin:6px 0 0" data-t="lu_notes_p"></p>
-<div class="ctl"><button class="btn" id="lu-png" type="button" data-t="lu_png"></button><button class="btn ghost" id="lu-copy" type="button" data-t="lu_copy"></button></div>
-<textarea id="lu-txt" rows="9" readonly hidden></textarea><div id="lu-msg" class="ok2" hidden></div></div><div class="card"><div class="row2"><h3 class="disp" style="font-size:22px"><span class="livedot" id="ld" hidden></span><span data-t="live">Live match</span></h3></div>
+<div class="ctl"><button class="btn" id="lu-png" type="button" data-t="lu_png"></button><button class="btn ghost" id="lu-jpg" type="button" data-t="lu_jpg"></button><button class="btn ghost" id="lu-share" type="button" data-t="lu_share"></button><button class="btn ghost" id="lu-copy" type="button" data-t="lu_copy"></button></div>
+<textarea id="lu-txt" rows="9" readonly hidden></textarea><div id="lu-msg" class="ok2" hidden></div></div><div class="card"><div class="row2"><h3 class="disp" style="font-size:22px"><span class="livedot" id="ld" hidden></span><span data-t="live">Live match</span></h3><b class="luclk" id="lu-clock" hidden>0:00</b></div>
     <div class="ctl"><button class="btn" id="b-start"><span data-t="b_start">Kick off</span></button><button class="btn ghost" id="b-ht"><span data-t="b_ht">Half time</span></button><button class="btn ghost" id="b-2h"><span data-t="b_2h">Second half</span></button><button class="btn ghost" id="b-ft"><span data-t="b_ft">Full time</span></button></div>
     <div class="frm"><label class="field"><span data-t="type">Type</span><select id="etype"></select></label><label class="field"><span data-t="minute">Minute</span><input id="emin" type="number" min="0" max="130" value="1"></label>
      <label class="field" id="f-who"><span id="l-who" data-t="who">Player</span><select id="ewho"></select></label><label class="field" id="f-as"><span data-t="assist">Assist</span><select id="eas"></select></label>
@@ -654,6 +708,7 @@ Object.assign(D,{"my_h": ["My payments", "Omat maksuni", "Mes paiements", "مد�
 Object.assign(D,{"lu_auto": ["Auto-fill XI", "Täytä avauskokoonpano", "Compléter le XI", "تعبئة تلقائية"], "lu_undo": ["Undo", "Kumoa", "Annuler", "تراجع"], "lu_redo": ["Redo", "Tee uudelleen", "Rétablir", "إعادة"], "lu_draw": ["Draw arrows", "Piirrä nuolia", "Dessiner des flèches", "رسم الأسهم"], "lu_clra": ["Clear arrows", "Poista nuolet", "Effacer les flèches", "مسح الأسهم"], "lu_kit": ["Kit", "Pelipaita", "Maillot", "القميص"], "lu_k_green": ["Green", "Vihreä", "Vert", "أخضر"], "lu_k_black": ["Black", "Musta", "Noir", "أسود"], "lu_k_white": ["White", "Valkoinen", "Blanc", "أبيض"], "lu_pitch": ["Pitch", "Kenttä", "Terrain", "الملعب"], "lu_p_stripes": ["Grass", "Nurmi", "Gazon", "عشب"], "lu_p_plain": ["Plain", "Tasainen", "Uni", "سادة"], "lu_p_dark": ["Night", "Yö", "Nuit", "ليل"], "lu_p_board": ["Whiteboard", "Taktiikkataulu", "Tableau blanc", "سبورة"], "lu_names": ["Names", "Nimet", "Noms", "الأسماء"], "lu_bench": ["Substitutes", "Vaihtopelaajat", "Remplaçants", "البدلاء"], "lu_bench_e": ["Use “Substitutes” on a player to add substitutes.", "Lisää vaihtopelaajia painamalla pelaajan “Vaihtopenkki”-painiketta.", "Utilisez « Banc » sur un joueur pour ajouter des remplaçants.", "استخدم «الاحتياط» على لاعب لإضافة بدلاء."], "lu_check": ["Lineup check", "Kokoonpanon tarkistus", "Vérification de la composition", "فحص التشكيلة"], "lu_c_gk_ok": ["One goalkeeper in the XI", "Yksi maalivahti avauskokoonpanossa", "Un gardien dans le XI", "حارس مرمى واحد في التشكيلة"], "lu_c_gk_no": ["No goalkeeper in the XI", "Ei maalivahtia avauskokoonpanossa", "Aucun gardien dans le XI", "لا يوجد حارس مرمى في التشكيلة"], "lu_c_gk_many": ["More than one goalkeeper in the XI", "Useampi maalivahti avauskokoonpanossa", "Plus d’un gardien dans le XI", "أكثر من حارس مرمى في التشكيلة"], "lu_c_shape": ["Shape {s}", "Muoto {s}", "Système {s}", "الشكل {s}"], "lu_c_oop": ["Out of position: {n}", "Väärällä paikalla: {n}", "Hors poste : {n}", "خارج مركزه: {n}"], "lu_c_unav": ["Injured or away but selected: {n}", "Loukkaantunut tai poissa mutta valittu: {n}", "Blessé ou absent mais sélectionné : {n}", "مصاب أو غائب لكنه مختار: {n}"], "lu_c_late": ["May arrive late: {n}", "Voi myöhästyä: {n}", "Peut arriver en retard : {n}", "قد يتأخر: {n}"], "lu_c_cap_no": ["No captain chosen", "Kapteenia ei valittu", "Aucun capitaine choisi", "لم يتم اختيار قائد"], "lu_c_cap_ok": ["Captain: {n}", "Kapteeni: {n}", "Capitaine : {n}", "القائد: {n}"], "lu_c_subgk": ["No substitute goalkeeper", "Ei vaihtomaalivahtia", "Pas de gardien remplaçant", "لا يوجد حارس بديل"], "lu_c_subs": ["Substitutes: {n} of 9", "Vaihtopelaajia: {n}/9", "Remplaçants : {n} sur 9", "البدلاء: {n} من 9"], "lu_search": ["Search name or number", "Hae nimeä tai numeroa", "Chercher un nom ou numéro", "ابحث بالاسم أو الرقم"], "lu_all": ["All", "Kaikki", "Tous", "الكل"], "lu_hide": ["Hide injured / away", "Piilota loukkaantuneet / poissaolevat", "Masquer blessés / absents", "إخفاء المصابين / الغائبين"], "lu_a_ok": ["Available", "Pelaa", "Disponible", "متاح"], "lu_a_late": ["Late", "Myöhässä", "En retard", "متأخر"], "lu_a_inj": ["Injured", "Loukkaantunut", "Blessé", "مصاب"], "lu_a_away": ["Away", "Poissa", "Absent", "غائب"], "lu_av_t": ["Click to change availability", "Vaihda saatavuutta napsauttamalla", "Cliquer pour changer la disponibilité", "انقر لتغيير التوفر"], "lu_tools": ["Lineup tools", "Kokoonpanotyökalut", "Outils de composition", "أدوات التشكيلة"], "lu_tname": ["Name", "Nimi", "Nom", "الاسم"], "lu_save": ["Save", "Tallenna", "Enregistrer", "حفظ"], "lu_saved": ["Saved lineups", "Tallennetut kokoonpanot", "Compositions enregistrées", "التشكيلات المحفوظة"], "lu_load": ["Load", "Lataa", "Charger", "تحميل"], "lu_del": ["Delete", "Poista", "Supprimer", "حذف"], "lu_p_last": ["Last match (sample)", "Edellinen ottelu (esimerkki)", "Dernier match (exemple)", "المباراة الأخيرة (مثال)"], "lu_notes": ["Coach notes (private)", "Valmentajan muistiinpanot (yksityiset)", "Notes du coach (privées)", "ملاحظات المدرب (خاصة)"], "lu_notes_p": ["Notes are saved with the lineup and never shown to players or the public.", "Muistiinpanot tallentuvat kokoonpanon mukana, eikä niitä näytetä pelaajille tai yleisölle.", "Les notes sont enregistrées avec la composition et ne sont jamais visibles par les joueurs ou le public.", "تُحفظ الملاحظات مع التشكيلة ولا تظهر أبداً للاعبين أو الجمهور."], "lu_png": ["Download image", "Lataa kuva", "Télécharger l’image", "تنزيل الصورة"], "lu_copy": ["Copy as text", "Kopioi tekstinä", "Copier en texte", "نسخ كنص"], "lu_m_saved": ["Saved.", "Tallennettu.", "Enregistré.", "تم الحفظ."], "lu_m_loaded": ["Loaded.", "Ladattu.", "Chargé.", "تم التحميل."], "lu_m_png": ["Image downloaded.", "Kuva ladattu.", "Image téléchargée.", "تم تنزيل الصورة."], "lu_m_copied": ["Copied to clipboard.", "Kopioitu leikepöydälle.", "Copié dans le presse-papiers.", "تم النسخ."], "lu_m_text": ["Select the text above to copy it.", "Valitse yllä oleva teksti kopioidaksesi sen.", "Sélectionnez le texte ci-dessus pour le copier.", "حدّد النص أعلاه لنسخه."], "lu_subs_l": ["Subs", "Vaihdot", "Remplaçants", "البدلاء"]});
 Object.assign(D,{"dp_open": ["Open calendar", "Avaa kalenteri", "Ouvrir le calendrier", "فتح التقويم"], "dp_today": ["Today", "Tänään", "Aujourd’hui", "اليوم"], "dp_clear": ["Clear", "Tyhjennä", "Effacer", "مسح"], "dp_prev": ["Previous month", "Edellinen kuukausi", "Mois précédent", "الشهر السابق"], "dp_next": ["Next month", "Seuraava kuukausi", "Mois suivant", "الشهر التالي"], "dp_month": ["Month", "Kuukausi", "Mois", "الشهر"], "dp_year": ["Year", "Vuosi", "Année", "السنة"], "dp_close": ["Close", "Sulje", "Fermer", "إغلاق"], "ph_hint": ["Include the country code, e.g. +358 40 123 4567", "Lisää maatunnus, esim. +358 40 123 4567", "Indiquez l’indicatif du pays, ex. +358 40 123 4567", "أضف رمز الدولة، مثال: ‎+358 40 123 4567"], "ph_err": ["Enter the number with the country code, e.g. +358 40 123 4567", "Anna numero maatunnuksen kanssa, esim. +358 40 123 4567", "Saisissez le numéro avec l’indicatif, ex. +358 40 123 4567", "أدخل الرقم مع رمز الدولة، مثال: ‎+358 40 123 4567"], "ph_zero": ["Remove the leading 0 after the country code, e.g. +358 40 123 4567", "Poista maatunnuksen jälkeinen alkunolla, esim. +358 40 123 4567", "Retirez le 0 initial après l’indicatif, ex. +358 40 123 4567", "احذف الصفر الأول بعد رمز الدولة، مثال: ‎+358 40 123 4567"]});
 Object.assign(D,{"acc_open": ["Show form", "Avaa lomake", "Afficher le formulaire", "عرض النموذج"], "acc_close": ["Hide form", "Piilota lomake", "Masquer le formulaire", "إخفاء النموذج"], "nat_sel": ["Select country", "Valitse maa", "Choisir un pays", "اختر البلد"], "nat_common": ["Common", "Yleisimmät", "Courants", "الأكثر شيوعاً"], "nat_all": ["All countries", "Kaikki maat", "Tous les pays", "كل الدول"], "faq2a": ["20 € a month. You can choose monthly, quarterly or yearly and pay by MobilePay, wire transfer or invoice.", "20 € kuukaudessa. Voit valita kuukausi-, neljännesvuosi- tai vuosimaksun ja maksaa MobilePaylla, tilisiirrolla tai laskulla.", "20 € par mois. Vous choisissez mensuel, trimestriel ou annuel et payez par MobilePay, virement bancaire ou facture.", "20 يورو شهرياً. يمكنك الاختيار بين الدفع الشهري أو ربع السنوي أو السنوي والدفع عبر MobilePay أو التحويل البنكي أو الفاتورة."]});
+Object.assign(D,{"formation": ["Lineup style", "Kokoonpanotyyli", "Style de composition", "أسلوب التشكيلة"], "starters": ["Starting lineup", "Avauskokoonpano", "Composition de départ", "التشكيلة الأساسية"], "drag_hint": ["Drag players from the list onto the pitch or the bench. Drag a marker to move it, or drop it on another marker to swap. Tap a position to pick from a list.", "Vedä pelaajia listasta kentälle tai vaihtopenkille. Vedä merkkiä siirtääksesi sitä tai pudota toisen merkin päälle vaihtaaksesi paikkaa. Napauta paikkaa valitaksesi listasta.", "Faites glisser les joueurs de la liste vers le terrain ou le banc. Déplacez un joueur pour le repositionner, ou déposez-le sur un autre pour les échanger. Touchez un poste pour choisir dans une liste.", "اسحب اللاعبين من القائمة إلى الملعب أو مقاعد البدلاء. اسحب اللاعب لتحريكه أو أفلته على لاعب آخر للتبديل. اضغط على مركز للاختيار من قائمة."], "need11": ["Complete the starting lineup to kick off", "Täydennä avauskokoonpano ottelun aloittamiseksi", "Complétez la composition de départ pour lancer le match", "أكمل التشكيلة الأساسية لبدء المباراة"], "lu_bench_e": ["Drag players here, or use “Substitutes” on a player.", "Vedä pelaajia tähän tai käytä pelaajan “Vaihtopenkki”-painiketta.", "Glissez des joueurs ici, ou utilisez « Remplaçants » sur un joueur.", "اسحب اللاعبين إلى هنا أو استخدم «البدلاء» على لاعب."], "ft_bal": ["Balanced", "Tasapainoinen", "Équilibré", "متوازن"], "ft_att": ["Attacking", "Hyökkäävä", "Offensif", "هجومي"], "ft_def": ["Defensive", "Puolustava", "Défensif", "دفاعي"], "ft_pos": ["Possession", "Pallonhallinta", "Possession", "استحواذ"], "ft_ctr": ["Counter-attack", "Vastahyökkäys", "Contre-attaque", "هجوم مرتد"], "lu_l_DF": ["Defenders", "Puolustajat", "Défenseurs", "المدافعون"], "lu_l_MF": ["Midfielders", "Keskikenttä", "Milieux", "لاعبو الوسط"], "lu_l_FW": ["Forwards", "Hyökkääjät", "Attaquants", "المهاجمون"], "f332": ["3-3-2 (9 v 9): three at the back, three in midfield, two strikers. A balanced shape that covers the width of the pitch.", "3-3-2 (9 v 9): kolme puolustajaa, kolme keskikentällä ja kaksi hyökkääjää. Tasapainoinen asetelma, joka kattaa kentän leveyden.", "3-3-2 (9 contre 9) : trois défenseurs, trois milieux, deux attaquants. Un système équilibré qui occupe bien la largeur du terrain.", "3-3-2 (9 ضد 9): ثلاثة مدافعين وثلاثة لاعبي وسط ومهاجمان. تشكيلة متوازنة تغطي عرض الملعب."], "f323": ["3-2-3 (9 v 9): a compact base with three attackers. Good when you want to press high and score.", "3-2-3 (9 v 9): tiivis pohja ja kolme hyökkääjää. Sopii, kun haluat painostaa korkealta ja tehdä maaleja.", "3-2-3 (9 contre 9) : une base compacte avec trois attaquants. Idéal pour presser haut et marquer.", "3-2-3 (9 ضد 9): قاعدة متماسكة مع ثلاثة مهاجمين. مناسبة للضغط العالي والتسجيل."], "f231": ["2-3-1 (7 v 7): two defenders, three midfielders and one striker. The classic 7-a-side shape with a strong midfield.", "2-3-1 (7 v 7): kaksi puolustajaa, kolme keskikenttäpelaajaa ja yksi hyökkääjä. Perinteinen 7 v 7 -asetelma vahvalla keskikentällä.", "2-3-1 (7 contre 7) : deux défenseurs, trois milieux et un attaquant. Le système classique à 7 avec un milieu solide.", "2-3-1 (7 ضد 7): مدافعان وثلاثة لاعبي وسط ومهاجم واحد. التشكيلة الكلاسيكية لـ7 لاعبين بوسط قوي."], "f321": ["3-2-1 (7 v 7): three at the back for safety, two in midfield, one striker. Solid and hard to break down.", "3-2-1 (7 v 7): kolme puolustajaa turvana, kaksi keskikentällä ja yksi hyökkääjä. Tiivis ja vaikea purkaa.", "3-2-1 (7 contre 7) : trois défenseurs pour la sécurité, deux milieux, un attaquant. Solide et difficile à contourner.", "3-2-1 (7 ضد 7): ثلاثة مدافعين للأمان ولاعبا وسط ومهاجم. متين وصعب الاختراق."], "f222": ["2-2-2 (7 v 7): three pairs in a simple, balanced block. Easy to explain to new players.", "2-2-2 (7 v 7): kolme paria yksinkertaisessa, tasapainoisessa blokissa. Helppo selittää uusille pelaajille.", "2-2-2 (7 contre 7) : trois paires dans un bloc simple et équilibré. Facile à expliquer aux nouveaux joueurs.", "2-2-2 (7 ضد 7): ثلاثة أزواج في كتلة بسيطة ومتوازنة. سهلة الشرح للاعبين الجدد."], "f121": ["1-2-1 (5 v 5): the diamond. One defender, two wide players and one striker. Keeps the ball moving in small spaces.", "1-2-1 (5 v 5): salmiakki. Yksi puolustaja, kaksi laitapelaajaa ja yksi hyökkääjä. Pitää pallon liikkeessä pienessä tilassa.", "1-2-1 (5 contre 5) : le losange. Un défenseur, deux joueurs sur les côtés et un attaquant. Le ballon circule bien dans les petits espaces.", "1-2-1 (5 ضد 5): شكل المعيّن. مدافع واحد ولاعبان على الأطراف ومهاجم. يُبقي الكرة متحركة في المساحات الصغيرة."], "f22": ["2-2 (5 v 5): two defenders and two attackers. Simple and safe, good for quick counter-attacks.", "2-2 (5 v 5): kaksi puolustajaa ja kaksi hyökkääjää. Yksinkertainen ja turvallinen, sopii nopeisiin vastahyökkäyksiin.", "2-2 (5 contre 5) : deux défenseurs et deux attaquants. Simple et sûr, idéal pour les contre-attaques rapides.", "2-2 (5 ضد 5): مدافعان ومهاجمان. بسيط وآمن ومناسب للهجمات المرتدة السريعة."], "lu_rsvp": ["Availability (RSVP)", "Osallistuminen (RSVP)", "Disponibilité (RSVP)", "التوفر (تأكيد الحضور)"], "lu_rsvp_n": ["{n} of {m} can attend", "{n} / {m} pystyy osallistumaan", "{n} sur {m} peuvent venir", "{n} من {m} يمكنهم الحضور"], "lu_rot_h": ["Rotation plan", "Vaihtosuunnitelma", "Plan de rotation", "خطة التبديل"], "lu_rot_hint": ["Plan substitutions so everyone gets fair playing time.", "Suunnittele vaihdot niin, että kaikki saavat pelata tasapuolisesti.", "Planifiez les remplacements pour que chacun joue équitablement.", "خطط للتبديلات ليحصل الجميع على وقت لعب عادل."], "lu_rot_min": ["Minute", "Minuutti", "Minute", "الدقيقة"], "lu_rot_off": ["Off", "Pois", "Sort", "خروج"], "lu_rot_on": ["On", "Sisään", "Entre", "دخول"], "lu_rot_add": ["Add", "Lisää", "Ajouter", "إضافة"], "lu_rot_err": ["Choose a player who is still on the pitch at that minute and a substitute not already planned in.", "Valitse pelaaja, joka on vielä kentällä kyseisenä minuuttina, ja vaihtopelaaja, jota ei ole vielä suunniteltu.", "Choisissez un joueur encore sur le terrain à cette minute et un remplaçant pas encore prévu.", "اختر لاعبًا لا يزال في الملعب في تلك الدقيقة وبديلًا لم يُخطط له بعد."], "lu_rot_time": ["Planned minutes (of 90)", "Suunnitellut peliminuutit (90:stä)", "Minutes prévues (sur 90)", "الدقائق المخططة (من 90)"], "lu_rot_none": ["No substitutions planned yet.", "Vaihtoja ei ole vielä suunniteltu.", "Aucun remplacement prévu.", "لا توجد تبديلات مخططة بعد."], "lu_jpg": ["Download JPG", "Lataa JPG", "Télécharger en JPG", "تنزيل JPG"], "lu_share": ["Share…", "Jaa…", "Partager…", "مشاركة…"], "lu_m_shared": ["Shared.", "Jaettu.", "Partagé.", "تمت المشاركة."], "lu_m_jpg": ["Image downloaded (JPG).", "Kuva ladattu (JPG).", "Image téléchargée (JPG).", "تم تنزيل الصورة (JPG)."]});
 function setLang(l){cur=l;document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';document.querySelectorAll('[data-t]').forEach(e=>{const v=D[e.dataset.t];if(v){const x=v[LI[l]];e.textContent=(x===undefined?v[0]:x)}});document.querySelectorAll('.lang button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===l));document.title=D.title[LI[l]];try{localStorage.setItem('afl',l)}catch(e){}if(window.mdRender)mdRender()}
 document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>setLang(b.dataset.l)));
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x===b));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===b.dataset.v));scrollTo(0,0)}));
@@ -672,7 +727,7 @@ const TK={opp_goal:'e_opp_goal',opp_own:'e_opp_own'};
 const tl=k=>t('e_'+(TK[k]||k).replace(/^e_/,''));
 let S={f:'4-4-2',slots:{},bench:new Set(),cap:null,sel:null,live:'not_started',ev:[],locked:false,published:false,nid:1};
 const onPitch=()=>{const off=new Set(S.ev.filter(e=>!e.v&&e.type==='substitution').map(e=>e.off));const sentOff=new Set(S.ev.filter(e=>!e.v&&e.type==='red_card').map(e=>e.p));const on=new Set(Object.values(S.slots));S.ev.filter(e=>!e.v&&e.type==='substitution').forEach(e=>on.add(e.p));return [...on].filter(id=>!off.has(id)&&!sentOff.has(id))};
-const starters=()=>Object.values(S.slots);
+const starters=()=>Object.values(S.slots);const NN=()=>F[S.f].length;
 const subsUnused=()=>[...S.bench].filter(id=>!S.ev.some(e=>!e.v&&e.type==='substitution'&&e.p===id));
 function score(){let a=0,b=0;S.ev.filter(e=>!e.v).forEach(e=>{if(e.type==='goal'||e.type==='penalty_scored'||e.type==='opp_own')a++;if(e.type==='opp_goal'||e.type==='own_goal')b++});return[a,b]}
 function slotOf(id){return Object.keys(S.slots).find(k=>S.slots[k]===id)}
@@ -691,7 +746,7 @@ function pitch(){
     if(pid){let g=0;while(subIn.has(pid)&&g++<5)pid=subIn.get(pid)}
     const sentOff=pid&&S.ev.some(e=>!e.v&&e.type==='red_card'&&e.p===pid);
     const pos=S.pos[sl.slot]||{x:Math.min(88,Math.max(12,sl.x)),y:10+(sl.y-16)*80/76};
-    const b=document.createElement('button');b.className='slot'+(pid?'':' empty')+(sentOff?' off':'');b.style.left=pos.x+'%';b.style.top=pos.y+'%';b.type='button';b.dataset.r=sl.role;
+    const b=document.createElement('button');b.className='slot'+(pid?'':' empty')+(sentOff?' off':'');b.style.left=pos.x+'%';b.style.top=pos.y+'%';b.type='button';b.dataset.r=sl.role;b.dataset.n=sl.slot;
     const p=pid&&byId(pid);
     const y=pid&&S.ev.filter(e=>!e.v&&e.type==='yellow_card'&&e.p===pid).length;
     b.innerHTML='<span class="dot">'+jersey(p,sl)+(S.cap===pid&&pid?'<i class="cap">C</i>':'')+(y?'<i class="cc y"></i>':'')+(sentOff?'<i class="cc r"></i>':'')+'</span><span class="nm">'+(p?p.n:'')+'</span>';
@@ -699,7 +754,7 @@ function pitch(){
     b.addEventListener('pointerdown',e=>{down=true;drag=false;sx=e.clientX;sy=e.clientY;b.setPointerCapture(e.pointerId)});
     b.addEventListener('pointermove',e=>{if(!down||S.locked)return;if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)<6)return;drag=true;const r=el.getBoundingClientRect();
       const x=Math.min(94,Math.max(6,(e.clientX-r.left)/r.width*100)),yy=Math.min(95,Math.max(5,(e.clientY-r.top)/r.height*100));b.style.left=x+'%';b.style.top=yy+'%';S.pos[sl.slot]={x,y:yy}});
-    b.addEventListener('pointerup',e=>{if(!down)return;down=false;if(drag){drag=false;return}
+    b.addEventListener('pointerup',e=>{if(!down)return;down=false;if(drag){drag=false;if(window.__slotDrop)window.__slotDrop(sl.slot,e);return}
       if(S.locked)return;
       if(S.sel&&!S.slots[sl.slot]){const was=slotOf(S.sel);if(was)delete S.slots[was];S.bench.delete(S.sel);S.slots[sl.slot]=S.sel;S.sel=null;render();return}
       openPick(sl)});
@@ -728,7 +783,7 @@ function pool(){
   const used=new Set(starters());const pl=$('pool');pl.innerHTML='';
   P.filter(p=>window.__luf?window.__luf(p):true).forEach(p=>{const u=used.has(p.id),bn=S.bench.has(p.id);
     const d=document.createElement('div');d.className='pp'+(S.sel===p.id?' sel':'')+(u?' used':'');d.setAttribute('role','button');d.tabIndex=0;
-    d.innerHTML='<span class="no">'+p.s+'</span><img class="pav" alt="" src="'+window.__lav(p)+'"><span>'+p.n+'</span><span class="ps">'+p.p+'</span>'+(window.__lub?window.__lub(p):'')+
+    d.dataset.id=p.id;d.innerHTML='<span class="gh" aria-hidden="true">⋮⋮</span><span class="no">'+p.s+'</span><img class="pav" alt="" src="'+window.__lav(p)+'"><span>'+p.n+'</span><span class="ps">'+p.p+'</span>'+(window.__lub?window.__lub(p):'')+
      '<button class="mini" data-a="b" aria-pressed="'+bn+'" '+(u||S.locked?'disabled':'')+'>'+t('bench')+'</button>'+
      '<button class="mini" data-a="c" aria-pressed="'+(S.cap===p.id)+'" '+(!u?'disabled':'')+' title="'+t('captain')+'">C</button>';
     d.addEventListener('click',e=>{const a=e.target.closest('button')?.dataset.a;if(a==='b'){if(S.locked)return;bn?S.bench.delete(p.id):S.bench.add(p.id);if(S.sel===p.id)S.sel=null}else if(a==='c'){S.cap=S.cap===p.id?null:p.id}else if(!u&&!S.locked){S.sel=S.sel===p.id?null:p.id}render()});
@@ -774,16 +829,16 @@ function stats(){
 function head(){
   const [a,b]=score();$('sc-us').textContent=a;$('sc-them').textContent=b;
   const c=$('stchip');c.textContent=t('s_'+S.live);c.className='chip'+(['first_half','second_half'].includes(S.live)?' live':'');$('ld').hidden=!['first_half','second_half'].includes(S.live);
-  const n=starters().length;$('cnt').textContent=n+'/11';
-  $('hint').textContent=S.locked?t('locked'):n<11?t('hint_pick'):'';
-  $('bpub').disabled=n<11||S.published;$('bclr').disabled=S.locked;
+  const n=starters().length;$('cnt').textContent=n+'/'+NN();
+  $('hint').textContent=S.locked?t('locked'):n<NN()?t('hint_pick'):'';
+  $('bpub').disabled=n<NN()||S.published;$('bclr').disabled=S.locked;
   $('pubmsg').innerHTML=S.published?'<div class="ok2">✓ '+t('published')+'</div>':'';
-  const L=S.live;$('b-start').disabled=L!=='not_started'||n<11;$('b-ht').disabled=L!=='first_half';$('b-2h').disabled=L!=='half_time';$('b-ft').disabled=!['first_half','second_half'].includes(L);
+  const L=S.live;$('b-start').disabled=L!=='not_started'||n<NN();$('b-ht').disabled=L!=='first_half';$('b-2h').disabled=L!=='half_time';$('b-ft').disabled=!['first_half','second_half'].includes(L);
   $('badd').disabled=!['first_half','second_half'].includes(L);
-  if(L==='not_started'&&n<11)$('err').textContent=t('need11');
+  if(L==='not_started'&&n<NN())$('err').textContent=t('need11');
 }
 function render(){
-  const fs=$('fsel');if(fs.dataset.b!=='1'){fs.innerHTML=Object.keys(F).map(k=>'<option>'+k+'</option>').join('');fs.dataset.b='1';fs.addEventListener('change',()=>{if(S.locked){fs.value=S.f;return}S.f=fs.value;S.slots={};S.pos={};render()})}
+  const fs=$('fsel');if(fs.dataset.b!=='1'){fs.innerHTML=Object.keys(F).map(k=>'<option>'+k+'</option>').join('');fs.dataset.b='1';fs.addEventListener('change',()=>{if(S.locked){fs.value=S.f;return}if(window.__setStyle)window.__setStyle(fs.value);else{S.f=fs.value;S.slots={};S.pos={};render()}})}
   fs.value=S.f;fs.disabled=S.locked;pitch();pool();opts();tline();stats();head();window.__lux&&window.__lux();
 }
 window.mdRender=()=>{$('etype').dataset.l='';render()};window.__LU={S:()=>S,F,P,byId,render,t};
@@ -1037,7 +1092,7 @@ function cd2(){const a=$('cd'),b=$('cd2');if(a&&b)b.innerHTML=a.innerHTML}setInt
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(timer);else if(!paused)restart()});
 go(0);
 /* ---- versions & revisions (demo data; real data: app_releases, content_revisions) ---- */
-const REL=[['13.11.2026','0.15.0','design','New typeface: Figtree (Cairo stays for Arabic)'],['13.11.2026','0.14.3','fix','Enrolment title uses the same green as the other titles'],['13.11.2026','0.14.2','feature','Join page: collapsible tryout and enrolment forms, country list for nationality, dark calendar, FAQ update'],['13.11.2026','0.14.1','feature','Lineup: grass pitch, photo on team-coloured shirt; birth-date calendar; phone numbers need the country code'],['13.11.2026','0.14.0','feature','Lineup builder: auto-fill, availability, filters, arrows, kits, checks, saved lineups, image export'],['13.11.2026','0.13.0','feature','Player payment status; sign-in blocked for overdue fees'],['13.11.2026','0.12.2','content','Insurance prices by age on the Membership page'],['13.11.2026','0.12.1','fix','Insurance options shown in full for ages 12–69'],['13.11.2026','0.12.0','feature','Membership details, insurance by age, invoice requests, Sponsors page'],['13.11.2026','0.11.0','feature','Team page, enrolment and tryout moved to the Join page, membership contents updated'],['13.11.2026','0.10.0','feature','Separate Enrolment, Membership, Join and Contact pages; fees 20/60/240 €'],['13.11.2026','0.9.1','content','Women and Juniors pages, enrolment moved to the menu'],['13.11.2026','0.9.0','feature','Hero slider with video, version history'],['13.11.2026','0.8.0','design','Rounded, simpler design'],['12.11.2026','0.7.0','design','Big-club editorial design'],['10.11.2026','0.6.0','feature','Locations, event types, enrolment'],['06.11.2026','0.5.0','feature','Training schedule, ratings, MVP, profiles'],['02.11.2026','0.4.0','feature','Tryouts and membership payments'],['28.10.2026','0.3.0','feature','Arabic, lineups, live match events']];
+const REL=[['15.11.2026','0.16.0','feature','Lineup: style dropdown with description beside the pitch, formations for 5 v 5 to 11 v 11, drag and drop, rotation plan, availability summary, JPG and share export, match clock'],['13.11.2026','0.15.0','design','New typeface: Figtree (Cairo stays for Arabic)'],['13.11.2026','0.14.3','fix','Enrolment title uses the same green as the other titles'],['13.11.2026','0.14.2','feature','Join page: collapsible tryout and enrolment forms, country list for nationality, dark calendar, FAQ update'],['13.11.2026','0.14.1','feature','Lineup: grass pitch, photo on team-coloured shirt; birth-date calendar; phone numbers need the country code'],['13.11.2026','0.14.0','feature','Lineup builder: auto-fill, availability, filters, arrows, kits, checks, saved lineups, image export'],['13.11.2026','0.13.0','feature','Player payment status; sign-in blocked for overdue fees'],['13.11.2026','0.12.2','content','Insurance prices by age on the Membership page'],['13.11.2026','0.12.1','fix','Insurance options shown in full for ages 12–69'],['13.11.2026','0.12.0','feature','Membership details, insurance by age, invoice requests, Sponsors page'],['13.11.2026','0.11.0','feature','Team page, enrolment and tryout moved to the Join page, membership contents updated'],['13.11.2026','0.10.0','feature','Separate Enrolment, Membership, Join and Contact pages; fees 20/60/240 €'],['13.11.2026','0.9.1','content','Women and Juniors pages, enrolment moved to the menu'],['13.11.2026','0.9.0','feature','Hero slider with video, version history'],['13.11.2026','0.8.0','design','Rounded, simpler design'],['12.11.2026','0.7.0','design','Big-club editorial design'],['10.11.2026','0.6.0','feature','Locations, event types, enrolment'],['06.11.2026','0.5.0','feature','Training schedule, ratings, MVP, profiles'],['02.11.2026','0.4.0','feature','Tryouts and membership payments'],['28.10.2026','0.3.0','feature','Arabic, lineups, live match events']];
 let REV=[{n:1,by:'Super admin',at:'10.11 09:12',f:['created'],note:'',t:'Afro Foot Club is a football club in Finland.'},{n:2,by:'Club admin',at:'11.11 14:03',f:['body_md'],note:'Added founding year',t:'Afro Foot Club is a football club in Finland, founded in 2020.'},{n:3,by:'Club admin',at:'12.11 08:41',f:['body_md','title'],note:'New intro',t:'Afro Foot Club: where the world plays as one. Founded in Finland in 2020.'}];
 function esc(x){return String(x).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 function versions(){const r=$('vrel');if(!r)return;r.innerHTML=REL.map(x=>'<tr><td class="mut">'+x[0]+'</td><td><b>'+x[1]+'</b></td><td><span class="tag '+(x[2]==='feature'?'g':'')+'">'+x[2]+'</span></td><td>'+x[3]+'</td></tr>').join('');
@@ -1124,19 +1179,19 @@ const old=window.mdRender;window.mdRender=()=>{if(old)old();paint();fp()};paint(
 (function(){
 const LU=window.__LU;if(!LU)return;const $=id=>document.getElementById(id);const t=LU.t,F=LU.F,P=LU.P,byId=LU.byId;
 const AV={7:'inj',12:'away',14:'late'},AVC=['ok','late','inj','away'];
-const X={kit:'green',pitch:'stripes',names:true,draw:false,arrows:[],notes:'',q:'',pos:'all',hide:false,undo:[],redo:[],last:null,restoring:false};
+const X=window.__LX={kit:'green',pitch:'stripes',names:true,draw:false,arrows:[],rot:[],avf:'all',notes:'',q:'',pos:'all',hide:false,undo:[],redo:[],last:null,restoring:false};
 const KITS={green:['#3DAF2C','#ffffff','#ffffff'],black:['#101510','#ffffff','#ffffff'],white:['#ffffff','#101510','#101510']};
-const av=p=>AV[p.id]||'ok';
-window.__luf=p=>{if(X.q&&!(p.n.toLowerCase().includes(X.q)||String(p.s)===X.q))return false;if(X.pos!=='all'&&p.p!==X.pos)return false;if(X.hide&&(av(p)==='inj'||av(p)==='away'))return false;return true};
+const av=window.__av=p=>AV[p.id]||'ok';
+window.__luf=p=>{if(X.q&&!(p.n.toLowerCase().includes(X.q)||String(p.s)===X.q))return false;if(X.pos!=='all'&&p.p!==X.pos)return false;if(X.hide&&(av(p)==='inj'||av(p)==='away'))return false;if(X.avf!=='all'&&av(p)!==X.avf)return false;return true};
 window.__lub=p=>{const a=av(p);return '<button class="mini av av-'+a+'" data-a="av" type="button" title="'+t('lu_av_t')+'">'+t('lu_a_'+a)+'</button>'};
-const snap=()=>{const s=LU.S();return JSON.stringify({f:s.f,slots:s.slots,pos:s.pos||{},bench:[...s.bench],cap:s.cap,arrows:X.arrows})};
-function apply(o){const s=LU.S();s.f=o.f;s.slots=o.slots||{};s.pos=o.pos||{};s.bench=new Set(o.bench||[]);s.cap=o.cap||null;s.sel=null;X.arrows=o.arrows||[];X.restoring=true;LU.render()}
+const snap=()=>{const s=LU.S();return JSON.stringify({f:s.f,slots:s.slots,pos:s.pos||{},bench:[...s.bench],cap:s.cap,arrows:X.arrows,rot:X.rot})};
+function apply(o){const s=LU.S();s.f=o.f;s.slots=o.slots||{};s.pos=o.pos||{};s.bench=new Set(o.bench||[]);s.cap=o.cap||null;s.sel=null;X.arrows=o.arrows||[];X.rot=o.rot||[];X.restoring=true;LU.render()}
 function rank(p){const a=av(p);return a==='ok'?0:a==='late'?1:9}
 function autofill(){const s=LU.S();if(s.locked)return;const used=new Set(Object.values(s.slots));
   F[s.f].forEach(sl=>{if(s.slots[sl.slot])return;const c=P.filter(p=>!used.has(p.id)&&rank(p)<9).sort((a,b)=>{const m=p=>p.p===sl.role?0:(p.p==='GK'?2:1);return m(a)-m(b)||rank(a)-rank(b)||a.s-b.s})[0];if(c){s.slots[sl.slot]=c.id;used.add(c.id)}});
   s.bench=new Set([...s.bench].filter(id=>!used.has(id)));
   const rest=P.filter(p=>!used.has(p.id)&&rank(p)<9&&!s.bench.has(p.id)).sort((a,b)=>(a.p==='GK'?0:1)-(b.p==='GK'?0:1)||rank(a)-rank(b)||a.s-b.s);
-  while(s.bench.size<7&&rest.length)s.bench.add(rest.shift().id);
+  while(s.bench.size<(F[s.f].length>=11?7:F[s.f].length>=9?5:F[s.f].length>=7?4:3)&&rest.length)s.bench.add(rest.shift().id);
   if(!s.cap){const c=P.find(p=>used.has(p.id)&&p.s===4)||byId([...used][0]);s.cap=c?c.id:null}
   LU.render()}
 /* arrows */
@@ -1169,9 +1224,9 @@ function msg(k){const m=$('lu-msg');m.hidden=false;m.textContent=t(k)}
 /* export */
 function titleTxt(){return t('for_us')+' – '+t('vs_name')+' · '+LU.S().f}
 function text(){const s=LU.S(),ln=[titleTxt()];const g={GK:[],DF:[],MF:[],FW:[]};F[s.f].forEach(sl=>{const id=s.slots[sl.slot];if(id)g[sl.role].push('#'+byId(id).s+' '+byId(id).n+(s.cap===id?' (C)':''))});
-  Object.keys(g).forEach(k=>{if(g[k].length)ln.push(k+': '+g[k].join(', '))});const b=[...s.bench].map(id=>'#'+byId(id).s+' '+byId(id).n);if(b.length)ln.push(t('lu_subs_l')+': '+b.join(', '));return ln.join('\n')}
+  Object.keys(g).forEach(k=>{if(g[k].length)ln.push(k+': '+g[k].join(', '))});const b=[...s.bench].map(id=>'#'+byId(id).s+' '+byId(id).n);if(b.length)ln.push(t('lu_subs_l')+': '+b.join(', '));(X.rot||[]).filter(r=>byId(r.off)&&byId(r.on)).sort((a,c)=>a.min-c.min).forEach(r=>ln.push(r.min+"' "+byId(r.off).n+' → '+byId(r.on).n));return ln.join('\n')}
 const loadImg=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src});
-async function png(){const s=LU.S(),W=1080,H=1500,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+async function png(kind){kind=kind||'png';const s=LU.S(),W=1080,H=1500,c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
   try{await Promise.all(['800 28px Figtree','700 28px Figtree','500 28px Figtree'].map(f=>document.fonts.load(f)))}catch(e){}
   const imgs={};await Promise.all(Object.values(s.slots).map(async id=>{imgs[id]=await loadImg(window.__lav(byId(id)))}));
   g.fillStyle='#0b0f0a';g.fillRect(0,0,W,H);g.fillStyle='#3DAF2C';g.font='800 46px Figtree,sans-serif';g.fillText('Afro Foot Club',60,84);g.fillStyle='#fff';g.font='700 32px Figtree,sans-serif';g.fillText(titleTxt(),60,134);
@@ -1199,7 +1254,7 @@ async function png(){const s=LU.S(),W=1080,H=1500,c=document.createElement('canv
     if(id&&X.names){g.textAlign='center';g.textBaseline='alphabetic';g.font='700 28px Figtree,sans-serif';g.lineWidth=6;g.strokeStyle=board?'#fff':'#000';g.fillStyle=board?'#101510':'#fff';g.strokeText(byId(id).n,x,y+.58*sw+26);g.fillText(byId(id).n,x,y+.58*sw+26)}});
   g.setLineDash([]);g.textAlign='left';g.textBaseline='alphabetic';g.fillStyle='#fff';g.font='800 30px Figtree,sans-serif';g.fillText(t('lu_bench'),60,1385);g.font='500 28px Figtree,sans-serif';
   const b=[...s.bench].map(id=>'#'+byId(id).s+' '+byId(id).n);let line='',y=1428;b.forEach(x=>{if(g.measureText(line+x+'   ').width>960){g.fillText(line,60,y);y+=40;line=''}line+=x+'   '});if(line)g.fillText(line,60,y);
-  c.toBlob(bl=>{const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='lineup-'+s.f+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);msg('lu_m_png')})}
+  const mime=kind==='jpg'?'image/jpeg':'image/png',ext=kind==='jpg'?'jpg':'png';c.toBlob(async bl=>{const name='lineup-'+s.f+'.'+ext;if(kind==='share'){try{const f=new File([bl],name,{type:mime});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:titleTxt(),text:text()});msg('lu_m_shared');return}}catch(e){if(e&&e.name==='AbortError')return}}const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),3000);msg(kind==='jpg'?'lu_m_jpg':'lu_m_png')},mime,.92)}
 /* wiring */
 $('lu-auto').onclick=autofill;
 $('lu-undo').onclick=()=>{if(!X.undo.length)return;X.redo.push(snap());apply(JSON.parse(X.undo.pop()))};
@@ -1211,14 +1266,14 @@ $('lu-q').placeholder='';$('lu-q').oninput=e=>{X.q=e.target.value.trim().toLower
 $('lu-pos').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;X.pos=b.dataset.p;LU.render()});
 $('lu-hide').onchange=e=>{X.hide=e.target.checked;LU.render()};
 $('lu-notes').oninput=e=>{X.notes=e.target.value};
-$('lu-save').onclick=()=>{const s=LU.S();let n=$('lu-tn').value.trim().slice(0,80)||('Lineup '+(TPL.length+1));const o={name:n,f:s.f,slots:{...s.slots},pos:JSON.parse(JSON.stringify(s.pos||{})),bench:[...s.bench],cap:s.cap,arrows:JSON.parse(JSON.stringify(X.arrows)),kit:X.kit,pitch:X.pitch,notes:X.notes};
+$('lu-save').onclick=()=>{const s=LU.S();let n=$('lu-tn').value.trim().slice(0,80)||('Lineup '+(TPL.length+1));const o={name:n,f:s.f,slots:{...s.slots},pos:JSON.parse(JSON.stringify(s.pos||{})),bench:[...s.bench],cap:s.cap,arrows:JSON.parse(JSON.stringify(X.arrows)),rot:JSON.parse(JSON.stringify(X.rot)),kit:X.kit,pitch:X.pitch,notes:X.notes};
   const i=TPL.findIndex(x=>x.name===n);if(i>=0)TPL[i]=o;else TPL.push(o);store();lists();$('lu-list').value=String(TPL.findIndex(x=>x.name===n));msg('lu_m_saved')};
 $('lu-load').onclick=()=>{const s=LU.S();if(s.locked)return;const v=$('lu-list').value;
-  if(v==='preset'){apply({f:'4-3-3',slots:{},pos:{},bench:[],cap:null,arrows:[]});autofill();X.kit='green';X.pitch='stripes'}
+  if(v==='preset'){apply({f:s.f,slots:{},pos:{},bench:[],cap:null,arrows:[],rot:[]});autofill();X.kit='green';X.pitch='stripes'}
   else{const o=TPL[+v];if(!o)return;apply(o);X.kit=o.kit||'green';X.pitch=o.pitch||'stripes';X.notes=o.notes||'';$('lu-notes').value=X.notes;$('lu-tn').value=o.name}
   window.__lux();msg('lu_m_loaded')};
 $('lu-del').onclick=()=>{const v=$('lu-list').value;if(v==='preset')return;TPL.splice(+v,1);store();lists()};
-$('lu-png').onclick=png;
+$('lu-png').onclick=()=>png('png');$('lu-jpg').onclick=()=>png('jpg');$('lu-share').onclick=()=>png('share');
 $('lu-copy').onclick=()=>{const ta=$('lu-txt');ta.hidden=false;ta.value=text();ta.select();let ok=false;try{navigator.clipboard.writeText(ta.value).then(()=>msg('lu_m_copied'),()=>msg('lu_m_text'));ok=true}catch(e){}if(!ok)msg('lu_m_text')};
 $('pitch').addEventListener('pointerup',()=>setTimeout(()=>window.__lux(),0));
 /* pool availability buttons */
@@ -1234,7 +1289,7 @@ window.__lux=()=>{const s=LU.S();ensureSvg();
   $('lu-draw').setAttribute('aria-pressed',X.draw);drawArrows();
   $('lu-undo').disabled=s.locked||!X.undo.length;$('lu-redo').disabled=s.locked||!X.redo.length;$('lu-auto').disabled=s.locked;$('lu-load').disabled=s.locked;$('lu-clra').disabled=!X.arrows.length;
   // bench strip
-  const bn=$('lubench');bn.innerHTML='<b>'+t('lu_bench')+' ('+s.bench.size+')</b>'+([...s.bench].map(id=>{const p=byId(id);return '<span class="lubc"><i>'+p.s+'</i>'+p.n+' <small class="mut">'+p.p+'</small>'+(s.locked?'':'<button type="button" data-rb="'+id+'" aria-label="×">×</button>')+'</span>'}).join('')||'<span class="mut" style="font-size:13px">'+t('lu_bench_e')+'</span>');
+  const bn=$('lubench');bn.innerHTML='<b>'+t('lu_bench')+' ('+s.bench.size+')</b>'+([...s.bench].map(id=>{const p=byId(id);return '<span class="lubc" data-id="'+id+'"><span class="gh" aria-hidden="true">⋮⋮</span><i>'+p.s+'</i>'+p.n+' <small class="mut">'+p.p+'</small>'+(s.locked?'':'<button type="button" data-rb="'+id+'" aria-label="×">×</button>')+'</span>'}).join('')||'<span class="mut" style="font-size:13px">'+t('lu_bench_e')+'</span>');
   bn.querySelectorAll('[data-rb]').forEach(b=>b.onclick=()=>{s.bench.delete(+b.dataset.rb);LU.render()});
   // checks
   const ck=check();$('luv').hidden=!ck.length;$('luv').innerHTML=ck.length?'<h4>'+t('lu_check')+'</h4><ul>'+ck.map(c=>'<li class="'+c[0]+'">'+fmt(c[1],c[2])+'</li>').join('')+'</ul>':'';
@@ -1313,6 +1368,119 @@ fillNat();
 new MutationObserver(fillNat).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 /* open the right form when a link points to it */
 document.addEventListener('click',e=>{const a=e.target.closest('[data-nav]');if(!a)return;const id={'#tryout':'tryAcc','#enrolment':'enrAcc'}[a.dataset.nav];if(id){const d=document.getElementById(id);if(d)d.open=true}},true);
+})();
+</script>
+<script>
+(function(){
+const LU=window.__LU,X=window.__LX;if(!LU||!X)return;
+const $=id=>document.getElementById(id),t=LU.t,F=LU.F,P=LU.P,byId=LU.byId,av=window.__av;
+const esc=x=>String(x).replace(/</g,'&lt;');
+const fmt=(k,v)=>{let x=t(k);for(const a in v||{})x=x.replace('{'+a+'}',v[a]);return x};
+/* ---- formats and styles ---- */
+const mk=rows=>{const out=[{slot:1,role:'GK',x:50,y:92}],n=rows.length;let sl=2;
+  rows.forEach((c,i)=>{const role=n===2?(i?'FW':'DF'):(i===0?'DF':i===n-1?'FW':'MF'),y=72-(56*i/(n-1));
+    for(let j=0;j<c;j++)out.push({slot:sl++,role,x:Math.round((j+1)*1000/(c+1))/10,y:Math.round(y*10)/10})});return out};
+Object.assign(F,{'3-3-2':mk([3,3,2]),'3-2-3':mk([3,2,3]),'2-3-1':mk([2,3,1]),'3-2-1':mk([3,2,1]),'2-2-2':mk([2,2,2]),'1-2-1':mk([1,2,1]),'2-2':mk([2,2])});
+const GRP=[['11',['4-4-2','4-3-3','4-2-3-1','3-5-2','3-4-3','5-3-2','4-1-4-1','4-5-1']],['9',['3-3-2','3-2-3']],['7',['2-3-1','3-2-1','2-2-2']],['5',['1-2-1','2-2']]];
+const TAG={'4-4-2':['bal'],'4-3-3':['att','pos'],'4-2-3-1':['pos','bal'],'3-5-2':['pos','ctr'],'3-4-3':['att'],'5-3-2':['def','ctr'],'4-1-4-1':['def','bal'],'4-5-1':['def','pos'],'3-3-2':['bal'],'3-2-3':['att'],'2-3-1':['bal'],'3-2-1':['def'],'2-2-2':['bal'],'1-2-1':['pos'],'2-2':['def','ctr']};
+const FK={'4-4-2':'f442','4-3-3':'f433','4-2-3-1':'f4231','3-5-2':'f352','3-4-3':'f343','5-3-2':'f532','4-1-4-1':'f4141','4-5-1':'f451','3-3-2':'f332','3-2-3':'f323','2-3-1':'f231','3-2-1':'f321','2-2-2':'f222','1-2-1':'f121','2-2':'f22'};
+const tagTxt=k=>(TAG[k]||[]).map(x=>t('ft_'+x)).join(' · ');
+function fsOpts(){const fs=$('fsel');if(fs.dataset.l===cur&&fs.dataset.g==='1')return;
+  fs.innerHTML=GRP.map(([n,l])=>'<optgroup label="'+n+' v '+n+'">'+l.map(k=>'<option value="'+k+'">'+k+' · '+esc(tagTxt(k))+'</option>').join('')+'</optgroup>').join('');
+  fs.dataset.l=cur;fs.dataset.g='1'}
+function descr(){const s=LU.S(),k=s.f,rows=F[k],n=rows.length,c={DF:0,MF:0,FW:0};rows.forEach(x=>{if(c[x.role]!==undefined)c[x.role]++});
+  const dots=rows.map(x=>'<circle class="r-'+x.role+'" cx="'+x.x+'" cy="'+(8+(x.y-16)*86/76).toFixed(1)+'" r="4.4"/>').join('');
+  $('lu-sub').textContent=k+' · '+n+' v '+n;
+  $('lu-sd').innerHTML='<div class="ls-head"><div class="ls-shape">'+k+'</div><div class="ls-tags">'+(TAG[k]||[]).map(x=>'<span>'+esc(t('ft_'+x))+'</span>').join('')+'</div></div>'+
+   '<div class="ls-body"><svg class="ls-mini" viewBox="0 0 100 100" aria-hidden="true"><rect class="ln" x="4" y="3" width="92" height="94" rx="3"/><line class="ln" x1="4" y1="50" x2="96" y2="50"/>'+dots+'</svg>'+
+   '<div><p class="ls-desc">'+esc(t(FK[k]))+'</p><ul class="ls-lines">'+['DF','MF','FW'].filter(r=>c[r]).map(r=>'<li><b>'+c[r]+'</b><span>'+esc(t('lu_l_'+r))+'</span></li>').join('')+'</ul></div></div>'}
+/* change style: keep the players, place them by role in the new shape */
+const RI={GK:0,DF:1,MF:2,FW:3};
+window.__setStyle=k=>{const s=LU.S();if(s.locked||!F[k])return;
+  const old=F[s.f],list=[];old.forEach(sl=>{const id=s.slots[sl.slot];if(id)list.push({id,role:sl.role})});
+  const used=new Set(),slots={};
+  F[k].forEach(sl=>{const i=list.findIndex(o=>!used.has(o.id)&&o.role===sl.role);if(i>=0){slots[sl.slot]=list[i].id;used.add(list[i].id)}});
+  F[k].forEach(sl=>{if(slots[sl.slot])return;const c=list.filter(o=>!used.has(o.id)&&o.role!=='GK').sort((a,b)=>Math.abs(RI[a.role]-RI[sl.role])-Math.abs(RI[b.role]-RI[sl.role]))[0];if(c){slots[sl.slot]=c.id;used.add(c.id)}});
+  list.forEach(o=>{if(!used.has(o.id))s.bench.add(o.id)});
+  F[k].forEach(sl=>{if(slots[sl.slot])return;const c=[...s.bench].map(byId).filter(x=>x&&!used.has(x.id)&&(sl.role==='GK'?x.p==='GK':x.p!=='GK')).sort((a,b)=>Math.abs(RI[a.p]-RI[sl.role])-Math.abs(RI[b.p]-RI[sl.role])||a.s-b.s)[0];if(c){slots[sl.slot]=c.id;used.add(c.id)}});
+  s.f=k;s.slots=slots;s.pos={};s.sel=null;Object.values(slots).forEach(id=>s.bench.delete(id));LU.render()};
+/* ---- availability summary ---- */
+function rsvp(){const cnt={ok:0,late:0,inj:0,away:0};P.forEach(p=>cnt[av(p)]++);const n=P.length;
+  const seg=['ok','late','inj','away'].map(a=>'<i class="rs-'+a+'" style="width:'+(cnt[a]*100/n)+'%"></i>').join('');
+  $('lu-rsvp').innerHTML='<h4>'+esc(t('lu_rsvp'))+'</h4><div class="rs-bar">'+seg+'</div><div class="chips">'+
+   [['all',n]].concat(['ok','late','inj','away'].map(a=>[a,cnt[a]])).map(([a,c])=>'<button class="chipb" type="button" data-av="'+a+'" aria-pressed="'+(X.avf===a)+'">'+esc(a==='all'?t('lu_all'):t('lu_a_'+a))+' '+c+'</button>').join('')+'</div>'+
+   '<p class="mut" style="font-size:13px;margin:8px 0 0">'+esc(fmt('lu_rsvp_n',{n:cnt.ok+cnt.late,m:n}))+'</p>';
+  $('lu-rsvp').querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{X.avf=b.dataset.av;LU.render()})}
+/* ---- rotation plan ---- */
+const ML=90;
+function sim(list){const s=LU.S(),st={},en={},ok=[];Object.values(s.slots).forEach(id=>{st[id]=0;en[id]=ML});
+  [...list].sort((a,b)=>a.min-b.min).forEach(r=>{const g=en[r.off]!==undefined&&en[r.off]>r.min&&st[r.on]===undefined&&s.bench.has(r.on);ok.push(g);if(g){en[r.off]=r.min;st[r.on]=r.min;en[r.on]=ML}});
+  return{st,en,ok}}
+function rotUI(){const s=LU.S(),box=$('lu-rot');
+  const sp=Object.values(s.slots).map(byId),bp=[...s.bench].map(byId),opt=p=>'<option value="'+p.id+'">#'+p.s+' '+esc(p.n)+'</option>';
+  const keep=['rot-min','rot-off','rot-on'].map(i=>$(i)?$(i).value:'');
+  const r=sim(X.rot),srt=X.rot.map((x,i)=>({x,i})).sort((a,b)=>a.x.min-b.x.min);
+  const play=[...sp,...bp].map(p=>({p,m:r.st[p.id]===undefined?0:r.en[p.id]-r.st[p.id]})).sort((a,b)=>b.m-a.m||a.p.s-b.p.s);
+  box.innerHTML='<h4>'+esc(t('lu_rot_h'))+'</h4><p class="mut" style="font-size:13px;margin:0">'+esc(t('lu_rot_hint'))+'</p>'+
+   '<div class="rotf"><label>'+esc(t('lu_rot_min'))+'<select id="rot-min">'+[15,20,25,30,35,40,45,50,55,60,65,70,75,80].map(m=>'<option>'+m+'</option>').join('')+'</select></label>'+
+   '<label>'+esc(t('lu_rot_off'))+'<select id="rot-off">'+sp.map(opt).join('')+'</select></label><label>'+esc(t('lu_rot_on'))+'<select id="rot-on">'+bp.map(opt).join('')+'</select></label>'+
+   '<button class="mini" id="rot-add" type="button"'+(s.locked||!sp.length||!bp.length?' disabled':'')+'>'+esc(t('lu_rot_add'))+'</button></div><div class="err" id="rot-err" role="alert"></div>'+
+   '<div class="rotl">'+(srt.length?srt.map(({x,i})=>{const a=byId(x.off),b=byId(x.on);return a&&b?'<span class="lubc'+(sim(X.rot).ok[[...X.rot].sort((p,q)=>p.min-q.min).indexOf(x)]?'':' bad')+'">'+x.min+'’ <small class="mut">#'+a.s+' '+esc(a.n)+'</small> → <i>'+b.s+'</i>'+esc(b.n)+(s.locked?'':' <button type="button" data-rr="'+i+'" aria-label="×">×</button>')+'</span>':''}).join(''):'<span class="mut" style="font-size:13px">'+esc(t('lu_rot_none'))+'</span>')+'</div>'+
+   (sp.length?'<h4 style="margin-top:14px">'+esc(t('lu_rot_time'))+'</h4><div class="rbars">'+play.map(({p,m})=>'<div class="rb'+(m?'':' z')+'"><span>#'+p.s+' '+esc(p.n)+'</span><u><i style="width:'+(m*100/ML)+'%"></i></u><em>'+m+'’</em></div>').join('')+'</div>':'');
+  ['rot-min','rot-off','rot-on'].forEach((id,i)=>{const el=$(id);if(keep[i]&&[...el.options].some(o=>o.value===keep[i]))el.value=keep[i]});
+  $('rot-add').onclick=()=>{const e={min:+$('rot-min').value,off:+$('rot-off').value,on:+$('rot-on').value};
+    if(!e.off||!e.on||sim([...X.rot,e]).ok.some(v=>!v)){$('rot-err').textContent=t('lu_rot_err');return}
+    X.rot.push(e);LU.render()};
+  box.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>{X.rot.splice(+b.dataset.rr,1);LU.render()})}
+/* ---- match clock ---- */
+let lv=null,ck={base:0,t0:0,on:false};const secs=()=>ck.on?ck.base+(Date.now()-ck.t0)/1000:ck.base;
+function clockSync(){const s=LU.S();if(s.live===lv)return;lv=s.live;
+  if(s.live==='first_half')ck={base:0,t0:Date.now(),on:true};
+  else if(s.live==='second_half')ck={base:45*60,t0:Date.now(),on:true};
+  else if(s.live==='half_time')ck={base:45*60,t0:0,on:false};
+  else if(s.live==='full_time')ck={base:Math.max(90*60,secs()),t0:0,on:false};
+  tick()}
+function tick(){const s=LU.S(),c=$('lu-clock');if(!c)return;c.hidden=s.live==='not_started';if(c.hidden)return;
+  const v=Math.floor(secs());c.textContent=Math.floor(v/60)+':'+String(v%60).padStart(2,'0');
+  if(ck.on&&document.activeElement!==$('emin'))$('emin').value=Math.min(130,Math.floor(v/60)+1)}
+setInterval(tick,1000);
+/* ---- drag and drop ---- */
+function zoneAt(x,y,ex){const els=document.elementsFromPoint(x,y);
+  for(const el of els){const sl=el.closest&&el.closest('.slot');if(sl&&sl.dataset.n!==String(ex))return{k:'slot',n:+sl.dataset.n,el:sl}}
+  for(const el of els){if(el.closest&&el.closest('#lubench'))return{k:'bench',el:$('lubench')}}
+  for(const el of els){if(el.closest&&el.closest('#pool'))return{k:'pool',el:$('pool')}}
+  const pr=$('pitch').getBoundingClientRect();
+  if(x>=pr.left&&x<=pr.right&&y>=pr.top&&y<=pr.bottom){let best=null,bd=1e9;
+    $('pitch').querySelectorAll('.slot').forEach(el=>{if(el.dataset.n===String(ex))return;const r=el.getBoundingClientRect(),d=Math.hypot(x-(r.left+r.width/2),y-(r.top+r.height/2));if(d<bd){bd=d;best=el}});
+    if(best&&bd<pr.width*.16)return{k:'slot',n:+best.dataset.n,el:best}}
+  return null}
+function place(id,z){const s=LU.S();if(s.locked)return;s.pos=s.pos||{};
+  const was=Object.keys(s.slots).find(k=>s.slots[k]===id);
+  if(z.k==='slot'){if(was&&+was===z.n)return;const occ=s.slots[z.n];
+    if(was){if(occ)s.slots[was]=occ;else delete s.slots[was];delete s.pos[was]}else if(occ)s.bench.add(occ);
+    s.slots[z.n]=id;s.bench.delete(id);delete s.pos[z.n]}
+  else if(z.k==='bench'){if(was){delete s.slots[was];delete s.pos[was]}s.bench.add(id)}
+  else if(z.k==='pool'){if(was){delete s.slots[was];delete s.pos[was]}s.bench.delete(id)}
+  s.sel=null;LU.render()}
+window.__slotDrop=(n,e)=>{const s=LU.S(),id=s.slots[n];if(!id)return;const z=zoneAt(e.clientX,e.clientY,n);if(!z)return;(s.pos=s.pos||{});delete s.pos[n];place(id,z)};
+let dr=null,gh=null,swallow=false;
+const clearHl=()=>document.querySelectorAll('.dt').forEach(e=>e.classList.remove('dt'));
+document.addEventListener('pointerdown',e=>{if(e.button>0||LU.S().locked)return;
+  const row=e.target.closest&&e.target.closest('#pool .pp,#lubench .lubc');if(!row||!row.dataset.id)return;
+  if(e.target.closest('button,select,input'))return;if(e.pointerType==='touch'&&!e.target.closest('.gh'))return;
+  dr={id:+row.dataset.id,x:e.clientX,y:e.clientY,on:false}});
+document.addEventListener('pointermove',e=>{if(!dr)return;
+  if(!dr.on){if(Math.hypot(e.clientX-dr.x,e.clientY-dr.y)<7)return;dr.on=true;const p=byId(dr.id);
+    gh=document.createElement('div');gh.className='lug-ghost';gh.innerHTML='<img alt="" src="'+window.__lav(p)+'"><span>#'+p.s+' '+esc(p.n)+'</span>';document.body.appendChild(gh);document.body.classList.add('lu-dnd')}
+  gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';clearHl();const z=zoneAt(e.clientX,e.clientY);if(z&&z.el)z.el.classList.add('dt');e.preventDefault()},{passive:false});
+const end=()=>{if(gh){gh.remove();gh=null}document.body.classList.remove('lu-dnd');clearHl()};
+document.addEventListener('pointerup',e=>{if(!dr)return;const d=dr;dr=null;if(!d.on)return;end();swallow=true;setTimeout(()=>swallow=false,60);const z=zoneAt(e.clientX,e.clientY);if(z)place(d.id,z)});
+document.addEventListener('pointercancel',()=>{dr=null;end()});
+document.addEventListener('click',e=>{if(swallow){e.stopPropagation();e.preventDefault()}},true);
+/* ---- hook into the lineup refresh ---- */
+const base=window.__lux;
+window.__lux=()=>{base();try{fsOpts();$('fsel').value=LU.S().f;$('fsel').disabled=LU.S().locked;descr();rsvp();rotUI();clockSync()}catch(err){console.error(err)}};
+window.__lux();
 })();
 </script>
 </body></html>
