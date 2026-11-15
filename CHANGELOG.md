@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – 0.16.0 automatic membership invoices (branch `phase2/invoices`)
+- **Database (migration 0027, run it once in the SQL Editor):** `payment_lines` (invoice rows; players read their own, admins all), a public `billing` setting for the club's invoice details, `app.generate_due_invoices()` and a nightly `pg_cron` job (04:15 UTC). An invoice covers one plan period — one line per month (12 for a yearly plan, like the club's current invoices), one line for a season — and the membership's next invoice date moves on, so a period is never invoiced twice. Nothing is issued while the IBAN is missing. 27 new database tests.
+- **Invoice PDF** (`/invoices/<id>`), one A4 page in the layout of the club's existing invoices: logo and payer, invoice details, lines and totals, company band and Finnish bank transfer slip with **valid reference number** and **bank barcode** (version 4, Code 128 C, checked by decoding), plus a QR code and link to the player's page. Opens only for the player it belongs to and for admins.
+- **Admin → Invoices:** readiness and "Create due invoices now", latest invoices (PDF, Mark paid), memberships of the current season (add, stop / resume automatic invoices), plans (add, activate / deactivate), club billing details (IBAN and business ID validated).
+- **Player page:** "Invoice (PDF)" next to each invoice in the payment history.
+
 ## Unreleased – coach area: teams, training schedule, attendance (branch `phase2/coach`)
 - Coach home: my teams this season (also in the navigation), a to-do list of past sessions still waiting for attendance, and the next sessions. A coach without a team sees how to get assigned.
 - Team page: training schedule (planned, done, cancelled) and **Add training** (date, start and end in Helsinki time, place, focus, optionally weekly for up to 20 weeks); roster sorted by shirt with position, each player's attendance % this season (excused not counted), emergency contact, and **Call** / **WhatsApp** buttons.

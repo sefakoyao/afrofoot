@@ -9,6 +9,10 @@ const KEYS = {
     ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
     err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_noName'],
   },
+  inv: {
+    ok: ['r_billingSaved', 'r_planCreated', 'r_saved', 'r_membershipAdded', 'r_autoOn', 'r_autoOff', 'r_markedPaid'],
+    err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_lead', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason'],
+  },
   coach: {
     ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved'],
     err: ['r_invalid', 'r_error', 'r_title', 'r_date', 'r_time', 'r_endAfterStart', 'r_repeat', 'r_notYourTeam', 'r_cancelled', 'r_tooEarly'],
