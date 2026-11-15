@@ -1933,7 +1933,11 @@
     "videoUnsupported": "This browser cannot record video. Use Share image instead.",
     "exportFailed": "That did not work. Please try again.",
     "saveBoard": "Save lineup and plan",
-    "r_rotationInvalid": "The rotation plan does not fit the lineup: only substitutes come on, and only players on the pitch go off."
+    "r_rotationInvalid": "The rotation plan does not fit the lineup: only substitutes come on, and only players on the pitch go off.",
+    "you": "You",
+    "seeLineup": "See the lineup",
+    "lineupPendingTitle": "Lineup coming soon",
+    "lineupPendingText": "The starting lineup and the bench appear here as soon as the coach publishes them."
   },
   "privacyPolicy": {
     "title": "Privacy policy",

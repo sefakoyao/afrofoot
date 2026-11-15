@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+import { Suspense, type ReactNode } from 'react';
 import { Figtree, Cairo } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { dirOf, isLocale, DEFAULT_LOCALE } from '@afrofoot/i18n';
+import { NavProgress } from '@/components/NavProgress';
 import './globals.css';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
@@ -30,7 +31,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale} dir={dirOf(locale)} className={`${figtree.variable} ${cairo.variable}`}>
       <body className="min-h-screen font-sans">
-        <NextIntlClientProvider locale={locale} messages={messages}>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <Suspense fallback={null}><NavProgress /></Suspense>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

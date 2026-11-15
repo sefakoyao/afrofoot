@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – lineup before protocol, faster-feeling tabs (branch `phase2/match-order-nav`)
+- **Match day order:** on the coach's match page the lineup board now comes first and the pre-game protocol after it (section links too). In the player's calendar the lineup comes before the protocol times.
+- **Lineup for players:** once the coach publishes, players see the lineup on a pitch (shirt numbers and surnames, captain, their own marker as "You") and the bench. It is open in the "Next up" card and folded in the month list. Until then, upcoming matches show a placeholder: "Lineup coming soon". Names come from the existing team roster view; teammates' photos stay private. No database changes.
+- **Tabs answer at once:** the tapped tab (player tabs, coach and admin menus) is highlighted straight away with a small spinner, a thin green bar runs at the top of the screen, and the page being left dims until the new one arrives. Press effect on tabs.
+- **Faster calendar:** the player's Calendar tab now reads its data in two parallel rounds instead of five one after another.
+- `supabase/remove_demo_users.sql` also removes demo players from match lineups (it failed when a demo player was in a lineup).
+
 ## Unreleased – language drop-down and home link (branch `phase2/lang-home`)
 - **Language:** the website and the member app now share one language drop-down (globe, the language's own name: English, Suomi, Français, العربية) instead of four small pills that did not line up. Choosing a language switches at once; on the website you stay on the same page. Without JavaScript a "Change" button (app) or the old links (website) still work.
 - **Back home:** on player, coach and admin pages the club logo and area name (My Afro Foot / Coaching / Admin) link back to that area's main page from anywhere, including My account. The member's name still opens My account.
