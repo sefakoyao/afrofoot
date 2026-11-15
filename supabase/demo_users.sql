@@ -1,6 +1,8 @@
 -- DEMO SIGN-IN ACCOUNTS FOR THE STAGING DATABASE ONLY. Never run this in production.
 -- Paste into Supabase → SQL Editor and run. Safe to run twice (existing demo accounts are skipped).
 -- Creates: 1 coach and 3 players who can sign in, plus 1 player waiting for approval (to try the Members page).
+-- Sample payments: player1 paid last month and has one coming up; player2 is overdue but still inside the grace period
+-- (sees the warning, can still sign in); player3 is fully paid.
 -- Password for every demo account: Demo-Afrofoot-2026   (change it below before running if you like)
 -- All addresses end in @example.com, a reserved domain that never receives mail, so password-reset emails go nowhere.
 -- Remove them all: supabase/remove_demo_users.sql
@@ -43,6 +45,18 @@ begin
       insert into players (profile_id, first_name, last_name, position, status, joined_on)
       values (v_id, r.first_name, r.last_name, r.position::player_position, case when r.status = 'active' then 'active' else 'prospect' end::player_status, current_date)
       returning id into v_player;
+      if r.email = 'demo-player1@example.com' then
+        insert into payments (player_id, amount_cents, status, due_on, paid_at, notes) values
+          (v_player, 4000, 'paid', current_date - 30, now() - interval '28 days', 'demo'),
+          (v_player, 4000, 'pending', current_date + 20, null, 'demo');
+      elsif r.email = 'demo-player2@example.com' then
+        insert into payments (player_id, amount_cents, status, due_on, paid_at, notes) values
+          (v_player, 4000, 'paid', current_date - 60, now() - interval '55 days', 'demo'),
+          (v_player, 4000, 'pending', current_date - 5, null, 'demo');
+      elsif r.email = 'demo-player3@example.com' then
+        insert into payments (player_id, amount_cents, status, due_on, paid_at, notes) values
+          (v_player, 12000, 'paid', current_date - 10, now() - interval '9 days', 'demo');
+      end if;
       if v_ts is not null and r.status = 'active' then
         insert into team_players (team_season_id, player_id, jersey_number, joined_on) values (v_ts, v_player, r.shirt, current_date)
         on conflict do nothing;

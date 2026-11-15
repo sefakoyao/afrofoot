@@ -167,7 +167,8 @@
     "welcome": "Bienvenue, {name}",
     "signedInAs": "Connecté en tant que {email}",
     "comingSoon": "Vos outils apparaîtront ici au fur et à mesure de leur mise en ligne.",
-    "skipToContent": "Aller au contenu"
+    "skipToContent": "Aller au contenu",
+    "myAccount": "Mon compte"
   },
   "privacy": {
     "publicConsent": "M'afficher dans la liste publique des joueurs"
@@ -1068,5 +1069,51 @@
     "tbl_profiles": "Compte",
     "hidden": "(privé)",
     "noAudit": "Aucune modification enregistrée pour l’instant."
+  },
+  "me": {
+    "team": "Équipe",
+    "noTeam": "pas encore dans une équipe",
+    "editProfile": "Modifier mon profil",
+    "paymentsTitle": "Mes paiements",
+    "paid": "Payé",
+    "owed": "Reste dû",
+    "overdue": "En retard",
+    "upToDate": "Vous êtes à jour. Merci !",
+    "owedNotice": "Il vous reste {amount} à payer. Prochaine échéance : {date}.",
+    "overdueWarn": "{amount} est en retard. Payez avant le {date} pour garder l’accès à l’application.",
+    "overdueNoBlock": "{amount} est en retard. Merci de payer dès que possible.",
+    "exempt": "Le club a suspendu le blocage de connexion pour vous jusqu’au {date}.",
+    "payOptions": "Voir les moyens de paiement",
+    "payHelp": "Déjà payé ? Cela peut prendre une journée à apparaître. Contactez le club sinon.",
+    "historyTitle": "Historique des paiements",
+    "noPayments": "Aucun paiement pour l’instant.",
+    "colDue": "Échéance",
+    "colAmount": "Montant",
+    "colStatus": "Statut",
+    "colReference": "Référence",
+    "payNow": "Payer maintenant",
+    "st_overdue": "En retard"
+  },
+  "account": {
+    "title": "Mon compte",
+    "lead": "Votre nom et votre numéro de téléphone sont visibles par l’équipe du club.",
+    "back": "Retour",
+    "email": "E-mail",
+    "emailNote": "Pour changer d’adresse e-mail, contactez le club.",
+    "role": "Rôle",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "phone": "Téléphone",
+    "phoneHint": "Avec l’indicatif du pays, par exemple +358 40 123 4567.",
+    "language": "Langue",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saved": "Enregistré.",
+    "e_name": "Saisissez votre prénom et votre nom (80 caractères maximum chacun).",
+    "e_phone": "Saisissez le numéro avec l’indicatif du pays, par exemple +358 40 123 4567.",
+    "e_failed": "Enregistrement impossible. Veuillez réessayer.",
+    "passwordTitle": "Mot de passe",
+    "passwordLead": "Choisissez un nouveau mot de passe. Vos autres appareils seront déconnectés.",
+    "changePassword": "Changer le mot de passe"
   }
 }

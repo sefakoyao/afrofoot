@@ -3,7 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – member app, part 2a: admin user management (branch `phase2/admin-users`)
+## Unreleased – member app, part 3: player page and account (branch `phase2/player-page`)
+- Player home (`/me`): team, paid / still owed / overdue totals, a clear status message (all paid, amount and next due date, or overdue with the date sign-in will be blocked), the club's exemption if any, a "See payment options" button to the public Membership page, and the payment history. Data comes from `my_payment_summary()` and `my_payments` (migration 0022), which only return the signed-in player's own payments.
+- Account page (`/account`, all roles; open it by clicking your name in the black bar): edit first and last name, phone (with country code, stored as +358…) and language; change password. Role, status and email cannot be changed here (database trigger).
+- Phone layout: wide tables scroll inside their card instead of widening the page (also on the admin Members and Audit log pages).
+- `supabase/demo_users.sql` now adds sample payments (one up to date, one overdue inside the grace period, one fully paid); the removal script deletes them too.
+- No database changes.
+
+## Member app, part 2a: admin user management (merged in #14)
 - Admin area gets a sidebar: Overview (active, pending and suspended counts, members per role, pending approvals), Members and Audit log.
 - Members: search by name or email, filter by role and status, approve pending accounts, suspend and reactivate, change roles. Club administrators manage coaches and players; only a super administrator manages administrator accounts; nobody changes their own account here. The database trigger `guard_profiles` and RLS enforce the same rules.
 - Audit log: every change, newest first, with who, what and old → new values (redacted fields shown as private). Read-only.

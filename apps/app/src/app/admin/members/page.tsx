@@ -51,7 +51,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   const choices = assignableRoles(actor.role);
 
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>
         <h1 className="font-display text-2xl font-extrabold">{t('membersTitle')}</h1>
         <p className="mt-1 text-muted">{t('membersLead')}</p>
@@ -85,7 +85,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       <p className="text-sm text-muted">{t('total', { count: count ?? 0 })}</p>
 
       {rows.length === 0 ? <p className="rounded-card border border-line bg-raised p-6 text-center text-muted">{t('empty')}</p> : (
-        <div className="overflow-x-auto rounded-card border border-line bg-raised">
+        <div className="relative overflow-x-auto rounded-card border border-line bg-raised">
           <table className="w-full text-start text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
               <tr>

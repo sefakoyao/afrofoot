@@ -24,7 +24,7 @@ export async function AppShell({ area, member, nav, children }: { area: Area; me
           <span className="flex items-center gap-2 font-display font-extrabold"><Logo size={36} /> {t(TITLE[area])}</span>
           <div className="ms-auto flex flex-wrap items-center gap-3">
             <span className="text-sm">
-              <span className="font-semibold">{name}</span>
+              <a href="/account" className="font-semibold underline-offset-4 hover:underline" title={t('myAccount')}>{name}</a>
               <span className="ms-2 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-on-accent">{tr(member.role)}</span>
             </span>
             <LanguageSwitcher />

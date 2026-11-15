@@ -167,7 +167,8 @@
     "welcome": "Welcome, {name}",
     "signedInAs": "Signed in as {email}",
     "comingSoon": "Your tools will appear here as they are released.",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "myAccount": "My account"
   },
   "privacy": {
     "publicConsent": "Show me on the public player list"
@@ -1068,5 +1069,51 @@
     "tbl_profiles": "Account",
     "hidden": "(private)",
     "noAudit": "No changes recorded yet."
+  },
+  "me": {
+    "team": "Team",
+    "noTeam": "not in a team yet",
+    "editProfile": "Edit my profile",
+    "paymentsTitle": "My payments",
+    "paid": "Paid",
+    "owed": "Still owed",
+    "overdue": "Overdue",
+    "upToDate": "You are all paid up. Thank you!",
+    "owedNotice": "You have {amount} to pay. Next due date: {date}.",
+    "overdueWarn": "{amount} is overdue. Pay before {date} to keep access to the app.",
+    "overdueNoBlock": "{amount} is overdue. Please pay as soon as possible.",
+    "exempt": "The club has paused the sign-in block for you until {date}.",
+    "payOptions": "See payment options",
+    "payHelp": "Already paid? It can take a day to show. Contact the club if it does not.",
+    "historyTitle": "Payment history",
+    "noPayments": "No payments yet.",
+    "colDue": "Due",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "colReference": "Reference",
+    "payNow": "Pay now",
+    "st_overdue": "Overdue"
+  },
+  "account": {
+    "title": "My account",
+    "lead": "Your name and phone number are visible to club staff.",
+    "back": "Back",
+    "email": "Email",
+    "emailNote": "To change your email address, contact the club.",
+    "role": "Role",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "phone": "Phone",
+    "phoneHint": "With country code, for example +358 40 123 4567.",
+    "language": "Language",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved.",
+    "e_name": "Enter your first and last name (up to 80 characters each).",
+    "e_phone": "Enter the phone number with its country code, for example +358 40 123 4567.",
+    "e_failed": "Could not save. Please try again.",
+    "passwordTitle": "Password",
+    "passwordLead": "Choose a new password. Your other devices will be signed out.",
+    "changePassword": "Change password"
   }
 }

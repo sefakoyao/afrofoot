@@ -14,7 +14,7 @@ export default async function AdminHome() {
   const count = (status: string) => rows.filter((r) => r.status === status).length;
   const pending = count('pending');
   return (
-    <div className="grid gap-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6">
       <section className="rounded-card border border-line bg-raised p-6">
         <h1 className="font-display text-2xl font-extrabold">{t('welcome', { name: isolate(member.firstName || member.email) })}</h1>
         <p className="mt-1 text-sm text-muted">{ta('overviewTitle')}</p>
