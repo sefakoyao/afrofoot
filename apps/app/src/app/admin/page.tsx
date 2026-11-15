@@ -14,6 +14,8 @@ export default async function AdminHome() {
   const tc = await getTranslations('conduct');
   const activePlayers = (data ?? []).filter((r) => r.role === 'player' && r.status === 'active').map((r) => r.id);
   const noConduct = supabase ? (await missingConsent(supabase, activePlayers)).size : 0;
+  const { count: toCountersign } = supabase ? await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed') : { count: 0 };
+  const tk = await getTranslations('contract');
   const rows = data ?? [];
   const count = (status: string) => rows.filter((r) => r.status === status).length;
   const pending = count('pending');
@@ -38,6 +40,14 @@ export default async function AdminHome() {
         <p className="mt-1">{noConduct ? tc('overviewMissing', { count: noConduct }) : tc('overviewAll')}</p>
         {noConduct ? <Link href="/admin/members?conduct=missing" className="mt-3 inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tc('overviewCta')}</Link> : null}
       </section>
+
+      {toCountersign ? (
+        <section className="rounded-card border-2 border-danger/40 bg-danger/5 p-6" data-countersign-count={toCountersign}>
+          <h2 className="font-display text-lg font-extrabold">{tk('adminTitle')}</h2>
+          <p className="mt-1">{tk('overviewCountersign', { count: toCountersign })}</p>
+          <Link href="/admin/contracts?status=player_signed" className="mt-3 inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tk('overviewCta')}</Link>
+        </section>
+      ) : null}
 
       <section className="rounded-card border border-line bg-raised p-6">
         <h2 className="font-display text-lg font-extrabold">{ta('statPending')}</h2>

@@ -4,7 +4,10 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
 import { requireArea } from '@/lib/auth';
 import { loadConductStatus } from '@/lib/conduct';
-import { membershipUrl } from '@/lib/env';
+import { PayDetails } from '@/components/PayDetails';
+import { ResultBanner } from '@/components/ResultBanner';
+import { STATUS_BADGE, myContracts, shownStatus } from '@/lib/contracts';
+import { loadBilling } from '@/lib/invoice/data';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -26,10 +29,11 @@ const day = (iso: string) => new Date(`${iso}T12:00:00Z`); // a date without tim
  * payment history, and the club's Code of Conduct with the player's consent (migration 0028).
  */
 export default async function MembershipTab({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const agreed = (await searchParams).result === 'r_agreed';
+  const sp = await searchParams;
+  const agreed = sp.result === 'r_agreed';
   const member = await requireArea('me');
-  const [t, tc, ts, fmt, rawLocale, supabase] = await Promise.all([
-    getTranslations('me'), getTranslations('conduct'), getTranslations('status'), dateFormats(), getLocale(), getSupabase(),
+  const [t, tc, tk, ts, fmt, rawLocale, supabase] = await Promise.all([
+    getTranslations('me'), getTranslations('conduct'), getTranslations('contract'), getTranslations('status'), dateFormats(), getLocale(), getSupabase(),
   ]);
   const locale = isLocale(rawLocale) ? rawLocale : 'en';
   const money = new Intl.NumberFormat(LOCALE_LABELS[locale].intl, { style: 'currency', currency: CURRENCY });
@@ -55,12 +59,41 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
   const today = new Date().toISOString().slice(0, 10);
   const exempt = s?.exempt_until && s.exempt_until >= today ? s.exempt_until : null;
   const blockDate = s?.policy_enabled && !exempt && s.sign_in_blocked_from ? s.sign_in_blocked_from : null;
-  const payHref = membershipUrl(locale);
+  // How to pay: bank details for every open payment that has a reference number (the club's account is public, migration 0027).
+  const billing = supabase && (s?.owed_cents ?? 0) > 0 ? await loadBilling(supabase) : null;
+  const openItems = payments.filter((p) => p.reference && ['pending', 'overdue', 'failed'].includes(p.display_status))
+    .sort((a, b) => (a.due_on ?? '').localeCompare(b.due_on ?? ''))
+    .map((p) => ({ id: p.id, invoiceNumber: p.invoice_number, reference: p.reference!, amountCents: p.amount_cents, dueOn: p.due_on, overdue: p.display_status === 'overdue' }));
   const conduct = supabase ? await loadConductStatus(supabase, member.id) : null;
+  const contracts = supabase ? await myContracts(supabase) : [];
+  const dd = (iso: string) => fmt.date.format(day(iso));
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       {agreed ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{tc('thanks')}</p> : null}
+      <ResultBanner ns="contract" result={sp.result} />
+      {contracts.length ? (
+        <section id="contract" aria-labelledby="ct-h" className={`rounded-card border-2 p-6 ${contracts.some((c) => c.status === 'sent') ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`}>
+          <h2 id="ct-h" className="font-display text-xl font-extrabold">{tk('myContract')}</h2>
+          <ul className="mt-3 grid gap-3">
+            {contracts.map((c) => {
+              const st = shownStatus(c, today);
+              return (
+                <li key={c.id} data-my-contract={st} className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-surface p-4">
+                  <div>
+                    <p className="font-semibold">{c.title} <span className={`ms-1 rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[st]}`}>{tk(`st_${st}`)}</span></p>
+                    <p className="text-sm text-muted">{dd(c.starts_on)} – {dd(c.ends_on)} · {tk('yearsN', { count: c.years })}</p>
+                    {c.status === 'sent' ? <p className="mt-1 text-sm font-semibold">{tk('toSign')}</p> : c.status === 'player_signed' ? <p className="mt-1 text-sm">{tk('waitingClub')}</p> : null}
+                  </div>
+                  <Link href={`/me/contract/${c.id}${c.status === 'sent' ? '#sign' : ''}`} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${c.status === 'sent' ? 'bg-accent text-on-accent hover:brightness-110' : 'border-2 border-fg hover:bg-fg hover:text-raised'}`}>
+                    {c.status === 'sent' ? tk('readAndSign') : tk('open')}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
       {conduct?.version ? (
         <section id="conduct" aria-labelledby="coc-h" className={`rounded-card border-2 p-6 ${conduct.agreedAt ? 'border-line bg-raised' : 'border-danger/40 bg-danger/5'}`} data-conduct={conduct.agreedAt ? 'agreed' : 'missing'}>
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -101,13 +134,21 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
 
         {(s?.owed_cents ?? 0) > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <a href={payHref} className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">
-              {t('payOptions')} <span aria-hidden className="ms-1 rtl-flip">→</span>
+            <a href="#how-to-pay" className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">
+              {t('payOptions')} <span aria-hidden className="ms-1 inline-block rotate-90">→</span>
             </a>
             <p className="text-sm text-muted">{t('payHelp')}</p>
           </div>
         ) : null}
       </section>
+
+      {billing ? (
+        <section id="how-to-pay" className="rounded-card border border-line bg-raised p-6" aria-labelledby="howpay-h">
+          <h2 id="howpay-h" className="font-display text-xl font-extrabold">{t('howToPay')}</h2>
+          <p className="mb-4 mt-1 text-muted">{t('howToPayLead')}</p>
+          <PayDetails billing={billing} items={openItems} />
+        </section>
+      ) : null}
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="inv-h">
         <h2 id="inv-h" className="font-display text-xl font-extrabold">{t('myInvoices')}</h2>

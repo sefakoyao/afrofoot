@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
+import { ReplyForm } from '@/components/ReplyForm';
 import { requireArea } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday, helsinkiToIso } from '@/lib/time';
@@ -11,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 type Event = { id: string; event_type: 'practice' | 'game' | 'friendly'; team_season_id: string; title: string; division: string | null; starts_at: string; ends_at: string; location_id: string | null; status: string };
+type Reply = { availability: 'pending' | 'yes' | 'no' | 'maybe'; note: string | null };
 type Place = { id: string; name: string; address: string | null; city: string | null; maps_url: string | null };
 
 const TYPE_STYLE: Record<Event['event_type'], string> = { practice: 'bg-accent/20 text-pitch', game: 'bg-ink-950 text-white', friendly: 'bg-line text-fg' };
@@ -21,9 +23,9 @@ const CANCELLED = new Set(['cancelled', 'postponed']);
  * only returns events of the player's own teams). One month at a time, grouped by day, Helsinki time; "next up" on top.
  */
 export default async function CalendarTab({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  await requireArea('me');
+  const member = await requireArea('me');
   const sp = await searchParams;
-  const [t, rawLocale, supabase] = await Promise.all([getTranslations('me'), getLocale(), getSupabase()]);
+  const [t, tav, rawLocale, supabase] = await Promise.all([getTranslations('me'), getTranslations('availability'), getLocale(), getSupabase()]);
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
   const today = helsinkiToday();
   const wanted = typeof sp.m === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(sp.m) ? sp.m : today.slice(0, 7);
@@ -45,6 +47,18 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     placeIds.length ? supabase.from('locations').select('id, name, address, city, maps_url').in('id', placeIds) : Promise.resolve({ data: [] }),
     teamIds.length ? supabase.from('team_seasons').select('id, teams(name)').in('id', teamIds) : Promise.resolve({ data: [] }),
   ]) : [{ data: [] }, { data: [] }];
+  // My replies (sign in / out): RLS returns only the player's own rows (migration 0008); rows exist for roster players.
+  const { data: me } = supabase ? await supabase.from('players').select('id').eq('profile_id', member.id).maybeSingle() : { data: null };
+  const practiceIds = all.filter((e) => e.event_type === 'practice').map((e) => e.id), matchIds = all.filter((e) => e.event_type !== 'practice').map((e) => e.id);
+  const [{ data: sessReplies }, { data: matchReplies }] = supabase && me ? await Promise.all([
+    practiceIds.length ? supabase.from('session_attendance').select('session_id, availability, note').eq('player_id', me.id).in('session_id', practiceIds) : Promise.resolve({ data: [] }),
+    matchIds.length ? supabase.from('match_availability').select('match_id, availability, note').eq('player_id', me.id).in('match_id', matchIds) : Promise.resolve({ data: [] }),
+  ]) : [{ data: [] }, { data: [] }];
+  const reply = new Map<string, Reply>([
+    ...((sessReplies ?? []) as (Reply & { session_id: string })[]).map((r) => [r.session_id, r] as const),
+    ...((matchReplies ?? []) as (Reply & { match_id: string })[]).map((r) => [r.match_id, r] as const),
+  ]);
+  const nowIso = new Date().toISOString();
   const place = new Map(((places as Place[] | null) ?? []).map((p) => [p.id, p]));
   const teamName = new Map(((teams as unknown as { id: string; teams: { name: string } }[] | null) ?? []).map((x) => [x.id, x.teams.name]));
   const manyTeams = teamName.size > 1;
@@ -65,10 +79,18 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
       ? <a href={p.maps_url} target="_blank" rel="noopener noreferrer" className="text-pitch underline underline-offset-2">{text}</a>
       : <span>{text}</span>;
   };
-  const Item = ({ e }: { e: Event }) => {
+  const REPLY_STYLE: Record<Reply['availability'], string> = { yes: 'bg-accent/20 text-pitch', no: 'bg-danger/10 text-danger', maybe: 'bg-line text-fg', pending: 'bg-line text-muted' };
+  const ReplyBox = ({ e, r }: { e: Event; r: Reply }) => {
+    const open = e.status === 'scheduled' && e.starts_at > nowIso;
+    const label = <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${REPLY_STYLE[r.availability]}`} data-reply-state={r.availability}>{r.availability === 'pending' ? t('noReply') : tav(r.availability)}</span>;
+    if (!open) return r.availability === 'pending' ? null : <p className="text-sm">{t('yourReply')}: {label}{r.note ? <span className="ms-2 text-muted">“{r.note}”</span> : null}</p>;
+    return <ReplyForm eventId={e.id} kind={e.event_type} availability={r.availability} note={r.note} eventLabel={title(e)} />;
+  };
+  const Item = ({ e, anchor }: { e: Event; anchor?: boolean }) => {
     const off = CANCELLED.has(e.status);
+    const r = reply.get(e.id);
     return (
-      <li data-event={e.event_type} data-status={e.status} className={`grid gap-1 rounded-card border border-line bg-raised p-4 ${off ? 'opacity-70' : ''}`}>
+      <li id={anchor ? `ev-${e.id}` : undefined} data-event={e.event_type} data-status={e.status} data-event-id={e.id} className={`grid gap-1 rounded-card border border-line bg-raised p-4 ${off ? 'opacity-70' : ''}`}>
         <div className="flex flex-wrap items-center gap-2">
           <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${TYPE_STYLE[e.event_type]}`}>{t(`ev_${e.event_type}`)}</span>
           <span className="font-semibold" dir="ltr">{hm.format(new Date(e.starts_at))}–{hm.format(new Date(e.ends_at))}</span>
@@ -76,6 +98,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
         </div>
         <p className={`font-display text-lg font-extrabold ${off ? 'line-through' : ''}`}><bdi>{title(e)}</bdi>{e.division ? <span className="ms-2 text-sm font-normal text-muted">{e.division}</span> : null}</p>
         <p className="text-sm text-muted"><Where e={e} />{manyTeams ? <> · {teamName.get(e.team_season_id)}</> : null}</p>
+        {r ? <ReplyBox e={e} r={r} /> : null}
       </li>
     );
   };
@@ -106,7 +129,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
                 <h3 className={`mb-2 text-sm font-bold ${key === today ? 'text-pitch' : 'text-muted'}`}>
                   {dayLabel.format(new Date(list[0]!.starts_at))}{key === today ? ` · ${t('today')}` : ''}
                 </h3>
-                <ul className="grid gap-2">{list.map((e) => <Item key={e.id} e={e} />)}</ul>
+                <ul className="grid gap-2">{list.map((e) => <Item key={e.id} e={e} anchor />)}</ul>
               </li>
             ))}
           </ol>

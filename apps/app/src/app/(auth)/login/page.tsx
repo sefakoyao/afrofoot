@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getMember, homeFor } from '@/lib/auth';
-import { webUrl } from '@/lib/env';
 import { safeNext } from '@/lib/paths';
 import { LoginForm } from './LoginForm';
 
@@ -24,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <>
       <h1 className="font-display text-2xl font-extrabold">{t('signInTitle')}</h1>
       <p className="mb-5 mt-1 text-muted">{t('signInLead')}</p>
-      <LoginForm next={next} notice={reason ?? (member ? member.status : undefined)} webUrl={webUrl()} />
+      <LoginForm next={next} notice={reason ?? (member ? member.status : undefined)} />
     </>
   );
 }

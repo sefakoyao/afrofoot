@@ -6,14 +6,14 @@ import { useTranslations } from 'next-intl';
 
 /**
  * Player area tabs (Calendar, Membership, My season) and, until the player has agreed to the current Code of Conduct,
- * a reminder on every tab except the Code of Conduct page itself.
+ * a reminder on every tab except the Code of Conduct page itself; likewise for a contract waiting for the player's signature.
  */
-export function PlayerTabs({ conductMissing }: { conductMissing: boolean }) {
+export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing: boolean; contractToSign?: string | null }) {
   const t = useTranslations('me');
   const path = usePathname();
   const tabs = [
     { href: '/me', label: t('tabCalendar'), active: path === '/me' },
-    { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') },
+    { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
     { href: '/me/season', label: t('tabSeason'), active: path.startsWith('/me/season') || path.startsWith('/me/profile') },
   ];
   return (
@@ -22,6 +22,12 @@ export function PlayerTabs({ conductMissing }: { conductMissing: boolean }) {
         <div data-conduct-banner className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-danger/40 bg-danger/5 p-4">
           <p className="font-semibold">{t('conductBanner')}</p>
           <Link href="/me/conduct" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('conductBannerCta')}</Link>
+        </div>
+      ) : null}
+      {contractToSign && !path.startsWith('/me/contract') ? (
+        <div data-contract-banner className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-accent bg-accent/10 p-4">
+          <p className="font-semibold">{t('contractBanner')}</p>
+          <Link href={`/me/contract/${contractToSign}#sign`} className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('contractBannerCta')}</Link>
         </div>
       ) : null}
       <nav aria-label={t('tabsLabel')} className="-mx-4 overflow-x-auto px-4">

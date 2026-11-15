@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
 type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null } };
-type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string };
+type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; session_attendance?: { availability: string }[] };
 
 /** International phone → digits for wa.me links (WhatsApp wants the number without "+"). */
 const waDigits = (phone: string) => phone.replace(/[^\d]/g, '');
@@ -36,7 +36,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
 
   const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }] = await Promise.all([
     supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id).is('left_on', null),
-    supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
+    supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, session_attendance(availability)').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
       .eq('training_sessions.team_season_id', id).lt('training_sessions.starts_at', now).neq('training_sessions.status', 'cancelled').not('attendance', 'is', null),
@@ -47,6 +47,11 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     ? await supabase.from('player_private').select('player_id, phone, emergency_name, emergency_relation, emergency_phone').in('player_id', roster.map((r) => r.players.id))
     : { data: [] };
   const contact = new Map((contacts ?? []).map((c) => [c.player_id, c]));
+  // Upcoming matches and friendlies with the players' sign in / out (Calendar tab, migration 0029).
+  const { data: matchRows } = await supabase.from('matches').select('id, opponent, event_type, kickoff_at, status').eq('team_season_id', id).gte('kickoff_at', now).order('kickoff_at').limit(8);
+  const { data: matchReplies } = (matchRows ?? []).length
+    ? await supabase.from('match_availability').select('match_id, player_id, availability, note').in('match_id', (matchRows ?? []).map((m) => m.id)) : { data: [] };
+  const nameOf = new Map(roster.map((r) => [r.players.id, `${r.players.first_name} ${r.players.last_name}`]));
   const noConduct = await missingConsent(supabase, roster.map((r) => r.players.profile_id).filter((x): x is string => !!x));
   const tc = await getTranslations('conduct');
   const rate = (pid: string) => {
@@ -59,6 +64,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     <li>
       <Link href={`/coach/sessions/${s.id}`} data-session={s.id} className="flex min-h-12 flex-wrap items-center justify-between gap-2 py-2 hover:text-pitch">
         <span><span className="font-semibold">{when.format(new Date(s.starts_at))}</span> · {s.title}</span>
+        {s.session_attendance && s.status === 'scheduled' ? <span className="text-sm text-muted" data-session-replies>{t('repliesShort', { yes: s.session_attendance.filter((a) => a.availability === 'yes').length, no: s.session_attendance.filter((a) => a.availability === 'no').length })}</span> : null}
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.status === 'cancelled' ? 'bg-danger/10 text-danger' : s.status === 'completed' ? 'bg-accent/20 text-pitch' : 'bg-line'}`}>{t(`ss_${s.status}` as 'ss_scheduled')}</span>
       </Link>
     </li>
@@ -103,6 +109,36 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
             <ul className="mt-1 divide-y divide-line">{(past as Session[]).map((s) => <SessionRow key={s.id} s={s} />)}</ul>
           </>
         ) : null}
+      </section>
+
+      <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="matches-h">
+        <h2 id="matches-h" className="font-display text-xl font-extrabold">{t('upcomingMatches')}</h2>
+        {(matchRows ?? []).length === 0 ? <p className="mt-2 text-muted">{t('noMatches')}</p> : (
+          <ul className="mt-2 divide-y divide-line">
+            {(matchRows ?? []).map((m) => {
+              const rs = (matchReplies ?? []).filter((r) => r.match_id === m.id && nameOf.has(r.player_id));
+              const who = (a: string) => rs.filter((r) => r.availability === a);
+              const none = rs.filter((r) => r.availability === 'pending' || r.availability === 'maybe');
+              return (
+                <li key={m.id} className="py-3" data-match={m.opponent} data-replies={`${who('yes').length}/${who('no').length}/${none.length}`}>
+                  <p><span className="font-semibold">{when.format(new Date(m.kickoff_at))}</span> · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi>
+                    {m.event_type === 'friendly' ? <span className="ms-2 rounded-full bg-line px-2 py-0.5 text-xs font-bold">{t('friendly')}</span> : null}
+                    {m.status !== 'scheduled' ? <span className="ms-2 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">{t(`ms_${m.status}` as 'ms_cancelled')}</span> : null}</p>
+                  <details className="mt-1">
+                    <summary className="cursor-pointer text-sm">
+                      <span className="font-bold text-pitch">{t('repliesIn', { count: who('yes').length })}</span> · <span className="font-bold text-danger">{t('repliesOut', { count: who('no').length })}</span> · {t('repliesNone', { count: none.length })}
+                    </summary>
+                    <ul className="mt-2 grid gap-1 text-sm">
+                      {[...who('yes'), ...who('no'), ...none].map((r) => (
+                        <li key={r.player_id}><bdi className="font-semibold">{nameOf.get(r.player_id)}</bdi>: {r.availability === 'yes' ? t('replyIn') : r.availability === 'no' ? t('replyOut') : t('replyNone')}{r.note ? <span className="text-muted"> · “<bdi>{r.note}</bdi>”</span> : null}</li>
+                      ))}
+                    </ul>
+                  </details>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="roster-h">
