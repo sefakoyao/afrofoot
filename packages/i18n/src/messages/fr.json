@@ -1113,7 +1113,14 @@
     "tr_rate": "Assiduité",
     "tr_late": "Arrivées en retard : {count}",
     "tr_none": "Aucun entraînement n’a encore été pointé pour vous cette saison.",
-    "invoicePdf": "Facture (PDF)"
+    "invoicePdf": "Facture (PDF)",
+    "myInvoices": "Mes factures",
+    "noInvoices": "Aucune facture pour l’instant.",
+    "invoiceNo": "Facture",
+    "st_open": "À payer",
+    "dueOn": "À payer avant le {date}",
+    "paidOn": "Payée le {date}",
+    "openPdf": "Ouvrir la facture (PDF)"
   },
   "account": {
     "title": "Mon compte",
@@ -1401,6 +1408,20 @@
     "r_planName": "Saisissez un nom de 2 à 80 caractères.",
     "r_price": "Saisissez le prix en euros, par exemple 20 ou 20.50.",
     "r_date": "Choisissez une date.",
-    "r_noSeason": "Il n’y a pas de saison en cours. Créez-en une dans Équipes d’abord."
+    "r_noSeason": "Il n’y a pas de saison en cours. Créez-en une dans Équipes d’abord.",
+    "invoicesOf": "Factures de {name}",
+    "search": "Joueur ou numéro de facture",
+    "searchEg": "par exemple Diallo ou 2026-01168",
+    "all": "Tous",
+    "month": "Émise en",
+    "filter": "Filtrer",
+    "clear": "Effacer",
+    "noMatch": "Aucune facture ne correspond à ces filtres.",
+    "colIssued": "Émise",
+    "found": "Factures trouvées : {count}",
+    "pageOf": "Page {page} sur {pages}",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "invoicesLink": "Factures"
   }
 }
