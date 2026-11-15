@@ -75,6 +75,13 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
 - Language follows the profile (saved when the member switches), or the browser language when signed out. English, Finnish, French and Arabic (right to left).
 - Validation with zod on the server (password 10–72 characters, as Supabase Auth). The reset form never reveals whether an account exists, and `?next=` only accepts paths on this site.
 
+## 0.16.0 – 2026-11-15
+- Fix: loading a saved or preset lineup no longer overrides the chosen lineup style, and the style description always matches the pitch.
+- Lineup style is a drop-down (grouped 11 v 11, 9 v 9, 7 v 7, 5 v 5) with its description, shape and line counts shown beside the pitch. Changing style keeps the players and re-places them by position.
+- Drag and drop: from the player list or bench onto the pitch, marker onto marker to swap, onto the bench to remove.
+- Rotation plan with planned minutes per player, availability (RSVP) summary and filter, live match clock, JPG download and share (WhatsApp etc.). Video clips are not included.
+- Warning colours no longer use yellow.
+
 ## 0.15.0 – 2026-11-13
 - Typeface changed from Nunito to **Figtree** (round, modern, easy to read) for all Latin text and headings, the lineup page and the exported lineup image. Arabic stays Cairo.
 

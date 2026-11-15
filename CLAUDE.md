@@ -4,7 +4,7 @@ Rebuild of Afro Foot Club: public site (www.afrofoot.club, `apps/web`) and secur
 
 ## Read first
 - `docs/03-phase2-plan.md` (build order and status), `docs/01-design-system.md`, `docs/02-database.md`, `CHANGELOG.md`.
-- Design reference: the single-file preview `design-preview/apercu-afrofoot-v0.15.0.html` (open it in a browser; all pages, forms, lineup builder, admin tools). Copy its look and behaviour, not its code.
+- Design reference: the single-file preview `design-preview/apercu-afrofoot-v0.16.0.html` (open it in a browser; all pages, forms, lineup builder, admin tools). Copy its look and behaviour, not its code.
 
 ## Rules
 - Languages en / fi / fr / ar. Arabic is RTL: use logical CSS properties. All text comes from `packages/i18n/src/messages/*.json` (`site.*` holds every preview text). Run `pnpm i18n:check`.
