@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
-type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null } };
+type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null; photo_path: string | null } };
 type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; session_attendance?: { availability: string }[] };
 
 /** International phone → digits for wa.me links (WhatsApp wants the number without "+"). */
@@ -37,7 +37,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const now = new Date().toISOString();
 
   const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }] = await Promise.all([
-    supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id).is('left_on', null),
+    supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id, photo_path)').eq('team_season_id', id).is('left_on', null),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, session_attendance(availability)').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
@@ -57,6 +57,9 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const contractOf = new Map<string, { id: string; status: ContractStatus; ends_on: string }>();
   for (const c of (contractRows ?? []) as { id: string; player_id: string; status: ContractStatus; ends_on: string }[]) if (!contractOf.has(c.player_id)) contractOf.set(c.player_id, c);
   const tk = await getTranslations('contract');
+  const photoPaths = roster.map((r) => r.players.photo_path).filter((x): x is string => !!x);
+  const { data: signedPhotos } = photoPaths.length ? await supabase.storage.from('player-photos').createSignedUrls(photoPaths, 3600) : { data: [] };
+  const photoOf = new Map((signedPhotos ?? []).filter((x) => x.path && x.signedUrl).map((x) => [x.path!, x.signedUrl]));
   const tm = await getTranslations('match');
   const { data: matchReplies } = (matchRows ?? []).length
     ? await supabase.from('match_availability').select('match_id, player_id, availability, note').in('match_id', (matchRows ?? []).map((m) => m.id)) : { data: [] };
@@ -196,7 +199,12 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
               return (
                 <li key={r.players.id} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center" data-player={`${r.players.first_name} ${r.players.last_name}`}>
                   <div>
-                    <p className="font-semibold"><span className="inline-block w-8 text-muted" dir="ltr">{r.jersey_number ? `#${r.jersey_number}` : ''}</span>
+                    <p className="flex flex-wrap items-center gap-x-1 font-semibold">
+                      {r.players.photo_path && photoOf.get(r.players.photo_path)
+                        // eslint-disable-next-line @next/next/no-img-element
+                        ? <img src={photoOf.get(r.players.photo_path) ?? undefined} alt="" className="me-1 size-8 rounded-full object-cover" data-roster-photo />
+                        : <span aria-hidden className="me-1 flex size-8 items-center justify-center rounded-full bg-fg/10 text-[10px] font-black">{r.players.first_name[0]}{r.players.last_name[0]}</span>}
+                      <span className="inline-block w-8 text-muted" dir="ltr">{r.jersey_number ? `#${r.jersey_number}` : ''}</span>
                       <bdi>{r.players.first_name} {r.players.last_name}</bdi>{r.captain ? <span className="ms-2 rounded-full bg-accent px-2 text-xs font-bold text-on-accent">C</span> : null}
                       {r.players.profile_id && noConduct.has(r.players.profile_id) ? <span className="ms-2 whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flagShort')}</span> : null}</p>
                     {(() => { const k = contractOf.get(r.players.id); if (!k) return <p className="ps-8 text-xs text-muted" data-contract="none">{tm('noContract')}</p>;

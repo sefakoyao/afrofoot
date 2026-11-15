@@ -73,6 +73,18 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
    - **Live scoreboard:** Kick off / Half time / Second half / Full time with a running clock, quick buttons for goals, cards, substitutions and notes, and a timeline with **Undo**. The database keeps the score; the lineup locks at kick-off; at full time it calculates minutes, goals, assists and cards for each player. After full time only an admin can correct events.
 4. **Contracts and Code of Conduct for coaches:** coaches read the contracts of the players in their own teams (sent, signed or ended; never drafts) and see each player's contract status in the roster. Coaches read the Code of Conduct and agree to it themselves (menu **Code of Conduct**; a reminder shows on the coach home until they agree).
 
+## 3g. Lineup board (migration 0032, release 0.20.0)
+1. **Database:** paste `supabase/migrations/20260101000032_lineup_board.sql` into Supabase → SQL Editor and run it once (fresh installs get it with `supabase/paste/part3.sql`). Check: `select format, count(*) from formations group by format;` shows 11 → 8, 9 → 5, 8 → 5, 7 → 4, 5 → 4.
+2. **Photos** use the private storage bucket `player-photos` (created by migration 0009). Check that it exists: `select id, public from storage.buckets where id = 'player-photos';` → one row, `public` false. Players add or change their photo under **My season → Edit profile** (the browser shrinks it to a 512 px JPEG). Players, their coaches and admins can see it.
+3. **Match day → Lineup board** (coaches):
+   - **Lineup style** drop-down (Balanced, Defensive, Midfield domination, High press, Counter-attack, Wing play) and **Format and formation** drop-down (11, 9, 8, 7 and 5 v 5). Changing either re-places the players by position; the description, shape and line counts are shown beside the pitch. Team instructions and the plan for the players are below the board.
+   - **Drag and drop:** from the player list or the bench onto the pitch, a marker onto another to swap, onto the bench, or back to the list to remove. Tapping a position and then **Start** works too (phones, keyboards).
+   - **Player cards:** photo, shirt, positions, reply and note, training attendance, minutes this season, Call and WhatsApp.
+   - **Availability:** counts and filters (In, Maybe, Out, No reply) and **Copy reminder** with a ready message for the players who have not replied.
+   - **Rotation plan:** planned substitutions with the planned minutes per player next to their season minutes (coaches only). During the match the planned changes are offered in the live console; one tap fills in the substitution.
+   - **Share:** image (PNG or JPG), **Share image** (phone share sheet: WhatsApp, Spond, …), a 5-second **video clip** (MP4 or WebM, depending on the browser), or copy as text.
+   - **Save lineup and plan** stores everything in one step, so the style, the formation and the lineup always match.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

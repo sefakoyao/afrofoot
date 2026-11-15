@@ -19,12 +19,35 @@ export const PRESETS: Record<Style, StylePreset> = {
   wing_play: { formation: '3-4-3', line: 'mid', press: 'medium', width: 'wide', tempo: 'fast' },
 };
 
+/** Formats (players per side) and the formation each lineup style uses in that format (migration 0032). */
+export const FORMATS = [11, 9, 8, 7, 5] as const;
+export type Format = (typeof FORMATS)[number];
+export const STYLE_FORMATION: Record<Format, Record<Style, string>> = {
+  11: { balanced: '4-4-2', defensive: '5-3-2', midfield: '4-1-4-1', high_press: '4-3-3', counter: '4-5-1', wing_play: '3-4-3' },
+  9: { balanced: '3-3-2', defensive: '4-3-1', midfield: '3-4-1', high_press: '3-2-3', counter: '4-3-1', wing_play: '2-4-2' },
+  8: { balanced: '3-3-1', defensive: '4-2-1', midfield: '2-4-1', high_press: '2-3-2', counter: '4-2-1', wing_play: '3-2-2' },
+  7: { balanced: '2-3-1', defensive: '3-2-1', midfield: '2-1-2-1', high_press: '2-2-2', counter: '3-2-1', wing_play: '2-3-1' },
+  5: { balanced: '1-2-1', defensive: '2-1-1', midfield: '1-2-1', high_press: '1-1-2', counter: '2-1-1', wing_play: '2-2' },
+};
+/** Character of each shape, shown next to it in the drop-down (keys under match.tag_*). */
+export const FORMATION_TAGS: Record<string, string[]> = {
+  '4-4-2': ['bal'], '4-3-3': ['att', 'press'], '4-2-3-1': ['pos', 'bal'], '3-5-2': ['pos', 'mid'], '3-4-3': ['att', 'wide'], '5-3-2': ['def', 'ctr'], '4-1-4-1': ['mid', 'def'], '4-5-1': ['def', 'ctr'],
+  '3-3-2': ['bal'], '3-2-3': ['att', 'press'], '2-4-2': ['mid', 'wide'], '3-4-1': ['mid'], '4-3-1': ['def', 'ctr'],
+  '3-3-1': ['bal'], '2-3-2': ['att', 'press'], '3-2-2': ['wide'], '4-2-1': ['def', 'ctr'], '2-4-1': ['mid'],
+  '2-3-1': ['bal'], '3-2-1': ['def', 'ctr'], '2-2-2': ['att', 'press'], '2-1-2-1': ['mid'],
+  '1-2-1': ['bal', 'mid'], '2-1-1': ['def', 'ctr'], '2-2': ['wide'], '1-1-2': ['att', 'press'],
+};
+/** Bench size suggested by Auto-fill for each format. */
+export const BENCH_SIZE: Record<Format, number> = { 11: 7, 9: 5, 8: 4, 7: 4, 5: 3 };
+
 /** Standard pre-game protocol, minutes before kick-off: meeting, warm-up, strategy briefing. */
 export const PROTOCOL_DEFAULTS = { meet: 90, warmup: 60, briefing: 20 } as const;
 
 export type Role = 'GK' | 'DF' | 'MF' | 'FW';
 export const ROLE_OF: Record<string, Role> = { goalkeeper: 'GK', defender: 'DF', midfielder: 'MF', forward: 'FW' };
 export interface Slot { slot: number; role: Role; x: number; y: number }
+export interface FormationDef { code: string; format: Format; slots: Slot[] }
+export interface PlannedSub { minute: number; off: string; on: string }
 
 export type LiveState = 'not_started' | 'first_half' | 'half_time' | 'second_half' | 'full_time';
 export interface PhaseTimes { kickoff?: string | null; secondHalf?: string | null }

@@ -3,6 +3,16 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – lineup board, release 0.20.0 (branch `phase2/lineup-board`)
+- **Fix:** the chosen lineup style did not reach the lineup formation (the style was saved separately and the board then saved its old formation over it). Style, formation, instructions, plan, lineup, bench, captain and rotation plan are now one board saved in one step.
+- **Lineup style drop-down** with the description, shape, line counts and a mini pitch beside the pitch; **format and formation** drop-down grouped 11, 9, 8, 7 and 5 v 5; quick format buttons. Changing style or format keeps the players and re-places them by position. **Migration 0032 (run it once in the SQL Editor):** formations get a size; 18 new shapes for 9, 8, 7 and 5 v 5.
+- **Drag and drop** (mouse, pen and touch) from the list or bench onto the pitch, marker onto marker to swap, onto the bench, back to the list; tap-to-place still works.
+- **Player cards:** photo, shirt, preferred positions, reply and note, training attendance, season minutes, Call and WhatsApp. **Player photos:** players upload their own photo (shrunk to 512 px in the browser); coaches of their teams can view it (storage policy in 0032).
+- **Rotation plan** (coaches only, table `match_rotation_plan`): planned substitutions with planned minutes per player beside their season minutes, for fair playing time; Auto-fill prefers players with fewer minutes; planned changes are offered in the live console.
+- **Availability** summary with filters and a reminder message for players without a reply.
+- **Export and sharing:** PNG, JPG, Share image (WhatsApp, Spond, … on phones), a 5-second animated video clip (MP4/WebM), copy as text.
+- 24 new database tests.
+
 ## Unreleased – match day for coaches, release 0.19.0 (branch `phase2/match-day`)
 - **Migration 0031 (run it once in the SQL Editor):** pre-game protocol and game plan on matches (times checked to be before kick-off, at most 6 hours before), `save_lineup` to save a whole lineup in one step under the coach's own access rights, and coaches' read access to their players' contracts (never drafts). 29 new database tests.
 - **Add matches and friendlies** from the coach's team page, with the standard protocol (meeting 90, warm-up 60, briefing 20 minutes before kick-off). Team page lists matches with live and published badges and recent results; coach home shows the next matches.

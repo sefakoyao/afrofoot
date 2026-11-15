@@ -258,7 +258,7 @@ create temp table tt_p (n int primary key, pid uuid, shirt int);
 insert into tt_p values (1,'50000000-0000-0000-0000-000000000001',10),(2,'50000000-0000-0000-0000-000000000002',7),(3,'50000000-0000-0000-0000-000000000004',22);
 insert into tt_p select 3+i, format('51000000-0000-0000-0000-%s', lpad(i::text,12,'0'))::uuid, 30+i from generate_series(1,12) i;
 grant select on tt_p to authenticated, anon;
-select t.check('eight formations of eleven slots', (select count(*) from formations) = 8 and (select bool_and(jsonb_array_length(slots) = 11) from formations));
+select t.check('eight 11 v 11 formations of eleven slots', (select count(*) from formations where format = 11) = 8 and (select bool_and(jsonb_array_length(slots) = 11) from formations where format = 11));
 insert into matches (id,team_season_id,opponent,kickoff_at,formation,division) values ('80000000-0000-0000-0000-000000000002','30000000-0000-0000-0000-00000000000a','Lions FC', now() + interval '1 day','4-4-2','M4 Group A');
 insert into match_squad (match_id,player_id,status,shirt_number,slot,position)
   select '80000000-0000-0000-0000-000000000002', pid, 'starter', shirt, n, case when n = 1 then 'goalkeeper'::player_position else 'midfielder'::player_position end from tt_p where n <= 11;

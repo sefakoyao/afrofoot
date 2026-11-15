@@ -3,13 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
-import { publishLineup, saveGamePlan, saveProtocol, voidMatchEvent } from '@/app/actions/match';
-import { LineupBuilder, type LineupPlayer } from '@/components/match/LineupBuilder';
+import { publishLineup, saveProtocol, voidMatchEvent } from '@/app/actions/match';
+import { LineupBoard, type BoardPlayer } from '@/components/match/LineupBoard';
 import { LiveConsole } from '@/components/match/LiveConsole';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam } from '@/lib/coach';
-import { LINES, PRESETS, PRESSING, ROLE_OF, STYLES, TEMPOS, WIDTHS, onPitch, type EventRow, type LiveState, type Slot } from '@/lib/match';
+import { PRESETS, ROLE_OF, STYLES, STYLE_FORMATION, onPitch, type EventRow, type FormationDef, type LiveState, type Style } from '@/lib/match';
 import { getSupabase } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -24,7 +24,7 @@ type Match = {
   meet_at: string | null; meeting_point: string | null; warmup_at: string | null; briefing_at: string | null;
   tactic_style: string | null; defensive_line: string | null; pressing: string | null; width: string | null; tempo: string | null; game_plan: string | null;
 };
-type RosterRow = { jersey_number: number | null; players: { id: string; first_name: string; last_name: string; position: string | null } };
+type RosterRow = { jersey_number: number | null; players: { id: string; first_name: string; last_name: string; position: string | null; secondary_position: string | null; photo_path: string | null } };
 
 /** Match day: pre-game protocol, game plan (lineup style), lineup on a pitch, live scoreboard, timeline and statistics. */
 export default async function MatchDayPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -40,11 +40,11 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
 
   const [{ data: ts }, { data: rosterData }, { data: replies }, { data: squad }, { data: events }, { data: formations }, { data: place }, { data: stats }] = await Promise.all([
     supabase.from('team_seasons').select('teams!inner(name)').eq('id', m.team_season_id).maybeSingle(),
-    supabase.from('team_players').select('jersey_number, players!inner(id, first_name, last_name, position)').eq('team_season_id', m.team_season_id).is('left_on', null),
+    supabase.from('team_players').select('jersey_number, players!inner(id, first_name, last_name, position, secondary_position, photo_path)').eq('team_season_id', m.team_season_id).is('left_on', null),
     supabase.from('match_availability').select('player_id, availability, note').eq('match_id', id),
     supabase.from('match_squad').select('player_id, status, slot, captain').eq('match_id', id),
     supabase.from('match_events').select('id, type, side, minute, added_minute, player_id, assist_player_id, player_out_id, opponent_label, note, voided, created_at').eq('match_id', id).order('minute').order('added_minute').order('created_at'),
-    supabase.from('formations').select('code, slots').order('sort_order'),
+    supabase.from('formations').select('code, slots, format').order('format', { ascending: false }).order('sort_order'),
     m.location_id ? supabase.from('locations').select('name, address, city').eq('id', m.location_id).maybeSingle() : Promise.resolve({ data: null }),
     m.live_state === 'full_time' ? supabase.from('match_player_stats').select('player_id, minutes, goals, assists, yellow_cards, red_card').eq('match_id', id) : Promise.resolve({ data: [] }),
   ]);
@@ -59,11 +59,30 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
   const pitchNow = onPitch(starters.map((s) => s.player_id), live);
   const subsUsed = new Set(live.filter((e) => e.type === 'substitution' && e.side === 'us').map((e) => e.player_id));
   const P = (pid: string) => ({ id: pid, name: name.get(pid) ?? '?' });
-  const lineupPlayers: LineupPlayer[] = roster.map((r) => ({
-    id: r.players.id, name: `${r.players.first_name} ${r.players.last_name}`, shirt: r.jersey_number, role: r.players.position ? ROLE_OF[r.players.position] ?? null : null,
-    reply: (reply.get(r.players.id)?.availability ?? 'pending') as LineupPlayer['reply'],
+  const formationList = (formations ?? []) as FormationDef[];
+  // Player cards: photo (storage, coaches may view their own players' photos), phone, attendance this season, season minutes, rotation plan.
+  const ids = roster.map((r) => r.players.id);
+  const photoPaths = roster.map((r) => r.players.photo_path).filter((x): x is string => !!x);
+  const [{ data: privateRows }, { data: att }, { data: seasonStats }, { data: rotationRows }, signed] = await Promise.all([
+    ids.length ? supabase.from('player_private').select('player_id, phone').in('player_id', ids) : Promise.resolve({ data: [] }),
+    supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)').eq('training_sessions.team_season_id', m.team_season_id)
+      .lt('training_sessions.starts_at', new Date().toISOString()).neq('training_sessions.status', 'cancelled').not('attendance', 'is', null),
+    supabase.from('match_player_stats').select('player_id, minutes, matches!inner(team_season_id)').eq('matches.team_season_id', m.team_season_id),
+    supabase.from('match_rotation_plan').select('minute, player_off_id, player_on_id').eq('match_id', id).order('minute'),
+    photoPaths.length ? supabase.storage.from('player-photos').createSignedUrls(photoPaths, 3600) : Promise.resolve({ data: [] as { path: string | null; signedUrl: string }[] }),
+  ]);
+  const phone = new Map((privateRows ?? []).map((r) => [r.player_id, r.phone as string | null]));
+  const photo = new Map(((signed as { data: { path: string | null; signedUrl: string }[] | null }).data ?? []).filter((x) => x.path && x.signedUrl).map((x) => [x.path!, x.signedUrl]));
+  const rate = (pid: string) => { const rows = (att ?? []).filter((a) => a.player_id === pid && a.attendance !== 'excused'); return rows.length ? Math.round((rows.filter((a) => a.attendance === 'present' || a.attendance === 'late').length / rows.length) * 100) : null; };
+  const season = (pid: string) => { const rows = (seasonStats ?? []).filter((x) => x.player_id === pid); return { minutes: rows.reduce((n, x) => n + (x.minutes ?? 0), 0), matches: rows.filter((x) => (x.minutes ?? 0) > 0).length }; };
+  const boardPlayers: BoardPlayer[] = roster.map((r) => ({
+    id: r.players.id, name: `${r.players.first_name} ${r.players.last_name}`, shirt: r.jersey_number,
+    role: r.players.position ? ROLE_OF[r.players.position] ?? null : null, role2: r.players.secondary_position ? ROLE_OF[r.players.secondary_position] ?? null : null,
+    reply: (reply.get(r.players.id)?.availability ?? 'pending') as BoardPlayer['reply'], note: reply.get(r.players.id)?.note ?? null,
+    photo: r.players.photo_path ? photo.get(r.players.photo_path) ?? null : null, phone: phone.get(r.players.id) ?? null,
+    attendance: rate(r.players.id), seasonMinutes: season(r.players.id).minutes, seasonMatches: season(r.players.id).matches,
   }));
-  const formationList = ((formations ?? []) as { code: string; slots: Slot[] }[]);
+  const plannedSubs = (rotationRows ?? []).map((r) => ({ minute: r.minute, off: r.player_off_id, on: r.player_on_id }));
   const phaseAt = (type: string) => live.find((e) => e.type === type)?.created_at ?? null;
 
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
@@ -78,7 +97,8 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
   ].filter((s) => s.at).sort((a, b) => a.at!.localeCompare(b.at!));
   const nowIso = new Date().toISOString();
   const nextStep = m.live_state === 'not_started' ? steps.find((s) => s.at! > nowIso) : undefined;
-  const style = (m.tactic_style ?? 'balanced') as (typeof STYLES)[number];
+  const style: Style = (STYLES as readonly string[]).includes(m.tactic_style ?? '') ? (m.tactic_style as Style) : 'balanced';
+  const boardFormation = m.formation ?? STYLE_FORMATION[11][style];
 
   const Live = (
     <section id="live" aria-labelledby="live-h" className="rounded-card border-2 border-fg bg-raised p-4 sm:p-6">
@@ -87,7 +107,8 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         <LiveConsole matchId={id} back={back} team={team} opponent={m.opponent} homeAway={m.home_away} state={m.live_state}
           times={{ kickoff: phaseAt('kickoff'), secondHalf: phaseAt('second_half') }} score={{ us: m.goals_for ?? 0, them: m.goals_against ?? 0 }}
           onPitch={[...pitchNow].map(P)} benchLeft={subs.filter((s) => !subsUsed.has(s.player_id)).map((s) => P(s.player_id))}
-          squad={[...starters, ...subs].map((s) => P(s.player_id))} disabled={false} />
+          squad={[...starters, ...subs].map((s) => P(s.player_id))} disabled={false}
+          planned={plannedSubs.filter((r) => pitchNow.has(r.off) && subs.some((s) => s.player_id === r.on) && !subsUsed.has(r.on)).map((r) => ({ minute: r.minute, off: P(r.off), on: P(r.on) }))} />
       )}
       {!started && starters.length === 0 ? <p className="mt-3 text-sm text-muted">{t('liveNeedsLineup')}</p> : null}
     </section>
@@ -102,7 +123,7 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         <p className="mt-1 font-semibold">{longDay.format(new Date(m.kickoff_at))} · <span dir="ltr">{hmIn(m.kickoff_at)}</span></p>
         {place ? <p className="text-muted">{[place.name, place.address, place.city].filter(Boolean).join(', ')}</p> : null}
         <nav className="mt-4 flex flex-wrap gap-2 text-sm" aria-label={t('sections')}>
-          {(['protocol', 'plan', 'lineup', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
+          {(['protocol', 'lineup', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
         </nav>
       </header>
       <ResultBanner ns="match" result={sp.result} />
@@ -139,45 +160,10 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         </details>
       </section>
 
-      <section id="plan" aria-labelledby="plan-h" className="rounded-card border border-line bg-raised p-6">
-        <h2 id="plan-h" className="font-display text-xl font-extrabold">{t('planTitle')}</h2>
-        <p className="mt-1 text-sm text-muted">{t('planLead')}</p>
-        <form action={saveGamePlan} className="mt-4 grid gap-4">
-          <input type="hidden" name="match_id" value={id} /><input type="hidden" name="back" value={back} />
-          <fieldset className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <legend className="mb-2 text-sm font-semibold">{t('style')}</legend>
-            {STYLES.map((s) => (
-              <label key={s} className="relative block">
-                <input type="radio" name="style" value={s} defaultChecked={style === s} className="peer sr-only" />
-                <span className="block h-full cursor-pointer rounded-card border-2 border-line p-4 peer-checked:border-accent peer-checked:bg-accent/10 peer-focus-visible:ring-2 peer-focus-visible:ring-accent" data-style={s}>
-                  <span className="flex items-center justify-between gap-2"><span className="font-display font-extrabold">{t(`style_${s}`)}</span><span className="rounded-full bg-line px-2 text-xs font-bold" dir="ltr">{PRESETS[s].formation}</span></span>
-                  <span className="mt-1 block text-sm text-muted">{t(`styleDesc_${s}`)}</span>
-                  <span className="mt-2 block text-xs">{t(`styleKeys_${s}`)}</span>
-                </span>
-              </label>
-            ))}
-          </fieldset>
-          <div className="grid gap-3 sm:grid-cols-4">
-            {([['line', LINES, m.defensive_line ?? PRESETS[style].line], ['press', PRESSING, m.pressing ?? PRESETS[style].press], ['width', WIDTHS, m.width ?? PRESETS[style].width], ['tempo', TEMPOS, m.tempo ?? PRESETS[style].tempo]] as const).map(([k, opts, cur]) => (
-              <label key={k} className="grid gap-1 text-sm font-semibold">{t(`ins_${k}`)}
-                <select name={k} defaultValue={cur} className={input}>{opts.map((o) => <option key={o} value={o}>{t(`opt_${k}_${o}`)}</option>)}</select></label>
-            ))}
-          </div>
-          <label className="grid gap-1 text-sm font-semibold">{t('gamePlan')}
-            <textarea name="game_plan" maxLength={2000} rows={4} defaultValue={m.game_plan ?? ''} placeholder={t('gamePlanEg')} className="rounded-control border border-line bg-raised p-3" />
-            <span className="text-xs font-normal text-muted">{t('gamePlanNote')}</span></label>
-          <div className="flex flex-wrap gap-2">
-            <button name="op" value="preset" className="min-h-11 rounded-full border-2 border-fg px-5 font-bold hover:bg-fg hover:text-raised">{t('applyStyle')}</button>
-            <button name="op" value="save" className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">{t('savePlan')}</button>
-          </div>
-          <p className="text-xs text-muted">{t('applyStyleNote')}</p>
-        </form>
-      </section>
-
       <section id="lineup" aria-labelledby="lineup-h" className="rounded-card border border-line bg-raised p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 id="lineup-h" className="font-display text-xl font-extrabold">{t('lineupTitle')}</h2>
+            <h2 id="lineup-h" className="font-display text-xl font-extrabold">{t('boardTitle')}</h2>
             <p className="mt-1 flex flex-wrap gap-2 text-sm" data-availability={`${count('yes')}/${count('no')}/${count('pending') + count('maybe')}`}>
               <span className="rounded-full bg-accent/20 px-3 py-0.5 font-bold text-pitch">{t('availIn', { count: count('yes') })}</span>
               <span className="rounded-full bg-danger/10 px-3 py-0.5 font-bold text-danger">{t('availOut', { count: count('no') })}</span>
@@ -191,8 +177,11 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
           </form>
         </div>
         <p className="mb-4 mt-1 text-xs text-muted">{t('publishNote')}</p>
-        <LineupBuilder matchId={id} back={back} opponent={m.opponent} locked={started} formations={formationList} roster={lineupPlayers}
-          initial={{ formation: m.formation ?? PRESETS[style].formation, starters: Object.fromEntries(starters.filter((s) => s.slot).map((s) => [s.slot!, s.player_id])), subs: subs.map((s) => s.player_id), captain: (squad ?? []).find((s) => s.captain)?.player_id ?? null }} />
+        <LineupBoard matchId={id} back={back} team={team} opponent={m.opponent} whenLabel={`${longDay.format(new Date(m.kickoff_at))} · ${hmIn(m.kickoff_at)}`} locked={started}
+          formations={formationList} roster={boardPlayers}
+          initial={{ formation: boardFormation, starters: Object.fromEntries(starters.filter((s) => s.slot).map((s) => [s.slot!, s.player_id])), subs: subs.map((s) => s.player_id),
+            captain: (squad ?? []).find((s) => s.captain)?.player_id ?? null, rotation: plannedSubs,
+            plan: { style, line: m.defensive_line ?? PRESETS[style].line, press: m.pressing ?? PRESETS[style].press, width: m.width ?? PRESETS[style].width, tempo: m.tempo ?? PRESETS[style].tempo, text: m.game_plan ?? '' } }} />
       </section>
 
       {started ? null : Live}
