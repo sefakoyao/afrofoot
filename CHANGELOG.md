@@ -3,7 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – admin teams and roster (branch `phase2/teams`)
+## Unreleased – coach area: teams, training schedule, attendance (branch `phase2/coach`)
+- Coach home: my teams this season (also in the navigation), a to-do list of past sessions still waiting for attendance, and the next sessions. A coach without a team sees how to get assigned.
+- Team page: training schedule (planned, done, cancelled) and **Add training** (date, start and end in Helsinki time, place, focus, optionally weekly for up to 20 weeks); roster sorted by shirt with position, each player's attendance % this season (excused not counted), emergency contact, and **Call** / **WhatsApp** buttons.
+- Session page: mark attendance with large buttons (present, late, absent, excused, not marked), **All present** in one tap, works without JavaScript; players who joined after the session was planned are included; marking opens on the session's day; a marked session counts as done; cancel a session.
+- Everything is limited to the coach's own teams by the database (app.coaches_ts); forged team, session, player or value is refused. Players see the result in their Training this season figures.
+- Accessibility: sticky action bars no longer hide focused or scrolled-to fields (scroll-padding).
+- No database changes.
+
+## Admin teams and roster (merged in #18)
 - Admin **Teams**: seasons (add, make current — one at a time), teams per season (name, category, division; an existing team with the same name is reused), player and coach counts.
 - Team page: roster with shirt number (1–99, unique among active players), position and captain (one per team); remove keeps history (leave date) and re-adding reopens the row; former players listed. Coaches and staff: assign members with the coach role (role and optional title), remove.
 - Members approved as players get a player record automatically when first added to a team; coaches get a staff record when first assigned. A member without a name is refused with a clear message.

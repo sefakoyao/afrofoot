@@ -1,8 +1,15 @@
 import type { ReactNode } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { AppShell } from '@/components/AppShell';
 import { requireArea } from '@/lib/auth';
+import { myTeams } from '@/lib/coach';
+import { getSupabase } from '@/lib/supabase/server';
 
+/** Coach area: overview plus one entry per team the coach is assigned to this season. */
 export default async function Layout({ children }: { children: ReactNode }) {
   const member = await requireArea('coach');
-  return <AppShell area="coach" member={member}>{children}</AppShell>;
+  const [t, supabase] = await Promise.all([getTranslations('coach'), getSupabase()]);
+  const teams = supabase ? await myTeams(supabase, member.id) : [];
+  const nav = [{ href: '/coach', label: t('navHome') }, ...teams.map((x) => ({ href: `/coach/teams/${x.id}`, label: x.name }))];
+  return <AppShell area="coach" member={member} nav={nav}>{children}</AppShell>;
 }
