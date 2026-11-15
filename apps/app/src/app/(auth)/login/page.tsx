@@ -5,6 +5,7 @@ import { getMember, homeFor } from '@/lib/auth';
 import { safeNext } from '@/lib/paths';
 import { SocialSignIn } from '@/components/SocialSignIn';
 import { enabledProviders } from '@/lib/auth-providers';
+import { webUrl } from '@/lib/env';
 import { LoginForm } from './LoginForm';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,6 +32,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <p className="mb-5 mt-1 text-muted">{t('signInLead')}</p>
       <LoginForm next={next} notice={reason ?? (member ? member.status : undefined)} />
       <SocialSignIn providers={providers} next={next} />
+      <p className="mt-6 text-center text-xs text-muted"><a href={`${webUrl()}/privacy`} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-pitch" data-privacy-link>{t('privacy')}</a></p>
     </>
   );
 }
