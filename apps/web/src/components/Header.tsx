@@ -7,6 +7,7 @@ const NAV = [
   ['/', 'n_home'],
   ['/news', 'n_news'],
   ['/team', 'n_team'],
+  ['/calendar', 'n_cal'],
   ['/membership', 'n_mem'],
   ['/join', 'n_join'],
   ['/sponsors', 'n_sp'],

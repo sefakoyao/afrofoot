@@ -5,6 +5,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { ReplyForm } from '@/components/ReplyForm';
 import { LineupView, type LineupSlot } from '@/components/match/LineupView';
 import { requireArea } from '@/lib/auth';
+import { mapsLinkFor } from '@/lib/locations';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday, helsinkiToIso } from '@/lib/time';
 
@@ -12,11 +13,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('me'))('tabCalendar') };
 }
 
-type Event = { id: string; event_type: 'practice' | 'game' | 'friendly'; team_season_id: string; title: string; division: string | null; starts_at: string; ends_at: string; location_id: string | null; status: string };
+type Event = { id: string; event_type: 'practice' | 'game' | 'friendly' | 'event'; team_season_id: string | null; title: string; division: string | null; starts_at: string; ends_at: string; location_id: string | null; status: string;
+  meet_at: string | null; meeting_point: string | null; kind: string | null; description: string | null };
 type Reply = { availability: 'pending' | 'yes' | 'no' | 'maybe'; note: string | null };
 type Place = { id: string; name: string; address: string | null; city: string | null; maps_url: string | null };
 
-const TYPE_STYLE: Record<Event['event_type'], string> = { practice: 'bg-accent/20 text-pitch', game: 'bg-ink-950 text-white', friendly: 'bg-line text-fg' };
+const TYPE_STYLE: Record<Event['event_type'], string> = { practice: 'bg-accent/20 text-pitch', game: 'bg-ink-950 text-white', friendly: 'bg-line text-fg', event: 'bg-fg/10 text-fg' };
 const CANCELLED = new Set(['cancelled', 'postponed']);
 
 /**
@@ -46,8 +48,8 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const next = ((nextData as Event[] | null) ?? [])[0] ?? null;
   const all = next ? [...events, next] : events;
   const placeIds = [...new Set(all.map((e) => e.location_id).filter((x): x is string => !!x))];
-  const teamIds = [...new Set(all.map((e) => e.team_season_id))];
-  const practiceIds = all.filter((e) => e.event_type === 'practice').map((e) => e.id), matchIds = all.filter((e) => e.event_type !== 'practice').map((e) => e.id);
+  const teamIds = [...new Set(all.map((e) => e.team_season_id).filter((x): x is string => !!x))];
+  const practiceIds = all.filter((e) => e.event_type === 'practice').map((e) => e.id), matchIds = all.filter((e) => e.event_type === 'game' || e.event_type === 'friendly').map((e) => e.id);
   const none = Promise.resolve({ data: [] });
   // Match day details (migration 0031): protocol times; once the coach publishes the lineup, RLS (squad_players_read) returns the whole
   // squad, and names come from team_roster (teammates' names and shirt numbers only).
@@ -76,7 +78,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const shirtOf = new Map(rosterRows.map((r) => [r.player_id, r.jersey_number]));
   const slotsOf = new Map(((formations ?? []) as { code: string; slots: LineupSlot[] }[]).map((f) => [f.code, f.slots]));
   const info = new Map(((matchInfo as MatchInfo[] | null) ?? []).map((x) => [x.id, x]));
-  const tmatch = await getTranslations('match');
+  const [tmatch, tev] = await Promise.all([getTranslations('match'), getTranslations('events')]);
   const nowIso = new Date().toISOString();
   const place = new Map(((places as Place[] | null) ?? []).map((p) => [p.id, p]));
   const teamName = new Map(((teams as unknown as { id: string; teams: { name: string } }[] | null) ?? []).map((x) => [x.id, x.teams.name]));
@@ -89,13 +91,14 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const byDay = new Map<string, Event[]>();
   for (const e of events) byDay.set(dayKey(e.starts_at), [...(byDay.get(dayKey(e.starts_at)) ?? []), e]);
 
-  const title = (e: Event) => (e.event_type === 'practice' ? e.title : t('vs', { opponent: e.title }));
+  const title = (e: Event) => (e.event_type === 'practice' || e.event_type === 'event' ? e.title : t('vs', { opponent: e.title }));
   const Where = ({ e }: { e: Event }) => {
     const p = e.location_id ? place.get(e.location_id) : null;
     if (!p) return null;
     const text = [p.name, p.address, p.city].filter(Boolean).join(', ');
-    return p.maps_url && /^https:\/\//.test(p.maps_url)
-      ? <a href={p.maps_url} target="_blank" rel="noopener noreferrer" className="text-pitch underline underline-offset-2">{text}</a>
+    const link = mapsLinkFor(p); // the saved link, or a Google Maps search from the address
+    return link
+      ? <a href={link} target="_blank" rel="noopener noreferrer" className="text-pitch underline underline-offset-2" data-maps-link>{text}</a>
       : <span>{text}</span>;
   };
   const REPLY_STYLE: Record<Reply['availability'], string> = { yes: 'bg-accent/20 text-pitch', no: 'bg-danger/10 text-danger', maybe: 'bg-line text-fg', pending: 'bg-line text-muted' };
@@ -157,13 +160,17 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     return (
       <li id={anchor ? `ev-${e.id}` : undefined} data-event={e.event_type} data-status={e.status} data-event-id={e.id} className={`grid gap-1 rounded-card border border-line bg-raised p-4 ${off ? 'opacity-70' : ''}`}>
         <div className="flex flex-wrap items-center gap-2">
-          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${TYPE_STYLE[e.event_type]}`}>{t(`ev_${e.event_type}`)}</span>
+          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${TYPE_STYLE[e.event_type]}`}>{e.event_type === 'event' ? tev(`kind_${e.kind ?? 'other'}` as 'kind_other') : t(`ev_${e.event_type}`)}</span>
           <span className="font-semibold" dir="ltr">{hm.format(new Date(e.starts_at))}–{hm.format(new Date(e.ends_at))}</span>
           {off ? <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">{t(`ev_${e.status}` as 'ev_cancelled')}</span> : null}
         </div>
         <p className={`font-display text-lg font-extrabold ${off ? 'line-through' : ''}`}><bdi>{title(e)}</bdi>{e.division ? <span className="ms-2 text-sm font-normal text-muted">{e.division}</span> : null}</p>
-        <p className="text-sm text-muted"><Where e={e} />{manyTeams ? <> · {teamName.get(e.team_season_id)}</> : null}</p>
-        {e.event_type !== 'practice' ? <MatchDay e={e} open={!anchor} /> : null}
+        <p className="text-sm text-muted"><Where e={e} />{manyTeams || !e.team_season_id ? <> · {e.team_season_id ? teamName.get(e.team_season_id) : tev('wholeClub')}</> : null}</p>
+        {(e.event_type === 'practice' || e.event_type === 'event') && e.meet_at && !off ? (
+          <p className="text-sm" data-meeting><span className="rounded-full bg-surface px-3 py-1"><span className="text-muted">{tev('meeting')}</span> <b dir="ltr">{hm.format(new Date(e.meet_at))}</b>{e.meeting_point ? <> · <bdi>{e.meeting_point}</bdi></> : null}</span></p>
+        ) : null}
+        {e.event_type === 'event' && e.description ? <p className="whitespace-pre-line text-sm text-muted">{e.description}</p> : null}
+        {e.event_type === 'game' || e.event_type === 'friendly' ? <MatchDay e={e} open={!anchor} /> : null}
         {r ? <ReplyBox e={e} r={r} /> : null}
       </li>
     );

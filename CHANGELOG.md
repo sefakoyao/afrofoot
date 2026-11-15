@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – events, meeting times, website calendar, release 0.22.0 (branch `phase2/events`)
+- **Meeting time and place everywhere:** training, games/friendlies and the new events take an optional meeting time (same day, at most 6 hours before) and meeting point.
+- **Places:** choose a saved place or add a new one in the form (name, address, city, Google Maps link). "Find it on Google Maps" searches for what was typed; without a pasted link, a Google Maps link is made from the address. Players get the link in their calendar.
+- **Other events:** team meetings, social events, tournaments and camps (up to 14 days). Coaches add them for their teams on the team page; admins add club-wide or team events under **Admin → Events**, which also lists the saved places. Cancel and restore.
+- **One calendar, two places:** every training, game and event marked "Show on the club website" (on by default) appears on the new website **Calendar** page within a minute, with All / Games / Training / Events filters and "Open in Google Maps". No need to enter anything twice. The home page's next match and results also refresh every minute now, instead of only at deploy.
+- Players see events (with type, meeting and details) and training meeting times in their Calendar tab.
+- **Migration 0034 (run once in the SQL Editor):** training meeting time, point and website switch; table `club_events` with RLS (admins all; coaches only their teams; members read their own team's and club-wide events); `team_schedule` includes events; view `public_schedule` for the website (public teams only, no meeting points). 35 new database tests.
+
 ## Unreleased – lineup before protocol, faster-feeling tabs (branch `phase2/match-order-nav`)
 - **Match day order:** on the coach's match page the lineup board now comes first and the pre-game protocol after it (section links too). In the player's calendar the lineup comes before the protocol times.
 - **Lineup for players:** once the coach publishes, players see the lineup on a pitch (shirt numbers and surnames, captain, their own marker as "You") and the bench. It is open in the "Next up" card and folded in the month list. Until then, upcoming matches show a placeholder: "Lineup coming soon". Names come from the existing team roster view; teammates' photos stay private. No database changes.
