@@ -7,6 +7,7 @@ import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
+import { missingConsent } from '@/lib/conduct';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('teams'))('rosterTitle') };
@@ -17,7 +18,7 @@ const STAFF_TYPES = ['head_coach', 'assistant_coach', 'goalkeeper_coach', 'manag
 const input = 'min-h-9 rounded-control border border-line bg-raised px-2';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
-type RosterRow = { id: string; jersey_number: number | null; captain: boolean; joined_on: string | null; left_on: string | null; players: { id: string; first_name: string; last_name: string; position: string | null } };
+type RosterRow = { id: string; jersey_number: number | null; captain: boolean; joined_on: string | null; left_on: string | null; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null } };
 type StaffRow = { id: string; role_label: string | null; staff_members: { first_name: string; last_name: string; type: string; profile_id: string | null } };
 
 /** One team in one season: players (shirt, position, captain), former players, and coaches. */
@@ -34,7 +35,7 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
   const season = ts.seasons as unknown as { id: string; name: string };
 
   const [{ data: rosterData }, { data: staffData }, { data: allPlayers }, { data: playerProfiles }, { data: coachProfiles }] = await Promise.all([
-    supabase.from('team_players').select('id, jersey_number, captain, joined_on, left_on, players!inner(id, first_name, last_name, position)').eq('team_season_id', id),
+    supabase.from('team_players').select('id, jersey_number, captain, joined_on, left_on, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id),
     supabase.from('team_staff').select('id, role_label, staff_members!inner(first_name, last_name, type, profile_id)').eq('team_season_id', id),
     supabase.from('players').select('id, first_name, last_name, profile_id').order('last_name'),
     supabase.from('profiles').select('id, first_name, last_name, email').eq('role', 'player').eq('status', 'active').order('last_name'),
@@ -43,6 +44,8 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []);
   const active = roster.filter((r) => !r.left_on).sort((a, b) => (a.jersey_number ?? 999) - (b.jersey_number ?? 999) || a.players.last_name.localeCompare(b.players.last_name));
   const former = roster.filter((r) => r.left_on);
+  const noConduct = await missingConsent(supabase, active.map((r) => r.players.profile_id).filter((x): x is string => !!x));
+  const tc = await getTranslations('conduct');
   const staff = (staffData as unknown as StaffRow[] | null) ?? [];
 
   // Who can be added: player records not active in this team, and active player members without a record yet.
@@ -80,7 +83,8 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
                   const formId = `row-${r.id}`;
                   return (
                     <tr key={r.id} data-player={`${r.players.first_name} ${r.players.last_name}`}>
-                      <td className="px-2 py-2 font-semibold"><bdi>{r.players.first_name} {r.players.last_name}</bdi></td>
+                      <td className="px-2 py-2 font-semibold"><bdi>{r.players.first_name} {r.players.last_name}</bdi>
+                        {r.players.profile_id && noConduct.has(r.players.profile_id) ? <span className="ms-2 whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flagShort')}</span> : null}</td>
                       <td className="px-2 py-2"><input form={formId} name="jersey_number" defaultValue={r.jersey_number ?? ''} inputMode="numeric" maxLength={2} aria-label={t('shirt')} className={`${input} w-16`} /></td>
                       <td className="px-2 py-2">
                         <select form={formId} name="position" defaultValue={r.players.position ?? ''} aria-label={t('position')} className={input}>

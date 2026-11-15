@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const supabase = await getSupabase();
   if (!supabase) return new NextResponse('Not available', { status: 503 });
   const origin = (process.env.APP_URL || request.nextUrl.origin).replace(/\/+$/, '');
-  const invoice = await loadInvoice(supabase, id, `${origin}/me`);
+  const invoice = await loadInvoice(supabase, id, `${origin}/me/membership`);
   if (!invoice) return new NextResponse('Not found', { status: 404 });
   const pdf = await renderInvoicePdf(await loadBilling(supabase), invoice);
   return new NextResponse(Buffer.from(pdf), {

@@ -8,6 +8,7 @@ import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
 import { getSupabase } from '@/lib/supabase/server';
+import { missingConsent } from '@/lib/conduct';
 import { helsinkiToday } from '@/lib/time';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
-type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null } };
+type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null } };
 type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string };
 
 /** International phone → digits for wa.me links (WhatsApp wants the number without "+"). */
@@ -34,7 +35,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const now = new Date().toISOString();
 
   const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }] = await Promise.all([
-    supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position)').eq('team_season_id', id).is('left_on', null),
+    supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id).is('left_on', null),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
@@ -46,6 +47,8 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
     ? await supabase.from('player_private').select('player_id, phone, emergency_name, emergency_relation, emergency_phone').in('player_id', roster.map((r) => r.players.id))
     : { data: [] };
   const contact = new Map((contacts ?? []).map((c) => [c.player_id, c]));
+  const noConduct = await missingConsent(supabase, roster.map((r) => r.players.profile_id).filter((x): x is string => !!x));
+  const tc = await getTranslations('conduct');
   const rate = (pid: string) => {
     const rows = (att ?? []).filter((a) => a.player_id === pid && a.attendance !== 'excused');
     return rows.length ? Math.round((rows.filter((a) => a.attendance === 'present' || a.attendance === 'late').length / rows.length) * 100) : null;
@@ -112,7 +115,8 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
                 <li key={r.players.id} className="grid gap-2 py-3 sm:grid-cols-[1fr_auto] sm:items-center" data-player={`${r.players.first_name} ${r.players.last_name}`}>
                   <div>
                     <p className="font-semibold"><span className="inline-block w-8 text-muted" dir="ltr">{r.jersey_number ? `#${r.jersey_number}` : ''}</span>
-                      <bdi>{r.players.first_name} {r.players.last_name}</bdi>{r.captain ? <span className="ms-2 rounded-full bg-accent px-2 text-xs font-bold text-on-accent">C</span> : null}</p>
+                      <bdi>{r.players.first_name} {r.players.last_name}</bdi>{r.captain ? <span className="ms-2 rounded-full bg-accent px-2 text-xs font-bold text-on-accent">C</span> : null}
+                      {r.players.profile_id && noConduct.has(r.players.profile_id) ? <span className="ms-2 whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flagShort')}</span> : null}</p>
                     <p className="ps-8 text-sm text-muted">{r.players.position ? tpos(r.players.position) : '–'} · <span data-rate>{pct === null ? t('noAttendance') : t('attendanceRate', { rate: pct })}</span></p>
                     {c?.emergency_name ? <p className="ps-8 text-xs text-muted">{t('emergency')}: <bdi>{c.emergency_name}</bdi>{c.emergency_relation ? ` (${c.emergency_relation})` : ''}{c.emergency_phone ? <> · <a href={`tel:${c.emergency_phone}`} className="underline" dir="ltr">{c.emergency_phone}</a></> : null}</p> : null}
                   </div>

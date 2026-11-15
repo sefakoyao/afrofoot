@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – player tabs and Code of Conduct, release 0.17.0 (branch `phase2/player-tabs`)
+- **Player page tabs:** **Calendar** (every training, match and friendly of the player's teams, one month at a time with previous / next, grouped by day in Helsinki time, a "Next up" card, cancelled events struck through, place with map link), **Membership** (Code of Conduct, payments, invoices, payment history) and **My season** (season stats, training attendance, player profile). Team, position and shirt stay in the header above the tabs.
+- **Code of Conduct (migration 0028, run it once in the SQL Editor):** `conduct_versions` (the club's Code of Ethics, version 2027, full text plus PDF) and `conduct_consents` (one per player and version). Players read the text and tick "I have read … and agree" — only for the current version and only for themselves; consent cannot be changed or deleted afterwards. 20 new database tests.
+- **Flags:** players who have not agreed see a banner on every tab. Admins see the count on the overview with a "See who" link, a "not agreed" filter and a badge in Members, and a badge in team rosters; coaches see the badge in their rosters.
+- The invoice PDF's QR code now opens the Membership tab.
+
 ## Unreleased – invoices for players and admins (branch `phase2/invoice-views`)
 - **Player page:** a **My invoices** section right under the payment summary: one card per invoice with number, the months it covers, amount, due date or paid date, status (open, overdue, paid) and a large **Open invoice (PDF)** button.
 - **Admin → Invoices:** search by player name or invoice number, filter by status (open, overdue, paid) and month issued, 25 per page with paging, totals (count and euros) for open, overdue and paid that follow the filters; click a player to see only their invoices. Mark paid keeps the filters.

@@ -6,6 +6,7 @@ import { updateMember } from '@/app/actions/members';
 import { requireArea } from '@/lib/auth';
 import { dateFormats, isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
+import { missingConsent } from '@/lib/conduct';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('admin'))('membersTitle') };
@@ -38,17 +39,26 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   if (query && q) query = query.or(`email.ilike.*${q}*,first_name.ilike.*${q}*,last_name.ilike.*${q}*`);
   if (query && role) query = query.eq('role', role);
   if (query && status) query = query.eq('status', status);
+  // Code of Conduct filter: active players who have not agreed to the current version (migration 0028).
+  const conduct = one(sp.conduct) === 'missing' ? 'missing' : '';
+  if (query && supabase && conduct) {
+    const { data: activePlayers } = await supabase.from('profiles').select('id').eq('role', 'player').eq('status', 'active');
+    const missing = [...(await missingConsent(supabase, (activePlayers ?? []).map((r) => r.id)))];
+    query = query.in('id', missing.length ? missing : ['00000000-0000-0000-0000-000000000000']);
+  }
   const { data, count } = query ? await query : { data: [], count: 0 };
   const rows = data ?? [];
   const pages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
 
   const params = (over: Record<string, string | number | undefined>) => {
     const u = new URLSearchParams();
-    for (const [k, v] of Object.entries({ q, role, status, page: String(page), ...over })) if (v) u.set(k, String(v));
+    for (const [k, v] of Object.entries({ q, role, status, conduct, page: String(page), ...over })) if (v) u.set(k, String(v));
     return `/admin/members${u.size ? `?${u}` : ''}`;
   };
   const back = params({});
   const choices = assignableRoles(actor.role);
+  const noConduct = supabase ? await missingConsent(supabase, rows.filter((r) => r.role === 'player' && r.status === 'active').map((r) => r.id)) : new Set<string>();
+  const tc = await getTranslations('conduct');
   // Player records of the listed members, for the "Invoices" link (invoices belong to player records).
   const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
   const playerOf = new Map((playerLinks ?? []).map((p) => [p.profile_id, p.id]));
@@ -64,7 +74,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
       {RESULTS_OK.includes(result) ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{t(`result_${result}`)}</p> : null}
       {RESULTS_ERR.includes(result) ? <p role="alert" className="rounded-card bg-danger/10 p-3 font-semibold text-danger">{t(`result_${result}`)}</p> : null}
 
-      <form className="grid gap-3 rounded-card border border-line bg-raised p-4 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end" role="search">
+      <form className="grid gap-3 rounded-card border border-line bg-raised p-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end" role="search">
         <label className="grid gap-1 text-sm font-semibold">{t('search')}
           <input name="q" defaultValue={q} type="search" maxLength={60} className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal" />
         </label>
@@ -78,6 +88,12 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           <select name="status" defaultValue={status ?? ''} className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal">
             <option value="">{t('all')}</option>
             {ACCOUNT_STATUSES.map((s) => <option key={s} value={s}>{ts(s)}</option>)}
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm font-semibold">{tc('title')}
+          <select name="conduct" defaultValue={conduct} className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal">
+            <option value="">{t('all')}</option>
+            <option value="missing">{tc('filterMissing')}</option>
           </select>
         </label>
         <div className="flex gap-2">
@@ -110,6 +126,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                     <td className="px-4 py-3">
                       <p className="font-semibold">{name ? isolate(name) : <span className="text-muted">{t('noName')}</span>}
                         {m.id === actor.id ? <span className="ms-2 rounded-full bg-line px-2 text-xs">{t('you')}</span> : null}</p>
+                      {noConduct.has(m.id) ? <p className="mt-1"><span className="rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flag')}</span></p> : null}
                       <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email}</bdi></p>
                     </td>
                     <td className="px-4 py-3">{tr(mRole)}
