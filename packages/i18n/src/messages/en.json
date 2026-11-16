@@ -1325,7 +1325,6 @@
     "emergencyLead": "Who should we call if something happens at training or a match? Only your coaches and club admins can see this.",
     "emergencyName": "Name",
     "emergencyRelation": "Relation",
-    "emergencyRelationEg": "for example mother, partner",
     "emergencyPhone": "Their phone",
     "save": "Save",
     "saving": "Saving…",
@@ -1347,7 +1346,9 @@
     "photoNote": "A clear face photo helps your coaches. Only you, your coaches and the club admins can see it.",
     "e_photoMissing": "Choose a picture first.",
     "e_photoType": "Use a JPEG, PNG or WebP picture.",
-    "e_photoSize": "The picture is too large."
+    "e_photoSize": "The picture is too large.",
+    "relationChoose": "Choose…",
+    "relationOther": "Write the relation"
   },
   "teams": {
     "title": "Teams",
@@ -1698,7 +1699,7 @@
     "newLead": "The draft starts from the template with the player, team and dates filled in. You can edit it before sending.",
     "createDraft": "Create draft",
     "templateTitle": "Contract template",
-    "templateLead": "English text. {{player}}, {{team}}, {{starts}}, {{ends}}, {{years_text}} and {{club}} are filled in automatically; [[…]] are blanks the admin completes before sending. \"## \" starts a section, \"- \" a list item.",
+    "templateLead": "English text. These fields are filled in for each contract: '{{player}}', '{{team}}', '{{starts}}', '{{ends}}', '{{years_text}}', '{{club}}', '{{season_objectives}}', '{{team_fee}}', '{{included_list}}', '{{not_included_list}}' and '{{prices_link}}'. Text in '[[…]]' must be completed in each draft before it can be sent.",
     "editTemplate": "Edit template",
     "saveTemplate": "Save template",
     "st_draft": "Draft",
@@ -2200,5 +2201,24 @@
     "e_meet": "The meeting time must be before the start, at most 6 hours earlier.",
     "e_location": "Check the new place: it needs a name, and the map link must start with https://.",
     "e_notYours": "You can only add or change events for your own teams."
+  },
+  "relation": {
+    "mother": "Mother",
+    "father": "Father",
+    "guardian": "Guardian",
+    "spouse": "Spouse",
+    "partner": "Partner",
+    "sister": "Sister",
+    "brother": "Brother",
+    "daughter": "Daughter",
+    "son": "Son",
+    "grandmother": "Grandmother",
+    "grandfather": "Grandfather",
+    "aunt": "Aunt",
+    "uncle": "Uncle",
+    "cousin": "Cousin",
+    "relative": "Other relative",
+    "friend": "Friend",
+    "other": "Other…"
   }
 }

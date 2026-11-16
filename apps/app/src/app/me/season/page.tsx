@@ -5,6 +5,7 @@ import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
 import { loadPlayerSport, loadSeasonStats, loadTraining, type SeasonStats, type Training } from '@/lib/player';
 import { getSupabase } from '@/lib/supabase/server';
+import { relationLabel } from '@/lib/relations';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('me'))('tabSeason') };
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** My season tab: match stats, training attendance and the player profile (migration 0008 RLS: own rows and own team). */
 export default async function SeasonTab() {
   const member = await requireArea('me');
-  const [t, tp, tpos, fmt, supabase] = await Promise.all([getTranslations('me'), getTranslations('pp'), getTranslations('position'), dateFormats(), getSupabase()]);
+  const [t, tp, tpos, trel, fmt, supabase] = await Promise.all([getTranslations('me'), getTranslations('pp'), getTranslations('position'), getTranslations('relation'), dateFormats(), getSupabase()]);
   const sport = supabase ? await loadPlayerSport(supabase, member.id) : null;
   const [stats, training]: [SeasonStats | null, Training | null] = supabase && sport
     ? await Promise.all([loadSeasonStats(supabase, sport.id), loadTraining(supabase, sport.id)]) : [null, null];
@@ -74,7 +75,7 @@ export default async function SeasonTab() {
             <div><dt className="text-muted">{tp('foot')}</dt><dd className="font-semibold">{sport.preferredFoot ? tp(`foot_${sport.preferredFoot}`) : '–'}</dd></div>
             <div><dt className="text-muted">{tp('phone')}</dt><dd className="font-semibold">{sport.phone ? <bdi dir="ltr">{sport.phone}</bdi> : <span className="text-danger">{tp('missing')}</span>}</dd></div>
             <div><dt className="text-muted">{tp('emergencyTitle')}</dt><dd className="font-semibold">{sport.emergencyName
-              ? <><bdi>{sport.emergencyName}</bdi>{sport.emergencyRelation ? <> ({sport.emergencyRelation})</> : null}{sport.emergencyPhone ? <> · <bdi dir="ltr">{sport.emergencyPhone}</bdi></> : null}</>
+              ? <><bdi>{sport.emergencyName}</bdi>{sport.emergencyRelation ? <> ({relationLabel(trel, sport.emergencyRelation)})</> : null}{sport.emergencyPhone ? <> · <bdi dir="ltr">{sport.emergencyPhone}</bdi></> : null}</>
               : <span className="text-danger">{tp('missing')}</span>}</dd></div>
           </dl>
         </section>

@@ -1325,7 +1325,6 @@
     "emergencyLead": "Qui appeler en cas de problème à l’entraînement ou en match ? Seuls vos entraîneurs et les administrateurs du club le voient.",
     "emergencyName": "Nom",
     "emergencyRelation": "Lien",
-    "emergencyRelationEg": "par exemple mère, conjoint",
     "emergencyPhone": "Son téléphone",
     "save": "Enregistrer",
     "saving": "Enregistrement…",
@@ -1347,7 +1346,9 @@
     "photoNote": "Une photo nette du visage aide vos entraîneurs. Seuls vous, vos entraîneurs et les administrateurs la voient.",
     "e_photoMissing": "Choisissez d'abord une image.",
     "e_photoType": "Utilisez une image JPEG, PNG ou WebP.",
-    "e_photoSize": "L'image est trop grande."
+    "e_photoSize": "L'image est trop grande.",
+    "relationChoose": "Choisir…",
+    "relationOther": "Précisez le lien"
   },
   "teams": {
     "title": "Équipes",
@@ -1698,7 +1699,7 @@
     "newLead": "Le brouillon reprend le modèle avec le joueur, l'équipe et les dates. Vous pouvez le modifier avant l'envoi.",
     "createDraft": "Créer le brouillon",
     "templateTitle": "Modèle de contrat",
-    "templateLead": "Texte en anglais. {{player}}, {{team}}, {{starts}}, {{ends}}, {{years_text}} et {{club}} sont remplis automatiquement ; les [[…]] sont à compléter avant l'envoi. « ## » commence une section, « - » un élément de liste.",
+    "templateLead": "Texte en anglais. Ces champs sont remplis pour chaque contrat : '{{player}}', '{{team}}', '{{starts}}', '{{ends}}', '{{years_text}}', '{{club}}', '{{season_objectives}}', '{{team_fee}}', '{{included_list}}', '{{not_included_list}}' et '{{prices_link}}'. Le texte entre '[[…]]' doit être complété dans chaque brouillon avant l'envoi.",
     "editTemplate": "Modifier le modèle",
     "saveTemplate": "Enregistrer le modèle",
     "st_draft": "Brouillon",
@@ -2200,5 +2201,24 @@
     "e_meet": "L’heure de rendez-vous doit précéder le début, de 6 heures au plus.",
     "e_location": "Vérifiez le nouveau lieu : il faut un nom, et le lien doit commencer par https://.",
     "e_notYours": "Vous ne pouvez gérer que les événements de vos équipes."
+  },
+  "relation": {
+    "mother": "Mère",
+    "father": "Père",
+    "guardian": "Tuteur / tutrice",
+    "spouse": "Conjoint(e)",
+    "partner": "Partenaire",
+    "sister": "Sœur",
+    "brother": "Frère",
+    "daughter": "Fille",
+    "son": "Fils",
+    "grandmother": "Grand-mère",
+    "grandfather": "Grand-père",
+    "aunt": "Tante",
+    "uncle": "Oncle",
+    "cousin": "Cousin(e)",
+    "relative": "Autre parent",
+    "friend": "Ami(e)",
+    "other": "Autre…"
   }
 }

@@ -19,11 +19,13 @@ export async function savePlayerProfile(_: PlayerProfileState, fd: FormData): Pr
 }
 
 const FIELDS = ['preferred_foot', 'height_cm', 'weight_kg', 'phone', 'emergency_name', 'emergency_relation', 'emergency_phone'] as const;
-const submitted = (fd: FormData) => Object.fromEntries(FIELDS.map((k) => [k, String(fd.get(k) ?? '').slice(0, 120)]));
+/** The relation: a code from the list, or (for "Other") what the player wrote. */
+const relationOf = (fd: FormData) => { const pick = String(fd.get('emergency_relation') ?? ''); return pick === 'other' ? String(fd.get('emergency_relation_other') ?? '').trim() : pick; };
+const submitted = (fd: FormData) => ({ ...Object.fromEntries(FIELDS.map((k) => [k, String(fd.get(k) ?? '').slice(0, 120)])), emergency_relation: relationOf(fd).slice(0, 60) || (fd.get('emergency_relation') === 'other' ? 'other' : '') });
 
 async function save(fd: FormData): Promise<PlayerProfileState> {
   const member = await requireArea('me');
-  const p = playerProfileSchema.safeParse(Object.fromEntries(fd));
+  const p = playerProfileSchema.safeParse({ ...Object.fromEntries(fd), emergency_relation: relationOf(fd) });
   if (!p.success) return { status: 'error', error: p.error.issues[0]?.message ?? 'e_failed' };
   const supabase = await getSupabase();
   if (!supabase) return { status: 'error', error: 'e_failed' };
