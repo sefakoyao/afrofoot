@@ -160,6 +160,14 @@ so the link works on any device. (The default template only works in the browser
 
 **Switch:** Admin → Invoices → Billing details → "Invoice a player only after the contract is signed and the Code of Conduct agreed" (on by default).
 
+## 3m. Automatic player contracts (migration 0037, release 0.25.0)
+1. Paste `supabase/migrations/20260101000037_automatic_contracts.sql` into Supabase → SQL Editor and run it once.
+2. **Admin → Contracts → Automatic contracts:** fill in the three fee lines (fees the club pays, maximum yearly fees, volunteer-event alternative), choose the contract length and what happens ("Create and send" is the default), then save.
+3. **Admin → Teams → each team:** write its **Season and objectives** in English (printed in that team's contracts).
+4. Existing drafts: open each one and click **Fill in again from the template**, then **Send**.
+
+From then on, approving a player into a group, or adding players to a team, creates their contract and sends it for signature. If something is missing, it stays a draft and the admin sees a note with a link to the drafts.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

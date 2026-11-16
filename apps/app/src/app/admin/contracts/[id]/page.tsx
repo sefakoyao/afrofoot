@@ -32,11 +32,11 @@ export default async function ContractPage({ params, searchParams }: { params: P
   const st = shownStatus(c, helsinkiToday());
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
   const blanks = hasBlanks(c.body);
-  const Step = ({ op, label, tone = 'primary', confirm }: { op: string; label: string; tone?: 'primary' | 'danger'; confirm?: string }) => (
+  const Step = ({ op, label, tone = 'primary', confirm }: { op: string; label: string; tone?: 'primary' | 'secondary' | 'danger'; confirm?: string }) => (
     <form action={contractStep}>
       <input type="hidden" name="id" value={c.id} /><input type="hidden" name="op" value={op} />
       {confirm ? <p className="mb-2 text-sm text-muted">{confirm}</p> : null}
-      <button data-step={op} className={`min-h-11 rounded-full px-6 font-display font-bold ${tone === 'danger' ? 'border-2 border-danger text-danger hover:bg-danger/10' : 'bg-accent text-on-accent hover:brightness-110'}`}>{label}</button>
+      <button data-step={op} className={`min-h-11 rounded-full px-6 font-display font-bold ${tone === 'danger' ? 'border-2 border-danger text-danger hover:bg-danger/10' : tone === 'secondary' ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`}>{label}</button>
     </form>
   );
 
@@ -71,6 +71,7 @@ export default async function ContractPage({ params, searchParams }: { params: P
           </form>
           <div className="mt-5 flex flex-wrap items-end gap-3 border-t border-line pt-5">
             {blanks ? null : <Step op="send" label={t('send')} confirm={t('sendNote')} />}
+            <Step op="refill" label={t('refill')} confirm={t('refillNote')} tone="secondary" />
             <Step op="delete" label={t('deleteDraft')} tone="danger" />
           </div>
         </section>

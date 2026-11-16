@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { autoContracts, autoParams } from '@/lib/auto-contracts';
 import { addToTeam, ensurePlayerRecord } from '@/lib/roster';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { requireArea } from '@/lib/auth';
@@ -18,10 +19,12 @@ const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_invalid');
 const STAFF_TYPES = ['head_coach', 'assistant_coach', 'goalkeeper_coach', 'manager', 'physio', 'analyst', 'other'] as const;
 const POSITIONS = ['goalkeeper', 'defender', 'midfielder', 'forward'] as const;
 
-function back(fd: FormData, result: string): never {
+function back(fd: FormData, result: string, extra: Record<string, string | number> = {}): never {
   const raw = String(fd.get('back') ?? '');
   const url = new URL(raw.startsWith('/admin/teams') ? raw : '/admin/teams', 'http://x');
+  for (const k of ['result', 'cs', 'cd']) url.searchParams.delete(k);
   url.searchParams.set('result', result);
+  for (const [k, v] of Object.entries(extra)) url.searchParams.set(k, String(v));
   redirect(url.pathname + url.search);
 }
 
@@ -164,8 +167,9 @@ export async function addPlayers(fd: FormData): Promise<void> {
     if ('error' in rec) skipped++; else ids.push(rec.id);
   }
   const r = await addToTeam(supabase, team.data, ids);
-  revalidatePath('/admin', 'layout'); revalidatePath('/coach', 'layout');
-  back(fd, r.failed + skipped ? 'r_playersAddedSome' : 'r_playersAdded');
+  const c = await autoContracts(supabase, team.data, ids); // 0037: the season's contract for each, created (and sent) from the template
+  revalidatePath('/admin', 'layout'); revalidatePath('/coach', 'layout'); revalidatePath('/me', 'layout');
+  back(fd, r.failed + skipped ? 'r_playersAddedSome' : 'r_playersAdded', autoParams(c));
 }
 
 const rosterSchema = z.object({
@@ -236,4 +240,16 @@ export async function removeCoach(fd: FormData): Promise<void> {
   const { error } = await supabase.from('team_staff').delete().eq('id', p.data.row_id).eq('team_season_id', p.data.team_season_id);
   if (error) fail(fd, 'remove coach', error);
   done(fd, 'r_coachRemoved');
+}
+
+const objectivesSchema = z.object({ team_season_id: uuid, objectives: z.string().trim().max(2000, 'r_invalid').transform((v) => v || null) });
+
+/** The team's "Season and objectives" (team_seasons.objectives, migration 0037): printed in the player contracts. */
+export async function saveObjectives(fd: FormData): Promise<void> {
+  const p = objectivesSchema.safeParse({ team_season_id: fd.get('team_season_id'), objectives: String(fd.get('objectives') ?? '').replace(/\r\n/g, '\n') });
+  if (!p.success) back(fd, p.error.issues[0]?.message ?? 'r_invalid');
+  const supabase = await db(fd);
+  const { error } = await supabase.from('team_seasons').update({ objectives: p.data.objectives }).eq('id', p.data.team_season_id);
+  if (error) fail(fd, 'save objectives', error);
+  done(fd, 'r_objectivesSaved');
 }

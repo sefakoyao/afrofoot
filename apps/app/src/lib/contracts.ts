@@ -38,13 +38,50 @@ export function maxEnd(startsOn: string, years: number): string {
 
 const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-/** Fills the {{…}} fields of the template. [[…]] blanks stay for the admin to complete before sending. */
-export function fillTemplate(body: string, v: { club: string; team: string; player: string; starts: string; ends: string; years: number }): string {
-  const values: Record<string, string> = {
-    club: v.club, team: v.team || 'the team', player: v.player, starts: longDate(v.starts), ends: longDate(v.ends),
-    years: String(v.years), years_text: v.years === 1 ? 'one year' : v.years === 2 ? 'two years' : 'three years',
+/** What the club fills in once (Admin → Contracts → automatic contracts; site_settings 'contracts', migration 0037). */
+export type ContractSettings = { auto: 'send' | 'draft' | 'off'; years: 1 | 2 | 3; club_fees: string; max_fee_per_year: string; volunteer_amount: string };
+export const CONTRACT_DEFAULTS: ContractSettings = { auto: 'send', years: 1, club_fees: '', max_fee_per_year: '', volunteer_amount: '' };
+
+export async function loadContractSettings(db: SupabaseClient): Promise<ContractSettings> {
+  const { data } = await db.from('site_settings').select('value').eq('key', 'contracts').maybeSingle();
+  const v = (data?.value ?? {}) as Partial<Record<keyof ContractSettings, unknown>>;
+  const str = (k: keyof ContractSettings) => (typeof v[k] === 'string' ? (v[k] as string).trim() : '');
+  const years = Number(v.years);
+  return {
+    auto: v.auto === 'draft' || v.auto === 'off' ? v.auto : 'send',
+    years: years === 2 || years === 3 ? years : 1,
+    club_fees: str('club_fees'), max_fee_per_year: str('max_fee_per_year'), volunteer_amount: str('volunteer_amount'),
   };
-  return body.replace(/\{\{(\w+)\}\}/g, (m, k: string) => values[k] ?? m);
+}
+
+/** What a field becomes when its value is missing: a [[…]] blank the admin must complete before sending (as before 0037). */
+const BLANKS: Record<string, string> = {
+  season_objectives: "[[Describe the team's league and season, e.g. the series the team plays in and the objective for the season.]]",
+  club_fees: '[[Fee paid by the club, e.g. playing licence, EUR amount]]',
+  max_fee_per_year: '[[maximum per year]]',
+  volunteer_amount: '[[amount]]',
+};
+
+export type TemplateValues = {
+  club: string; team: string; player: string; starts: string; ends: string; years: number;
+  season?: string; division?: string | null; objectives?: string | null; settings?: Partial<ContractSettings>;
+};
+
+/**
+ * Fills the {{…}} fields of the template: club, team, player, dates, and (0037) the team's season objectives and the club's
+ * fee lines. A field without a value stays a [[…]] blank, so such a contract cannot be sent until it is completed.
+ */
+export function fillTemplate(body: string, v: TemplateValues): string {
+  const team = v.team || 'the team';
+  const objectives = v.objectives?.trim() || '';
+  const values: Record<string, string> = {
+    club: v.club, team, player: v.player, starts: longDate(v.starts), ends: longDate(v.ends),
+    years: String(v.years), years_text: v.years === 1 ? 'one year' : v.years === 2 ? 'two years' : 'three years',
+    season: v.season ?? '', division: v.division ?? '',
+    season_objectives: objectives, club_fees: v.settings?.club_fees?.trim() ?? '',
+    max_fee_per_year: v.settings?.max_fee_per_year?.trim() ?? '', volunteer_amount: v.settings?.volunteer_amount?.trim() ?? '',
+  };
+  return body.replace(/\{\{(\w+)\}\}/g, (m, k: string) => (values[k] ? values[k]! : BLANKS[k] ?? (k in values ? '' : m)));
 }
 
 export const hasBlanks = (body: string) => body.includes('[[');

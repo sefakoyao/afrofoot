@@ -3,6 +3,22 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – automatic player contracts, release 0.25.0 (branch `phase2/auto-contracts`)
+- **Contracts are created when a player joins a team:** approve with a group, bulk "add to a team", or the team page picker. Each player without a contract for the period gets one from the template. The team, season, the team's **Season and objectives** and the club's **fee lines** are filled in.
+- **Default "Create and send":** the player gets the "Read and sign" banner straight away. A contract stays a **draft** instead when something is missing (the team's objectives, a fee line, or the player has no app account to sign with). The admin is told how many were sent and how many wait, with a link to the drafts.
+- **Admin → Contracts → Automatic contracts:**
+  - choose create and send / create as draft / do nothing
+  - choose the contract length
+  - write once: the fees the club pays, the maximum yearly fees, and the volunteer-event alternative
+- **Team page → Season and objectives:** printed in that team's contracts; warns while it is empty.
+- **Drafts:** a "Fill in again from the template" button picks up objectives and fees written after the draft was made. The manual "New contract" form fills the same fields.
+- **Migration 0037 (run once in the SQL Editor):**
+  - `team_seasons.objectives`
+  - the private setting `contracts`
+  - the template's four `[[…]]` blanks become `{{season_objectives}}`, `{{club_fees}}`, `{{max_fee_per_year}}`, `{{volunteer_amount}}` (only the exact original blank texts are replaced)
+  - 10 new database tests
+- `supabase/remove_demo_users.sql` also deletes the demo players' contracts.
+
 ## Unreleased – sign-up errors in the server log (branch `phase2/signup-logging`)
 - When Supabase refuses a sign-up or a text-message code (for example an SMS provider set up wrongly), the app writes Supabase's own error code and message to the server log (Vercel → Logs → `[signup]`). Phone numbers in provider messages are replaced by "[number]". What members see is unchanged.
 

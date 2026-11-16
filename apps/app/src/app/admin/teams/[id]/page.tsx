@@ -2,8 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { addCoach, addPlayers, removeCoach, removePlayer, updateRosterEntry } from '@/app/actions/teams';
+import { addCoach, addPlayers, removeCoach, removePlayer, saveObjectives, updateRosterEntry } from '@/app/actions/teams';
 import { PlayerPicker } from '@/components/admin/PlayerPicker';
+import { ContractsNote } from '@/components/admin/ContractsNote';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
@@ -30,7 +31,7 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
   const [t, tpos, fmt, supabase] = await Promise.all([getTranslations('teams'), getTranslations('position'), dateFormats(), getSupabase()]);
   if (!supabase) notFound();
 
-  const { data: ts } = await supabase.from('team_seasons').select('id, division, teams!inner(name, category), seasons!inner(id, name)').eq('id', id).maybeSingle();
+  const { data: ts } = await supabase.from('team_seasons').select('id, division, objectives, teams!inner(name, category), seasons!inner(id, name)').eq('id', id).maybeSingle();
   if (!ts) notFound();
   const team = ts.teams as unknown as { name: string; category: string };
   const season = ts.seasons as unknown as { id: string; name: string };
@@ -69,6 +70,20 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
         <p className="mt-1 text-muted">{season.name} · {t(`cat_${team.category}` as 'cat_senior')}{ts.division ? ` · ${ts.division}` : ''}</p>
       </header>
       <ResultBanner ns="teams" result={sp.result} />
+      <ContractsNote sp={sp} />
+
+      {/* 0037: printed in every player contract for this team and season */}
+      <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="obj-h" id="objectives">
+        <h2 id="obj-h" className="font-display text-xl font-extrabold">{t('objectivesTitle')}</h2>
+        <p className="mt-1 text-sm text-muted">{t('objectivesLead')}</p>
+        <form action={saveObjectives} className="mt-3 grid gap-3">
+          {hidden({})}
+          <textarea name="objectives" rows={3} maxLength={2000} defaultValue={ts.objectives ?? ''} placeholder={t('objectivesEg')} lang="en" dir="ltr"
+            className="w-full rounded-control border border-line bg-raised p-3" data-objectives />
+          <button className="min-h-10 justify-self-start rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110">{t('save')}</button>
+        </form>
+        {!ts.objectives ? <p className="mt-2 text-xs font-semibold text-danger" data-objectives-missing>{t('objectivesMissing')}</p> : null}
+      </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="players-h">
         <h2 id="players-h" className="font-display text-xl font-extrabold">{t('players')} ({active.length})</h2>

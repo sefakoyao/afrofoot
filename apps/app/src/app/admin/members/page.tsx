@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { ACCOUNT_STATUSES, ROLES, assignableRoles, canManageMember, isRole, type Role } from '@afrofoot/db';
 import { bulkMembers, updateMember } from '@/app/actions/members';
 import { BulkBar } from '@/components/admin/BulkBar';
+import { ContractsNote } from '@/components/admin/ContractsNote';
 import { TeamSelect } from '@/components/admin/TeamSelect';
 import { currentTeams, type Group } from '@/lib/roster';
 import { requireArea } from '@/lib/auth';
@@ -84,6 +85,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
 
       {RESULTS_OK.includes(result) ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{t(`result_${result}`)}</p> : null}
       {result === 'bulk' ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch" data-bulk-result>{t('result_bulk', { approved: n('a'), added: n('t'), skipped: n('s') })}{n('already') ? ` ${t('result_bulkAlready', { count: n('already') })}` : ''}</p> : null}
+      <ContractsNote sp={sp} />
       {RESULTS_ERR.includes(result) ? <p role="alert" className="rounded-card bg-danger/10 p-3 font-semibold text-danger">{t(`result_${result}`)}</p> : null}
 
       {pending.length ? (

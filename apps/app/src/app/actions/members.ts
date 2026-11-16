@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { ROLES, assignableRoles, canManageMember, isRole } from '@afrofoot/db';
 import { requireArea } from '@/lib/auth';
+import { autoContracts, autoParams } from '@/lib/auto-contracts';
 import { addToTeam, ensurePlayerRecord } from '@/lib/roster';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -23,7 +24,7 @@ const FROM_STATUS = { approve: ['pending'], suspend: ['active', 'pending'], reac
 function back(fd: FormData, result: string, extra: Record<string, string | number> = {}): never {
   const raw = String(fd.get('back') ?? '');
   const url = new URL(raw.startsWith('/admin/members') ? raw : '/admin/members', 'http://x');
-  for (const k of ['result', 'a', 't', 's', 'team']) url.searchParams.delete(k);
+  for (const k of ['result', 'a', 't', 's', 'team', 'already', 'cs', 'cd']) url.searchParams.delete(k);
   url.searchParams.set('result', result);
   for (const [k, v] of Object.entries(extra)) url.searchParams.set(k, String(v));
   redirect(url.pathname + url.search);
@@ -66,8 +67,10 @@ export async function updateMember(fd: FormData): Promise<void> {
     const rec = await ensurePlayerRecord(supabase, a.id);
     if ('error' in rec) { revalidatePath('/admin', 'layout'); back(fd, rec.error === 'noName' ? 'approveNoName' : 'error'); }
     const r = await addToTeam(supabase, a.team_season_id, [rec.id]);
-    revalidatePath('/admin', 'layout');
-    back(fd, r.failed ? 'error' : 'approvedToTeam');
+    // 0037: the contract for the season, created (and sent) from the template
+    const c = r.failed ? null : await autoContracts(supabase, a.team_season_id, [rec.id]);
+    revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout');
+    back(fd, r.failed ? 'error' : 'approvedToTeam', c ? autoParams(c) : {});
   }
   revalidatePath('/admin', 'layout');
   back(fd, a.op === 'role' ? 'roleChanged' : a.op);
@@ -109,6 +112,7 @@ export async function bulkMembers(fd: FormData): Promise<void> {
     toTeam.push(rec.id);
   }
   const r = team && toTeam.length ? await addToTeam(supabase, team, toTeam) : { added: 0, already: 0, failed: 0 };
-  revalidatePath('/admin', 'layout');
-  back(fd, 'bulk', { a: approved, t: r.added, s: skipped + r.failed, ...(r.already ? { already: r.already } : {}) });
+  const c = team && toTeam.length ? await autoContracts(supabase, team, toTeam) : { sent: 0, drafts: 0, existing: 0 };
+  revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout');
+  back(fd, 'bulk', { a: approved, t: r.added, s: skipped + r.failed, ...(r.already ? { already: r.already } : {}), ...autoParams(c) });
 }

@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { createContract, saveTemplate } from '@/app/actions/contracts';
+import { createContract, saveContractSettings, saveTemplate } from '@/app/actions/contracts';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_STATUSES, STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
+import { CONTRACT_DEFAULTS, CONTRACT_STATUSES, STATUS_BADGE, loadContractSettings, shownStatus, type ContractStatus } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -21,6 +21,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
   await requireArea('admin');
   const sp = await searchParams;
   const [t, fmt, supabase] = await Promise.all([getTranslations('contract'), dateFormats(), getSupabase()]);
+  const settings = supabase ? await loadContractSettings(supabase) : CONTRACT_DEFAULTS;
   const status = CONTRACT_STATUSES.find((s) => s === sp.status);
   const today = helsinkiToday();
 
@@ -126,6 +127,30 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
             <span className="text-xs font-normal text-muted">{t('endsOnHint')}</span></label>
           <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{t('createDraft')}</button>
         </form>
+      </section>
+
+      {/* 0037: automatic contracts when a player joins a team, and the fee lines of every contract */}
+      <section className="rounded-card border-2 border-accent bg-raised p-6" aria-labelledby="auto-h" data-auto-contracts>
+        <h2 id="auto-h" className="scroll-mt-4 font-display text-xl font-extrabold">{t('autoTitle')}</h2>
+        <p className="mt-1 text-sm text-muted">{t('autoLead')}</p>
+        <form action={saveContractSettings} className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="grid gap-1 text-sm font-semibold">{t('autoMode')}
+            <select name="auto" defaultValue={settings.auto} className={input}>
+              <option value="send">{t('autoMode_send')}</option><option value="draft">{t('autoMode_draft')}</option><option value="off">{t('autoMode_off')}</option>
+            </select></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('autoYears')}
+            <select name="years" defaultValue={String(settings.years)} className={input}>{[1, 2, 3].map((y) => <option key={y} value={y}>{t('yearsN', { count: y })}</option>)}</select></label>
+          <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('autoClubFees')}
+            <input name="club_fees" maxLength={300} defaultValue={settings.club_fees} placeholder={t('autoClubFeesEg')} className={input} lang="en" dir="ltr" /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('autoMaxFee')}
+            <input name="max_fee_per_year" maxLength={40} defaultValue={settings.max_fee_per_year} placeholder="150" className={input} inputMode="decimal" dir="ltr" /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('autoVolunteer')}
+            <input name="volunteer_amount" maxLength={40} defaultValue={settings.volunteer_amount} placeholder="50" className={input} inputMode="decimal" dir="ltr" /></label>
+          <p className="text-xs text-muted sm:col-span-2">{t('autoFieldsNote')}</p>
+          <button className="min-h-11 justify-self-start rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">{t('autoSave')}</button>
+        </form>
+        {!settings.club_fees || !settings.max_fee_per_year || !settings.volunteer_amount
+          ? <p className="mt-3 rounded-card bg-danger/10 p-3 text-sm font-semibold text-danger" data-auto-incomplete>{t('autoIncomplete')}</p> : null}
       </section>
 
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="tpl-h">
