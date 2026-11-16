@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – lineup style first on phones (branch `phase2/board-mobile-order`)
+- Coach match page, lineup board: on phones and tablets the lineup style panel (style, formation, description) now comes before the starting XI pitch, then the players. Wide screens keep the pitch on the left with the style panel and players on the right. The order is the same for keyboard and screen-reader users. No database changes.
+
 ## Unreleased – create an account, by email or phone, with a football robot check, release 0.23.0 (branch `phase2/signup`)
 - **Create account** on the sign-in page, which opens the new `/signup` page: first and last name, email and password (confirmation link by email), or a **phone number** with a 6-digit code by text message. Google and Facebook remain below. New accounts wait for the club's approval, as before.
 - **Sign in with a phone number** (`/login/phone`) for members whose account uses a phone number. Answers never reveal whether a number or email already has an account.

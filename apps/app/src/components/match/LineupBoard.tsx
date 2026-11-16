@@ -260,9 +260,50 @@ export function LineupBoard({ matchId, back, team, opponent, whenLabel, locked, 
 
   return (
     <div className="grid gap-5" data-board>
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,30rem)_minmax(0,1fr)]">
+        {/* ===== style (first on phones; right column on wide screens) ===== */}
+        <div className="rounded-[22px] p-5 text-white lg:col-start-2 lg:row-start-1 shadow-[0_12px_30px_rgba(10,26,8,.25)]" style={{ background: 'radial-gradient(120% 90% at 100% 0, #1f5a17 0, #0b0f0a 58%)' }} data-style-panel={plan.style}>
+          <div className="grid gap-3">
+            <label className="grid gap-1 text-xs font-bold uppercase tracking-widest text-white/70">{t('style')}
+              <select name="style_pick" value={plan.style} disabled={locked} onChange={(e) => chooseStyle(e.target.value as Style)} className="min-h-11 w-full min-w-0 rounded-full border-0 bg-white px-4 text-base font-bold normal-case tracking-normal text-ink-950">
+                {STYLES.map((s) => <option key={s} value={s}>{t(`style_${s}`)}</option>)}
+              </select></label>
+            <label className="grid gap-1 text-xs font-bold uppercase tracking-widest text-white/70">{t('formationFormat')}
+              <select name="formation_pick" value={formation} disabled={locked} onChange={(e) => reshape(e.target.value)} className="min-h-11 w-full min-w-0 rounded-full border-0 bg-white px-4 text-base font-bold normal-case tracking-normal text-ink-950">
+                {FORMATS.map((f) => (
+                  <optgroup key={f} label={`${f} v ${f}`}>
+                    {formations.filter((x) => x.format === f).map((x) => <option key={x.code} value={x.code}>{x.code} · {(FORMATION_TAGS[x.code] ?? []).map((k) => t(`tag_${k}`)).join(' · ')}</option>)}
+                  </optgroup>
+                ))}
+              </select></label>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={t('format')}>
+            {FORMATS.map((f) => <button key={f} type="button" disabled={locked} onClick={() => chooseFormat(f)} aria-pressed={format === f} data-format={f}
+              className={`min-h-9 rounded-full px-3 text-xs font-bold ${format === f ? 'bg-accent text-white' : 'bg-white/10 text-white hover:bg-white/20'}`} dir="ltr">{f} v {f}</button>)}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="font-display text-4xl font-black tracking-tight" dir="ltr" data-shape>{formation}</span>
+            <span className="flex flex-wrap gap-1.5">{(FORMATION_TAGS[formation] ?? []).map((k) => <span key={k} className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold">{t(`tag_${k}`)}</span>)}</span>
+          </div>
+          <div className="mt-3 grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4">
+            <svg viewBox="0 0 100 100" className="w-[5.5rem] rounded-xl border border-white/20 bg-white/5" aria-hidden style={{ direction: "ltr" }}>
+              <rect x="4" y="3" width="92" height="94" rx="3" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="0.9" />
+              <line x1="4" y1="50" x2="96" y2="50" stroke="rgba(255,255,255,.35)" strokeWidth="0.9" />
+              {slots.map((s) => <circle key={s.slot} cx={s.x} cy={(8 + ((s.y - 16) * 86) / 76).toFixed(1)} r="4.4" fill={s.role === 'GK' ? '#3DAF2C' : '#fff'} />)}
+            </svg>
+            <div>
+              <p className="font-display text-lg font-extrabold">{styleLabel}</p>
+              <p className="mt-1 text-sm leading-relaxed text-white/85" data-style-desc>{t(`styleDesc_${plan.style}`)}</p>
+              <p className="mt-2 text-xs text-white/70">{t(`styleKeys_${plan.style}`)}</p>
+              <ul className="mt-3 flex flex-wrap gap-2 text-xs">
+                {(['DF', 'MF', 'FW'] as const).filter((r) => lines[r]).map((r) => <li key={r} className="rounded-full bg-white/10 px-3 py-1"><b className="me-1 text-base text-[#7fe06b]">{lines[r]}</b>{t(`line_${r}`)}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* ===== pitch ===== */}
-        <div className="grid content-start gap-3">
+        <div className="grid content-start gap-3 lg:col-start-1 lg:row-span-2 lg:row-start-1">
           <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <span className="font-semibold"><span data-count>{count}/{slots.length}</span> {t('startingXIshort')} · <span dir="ltr">{format} v {format}</span></span>
             {locked ? null : <span className="flex flex-wrap gap-2">
@@ -337,49 +378,8 @@ export function LineupBoard({ matchId, back, team, opponent, whenLabel, locked, 
           ) : null}
         </div>
 
-        {/* ===== side: style, instructions, availability, players ===== */}
-        <aside className="grid content-start gap-4">
-          <div className="rounded-[22px] p-5 text-white shadow-[0_12px_30px_rgba(10,26,8,.25)]" style={{ background: 'radial-gradient(120% 90% at 100% 0, #1f5a17 0, #0b0f0a 58%)' }} data-style-panel={plan.style}>
-            <div className="grid gap-3">
-              <label className="grid gap-1 text-xs font-bold uppercase tracking-widest text-white/70">{t('style')}
-                <select name="style_pick" value={plan.style} disabled={locked} onChange={(e) => chooseStyle(e.target.value as Style)} className="min-h-11 w-full min-w-0 rounded-full border-0 bg-white px-4 text-base font-bold normal-case tracking-normal text-ink-950">
-                  {STYLES.map((s) => <option key={s} value={s}>{t(`style_${s}`)}</option>)}
-                </select></label>
-              <label className="grid gap-1 text-xs font-bold uppercase tracking-widest text-white/70">{t('formationFormat')}
-                <select name="formation_pick" value={formation} disabled={locked} onChange={(e) => reshape(e.target.value)} className="min-h-11 w-full min-w-0 rounded-full border-0 bg-white px-4 text-base font-bold normal-case tracking-normal text-ink-950">
-                  {FORMATS.map((f) => (
-                    <optgroup key={f} label={`${f} v ${f}`}>
-                      {formations.filter((x) => x.format === f).map((x) => <option key={x.code} value={x.code}>{x.code} · {(FORMATION_TAGS[x.code] ?? []).map((k) => t(`tag_${k}`)).join(' · ')}</option>)}
-                    </optgroup>
-                  ))}
-                </select></label>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={t('format')}>
-              {FORMATS.map((f) => <button key={f} type="button" disabled={locked} onClick={() => chooseFormat(f)} aria-pressed={format === f} data-format={f}
-                className={`min-h-9 rounded-full px-3 text-xs font-bold ${format === f ? 'bg-accent text-white' : 'bg-white/10 text-white hover:bg-white/20'}`} dir="ltr">{f} v {f}</button>)}
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <span className="font-display text-4xl font-black tracking-tight" dir="ltr" data-shape>{formation}</span>
-              <span className="flex flex-wrap gap-1.5">{(FORMATION_TAGS[formation] ?? []).map((k) => <span key={k} className="rounded-full bg-accent px-2.5 py-1 text-xs font-bold">{t(`tag_${k}`)}</span>)}</span>
-            </div>
-            <div className="mt-3 grid grid-cols-[5.5rem_minmax(0,1fr)] gap-4">
-              <svg viewBox="0 0 100 100" className="w-[5.5rem] rounded-xl border border-white/20 bg-white/5" aria-hidden style={{ direction: "ltr" }}>
-                <rect x="4" y="3" width="92" height="94" rx="3" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="0.9" />
-                <line x1="4" y1="50" x2="96" y2="50" stroke="rgba(255,255,255,.35)" strokeWidth="0.9" />
-                {slots.map((s) => <circle key={s.slot} cx={s.x} cy={(8 + ((s.y - 16) * 86) / 76).toFixed(1)} r="4.4" fill={s.role === 'GK' ? '#3DAF2C' : '#fff'} />)}
-              </svg>
-              <div>
-                <p className="font-display text-lg font-extrabold">{styleLabel}</p>
-                <p className="mt-1 text-sm leading-relaxed text-white/85" data-style-desc>{t(`styleDesc_${plan.style}`)}</p>
-                <p className="mt-2 text-xs text-white/70">{t(`styleKeys_${plan.style}`)}</p>
-                <ul className="mt-3 flex flex-wrap gap-2 text-xs">
-                  {(['DF', 'MF', 'FW'] as const).filter((r) => lines[r]).map((r) => <li key={r} className="rounded-full bg-white/10 px-3 py-1"><b className="me-1 text-base text-[#7fe06b]">{lines[r]}</b>{t(`line_${r}`)}</li>)}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-
+        {/* ===== side: availability, players ===== */}
+        <aside className="grid content-start gap-4 lg:col-start-2 lg:row-start-2">
           <div data-drop="pool" className={`grid gap-2 rounded-card border border-line bg-raised p-4 ${zone('pool')}`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-display text-lg font-extrabold">{t('available')} <span className="text-sm font-semibold text-muted">({pool.length})</span></h3>
