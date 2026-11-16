@@ -44,7 +44,7 @@ export default async function ConductPage({ searchParams }: { searchParams: Prom
             <input type="hidden" name="version_id" value={version.id} />
             <label className="flex items-start gap-3 text-base">
               <input type="checkbox" name="agree" required className="mt-1 size-6 shrink-0 accent-[rgb(var(--accent))]" />
-              <span>{t('checkbox', { name: `${member.firstName} ${member.lastName}`.trim() || member.email })}</span>
+              <span>{t('checkbox', { name: `${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || '' })}</span>
             </label>
             <button className="min-h-12 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:justify-self-start">{t('agreeButton')}</button>
             <p className="text-xs text-muted">{t('recordNote')}</p>

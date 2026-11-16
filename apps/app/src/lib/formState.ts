@@ -3,7 +3,8 @@ export type AuthState =
   | { status: 'idle' }
   | { status: 'error'; error: string; email?: string }
   | { status: 'ok'; message: string }
-  | { status: 'blocked'; email?: string };
+  | { status: 'blocked'; email?: string }
+  | { status: 'code'; phone: string; message?: string };
 /** The email typed by the user, so React's form reset after an action does not make them type it again. */
 export const typedEmail = (s: AuthState): string | undefined => ('email' in s ? s.email : undefined);
 export const IDLE: AuthState = { status: 'idle' };

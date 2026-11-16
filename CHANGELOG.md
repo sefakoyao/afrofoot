@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – create an account, by email or phone, with a football robot check, release 0.23.0 (branch `phase2/signup`)
+- **Create account** on the sign-in page, which opens the new `/signup` page: first and last name, email and password (confirmation link by email), or a **phone number** with a 6-digit code by text message. Google and Facebook remain below. New accounts wait for the club's approval, as before.
+- **Sign in with a phone number** (`/login/phone`) for members whose account uses a phone number. Answers never reveal whether a number or email already has an account.
+- **Football robot check** on both sign-up forms: "Tap the whistle" among six football pictures (ball, boot, whistle, goal, cone, shirt, trophy, corner flag, goalkeeper glove) in a random order.
+  - The challenge is signed with `SIGNUP_CHECK_SECRET` and checked on the server, with a time window.
+  - A hidden honeypot field catches form-filling robots.
+  - Keyboard and screen-reader friendly (radio buttons), translated.
+- "I have read the privacy policy" is required to create an account.
+- Phone and email tabs appear only when Phone is switched on in Supabase.
+- Admin → Members finds phone accounts by number and marks them. My account shows the sign-in phone when there is no email.
+- **Migration 0035 (run once in the SQL Editor):** `profiles.email` is optional, but every profile needs an email or a phone. New accounts take their phone (with country code) from Supabase Auth. 10 new database tests.
+- Setup: RUNNING §3k (`SIGNUP_CHECK_SECRET` on Vercel; optional SMS provider in Supabase).
+
 ## Unreleased – events, meeting times, website calendar, release 0.22.0 (branch `phase2/events`)
 - **Meeting time and place everywhere:** training, games/friendlies and the new events take an optional meeting time (same day, at most 6 hours before) and meeting point.
 - **Places:** choose a saved place or add a new one in the form (name, address, city, Google Maps link). "Find it on Google Maps" searches for what was typed; without a pasted link, a Google Maps link is made from the address. Players get the link in their calendar.

@@ -16,3 +16,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/60_match_day.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/70_lineup_board.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/80_social_sign_in.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/90_events.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/95_phone_sign_up.sql

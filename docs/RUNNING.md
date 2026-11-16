@@ -129,6 +129,24 @@ Every form has an optional meeting time and meeting point and a place. A new pla
 
 **Website:** the new **Calendar** page (`/calendar`) and the home page refresh from the database at most once a minute, so whatever is marked "Show on the club website" appears there without a deploy. Only public teams are shown, and visitors never see meeting points, replies or player details.
 
+## 3k. Create an account in the app, by email or phone (migration 0035, release 0.23.0)
+**Database:** paste `supabase/migrations/20260101000035_phone_sign_up.sql` into Supabase → SQL Editor and run it once. Accounts made with a phone number have no email address; every profile still has an email or a phone.
+
+**Robot check secret (required):** in Vercel → the `app` project → Settings → Environment Variables, add `SIGNUP_CHECK_SECRET` with a long random value (for example the output of `openssl rand -base64 32`), then redeploy. It signs the football robot check. Until it is set, the sign-up page says sign-up is not open yet.
+
+**Email sign-up:** works with the email settings you already have. Recommended: Authentication → Email templates → *Confirm signup*, set the link to
+`{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`
+so the link works on any device. (The default template only works in the browser that made the account.)
+
+**Phone sign-up and sign-in (optional; costs money per text message):**
+1. Supabase → Authentication → Sign In / Providers → **Phone**: switch it on and choose an SMS provider (Twilio, MessageBird, Vonage or Textlocal). Paste that provider's keys there; they stay in Supabase.
+2. Authentication → Rate limits: keep the SMS limit low (for example 30 per hour) to cap the cost.
+3. The "Phone number" tab on the sign-up page and "Sign in with a phone number" on the sign-in page appear by themselves within 5 minutes.
+
+**Who gets in:** every new account is a pending player, as before. Approve it under Admin → Members, where phone accounts are marked "phone sign-in" and can be found by number. Members with a phone account sign in with a code by text message.
+
+**About robots:** the football check, a hidden honeypot field and a time check protect the app's forms. Supabase's own sign-up address can still be called directly with the public key, but such accounts stay pending and can do nothing. To also protect text-message costs at that level, Supabase's built-in CAPTCHA (Cloudflare Turnstile) can be added later. Do not switch it on in Supabase before the app shows the widget, or sign-up stops working.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

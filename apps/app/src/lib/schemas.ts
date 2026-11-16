@@ -50,3 +50,23 @@ export const playerProfileSchema = z.object({
   emergency_relation: optionalText(60, 'e_emergency'),
   emergency_phone: intlPhone('e_emergencyPhone'),
 }).refine((v) => !v.emergency_phone || !!v.emergency_name, { message: 'e_emergency', path: ['emergency_name'] });
+
+/** International phone number for sign-in by text message: country code required (+358 …), spaces and dashes ignored. */
+export const signInPhone = z.string().trim().transform((v) => v.replace(/[ ()-]/g, '')).refine((v) => /^\+[1-9][0-9]{6,14}$/.test(v), 'invalidPhone');
+const personName = (key: string) => z.string().trim().min(1, key).max(80, key);
+
+/** Create an account with email and password (profiles: names up to 80 characters). */
+export const signUpSchema = z.object({
+  first_name: personName('nameRequired'), last_name: personName('nameRequired'),
+  email, password: newPassword, confirm: z.string(),
+  privacy: z.literal('on', { message: 'privacyRequired' }),
+}).refine((v) => v.password === v.confirm, { message: 'passwordMismatch', path: ['confirm'] });
+
+/** Create an account with a phone number (names, privacy notice read). */
+export const phoneSignUpSchema = z.object({
+  first_name: personName('nameRequired'), last_name: personName('nameRequired'),
+  phone: signInPhone, privacy: z.literal('on', { message: 'privacyRequired' }),
+});
+
+/** The 6-digit code from the text message. */
+export const smsCode = z.string().trim().regex(/^\d{6}$/, 'codeInvalid');

@@ -21,7 +21,7 @@ export const getMember = cache(async (): Promise<Member | null> => {
     console.error('[auth] profile not readable', { userId: user.id, code: error?.code, message: error?.message, hint: error?.hint, found: !!data });
     return null;
   }
-  return { id: data.id, email: data.email, firstName: data.first_name, lastName: data.last_name, role: data.role, status: data.status, locale: data.locale, phone: data.phone ?? null };
+  return { id: data.id, email: data.email ?? '', firstName: data.first_name, lastName: data.last_name, role: data.role, status: data.status, locale: data.locale, phone: data.phone ?? null };
 });
 
 export const homeFor = (role: Role): string => HOME_BY_ROLE[role];

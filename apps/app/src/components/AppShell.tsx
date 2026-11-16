@@ -18,7 +18,7 @@ export interface NavItem { href: string; label: string; badge?: number }
 /** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out; optional area navigation; faint pitch lines behind the page. */
 export async function AppShell({ area, member, nav, children }: { area: Area; member: Member; nav?: NavItem[]; children: ReactNode }) {
   const [t, tn, tr] = await Promise.all([getTranslations('app'), getTranslations('nav'), getTranslations('role')]);
-  const name = `${member.firstName} ${member.lastName}`.trim() || member.email;
+  const name = `${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || '';
   return (
     <div data-surface={SURFACE[area]} className="relative isolate flex min-h-screen flex-col">
       <PitchWatermark />
