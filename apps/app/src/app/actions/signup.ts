@@ -50,12 +50,19 @@ function robot(fd: FormData): 'pass' | 'silent' | string {
   return r === 'expired' ? 'robotExpired' : r === 'invalid' && !fd.get('robot_answer') ? 'robotMissing' : 'robotWrong';
 }
 
+/** Phone numbers can appear in provider messages ("The 'To' number +358… is not valid"): never write them to the logs. */
+const redact = (m: string | undefined) => (m ?? '').replace(/\+\d[\d ()-]{5,}\d|\b\d{9,}\b/g, '[number]').slice(0, 300);
+
+/**
+ * Maps a Supabase Auth error to a message key, and always writes Supabase's own code and message to the server log
+ * (Vercel → Logs), so a refusal such as an SMS provider set up wrongly can be traced without reproducing it.
+ */
 function authFailure(e: AuthError, where: string): string {
+  console.error(`[signup] ${where}`, { status: e.status, code: e.code, message: redact(e.message), ...supabaseTarget() });
   if (e.status === 429 || e.code?.startsWith('over_')) return 'tooManyAttempts';
   if (e.code === 'weak_password') return 'passwordTooShort';
   if (e.code === 'phone_provider_disabled' || e.code === 'sms_send_failed') return 'smsUnavailable';
   if (e.code === 'signup_disabled') return 'signUpClosed';
-  console.error(`[signup] ${where}`, { status: e.status, code: e.code, message: e.message, ...supabaseTarget() });
   return 'signUpUnavailable';
 }
 

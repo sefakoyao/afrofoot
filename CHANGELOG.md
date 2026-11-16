@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sign-up errors in the server log (branch `phase2/signup-logging`)
+- When Supabase refuses a sign-up or a text-message code (for example an SMS provider set up wrongly), the app writes Supabase's own error code and message to the server log (Vercel → Logs → `[signup]`). Phone numbers in provider messages are replaced by "[number]". What members see is unchanged.
+
 ## Unreleased – approve into a group, bulk actions, player picker (branch `phase2/bulk-roster`)
 - **Admin → Members:**
   - **Waiting for approval** panel at the top. Each new account has a **Group** choice: the current season's teams, grouped Men / Women / Junior (Other for the rest). Approving puts the player straight into that team, creating the player record from the account name.
