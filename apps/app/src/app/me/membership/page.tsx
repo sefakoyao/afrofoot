@@ -105,7 +105,7 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
           </div>
           <p className="mt-3">{conduct.agreedAt ? tc('agreedOn', { date: fmt.dateTime.format(new Date(conduct.agreedAt)) }) : tc('missingText')}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/me/conduct" className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${conduct.agreedAt ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`}>{conduct.agreedAt ? tc('read') : tc('readAndAgree')}</Link>
+            <Link href={conduct.agreedAt ? '/me/conduct' : '/me/conduct#players'} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${conduct.agreedAt ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`}>{conduct.agreedAt ? tc('read') : tc('readAndAgree')}</Link>
             {conduct.version.pdfPath ? <a href={conduct.version.pdfPath} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 font-semibold hover:border-accent">{tc('downloadPdf')}</a> : null}
           </div>
         </section>

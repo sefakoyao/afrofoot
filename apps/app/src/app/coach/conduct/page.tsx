@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { agreeToConductCoach } from '@/app/actions/conduct';
-import { ConductText } from '@/components/ConductText';
+import { ConductContents, ConductText } from '@/components/ConductText';
 import { requireArea } from '@/lib/auth';
 import { loadConductStatus } from '@/lib/conduct';
 import { dateFormats } from '@/lib/format';
@@ -29,6 +29,7 @@ export default async function CoachConductPage({ searchParams }: { searchParams:
         {version.label ? <p className="text-sm text-muted">{version.label}</p> : null}
         <p className="mt-3 rounded-card bg-surface p-3 text-sm">{t('coachIntro')}
           {version.pdfPath ? <> <a href={version.pdfPath} target="_blank" rel="noopener" className="font-semibold text-pitch underline">{t('downloadPdf')}</a></> : null}</p>
+        <ConductContents body={version.body} mine="coaches" labels={{ title: t('contents'), mine: t('jump_coaches'), agree: agreedAt ? t('jumpAgreed') : t('jumpAgree') }} />
         <div className="mt-4"><ConductText body={version.body} /></div>
       </article>
       <section className="rounded-card border-2 border-accent bg-raised p-6" aria-labelledby="agree-h" id="agree">

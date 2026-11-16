@@ -36,7 +36,8 @@ create temp table inv_count (n int);
 -- ---------- billing details required ----------
 select t.check('billing setting exists, empty IBAN, public', (select value->>'iban' = '' and is_public from site_settings where key = 'billing'));
 select t.check('no IBAN: nothing issued', app.generate_due_invoices('2026-01-01') = 0);
-update site_settings set value = value || '{"iban":"FI00 1234 5600 0007 85","bic":"TESTFIHH","legal_name":"Test ry","payment_terms_days":14,"lead_days":14}' where key = 'billing';
+-- (the 0036 rule "contract signed and Code of Conduct agreed first" is off here; it is tested in 96_invoice_consents.sql)
+update site_settings set value = value || '{"iban":"FI00 1234 5600 0007 85","bic":"TESTFIHH","legal_name":"Test ry","payment_terms_days":14,"lead_days":14,"require_consents":false}' where key = 'billing';
 
 -- ---------- generation ----------
 insert into inv_count select app.generate_due_invoices('2026-01-01');

@@ -1577,7 +1577,16 @@
     "pageOf": "Page {page} of {pages}",
     "prev": "Previous",
     "next": "Next",
-    "invoicesLink": "Invoices"
+    "invoicesLink": "Invoices",
+    "b_require_consents": "Invoice a player only after the contract is signed and the Code of Conduct agreed",
+    "b_require_consents_hint": "The membership waits; it is invoiced on the first run after the player has done both, so no period is lost. A contract signed by the player counts, even before the club countersigns.",
+    "holdRule": "Players are invoiced once they have signed their contract and agreed to the Code of Conduct.",
+    "holdsTitle": "Waiting before invoicing ({count})",
+    "holdsLead": "Their membership invoice is due but waits for:",
+    "holdDue": "due {date}",
+    "holdMissing_conduct": "Code of Conduct not agreed",
+    "holdMissing_contract": "No signed contract",
+    "holdOpenContracts": "Contracts"
   },
   "conduct": {
     "title": "Code of Conduct",
@@ -1606,7 +1615,12 @@
     "overviewAll": "All active players have agreed to the current version.",
     "overviewCta": "See who",
     "coachBanner": "Please read and agree to the club's Code of Conduct (section V is for coaches).",
-    "coachIntro": "The official text is in English. Section V is the code for coaches, team managers and club officials."
+    "coachIntro": "The official text is in English. Section V is the code for coaches, team managers and club officials.",
+    "contents": "All sections",
+    "jump_players": "Go to the players’ section",
+    "jump_coaches": "Go to the coaches’ section",
+    "jumpAgree": "Go to “I agree”",
+    "jumpAgreed": "Your agreement"
   },
   "contract": {
     "adminTitle": "Player contracts",

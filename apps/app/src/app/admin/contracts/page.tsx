@@ -26,6 +26,9 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
 
   let q = supabase?.from('player_contracts').select('id, title, status, starts_on, ends_on, years, players!inner(first_name, last_name)').order('created_at', { ascending: false }).limit(200);
   if (q && status) q = q.eq('status', status);
+  // ?player=<id>: one player's contracts (link from Admin → Invoices, "waiting before invoicing")
+  const player = typeof sp.player === 'string' && /^[0-9a-f-]{36}$/.test(sp.player) ? sp.player : '';
+  if (q && player) q = q.eq('player_id', player);
   const [{ data: rows }, { data: all }, { data: players }, { data: teams }, { data: tpl }] = supabase ? await Promise.all([
     q!, supabase.from('player_contracts').select('status'),
     supabase.from('players').select('id, first_name, last_name, profile_id').not('profile_id', 'is', null).order('last_name'),
@@ -96,7 +99,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
         <p className="mt-1 text-sm text-muted">{t('newLead')}</p>
         <form action={createContract} className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="grid gap-1 text-sm font-semibold">{t('player')}
-            <select name="player_id" required defaultValue="" className={input}>
+            <select name="player_id" required defaultValue={player} className={input}>
               <option value="" disabled>{t('choose')}</option>
               {(players ?? []).map((p) => <option key={p.id} value={p.id}>{p.last_name} {p.first_name}</option>)}
             </select>

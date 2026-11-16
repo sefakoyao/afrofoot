@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { agreeToConduct } from '@/app/actions/conduct';
-import { ConductText } from '@/components/ConductText';
+import { ConductContents, ConductText } from '@/components/ConductText';
 import { requireArea } from '@/lib/auth';
 import { loadConductStatus } from '@/lib/conduct';
 import { dateFormats } from '@/lib/format';
@@ -31,6 +31,7 @@ export default async function ConductPage({ searchParams }: { searchParams: Prom
         {version.label ? <p className="text-sm text-muted">{version.label}</p> : null}
         <p className="mt-3 rounded-card bg-surface p-3 text-sm">{t('englishNote')}
           {version.pdfPath ? <> <a href={version.pdfPath} target="_blank" rel="noopener" className="font-semibold text-pitch underline">{t('downloadPdf')}</a></> : null}</p>
+        <ConductContents body={version.body} mine="players" labels={{ title: t('contents'), mine: t('jump_players'), agree: agreedAt ? t('jumpAgreed') : t('jumpAgree') }} />
         <div className="mt-4"><ConductText body={version.body} /></div>
       </article>
 
