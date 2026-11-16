@@ -67,50 +67,20 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
   const conduct = supabase ? await loadConductStatus(supabase, member.id) : null;
   const contracts = supabase ? await myContracts(supabase) : [];
   const dd = (iso: string) => fmt.date.format(day(iso));
+  // the player's current team(s) and their season goals; before migration 0037 there is no objectives column
+  const { data: me } = supabase ? await supabase.from('players').select('id').eq('profile_id', member.id).maybeSingle() : { data: null };
+  type TeamRow = { team_seasons: { id: string; division: string | null; objectives?: string | null; teams: { name: string }; seasons: { name: string; is_current: boolean } } };
+  const teamQuery = (cols: string) => supabase!.from('team_players').select(`team_seasons!inner(${cols}, teams!inner(name), seasons!inner(name, is_current))`)
+    .eq('player_id', me!.id).is('left_on', null).eq('team_seasons.seasons.is_current', true);
+  const teamsFirst = supabase && me ? await teamQuery('id, division, objectives') : null;
+  const teamRows = teamsFirst?.error && supabase && me ? (await teamQuery('id, division')).data : teamsFirst?.data;
+  const myTeams = ((teamRows ?? []) as unknown as TeamRow[]).map((r) => ({ id: r.team_seasons.id, name: r.team_seasons.teams.name, division: r.team_seasons.division,
+    season: r.team_seasons.seasons.name, objectives: r.team_seasons.objectives ?? null }));
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       {agreed ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{tc('thanks')}</p> : null}
       <ResultBanner ns="contract" result={sp.result} />
-      {contracts.length ? (
-        <section id="contract" aria-labelledby="ct-h" className={`rounded-card border-2 p-6 ${contracts.some((c) => c.status === 'sent') ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`}>
-          <h2 id="ct-h" className="font-display text-xl font-extrabold">{tk('myContract')}</h2>
-          <ul className="mt-3 grid gap-3">
-            {contracts.map((c) => {
-              const st = shownStatus(c, today);
-              return (
-                <li key={c.id} data-my-contract={st} className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-surface p-4">
-                  <div>
-                    <p className="font-semibold">{c.title} <span className={`ms-1 rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[st]}`}>{tk(`st_${st}`)}</span></p>
-                    <p className="text-sm text-muted">{dd(c.starts_on)} – {dd(c.ends_on)} · {tk('yearsN', { count: c.years })}</p>
-                    {c.status === 'sent' ? <p className="mt-1 text-sm font-semibold">{tk('toSign')}</p> : c.status === 'player_signed' ? <p className="mt-1 text-sm">{tk('waitingClub')}</p> : null}
-                  </div>
-                  <Link href={`/me/contract/${c.id}${c.status === 'sent' ? '#sign' : ''}`} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${c.status === 'sent' ? 'bg-accent text-on-accent hover:brightness-110' : 'border-2 border-fg hover:bg-fg hover:text-raised'}`}>
-                    {c.status === 'sent' ? tk('readAndSign') : tk('open')}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ) : null}
-      {conduct?.version ? (
-        <section id="conduct" aria-labelledby="coc-h" className={`rounded-card border-2 p-6 ${conduct.agreedAt ? 'border-line bg-raised' : 'border-danger/40 bg-danger/5'}`} data-conduct={conduct.agreedAt ? 'agreed' : 'missing'}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 id="coc-h" className="font-display text-xl font-extrabold">{tc('title')}</h2>
-              <p className="text-sm text-muted">{conduct.version.title}{conduct.version.label ? ` · ${conduct.version.label}` : ''}</p>
-            </div>
-            <span className={`rounded-full px-3 py-1 text-sm font-bold ${conduct.agreedAt ? 'bg-accent/20 text-pitch' : 'bg-danger text-white'}`}>{conduct.agreedAt ? tc('agreedBadge') : tc('missingBadge')}</span>
-          </div>
-          <p className="mt-3">{conduct.agreedAt ? tc('agreedOn', { date: fmt.dateTime.format(new Date(conduct.agreedAt)) }) : tc('missingText')}</p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link href={conduct.agreedAt ? '/me/conduct' : '/me/conduct#players'} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${conduct.agreedAt ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`}>{conduct.agreedAt ? tc('read') : tc('readAndAgree')}</Link>
-            {conduct.version.pdfPath ? <a href={conduct.version.pdfPath} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 font-semibold hover:border-accent">{tc('downloadPdf')}</a> : null}
-          </div>
-        </section>
-      ) : null}
-
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="pay-h">
         <h2 id="pay-h" className="font-display text-xl font-extrabold">{t('paymentsTitle')}</h2>
         <dl className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -211,6 +181,69 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
           </div>
         )}
       </section>
+
+      {/* 2. the season goals of the player's team(s), written by the club on the team page (migration 0037) */}
+      {myTeams.length ? (
+        <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="goals-h" id="team-goals" data-team-goals>
+          <h2 id="goals-h" className="font-display text-xl font-extrabold">{t('teamGoalsTitle')}</h2>
+          <ul className="mt-3 grid gap-3">
+            {myTeams.map((x) => (
+              <li key={x.id} className="rounded-card bg-surface p-4" data-team-goal={x.name}>
+                <p className="font-display font-extrabold"><bdi>{x.name}</bdi>{x.division ? <span className="ms-2 text-sm font-normal text-muted">{x.division}</span> : null}
+                  <span className="ms-2 text-sm font-normal text-muted">{x.season}</span></p>
+                {x.objectives ? <p className="mt-1 whitespace-pre-line" lang="en" dir="ltr" style={{ textAlign: 'start' }}>{x.objectives}</p>
+                  : <p className="mt-1 text-sm text-muted">{t('teamGoalsNone')}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {/* 3. signed documents: the player contract and the Code of Conduct */}
+      {contracts.length || conduct?.version ? (
+        <section className="grid gap-4" aria-labelledby="docs-h" id="documents" data-documents>
+          <h2 id="docs-h" className="font-display text-xl font-extrabold">{t('documentsTitle')}</h2>
+      {contracts.length ? (
+        <section id="contract" aria-labelledby="ct-h" className={`rounded-card border-2 p-6 ${contracts.some((c) => c.status === 'sent') ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`}>
+          <h3 id="ct-h" className="font-display text-xl font-extrabold">{tk('myContract')}</h3>
+          <ul className="mt-3 grid gap-3">
+            {contracts.map((c) => {
+              const st = shownStatus(c, today);
+              return (
+                <li key={c.id} data-my-contract={st} className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-surface p-4">
+                  <div>
+                    <p className="font-semibold">{c.title} <span className={`ms-1 rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[st]}`}>{tk(`st_${st}`)}</span></p>
+                    <p className="text-sm text-muted">{dd(c.starts_on)} – {dd(c.ends_on)} · {tk('yearsN', { count: c.years })}</p>
+                    {c.status === 'sent' ? <p className="mt-1 text-sm font-semibold">{tk('toSign')}</p> : c.status === 'player_signed' ? <p className="mt-1 text-sm">{tk('waitingClub')}</p> : null}
+                  </div>
+                  <Link href={`/me/contract/${c.id}${c.status === 'sent' ? '#sign' : ''}`} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${c.status === 'sent' ? 'bg-accent text-on-accent hover:brightness-110' : 'border-2 border-fg hover:bg-fg hover:text-raised'}`}>
+                    {c.status === 'sent' ? tk('readAndSign') : tk('open')}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
+      {conduct?.version ? (
+        <section id="conduct" aria-labelledby="coc-h" className={`rounded-card border-2 p-6 ${conduct.agreedAt ? 'border-line bg-raised' : 'border-danger/40 bg-danger/5'}`} data-conduct={conduct.agreedAt ? 'agreed' : 'missing'}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 id="coc-h" className="font-display text-xl font-extrabold">{tc('title')}</h3>
+              <p className="text-sm text-muted">{conduct.version.title}{conduct.version.label ? ` · ${conduct.version.label}` : ''}</p>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-sm font-bold ${conduct.agreedAt ? 'bg-accent/20 text-pitch' : 'bg-danger text-white'}`}>{conduct.agreedAt ? tc('agreedBadge') : tc('missingBadge')}</span>
+          </div>
+          <p className="mt-3">{conduct.agreedAt ? tc('agreedOn', { date: fmt.dateTime.format(new Date(conduct.agreedAt)) }) : tc('missingText')}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href={conduct.agreedAt ? '/me/conduct' : '/me/conduct#players'} className={`inline-flex min-h-11 items-center rounded-full px-6 font-display font-bold ${conduct.agreedAt ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`}>{conduct.agreedAt ? tc('read') : tc('readAndAgree')}</Link>
+            {conduct.version.pdfPath ? <a href={conduct.version.pdfPath} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center rounded-full border border-line px-5 font-semibold hover:border-accent">{tc('downloadPdf')}</a> : null}
+          </div>
+        </section>
+      ) : null}
+
+        </section>
+      ) : null}
     </div>
   );
 }

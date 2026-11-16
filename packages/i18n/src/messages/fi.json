@@ -1275,7 +1275,10 @@
     "payContact": "Kysyttävää? Ota yhteyttä seuraan:",
     "payBackToLogin": "Takaisin kirjautumiseen",
     "copy": "Kopioi",
-    "copied": "Kopioitu"
+    "copied": "Kopioitu",
+    "teamGoalsTitle": "Joukkueen tavoitteet",
+    "teamGoalsNone": "Seura ei ole vielä kirjoittanut tämän kauden tavoitteita.",
+    "documentsTitle": "Allekirjoitetut asiakirjat"
   },
   "account": {
     "title": "Oma tili",

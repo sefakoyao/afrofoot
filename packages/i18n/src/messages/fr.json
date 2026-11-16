@@ -1275,7 +1275,10 @@
     "payContact": "Des questions ? Contactez le club :",
     "payBackToLogin": "Retour à la connexion",
     "copy": "Copier",
-    "copied": "Copié"
+    "copied": "Copié",
+    "teamGoalsTitle": "Objectifs de l'équipe",
+    "teamGoalsNone": "Le club n'a pas encore écrit les objectifs de cette saison.",
+    "documentsTitle": "Documents signés"
   },
   "account": {
     "title": "Mon compte",

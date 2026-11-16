@@ -1275,7 +1275,10 @@
     "payContact": "Questions? Contact the club:",
     "payBackToLogin": "Back to sign-in",
     "copy": "Copy",
-    "copied": "Copied"
+    "copied": "Copied",
+    "teamGoalsTitle": "Team's goals",
+    "teamGoalsNone": "The club has not written this season's goals yet.",
+    "documentsTitle": "Signed documents"
   },
   "account": {
     "title": "My account",

@@ -1275,7 +1275,10 @@
     "payContact": "أسئلة؟ تواصل مع النادي:",
     "payBackToLogin": "العودة إلى تسجيل الدخول",
     "copy": "نسخ",
-    "copied": "تم النسخ"
+    "copied": "تم النسخ",
+    "teamGoalsTitle": "أهداف الفريق",
+    "teamGoalsNone": "لم يكتب النادي أهداف هذا الموسم بعد.",
+    "documentsTitle": "المستندات الموقّعة"
   },
   "account": {
     "title": "حسابي",
