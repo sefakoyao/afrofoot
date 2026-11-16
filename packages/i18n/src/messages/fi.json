@@ -1438,7 +1438,10 @@
     "objectivesLead": "Tulostuu jokaiseen tämän joukkueen ja kauden pelaajasopimukseen. Kirjoita englanniksi kuten sopimukset.",
     "objectivesEg": "esim. The team plays in the Kolmonen (4th tier) in the 2027 season. The objective is to finish in the top three and develop young players.",
     "objectivesMissing": "Ei vielä kirjoitettu: tämän joukkueen sopimukset jäävät luonnoksiksi siihen asti.",
-    "r_objectivesSaved": "Kausi ja tavoitteet tallennettu."
+    "r_objectivesSaved": "Kausi ja tavoitteet tallennettu.",
+    "editTeam": "Nimeä uudelleen tai muokkaa joukkuetta",
+    "editTeamNote": "Uusi nimi näkyy heti kaikkialla: valmentajien valikoissa, kalentereissa, verkkosivuilla ja uusissa sopimuksissa. Jo lähetetyissä sopimuksissa säilyy niiden allekirjoitushetken nimi.",
+    "r_teamUpdated": "Joukkue tallennettu."
   },
   "coach": {
     "navHome": "Yleiskatsaus",
@@ -1518,7 +1521,8 @@
     "friendly": "Harjoitusottelu",
     "ms_played": "Pelattu",
     "ms_postponed": "Siirretty",
-    "ms_cancelled": "Peruttu"
+    "ms_cancelled": "Peruttu",
+    "navMyTeams": "Omat joukkueet"
   },
   "inv": {
     "title": "Laskut",

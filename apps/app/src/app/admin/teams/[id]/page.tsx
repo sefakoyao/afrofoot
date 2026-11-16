@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { addCoach, addPlayers, removeCoach, removePlayer, saveObjectives, updateRosterEntry } from '@/app/actions/teams';
+import { addCoach, addPlayers, removeCoach, removePlayer, saveObjectives, updateRosterEntry, updateTeam } from '@/app/actions/teams';
 import { PlayerPicker } from '@/components/admin/PlayerPicker';
 import { ContractsNote } from '@/components/admin/ContractsNote';
 import { ResultBanner } from '@/components/ResultBanner';
@@ -73,6 +73,20 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
       <header>
         <h1 className="font-display text-2xl font-extrabold">{team.name}</h1>
         <p className="mt-1 text-muted">{season.name} · {t(`cat_${team.category}` as 'cat_senior')}{ts.division ? ` · ${ts.division}` : ''}</p>
+        <details className="mt-3" data-edit-team>
+          <summary className="inline-flex min-h-10 cursor-pointer items-center rounded-full border border-line px-4 text-sm font-semibold hover:border-accent">{t('editTeam')}</summary>
+          <form action={updateTeam} className="mt-3 grid gap-3 rounded-card border border-line bg-raised p-4 sm:grid-cols-3 sm:items-end">
+            {hidden({})}
+            <label className="grid gap-1 text-sm font-semibold">{t('teamName')}<input name="name" required minLength={2} maxLength={80} defaultValue={team.name} className={`${input} min-h-10`} data-team-name /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('category')}
+              <select name="category" defaultValue={team.category} className={`${input} min-h-10`}>
+                {(['senior', 'women', 'junior', 'veterans', 'other'] as const).map((c) => <option key={c} value={c}>{t(`cat_${c}`)}</option>)}
+              </select></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('division')}<input name="division" maxLength={80} defaultValue={ts.division ?? ''} className={`${input} min-h-10`} /></label>
+            <p className="text-xs text-muted sm:col-span-3">{t('editTeamNote')}</p>
+            <button className="min-h-10 justify-self-start rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110">{t('save')}</button>
+          </form>
+        </details>
       </header>
       <ResultBanner ns="teams" result={sp.result} />
       <ContractsNote sp={sp} />

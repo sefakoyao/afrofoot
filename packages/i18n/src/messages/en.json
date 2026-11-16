@@ -1438,7 +1438,10 @@
     "objectivesLead": "Printed in every player contract for this team and season. Write it in English, like the contracts.",
     "objectivesEg": "e.g. The team plays in the Kolmonen (4th tier) in the 2027 season. The objective is to finish in the top three and develop young players.",
     "objectivesMissing": "Not written yet: contracts for this team stay drafts until it is.",
-    "r_objectivesSaved": "Season and objectives saved."
+    "r_objectivesSaved": "Season and objectives saved.",
+    "editTeam": "Rename or edit the team",
+    "editTeamNote": "The new name shows everywhere at once: coaches' menus, calendars, the website and new contracts. Contracts already sent keep the name they were signed with.",
+    "r_teamUpdated": "Team saved."
   },
   "coach": {
     "navHome": "Overview",
@@ -1518,7 +1521,8 @@
     "friendly": "Friendly",
     "ms_played": "Played",
     "ms_postponed": "Postponed",
-    "ms_cancelled": "Cancelled"
+    "ms_cancelled": "Cancelled",
+    "navMyTeams": "My teams"
   },
   "inv": {
     "title": "Invoices",

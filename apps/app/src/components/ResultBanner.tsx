@@ -6,7 +6,7 @@ import { getTranslations } from 'next-intl/server';
  */
 const KEYS = {
   teams: {
-    ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_playersAdded', 'r_objectivesSaved', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
+    ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_playersAdded', 'r_objectivesSaved', 'r_teamUpdated', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
     err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_noName', 'r_playersAddedSome', 'r_pickNone'],
   },
   inv: {

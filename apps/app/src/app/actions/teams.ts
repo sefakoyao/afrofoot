@@ -253,3 +253,34 @@ export async function saveObjectives(fd: FormData): Promise<void> {
   if (error) fail(fd, 'save objectives', error);
   done(fd, 'r_objectivesSaved');
 }
+
+const editTeamSchema = z.object({
+  team_season_id: uuid,
+  name: teamSchema.shape.name,
+  category: teamSchema.shape.category,
+  division: teamSchema.shape.division,
+});
+
+/**
+ * Rename a team, change its group (Men / Women / Junior …) and this season's division. The name belongs to the team, so it
+ * changes in every season; contracts already sent keep the name they were signed with. The slug follows the name.
+ */
+export async function updateTeam(fd: FormData): Promise<void> {
+  const p = editTeamSchema.safeParse(Object.fromEntries(['team_season_id', 'name', 'category', 'division'].map((k) => [k, fd.get(k) ?? ''])));
+  if (!p.success) back(fd, p.error.issues[0]?.message ?? 'r_invalid');
+  const supabase = await db(fd);
+  const { data: ts } = await supabase.from('team_seasons').select('team_id').eq('id', p.data.team_season_id).maybeSingle();
+  if (!ts) back(fd, 'r_invalid');
+  const { data: clash } = await supabase.from('teams').select('id').ilike('name', p.data.name).neq('id', ts.team_id).maybeSingle();
+  if (clash) back(fd, 'r_duplicate');
+  // a unique slug: the name's slug, or with a short suffix if another team already has it
+  let slug = slugify(p.data.name);
+  const { data: taken } = await supabase.from('teams').select('id').eq('slug', slug).neq('id', ts.team_id).maybeSingle();
+  if (taken) slug = `${slug.slice(0, 54)}-${ts.team_id.slice(0, 5)}`;
+  const { error } = await supabase.from('teams').update({ name: p.data.name, category: p.data.category, slug }).eq('id', ts.team_id);
+  if (error) fail(fd, 'update team', error);
+  const { error: e2 } = await supabase.from('team_seasons').update({ division: p.data.division }).eq('id', p.data.team_season_id);
+  if (e2) fail(fd, 'update division', e2);
+  revalidatePath('/coach', 'layout');
+  done(fd, 'r_teamUpdated');
+}

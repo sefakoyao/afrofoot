@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – rename teams, coach menu "My teams" (branch `phase2/team-rename-coach-menu`)
+- **Admin → Teams → a team → "Rename or edit the team":** change the name, group (Men / Women / Junior / …) and this season's division.
+  - The new name shows everywhere at once (coach menus, calendars, website, new contracts). Contracts already sent keep the name they were signed with.
+  - A name another team has is refused. The team's internal slug follows the name.
+- **Coach menu:** Overview, then **My teams** with the coach's teams under it (Afro Foot Club and any others), then Code of Conduct. On computers the teams are a labelled section of the sidebar; on phones a labelled group in the scrolling row. The group is announced to screen readers.
+- Menus can now group entries (`NavItem.group`). No database changes.
+
 ## Unreleased – amateur player agreement, release 0.26.0 (branch `phase2/amateur-contract`)
 - **New default contract template "Player agreement (amateur)":**
   - Players are not paid; they contribute to the team's costs with the membership fee.
