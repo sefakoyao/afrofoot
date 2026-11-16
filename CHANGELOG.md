@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Membership tab order: payments, team's goals, signed documents (branch `phase2/membership-order`)
+- **Player → Membership tab, new order:**
+  1. **Payments:** summary, how to pay, invoices, payment history.
+  2. **Team's goals:** new. The season goals the club wrote for the player's current team(s) (team page "Season and objectives"), or a note while not written yet.
+  3. **Signed documents:** the player contract, then the Code of Conduct, under one heading.
+- The "please sign / please agree" banners at the top of the player tabs stay, so moving the documents down hides nothing that needs action.
+- Links like `/me/membership#conduct` still work. No database changes.
+
 ## Unreleased – emergency contact relation list (branch `phase2/emergency-relation`)
 - **Player profile → Emergency contact → Relation is a drop-down:** mother, father, guardian, spouse, partner, sister, brother, daughter, son, grandmother, grandfather, aunt, uncle, cousin, other relative, friend, and **Other…** with a text box.
   - A code is stored (`mother`), shown in each reader's language: "(Mother)" for an English coach, "(Äiti)" in Finnish.
