@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – approve into a group, bulk actions, player picker (branch `phase2/bulk-roster`)
+- **Admin → Members:**
+  - **Waiting for approval** panel at the top. Each new account has a **Group** choice: the current season's teams, grouped Men / Women / Junior (Other for the rest). Approving puts the player straight into that team, creating the player record from the account name.
+  - **Bulk actions:** tick members in the list (or "Select all on this page") and choose "Approve and add to a team", "Add to a team" or "Approve". The bar shows how many are ticked. The result says how many were approved, added, already in the team, or skipped (not a player, no name, or not yours to manage).
+  - Cleaner rows: ticked rows are highlighted, and badges stay on one line.
+- **Team page:** the single "Add a player" drop-down is replaced by a **player picker**. Search by name, tick several (also across searches), "Select all shown", and "Add N selected". Players without an app account are marked. Shirt numbers and captain are set in the roster afterwards.
+- No database changes: admins already manage players and rosters (RLS admin_all).
+
 ## Unreleased – Code of Conduct jump links, invoices after contract and consent, release 0.24.0 (branch `phase2/invoice-consents`)
 - **Jump links in the Code of Conduct:**
   - The "Please read and agree" reminder now opens the Code of Conduct at the **players' section** (`#players`); coaches land on the coaches' section (`#coaches`).
