@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Spinner } from './AreaNav';
@@ -14,10 +15,20 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
   const t = useTranslations('me');
   const path = usePathname();
   const { pending, onNavigate } = usePendingHref();
+  // on narrow screens the row scrolls sideways: keep the selected tab in view
+  const navRef = useRef<HTMLElement>(null);
+  // (only the tab row scrolls sideways; the page itself never moves, so links like /me/conduct#players keep their place)
+  useEffect(() => {
+    const nav = navRef.current, tab = nav?.querySelector<HTMLElement>('[aria-current=page]');
+    if (!nav || !tab) return;
+    const left = tab.getBoundingClientRect().left - nav.getBoundingClientRect().left, right = left + tab.offsetWidth;
+    if (left < 0) nav.scrollLeft += left - 16; else if (right > nav.clientWidth) nav.scrollLeft += right - nav.clientWidth + 16;
+  }, [path]);
   const tabs = [
     { href: '/me', label: t('tabCalendar'), active: path === '/me' },
     { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
-    { href: '/me/season', label: t('tabSeason'), active: path.startsWith('/me/season') || path.startsWith('/me/profile') },
+    { href: '/me/season', label: t('tabSeason'), active: path.startsWith('/me/season') },
+    { href: '/me/profile', label: t('tabProfile'), active: path.startsWith('/me/profile') },
   ];
   return (
     <div className="grid gap-3">
@@ -33,12 +44,12 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
           <Link href={`/me/contract/${contractToSign}#sign`} className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('contractBannerCta')}</Link>
         </div>
       ) : null}
-      <nav aria-label={t('tabsLabel')} className="-mx-4 overflow-x-auto px-4">
-        <ul className="flex gap-2 border-b border-line">
+      <nav ref={navRef} aria-label={t('tabsLabel')} className="-mx-4 overflow-x-auto px-4">
+        <ul className="flex gap-1 border-b border-line sm:gap-2">
           {tabs.map((x) => (
             <li key={x.href}>
               <Link href={x.href} onClick={onNavigate(x.href)} aria-current={x.active ? 'page' : undefined} aria-busy={pending === x.href || undefined} data-pending={pending === x.href || undefined}
-                className={`-mb-px inline-flex min-h-12 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-4 px-4 font-display text-base font-extrabold transition duration-100 active:scale-[.97] active:bg-accent/10 ${(pending ? pending === x.href : x.active) ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
+                className={`-mb-px inline-flex min-h-12 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-4 px-2.5 font-display text-sm font-extrabold sm:px-4 sm:text-base transition duration-100 active:scale-[.97] active:bg-accent/10 ${(pending ? pending === x.href : x.active) ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
                 {x.label}
                 {pending === x.href ? <Spinner /> : null}
               </Link>
