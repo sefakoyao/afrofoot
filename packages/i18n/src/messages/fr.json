@@ -1438,7 +1438,10 @@
     "objectivesLead": "Imprimé dans chaque contrat de joueur de cette équipe et saison. À écrire en anglais, comme les contrats.",
     "objectivesEg": "ex. The team plays in the Kolmonen (4th tier) in the 2027 season. The objective is to finish in the top three and develop young players.",
     "objectivesMissing": "Pas encore écrit : les contrats de cette équipe restent en brouillon d'ici là.",
-    "r_objectivesSaved": "Saison et objectifs enregistrés."
+    "r_objectivesSaved": "Saison et objectifs enregistrés.",
+    "editTeam": "Renommer ou modifier l'équipe",
+    "editTeamNote": "Le nouveau nom apparaît partout aussitôt : menus des entraîneurs, calendriers, site et nouveaux contrats. Les contrats déjà envoyés gardent le nom signé.",
+    "r_teamUpdated": "Équipe enregistrée."
   },
   "coach": {
     "navHome": "Vue d’ensemble",
@@ -1518,7 +1521,8 @@
     "friendly": "Amical",
     "ms_played": "Joué",
     "ms_postponed": "Reporté",
-    "ms_cancelled": "Annulé"
+    "ms_cancelled": "Annulé",
+    "navMyTeams": "Mes équipes"
   },
   "inv": {
     "title": "Factures",

@@ -1438,7 +1438,10 @@
     "objectivesLead": "يُطبع في كل عقد لاعب لهذا الفريق والموسم. اكتبه بالإنجليزية مثل العقود.",
     "objectivesEg": "مثال: The team plays in the Kolmonen (4th tier) in the 2027 season. The objective is to finish in the top three and develop young players.",
     "objectivesMissing": "لم يُكتب بعد: تبقى عقود هذا الفريق مسودات حتى يُكتب.",
-    "r_objectivesSaved": "تم حفظ الموسم والأهداف."
+    "r_objectivesSaved": "تم حفظ الموسم والأهداف.",
+    "editTeam": "إعادة تسمية الفريق أو تعديله",
+    "editTeamNote": "يظهر الاسم الجديد فورًا في كل مكان: قوائم المدربين والتقاويم والموقع والعقود الجديدة. تحتفظ العقود المرسلة مسبقًا بالاسم الذي وُقّعت به.",
+    "r_teamUpdated": "تم حفظ الفريق."
   },
   "coach": {
     "navHome": "نظرة عامة",
@@ -1518,7 +1521,8 @@
     "friendly": "ودية",
     "ms_played": "لُعبت",
     "ms_postponed": "مؤجلة",
-    "ms_cancelled": "ملغاة"
+    "ms_cancelled": "ملغاة",
+    "navMyTeams": "فرقي"
   },
   "inv": {
     "title": "الفواتير",
