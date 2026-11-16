@@ -168,6 +168,13 @@ so the link works on any device. (The default template only works in the browser
 
 From then on, approving a player into a group, or adding players to a team, creates their contract and sends it for signature. If something is missing, it stays a draft and the admin sees a note with a link to the drafts.
 
+## 3n. Amateur player agreement (migration 0038, release 0.26.0)
+1. Paste `supabase/migrations/20260101000038_amateur_contract.sql` into Supabase → SQL Editor and run it once. It makes "Player agreement (amateur)" the default template; the earlier one stays for reference.
+2. **Admin → Contracts → Automatic contracts:** write the **membership fee for the season** (for example "EUR 300 per season, invoiced through the app in instalments") and check the two lists (includes / does not include). Save.
+3. Drafts made earlier: open each, click **Fill in again from the template**, then **Send**.
+
+The fee exemption is a clause in the agreement. The board's decisions themselves are recorded outside the app for now.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
