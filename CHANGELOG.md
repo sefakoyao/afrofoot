@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – team page without migration 0037 (branch `phase2/teams-page-fallback`)
+- The admin team page showed "404 – This page could not be found" when migration 0037 had not been run yet: it asked for the new objectives column. It now opens without the "Season and objectives" box until the migration is in. Automatic contracts likewise leave that line as a blank. No database changes.
+
 ## Unreleased – automatic player contracts, release 0.25.0 (branch `phase2/auto-contracts`)
 - **Contracts are created when a player joins a team:** approve with a group, bulk "add to a team", or the team page picker. Each player without a contract for the period gets one from the template. The team, season, the team's **Season and objectives** and the club's **fee lines** are filled in.
 - **Default "Create and send":** the player gets the "Read and sign" banner straight away. A contract stays a **draft** instead when something is missing (the team's objectives, a fee line, or the player has no app account to sign with). The admin is told how many were sent and how many wait, with a link to the drafts.

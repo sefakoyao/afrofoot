@@ -7,10 +7,14 @@ const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/H
 
 /** Team, season and objectives used in a contract for one team season. */
 async function teamFacts(db: SupabaseClient, teamSeasonId: string) {
-  const { data } = await db.from('team_seasons').select('division, objectives, teams!inner(name), seasons!inner(name, starts_on, ends_on)').eq('id', teamSeasonId).maybeSingle();
+  const first = await db.from('team_seasons').select('division, objectives, teams!inner(name), seasons!inner(name, starts_on, ends_on)').eq('id', teamSeasonId).maybeSingle();
+  // before migration 0037 there is no objectives column: read the team without it (the contract then keeps the blank)
+  const data = (first.error
+    ? (await db.from('team_seasons').select('division, teams!inner(name), seasons!inner(name, starts_on, ends_on)').eq('id', teamSeasonId).maybeSingle()).data
+    : first.data) as { division: string | null; objectives?: string | null; teams: unknown; seasons: unknown } | null;
   if (!data) return null;
   const t = data.teams as unknown as { name: string }, s = data.seasons as unknown as { name: string; starts_on: string; ends_on: string };
-  return { team: t.name, season: s.name, seasonStarts: s.starts_on, seasonEnds: s.ends_on, division: data.division as string | null, objectives: data.objectives as string | null };
+  return { team: t.name, season: s.name, seasonStarts: s.starts_on, seasonEnds: s.ends_on, division: data.division as string | null, objectives: data.objectives ?? null };
 }
 
 /**
