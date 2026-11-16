@@ -4,8 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
-import { defaultEnd, fillTemplate, hasBlanks, maxEnd } from '@/lib/contracts';
-import { loadBilling } from '@/lib/invoice/data';
+import { buildContract } from '@/lib/auto-contracts';
+import { defaultEnd, hasBlanks, maxEnd } from '@/lib/contracts';
 import { getSupabase } from '@/lib/supabase/server';
 
 /**
@@ -53,21 +53,9 @@ export async function createContract(fd: FormData): Promise<void> {
   const v = parsed.data;
   const ends = v.ends_on || defaultEnd(v.starts_on, v.years);
   if (!datesOk(v.starts_on, ends, v.years)) go('/admin/contracts', 'r_dates', '#new-h');
-  const [{ data: player }, { data: tpl }, ts, billing] = await Promise.all([
-    supabase.from('players').select('first_name, last_name').eq('id', v.player_id).maybeSingle(),
-    supabase.from('contract_templates').select('body').eq('is_default', true).maybeSingle(),
-    v.team_season_id ? supabase.from('team_seasons').select('teams!inner(name)').eq('id', v.team_season_id).maybeSingle() : Promise.resolve({ data: null }),
-    loadBilling(supabase),
-  ]);
-  if (!player) go('/admin/contracts', 'r_noPlayer', '#new-h');
-  if (!tpl) go('/admin/contracts', 'r_error', '#new-h');
-  const team = (ts.data?.teams as unknown as { name: string } | undefined)?.name ?? '';
-  const startYear = v.starts_on.slice(0, 4), endYear = ends.slice(0, 4);
-  const text = fillTemplate(tpl.body, { club: billing.legal_name || 'the club', team, player: `${player.first_name} ${player.last_name}`, starts: v.starts_on, ends, years: v.years });
-  const { data, error } = await supabase.from('player_contracts').insert({
-    player_id: v.player_id, team_season_id: v.team_season_id, years: v.years, starts_on: v.starts_on, ends_on: ends, body: text,
-    title: `Player contract ${startYear === endYear ? startYear : `${startYear}–${endYear}`}`,
-  }).select('id').single();
+  const row = await buildContract(supabase, { playerId: v.player_id, teamSeasonId: v.team_season_id, years: v.years, startsOn: v.starts_on, endsOn: ends });
+  if (!row) go('/admin/contracts', 'r_noPlayer', '#new-h');
+  const { data, error } = await supabase.from('player_contracts').insert(row).select('id').single();
   if (error || !data) { console.error('[contracts] create refused', { code: error?.code, message: error?.message }); go('/admin/contracts', error ? errKey(error) : 'r_error', '#new-h'); }
   refresh();
   go(`/admin/contracts/${data.id}`, 'r_created');
@@ -92,7 +80,7 @@ export async function saveContract(fd: FormData): Promise<void> {
 }
 
 const opSchema = z.object({
-  id: uuid, op: z.enum(['send', 'countersign', 'cancel', 'delete', 'terminate']),
+  id: uuid, op: z.enum(['send', 'countersign', 'cancel', 'delete', 'terminate', 'refill']),
   terminated_on: z.union([z.literal(''), isoDate]), reason: z.string().trim().max(500, 'r_reason'),
 });
 
@@ -102,8 +90,18 @@ export async function contractStep(fd: FormData): Promise<void> {
   if (!parsed.success) go('/admin/contracts', 'r_invalid');
   const { id, op, terminated_on, reason } = parsed.data;
   const back = `/admin/contracts/${id}`;
-  const { data: c } = await supabase.from('player_contracts').select('status, body, starts_on').eq('id', id).maybeSingle();
+  const { data: c } = await supabase.from('player_contracts').select('status, body, starts_on, ends_on, years, player_id, team_season_id').eq('id', id).maybeSingle();
   if (!c) go('/admin/contracts', 'r_gone');
+  // 0037: a draft made before the team's objectives or the fee lines were written picks them up again from the template
+  if (op === 'refill') {
+    if (c.status !== 'draft') go(back, 'r_gone');
+    const row = await buildContract(supabase, { playerId: c.player_id, teamSeasonId: c.team_season_id, years: c.years, startsOn: c.starts_on, endsOn: c.ends_on });
+    if (!row) go(back, 'r_error');
+    const { error } = await supabase.from('player_contracts').update({ body: row.body }).eq('id', id).eq('status', 'draft');
+    if (error) go(back, errKey(error));
+    refresh();
+    go(back, hasBlanks(row.body) ? 'r_refilledBlanks' : 'r_refilled');
+  }
   if (op === 'send' && hasBlanks(c.body)) go(back, 'r_blanks');
   if (op === 'terminate' && (!terminated_on || terminated_on < c.starts_on)) go(back, 'r_dates');
   if (op === 'terminate' && !reason) go(back, 'r_reason');
@@ -159,4 +157,24 @@ export async function declineContract(fd: FormData): Promise<void> {
   if (error) go(`/me/contract/${id}`, errKey(error));
   refresh();
   go('/me/membership', 'r_declined', '#contract');
+}
+
+// ---------- automatic contracts (migration 0037) ----------
+const settingsSchema = z.object({
+  auto: z.enum(['send', 'draft', 'off']),
+  years: z.coerce.number().int().min(1, 'r_invalid').max(3, 'r_invalid'),
+  club_fees: z.string().trim().max(300, 'r_invalid'),
+  max_fee_per_year: z.string().trim().max(40, 'r_invalid'),
+  volunteer_amount: z.string().trim().max(40, 'r_invalid'),
+});
+
+/** What happens when a player joins a team, the contract length, and the fee lines printed in every contract. */
+export async function saveContractSettings(fd: FormData): Promise<void> {
+  const { supabase } = await adminDb();
+  const p = settingsSchema.safeParse(Object.fromEntries(['auto', 'years', 'club_fees', 'max_fee_per_year', 'volunteer_amount'].map((k) => [k, fd.get(k) ?? ''])));
+  if (!p.success) go('/admin/contracts', 'r_invalid', '#auto-h');
+  const { error } = await supabase.from('site_settings').upsert({ key: 'contracts', value: p.data, is_public: false });
+  if (error) { console.error('[contracts] settings refused', { code: error.code, message: error.message }); go('/admin/contracts', 'r_error', '#auto-h'); }
+  refresh();
+  go('/admin/contracts', 'r_settingsSaved', '#auto-h');
 }

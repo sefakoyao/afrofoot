@@ -18,7 +18,7 @@ insert into team_players (team_season_id, player_id) values ('a4000000-0000-0000
 insert into staff_members (id, profile_id, first_name, last_name, type) values ('a6000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', 'Cat', 'Coach', 'head_coach');
 insert into team_staff (team_season_id, staff_id) values ('a4000000-0000-0000-0000-000000000001', 'a6000000-0000-0000-0000-000000000002');
 
-select t.check('default template present with blanks to fill', (select count(*) from contract_templates where is_default and body like '%[[%' and body like '%{{player}}%') = 1);
+select t.check('default template present with its fields (0037: season and fees are fields, no blanks left)', (select count(*) from contract_templates where is_default and body like '%{{player}}%' and body like '%{{season_objectives}}%') = 1);
 
 -- ---------- admin drafts ----------
 select t.login('a1000000-0000-0000-0000-000000000001');

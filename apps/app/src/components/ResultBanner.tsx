@@ -6,7 +6,7 @@ import { getTranslations } from 'next-intl/server';
  */
 const KEYS = {
   teams: {
-    ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_playersAdded', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
+    ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_playersAdded', 'r_objectivesSaved', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
     err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_noName', 'r_playersAddedSome', 'r_pickNone'],
   },
   inv: {
@@ -27,8 +27,8 @@ const KEYS = {
     err: ['e_invalid', 'e_error', 'e_title', 'e_date', 'e_time', 'e_end', 'e_long', 'e_meet', 'e_location', 'e_notYours'],
   },
   contract: {
-    ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined'],
-    err: ['r_invalid', 'r_error', 'r_dates', 'r_blanks', 'r_overlap', 'r_notAllowed', 'r_name', 'r_tick', 'r_gone', 'r_noPlayer', 'r_reason'],
+    ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined', 'r_settingsSaved', 'r_refilled'],
+    err: ['r_invalid', 'r_error', 'r_dates', 'r_blanks', 'r_refilledBlanks', 'r_overlap', 'r_notAllowed', 'r_name', 'r_tick', 'r_gone', 'r_noPlayer', 'r_reason'],
   },
 } as const;
 

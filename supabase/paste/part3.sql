@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -1482,6 +1482,40 @@ update site_settings set value = value || '{"require_consents": true}'::jsonb wh
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.24.0','feature','Invoices after the contract and Code of Conduct',
   'A player''s membership invoice is issued only once the player has signed their contract and agreed to the Code of Conduct. Admins see who is waiting. The club can switch this off in the billing details.','2026-11-16')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000037_automatic_contracts.sql =====
+-- 0037 Automatic player contracts. Release 0.25.0.
+--  * Each team gets a "Season and objectives" text per season (team_seasons.objectives), written once by an admin.
+--  * Club-wide contract settings (site_settings 'contracts', admins only): what happens when a player joins a team
+--    (create and send the contract / create a draft / nothing), the contract length, and the fee lines of the contract.
+--  * The template's [[…]] blanks for those become {{…}} fields filled in automatically, so a contract can be sent
+--    without manual editing. A field with no value yet is left as a [[…]] blank, and the contract then waits as a draft.
+
+alter table team_seasons
+  add column objectives text check (char_length(objectives) <= 2000);
+comment on column team_seasons.objectives is 'Season and objectives of the team (league, series, goals); printed in the player contracts.';
+
+insert into site_settings (key, value, is_public) values ('contracts', jsonb_build_object(
+  'auto', 'send',          -- send | draft | off: when a player is added to a team without a contract for the season
+  'years', 1,              -- contract length for automatic contracts (1–3)
+  'club_fees', '',         -- "The club pays on behalf of the player: …"
+  'max_fee_per_year', '',  -- EUR, later seasons
+  'volunteer_amount', ''   -- EUR per year instead of a volunteer event
+), false) on conflict (key) do nothing;
+
+-- Template: the four blanks become fields (only the exact original blank texts are replaced, so an edited template keeps its own text).
+update contract_templates set body =
+  replace(replace(replace(replace(body,
+    '[[Describe the team''s league and season, e.g. the series the team plays in and the objective for the season.]]', '{{season_objectives}}'),
+    '[[Fee paid by the club, e.g. playing licence, EUR amount]]', '{{club_fees}}'),
+    '[[maximum per year]]', '{{max_fee_per_year}}'),
+    '[[amount]]', '{{volunteer_amount}}');
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.25.0','feature','Automatic player contracts',
+  'When a player is approved into a team or added to one, the contract is created from the template with the team, season, objectives and fees filled in, and sent to the player to sign. Admins set the team''s season objectives on the team page and the fee lines once under Contracts.','2026-11-16')
 on conflict (version) do nothing;
 
 
