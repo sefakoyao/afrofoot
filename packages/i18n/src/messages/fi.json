@@ -1325,7 +1325,6 @@
     "emergencyLead": "Kenelle soitamme, jos harjoituksissa tai ottelussa sattuu jotain? Vain valmentajasi ja seuran ylläpitäjät näkevät tämän.",
     "emergencyName": "Nimi",
     "emergencyRelation": "Suhde",
-    "emergencyRelationEg": "esimerkiksi äiti, puoliso",
     "emergencyPhone": "Hänen puhelinnumeronsa",
     "save": "Tallenna",
     "saving": "Tallennetaan…",
@@ -1347,7 +1346,9 @@
     "photoNote": "Selkeä kasvokuva auttaa valmentajia. Kuvan näkevät vain sinä, valmentajasi ja seuran ylläpitäjät.",
     "e_photoMissing": "Valitse ensin kuva.",
     "e_photoType": "Käytä JPEG-, PNG- tai WebP-kuvaa.",
-    "e_photoSize": "Kuva on liian suuri."
+    "e_photoSize": "Kuva on liian suuri.",
+    "relationChoose": "Valitse…",
+    "relationOther": "Kirjoita suhde"
   },
   "teams": {
     "title": "Joukkueet",
@@ -1698,7 +1699,7 @@
     "newLead": "Luonnos tehdään pohjasta, ja pelaaja, joukkue ja päivämäärät täytetään valmiiksi. Voit muokata sitä ennen lähettämistä.",
     "createDraft": "Luo luonnos",
     "templateTitle": "Sopimuspohja",
-    "templateLead": "Englanninkielinen teksti. {{player}}, {{team}}, {{starts}}, {{ends}}, {{years_text}} ja {{club}} täytetään automaattisesti; [[…]] ovat kohtia, jotka ylläpitäjä täyttää ennen lähettämistä. \"## \" aloittaa osion, \"- \" listakohdan.",
+    "templateLead": "Englanninkielinen teksti. Nämä kentät täytetään jokaiseen sopimukseen: '{{player}}', '{{team}}', '{{starts}}', '{{ends}}', '{{years_text}}', '{{club}}', '{{season_objectives}}', '{{team_fee}}', '{{included_list}}', '{{not_included_list}}' ja '{{prices_link}}'. '[[…]]'-kohdat on täydennettävä jokaiseen luonnokseen ennen lähettämistä.",
     "editTemplate": "Muokkaa pohjaa",
     "saveTemplate": "Tallenna pohja",
     "st_draft": "Luonnos",
@@ -2200,5 +2201,24 @@
     "e_meet": "Kokoontumisajan on oltava ennen alkua, enintään 6 tuntia aiemmin.",
     "e_location": "Tarkista uusi paikka: se tarvitsee nimen, ja karttalinkin on alettava https://.",
     "e_notYours": "Voit lisätä ja muuttaa vain omien joukkueidesi tapahtumia."
+  },
+  "relation": {
+    "mother": "Äiti",
+    "father": "Isä",
+    "guardian": "Huoltaja",
+    "spouse": "Puoliso",
+    "partner": "Kumppani",
+    "sister": "Sisko",
+    "brother": "Veli",
+    "daughter": "Tytär",
+    "son": "Poika",
+    "grandmother": "Isoäiti",
+    "grandfather": "Isoisä",
+    "aunt": "Täti",
+    "uncle": "Setä / eno",
+    "cousin": "Serkku",
+    "relative": "Muu sukulainen",
+    "friend": "Ystävä",
+    "other": "Muu…"
   }
 }

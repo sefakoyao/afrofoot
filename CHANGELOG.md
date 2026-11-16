@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – emergency contact relation list (branch `phase2/emergency-relation`)
+- **Player profile → Emergency contact → Relation is a drop-down:** mother, father, guardian, spouse, partner, sister, brother, daughter, son, grandmother, grandfather, aunt, uncle, cousin, other relative, friend, and **Other…** with a text box.
+  - A code is stored (`mother`), shown in each reader's language: "(Mother)" for an English coach, "(Äiti)" in Finnish.
+  - Relations typed before the list existed still show as written, under "Other".
+  - Shown on the player's season page and the coach's team page.
+- **Fix:** the help text above the contract template editor (`contract.templateLead`) showed the raw key in every language, because its `{{…}}` field names were not escaped for the message format. It now lists all fields, including the 0037/0038 ones.
+- `pnpm i18n:check` now also fails when a message is not valid ICU, so this cannot happen again. New dev dependency `@formatjs/icu-messageformat-parser` in `packages/i18n` (already used by next-intl).
+- No database changes.
+
 ## Unreleased – rename teams, coach menu "My teams" (branch `phase2/team-rename-coach-menu`)
 - **Admin → Teams → a team → "Rename or edit the team":** change the name, group (Men / Women / Junior / …) and this season's division.
   - The new name shows everywhere at once (coach menus, calendars, website, new contracts). Contracts already sent keep the name they were signed with.

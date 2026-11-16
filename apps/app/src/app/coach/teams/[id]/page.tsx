@@ -13,6 +13,7 @@ import { coachesTeam, myTeams } from '@/lib/coach';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
 import { STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
+import { relationLabel } from '@/lib/relations';
 import { helsinkiToday } from '@/lib/time';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -62,7 +63,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const photoPaths = roster.map((r) => r.players.photo_path).filter((x): x is string => !!x);
   const { data: signedPhotos } = photoPaths.length ? await supabase.storage.from('player-photos').createSignedUrls(photoPaths, 3600) : { data: [] };
   const photoOf = new Map((signedPhotos ?? []).filter((x) => x.path && x.signedUrl).map((x) => [x.path!, x.signedUrl]));
-  const tm = await getTranslations('match');
+  const [tm, trel] = await Promise.all([getTranslations('match'), getTranslations('relation')]);
   const { data: matchReplies } = (matchRows ?? []).length
     ? await supabase.from('match_availability').select('match_id, player_id, availability, note').in('match_id', (matchRows ?? []).map((m) => m.id)) : { data: [] };
   const nameOf = new Map(roster.map((r) => [r.players.id, `${r.players.first_name} ${r.players.last_name}`]));
@@ -231,7 +232,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
                       const st = shownStatus(k, helsinkiToday());
                       return <p className="ps-8 text-xs" data-contract={st}><Link href={`/coach/contracts/${k.id}`} className="font-semibold text-pitch underline underline-offset-2">{tk('myContract')}</Link> <span className={`ms-1 rounded-full px-2 py-0.5 font-bold ${STATUS_BADGE[st]}`}>{tk(`st_${st}`)}</span></p>; })()}
                     <p className="ps-8 text-sm text-muted">{r.players.position ? tpos(r.players.position) : '–'} · <span data-rate>{pct === null ? t('noAttendance') : t('attendanceRate', { rate: pct })}</span></p>
-                    {c?.emergency_name ? <p className="ps-8 text-xs text-muted">{t('emergency')}: <bdi>{c.emergency_name}</bdi>{c.emergency_relation ? ` (${c.emergency_relation})` : ''}{c.emergency_phone ? <> · <a href={`tel:${c.emergency_phone}`} className="underline" dir="ltr">{c.emergency_phone}</a></> : null}</p> : null}
+                    {c?.emergency_name ? <p className="ps-8 text-xs text-muted">{t('emergency')}: <bdi>{c.emergency_name}</bdi>{c.emergency_relation ? ` (${relationLabel(trel, c.emergency_relation)})` : ''}{c.emergency_phone ? <> · <a href={`tel:${c.emergency_phone}`} className="underline" dir="ltr">{c.emergency_phone}</a></> : null}</p> : null}
                   </div>
                   <div className="flex gap-2 ps-8 sm:ps-0">
                     {c?.phone ? (
