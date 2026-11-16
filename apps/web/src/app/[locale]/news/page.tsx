@@ -4,13 +4,16 @@ import { NewsCard } from '@/components/NewsCard';
 import { Hero, Section } from '@/components/Page';
 import { getPosts } from '@/lib/news';
 
+// Rebuilt at most once a minute, so new articles show without a deploy.
+export const revalidate = 60;
+
 export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('site');
   const l = (locale in LOCALE_LABELS ? locale : 'en') as Locale;
   const date = new Intl.DateTimeFormat(LOCALE_LABELS[l].intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
-  const posts = await getPosts(30);
+  const posts = await getPosts(100); // the whole archive, including the articles imported from the old website
   return (
     <>
       <Hero title={t('newsw')} />

@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – news from the old website (branch `phase2/news-import`)
+- **All 37 articles from the old WordPress site** (2021 – March 2026), with their original dates, text, emoji, links, headings, quotes and pictures.
+  - `supabase/content/news_import_old_site.sql`: run once in the SQL Editor. Safe to run again: existing articles are left as they are.
+  - Pictures (49, resized for the web, 7.5 MB) are part of the website (`apps/web/public/news/<article>/`), so they keep working after the old hosting is cancelled.
+  - Videos become "Watch the video" links; Facebook tracking codes are removed from links; Facebook emoji pictures become real emoji.
+  - `scripts/import-old-news.py` documents and repeats the conversion.
+- **Article page** shows paragraphs, line breaks, "## " headings, "> " quotes, **bold**, links (external ones open in a new tab) and pictures.
+  - Built from React elements only: HTML in an article is shown as text, and only https and site links or pictures are accepted.
+  - Titles and paragraphs follow their own text direction, so English articles read correctly on the Arabic site.
+- **News pages refresh every minute** (new or edited articles show without a deploy); the list shows up to 100 articles.
+- **Old addresses keep working:** `/2026/03/15/<article>/` → `/news/<article>`; `/category/…` and `/tag/…` → `/news`.
+- No migration. 8 new database checks run the import file twice.
+
 ## Unreleased – "My profile" tab (branch `phase2/profile-tab`)
 - **Player tabs:** Calendar · Membership · My season · **My profile**. The four tabs fit a phone screen; the selected tab is kept in view.
 - **My profile:**
