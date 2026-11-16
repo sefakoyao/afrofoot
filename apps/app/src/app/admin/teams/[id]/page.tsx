@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { addCoach, addPlayer, removeCoach, removePlayer, updateRosterEntry } from '@/app/actions/teams';
+import { addCoach, addPlayers, removeCoach, removePlayer, updateRosterEntry } from '@/app/actions/teams';
+import { PlayerPicker } from '@/components/admin/PlayerPicker';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
@@ -38,7 +39,7 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
     supabase.from('team_players').select('id, jersey_number, captain, joined_on, left_on, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id),
     supabase.from('team_staff').select('id, role_label, staff_members!inner(first_name, last_name, type, profile_id)').eq('team_season_id', id),
     supabase.from('players').select('id, first_name, last_name, profile_id').order('last_name'),
-    supabase.from('profiles').select('id, first_name, last_name, email').eq('role', 'player').eq('status', 'active').order('last_name'),
+    supabase.from('profiles').select('id, first_name, last_name, email, phone').eq('role', 'player').eq('status', 'active').order('last_name'),
     supabase.from('profiles').select('id, first_name, last_name, email').eq('role', 'coach').eq('status', 'active').order('last_name'),
   ]);
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []);
@@ -52,8 +53,8 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
   const activeIds = new Set(active.map((r) => r.players.id));
   const linked = new Set((allPlayers ?? []).map((p) => p.profile_id).filter(Boolean));
   const candidates = [
-    ...(allPlayers ?? []).filter((p) => !activeIds.has(p.id)).map((p) => ({ value: `player:${p.id}`, label: `${p.last_name} ${p.first_name}` })),
-    ...(playerProfiles ?? []).filter((p) => !linked.has(p.id)).map((p) => ({ value: `profile:${p.id}`, label: `${p.last_name} ${p.first_name}`.trim() || p.email })),
+    ...(allPlayers ?? []).filter((p) => !activeIds.has(p.id)).map((p) => ({ value: `player:${p.id}`, label: `${p.last_name} ${p.first_name}`, note: p.profile_id ? undefined : t('pickNoAccount') })),
+    ...(playerProfiles ?? []).filter((p) => !linked.has(p.id)).map((p) => ({ value: `profile:${p.id}`, label: `${p.last_name} ${p.first_name}`.trim() || p.email || p.phone, note: t('pickNewRecord') })),
   ].sort((a, b) => a.label.localeCompare(b.label));
   const assigned = new Set(staff.map((s) => s.staff_members.profile_id));
   const coachChoices = (coachProfiles ?? []).filter((c) => !assigned.has(c.id));
@@ -108,17 +109,11 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
           </div>
         )}
 
-        <form action={addPlayer} className="mt-5 grid gap-3 rounded-card bg-surface p-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
+        <form action={addPlayers} className="mt-5">
           {hidden({})}
-          <label className="grid gap-1 text-sm font-semibold">{t('addPlayer')}
-            <select name="who" required defaultValue="" className={`${input} min-h-10`}>
-              <option value="" disabled>{t('choose')}</option>
-              {candidates.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-          </label>
-          <label className="grid gap-1 text-sm font-semibold">{t('shirt')}<input name="jersey_number" inputMode="numeric" maxLength={2} className={`${input} min-h-10 w-20`} /></label>
-          <button className="min-h-10 rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110">{t('add')}</button>
-          {candidates.length === 0 ? <p className="text-xs text-muted sm:col-span-3">{t('noCandidates')}</p> : null}
+          <PlayerPicker options={candidates} labels={{ title: t('pickTitle'), search: t('pickSearch'), selectShown: t('pickSelectShown'), clear: t('pickClear'), none: t('noCandidates'),
+            noMatch: t('pickNoMatch'), add: t('pickAdd', { count: '{count}' }), selected: t('pickSelected', { count: '{count}' }) }} />
+          <p className="mt-2 text-xs text-muted">{t('pickNote')}</p>
         </form>
 
         {former.length ? (

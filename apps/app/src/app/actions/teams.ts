@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { addToTeam, ensurePlayerRecord } from '@/lib/roster';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { requireArea } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase/server';
@@ -145,6 +146,26 @@ export async function addPlayer(fd: FormData): Promise<void> {
     : await supabase.from('team_players').insert({ team_season_id: p.data.team_season_id, player_id: playerId, jersey_number: p.data.jersey_number, joined_on: new Date().toISOString().slice(0, 10) });
   if (error) fail(fd, 'add player', error);
   done(fd, 'r_playerAdded');
+}
+
+/** Several players at once (the player picker on the team page): "player:<id>" or "profile:<id>" like addPlayer. */
+export async function addPlayers(fd: FormData): Promise<void> {
+  const team = uuid.safeParse(fd.get('team_season_id'));
+  const who = fd.getAll('who').map(String);
+  if (!team.success || who.length > 200 || who.some((w) => !/^(player|profile):[0-9a-f-]{36}$/.test(w))) back(fd, 'r_invalid');
+  if (!who.length) back(fd, 'r_pickNone');
+  const supabase = await db(fd);
+  const ids: string[] = [];
+  let skipped = 0;
+  for (const w of who) {
+    const [kind, id] = w.split(':') as ['player' | 'profile', string];
+    if (kind === 'player') { ids.push(id); continue; }
+    const rec = await ensurePlayerRecord(supabase, id);
+    if ('error' in rec) skipped++; else ids.push(rec.id);
+  }
+  const r = await addToTeam(supabase, team.data, ids);
+  revalidatePath('/admin', 'layout'); revalidatePath('/coach', 'layout');
+  back(fd, r.failed + skipped ? 'r_playersAddedSome' : 'r_playersAdded');
 }
 
 const rosterSchema = z.object({
