@@ -1,5 +1,6 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { webUrl } from './env';
 
 /** Player contracts (migration 0030). Contract text is English, like the club's paper contracts and Code of Ethics. */
 export const CONTRACT_STATUSES = ['draft', 'sent', 'player_signed', 'active', 'declined', 'cancelled', 'terminated'] as const;
@@ -39,8 +40,18 @@ export function maxEnd(startsOn: string, years: number): string {
 const longDate = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 /** What the club fills in once (Admin → Contracts → automatic contracts; site_settings 'contracts', migration 0037). */
-export type ContractSettings = { auto: 'send' | 'draft' | 'off'; years: 1 | 2 | 3; club_fees: string; max_fee_per_year: string; volunteer_amount: string };
-export const CONTRACT_DEFAULTS: ContractSettings = { auto: 'send', years: 1, club_fees: '', max_fee_per_year: '', volunteer_amount: '' };
+export type ContractSettings = {
+  auto: 'send' | 'draft' | 'off'; years: 1 | 2 | 3;
+  // 0038 amateur agreement: the membership fee line and what it includes / excludes (one item per line)
+  team_fee: string; included: string; not_included: string;
+  // 0037 fields, still filled in for the earlier template "Player contract"
+  club_fees: string; max_fee_per_year: string; volunteer_amount: string;
+};
+export const CONTRACT_DEFAULTS: ContractSettings = {
+  auto: 'send', years: 1, team_fee: '',
+  included: 'League fee per player\nTraining and games\nTraining ground booking\nThe Afro Foot Club app\nPersonal development plan',
+  not_included: 'Player insurance\nPlayer licence', club_fees: '', max_fee_per_year: '', volunteer_amount: '',
+};
 
 export async function loadContractSettings(db: SupabaseClient): Promise<ContractSettings> {
   const { data } = await db.from('site_settings').select('value').eq('key', 'contracts').maybeSingle();
@@ -50,6 +61,8 @@ export async function loadContractSettings(db: SupabaseClient): Promise<Contract
   return {
     auto: v.auto === 'draft' || v.auto === 'off' ? v.auto : 'send',
     years: years === 2 || years === 3 ? years : 1,
+    team_fee: str('team_fee'), included: typeof v.included === 'string' ? str('included') : CONTRACT_DEFAULTS.included,
+    not_included: typeof v.not_included === 'string' ? str('not_included') : CONTRACT_DEFAULTS.not_included,
     club_fees: str('club_fees'), max_fee_per_year: str('max_fee_per_year'), volunteer_amount: str('volunteer_amount'),
   };
 }
@@ -60,7 +73,13 @@ const BLANKS: Record<string, string> = {
   club_fees: '[[Fee paid by the club, e.g. playing licence, EUR amount]]',
   max_fee_per_year: '[[maximum per year]]',
   volunteer_amount: '[[amount]]',
+  team_fee: '[[Membership fee for the season, e.g. EUR 300 per season, invoiced through the app]]',
+  included_list: '[[What the membership fee includes, one item per line]]',
+  not_included_list: '[[What the membership fee does not include, one item per line]]',
 };
+
+/** "One item per line" → "- item" lines, which the contract view shows as a bulleted list. */
+const bullets = (text?: string) => (text ?? '').split('\n').map((l) => l.trim()).filter(Boolean).map((l) => `- ${l}`).join('\n');
 
 export type TemplateValues = {
   club: string; team: string; player: string; starts: string; ends: string; years: number;
@@ -80,6 +99,8 @@ export function fillTemplate(body: string, v: TemplateValues): string {
     season: v.season ?? '', division: v.division ?? '',
     season_objectives: objectives, club_fees: v.settings?.club_fees?.trim() ?? '',
     max_fee_per_year: v.settings?.max_fee_per_year?.trim() ?? '', volunteer_amount: v.settings?.volunteer_amount?.trim() ?? '',
+    team_fee: v.settings?.team_fee?.trim() ?? '', included_list: bullets(v.settings?.included), not_included_list: bullets(v.settings?.not_included),
+    prices_link: `${webUrl()}/membership#fees`,
   };
   return body.replace(/\{\{(\w+)\}\}/g, (m, k: string) => (values[k] ? values[k]! : BLANKS[k] ?? (k in values ? '' : m)));
 }

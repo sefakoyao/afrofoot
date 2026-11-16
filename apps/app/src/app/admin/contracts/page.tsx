@@ -140,16 +140,17 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
             </select></label>
           <label className="grid gap-1 text-sm font-semibold">{t('autoYears')}
             <select name="years" defaultValue={String(settings.years)} className={input}>{[1, 2, 3].map((y) => <option key={y} value={y}>{t('yearsN', { count: y })}</option>)}</select></label>
-          <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('autoClubFees')}
-            <input name="club_fees" maxLength={300} defaultValue={settings.club_fees} placeholder={t('autoClubFeesEg')} className={input} lang="en" dir="ltr" /></label>
-          <label className="grid gap-1 text-sm font-semibold">{t('autoMaxFee')}
-            <input name="max_fee_per_year" maxLength={40} defaultValue={settings.max_fee_per_year} placeholder="150" className={input} inputMode="decimal" dir="ltr" /></label>
-          <label className="grid gap-1 text-sm font-semibold">{t('autoVolunteer')}
-            <input name="volunteer_amount" maxLength={40} defaultValue={settings.volunteer_amount} placeholder="50" className={input} inputMode="decimal" dir="ltr" /></label>
+          <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('autoTeamFee')}
+            <input name="team_fee" maxLength={200} defaultValue={settings.team_fee} placeholder={t('autoTeamFeeEg')} className={input} lang="en" dir="ltr" data-team-fee /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('autoIncluded')}
+            <textarea name="included" rows={6} maxLength={1000} defaultValue={settings.included} lang="en" dir="ltr" className="rounded-control border border-line bg-raised p-3 font-normal" data-included /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('autoNotIncluded')}
+            <textarea name="not_included" rows={6} maxLength={1000} defaultValue={settings.not_included} lang="en" dir="ltr" className="rounded-control border border-line bg-raised p-3 font-normal" data-not-included /></label>
+          <p className="text-xs text-muted sm:col-span-2">{t('autoListHint')}</p>
           <p className="text-xs text-muted sm:col-span-2">{t('autoFieldsNote')}</p>
           <button className="min-h-11 justify-self-start rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">{t('autoSave')}</button>
         </form>
-        {!settings.club_fees || !settings.max_fee_per_year || !settings.volunteer_amount
+        {!settings.team_fee || !settings.included
           ? <p className="mt-3 rounded-card bg-danger/10 p-3 text-sm font-semibold text-danger" data-auto-incomplete>{t('autoIncomplete')}</p> : null}
       </section>
 

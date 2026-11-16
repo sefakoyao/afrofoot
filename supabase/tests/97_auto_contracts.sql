@@ -13,7 +13,7 @@ insert into team_seasons (id, team_id, season_id) values ('a7300000-0000-0000-00
 
 select t.check('contract settings exist, private, default "send", 1 year', (select value->>'auto' = 'send' and (value->>'years')::int = 1 and not is_public from site_settings where key = 'contracts'));
 select t.check('template: season, fees and amounts are fields now', (select body like '%{{season_objectives}}%' and body like '%{{club_fees}}%' and body like '%{{max_fee_per_year}}%'
-  and body like '%{{volunteer_amount}}%' and body not like '%[[%' from contract_templates where is_default));
+  and body like '%{{volunteer_amount}}%' and body not like '%[[%' from contract_templates where name = 'Player contract'));  -- 0038 made a new default
 select t.check('release 0.25.0 present', exists (select 1 from app_releases where version = '0.25.0'));
 
 select t.login('a7000000-0000-0000-0000-000000000001');

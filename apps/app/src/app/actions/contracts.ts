@@ -160,20 +160,22 @@ export async function declineContract(fd: FormData): Promise<void> {
 }
 
 // ---------- automatic contracts (migration 0037) ----------
+const list = z.string().transform((v) => v.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean).slice(0, 15).join('\n')).pipe(z.string().max(1000, 'r_invalid'));
 const settingsSchema = z.object({
   auto: z.enum(['send', 'draft', 'off']),
   years: z.coerce.number().int().min(1, 'r_invalid').max(3, 'r_invalid'),
-  club_fees: z.string().trim().max(300, 'r_invalid'),
-  max_fee_per_year: z.string().trim().max(40, 'r_invalid'),
-  volunteer_amount: z.string().trim().max(40, 'r_invalid'),
+  team_fee: z.string().trim().max(200, 'r_invalid'),
+  included: list, not_included: list,
 });
 
 /** What happens when a player joins a team, the contract length, and the fee lines printed in every contract. */
 export async function saveContractSettings(fd: FormData): Promise<void> {
   const { supabase } = await adminDb();
-  const p = settingsSchema.safeParse(Object.fromEntries(['auto', 'years', 'club_fees', 'max_fee_per_year', 'volunteer_amount'].map((k) => [k, fd.get(k) ?? ''])));
+  const p = settingsSchema.safeParse(Object.fromEntries(['auto', 'years', 'team_fee', 'included', 'not_included'].map((k) => [k, fd.get(k) ?? ''])));
   if (!p.success) go('/admin/contracts', 'r_invalid', '#auto-h');
-  const { error } = await supabase.from('site_settings').upsert({ key: 'contracts', value: p.data, is_public: false });
+  // keep the 0037 fields (used by the earlier template) while saving the amateur agreement's fields
+  const { data: old } = await supabase.from('site_settings').select('value').eq('key', 'contracts').maybeSingle();
+  const { error } = await supabase.from('site_settings').upsert({ key: 'contracts', value: { ...((old?.value as object | null) ?? {}), ...p.data }, is_public: false });
   if (error) { console.error('[contracts] settings refused', { code: error.code, message: error.message }); go('/admin/contracts', 'r_error', '#auto-h'); }
   refresh();
   go('/admin/contracts', 'r_settingsSaved', '#auto-h');

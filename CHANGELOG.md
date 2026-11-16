@@ -3,6 +3,17 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – amateur player agreement, release 0.26.0 (branch `phase2/amateur-contract`)
+- **New default contract template "Player agreement (amateur)":**
+  - Players are not paid; they contribute to the team's costs with the membership fee.
+  - What the fee includes (league fee per player, training and games, training ground booking, the app, personal development plan) and what it doesn't (player insurance, player licence).
+  - The player buys their own licence, with a link to the licence and insurance prices on the website.
+  - A **Fee exemption** section: in rare cases the board may reduce or waive a player's fee for financial reasons, on a proposal from the coach or team manager, kept confidential.
+  - The club's and player's obligations are adapted to match.
+- **Admin → Contracts → Automatic contracts:** "Membership fee for the season" and the two lists **includes / does not include** (one item per line, prefilled) replace the old fee fields.
+- The earlier template is kept (not default). Drafts made before can be updated with "Fill in again from the template".
+- **Migration 0038 (run once in the SQL Editor):** new default template, settings lists; 11 new database tests.
+
 ## Unreleased – team page without migration 0037 (branch `phase2/teams-page-fallback`)
 - The admin team page showed "404 – This page could not be found" when migration 0037 had not been run yet: it asked for the new objectives column. It now opens without the "Season and objectives" box until the migration is in. Automatic contracts likewise leave that line as a blank. No database changes.
 
