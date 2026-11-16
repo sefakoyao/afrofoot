@@ -17,8 +17,8 @@ export function NewsCard({ post, index, locale, date, readMore }: { post: Post; 
       </Link>
       <div className="flex flex-1 flex-col p-5">
         <time className="text-sm text-muted" dateTime={post.published_at}>{date}</time>
-        <h3 className="mt-1 font-display text-xl font-extrabold leading-snug">{title}</h3>
-        {excerpt ? <p className="mt-2 line-clamp-3 text-muted">{excerpt}</p> : null}
+        <h3 dir="auto" className="mt-1 font-display text-xl font-extrabold leading-snug">{title}</h3>
+        {excerpt ? <p dir="auto" className="mt-2 line-clamp-3 text-muted">{excerpt}</p> : null}
         <Link href={`/news/${post.slug}`} className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-accent px-5 py-2 font-display font-bold text-on-accent transition hover:brightness-110 hover:gap-3">
           {readMore} <span aria-hidden className="rtl:rotate-180">→</span>
         </Link>
