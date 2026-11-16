@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – website menu with sub-menus (branch `phase2/web-menus`)
+- **Four menus instead of twelve links:** Teams ▾ · Matches ▾ · Club ▾ · Join us ▾, then the language, Sign in and a green **Join the club** button. The black top bar is gone; the logo leads home.
+  - Teams: Men, Women, Juniors. Matches: Calendar, Results & standings. Club: News, Sponsors & partners, Contact. Join us: Join the club, Book a try-out, Membership & fees, Pay my fee.
+  - Each entry has a one-line description, so visitors know what they will find. The menu holding the current page is highlighted.
+  - Click or Enter opens a menu; arrow keys move through it; Esc or a click outside closes it.
+- **Phones:** Join and ☰ Menu in the header; the menu opens full screen with fold-out groups, Join the club, Sign in and the four languages.
+- **Footer** lists every page (now also Women and Juniors).
+- Text in en / fi / fr / ar (Arabic opens the menus from the right). No database changes.
+
 ## Unreleased – news from the old website (branch `phase2/news-import`)
 - **All 37 articles from the old WordPress site** (2021 – March 2026), with their original dates, text, emoji, links, headings, quotes and pictures.
   - `supabase/content/news_import_old_site.sql`: run once in the SQL Editor. Safe to run again: existing articles are left as they are.
