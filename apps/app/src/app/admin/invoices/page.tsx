@@ -44,6 +44,9 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     supabase.from('seasons').select('name').eq('is_current', true).maybeSingle(),
   ]);
   const ready = ibanValid(billing.iban) && !!billing.legal_name;
+  // 0036: due memberships waiting for the player's contract signature or Code of Conduct consent
+  const { data: holdRows } = await supabase.rpc('invoice_holds');
+  const holds = (holdRows ?? []) as { membership_id: string; player_id: string; player_name: string; next_due_on: string; missing: ('conduct' | 'contract')[] }[];
   const firstOfNextMonth = (() => { const [y, m] = today.split('-').map(Number) as [number, number]; return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); })();
   const result = typeof sp.result === 'string' ? sp.result : '';
   const playerName = filters.player ? (players ?? []).find((p) => p.id === filters.player) : null;
@@ -73,6 +76,23 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           <button className={btn} disabled={!ready}>{t('runNow')}</button>
         </form>
         <p className="mt-2 text-xs text-muted">{t('runNowNote')}</p>
+        {billing.require_consents ? <p className="mt-2 text-sm">{t('holdRule')}</p> : null}
+        {holds.length ? (
+          <div className="mt-4 rounded-card border-2 border-danger/30 bg-danger/5 p-4" data-holds>
+            <h3 className="font-display font-extrabold">{t('holdsTitle', { count: holds.length })}</h3>
+            <p className="text-sm text-muted">{t('holdsLead')}</p>
+            <ul className="mt-2 divide-y divide-line">
+              {holds.map((h) => (
+                <li key={h.membership_id} className="flex flex-wrap items-center gap-2 py-2 text-sm" data-hold={h.player_name}>
+                  <bdi className="font-semibold">{h.player_name}</bdi>
+                  <span className="text-muted">{t('holdDue', { date: day(h.next_due_on) })}</span>
+                  {h.missing.map((m) => <span key={m} className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger" data-missing={m}>{t(`holdMissing_${m}`)}</span>)}
+                  {h.missing.includes('contract') ? <a href={`/admin/contracts?player=${h.player_id}`} className="font-semibold text-pitch underline underline-offset-2">{t('holdOpenContracts')}</a> : null}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
 
       {/* 2. invoices: search, filters, totals, paging */}
@@ -212,6 +232,10 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           <label className="grid gap-1 text-sm font-semibold">{t('b_payment_terms_days')}<input name="payment_terms_days" type="number" min={0} max={120} required defaultValue={billing.payment_terms_days} className={input} /></label>
           <label className="grid gap-1 text-sm font-semibold">{t('b_lead_days')}<input name="lead_days" type="number" min={0} max={60} required defaultValue={billing.lead_days} className={input} /></label>
           <label className="grid gap-1 text-sm font-semibold">{t('b_late_interest')}<input name="late_interest" inputMode="decimal" required defaultValue={billing.late_interest} className={input} /></label>
+          <label className="flex items-start gap-3 rounded-card bg-surface p-3 text-sm sm:col-span-2">
+            <input type="checkbox" name="require_consents" defaultChecked={billing.require_consents} className="mt-0.5 size-5 accent-accent" data-require-consents />
+            <span><span className="font-semibold">{t('b_require_consents')}</span><span className="block text-xs text-muted">{t('b_require_consents_hint')}</span></span>
+          </label>
           <button className={`${btn} sm:col-span-2 sm:justify-self-start`}>{t('save')}</button>
         </form>
         <p className="mt-2 text-xs text-muted">{t('billingPublic')}</p>

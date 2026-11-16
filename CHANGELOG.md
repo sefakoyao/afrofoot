@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Code of Conduct jump links, invoices after contract and consent, release 0.24.0 (branch `phase2/invoice-consents`)
+- **Jump links in the Code of Conduct:**
+  - The "Please read and agree" reminder now opens the Code of Conduct at the **players' section** (`#players`); coaches land on the coaches' section (`#coaches`).
+  - A contents box at the top offers "Go to the players' section", "Go to “I agree”" and a list of every section.
+- **Invoices only after the contract and the Code of Conduct:**
+  - A player's membership invoice is issued only once the player has signed a contract that covers the invoice date and agreed to the current Code of Conduct. The player's signature is enough; the club's countersignature is not needed.
+  - The membership keeps its invoice date, so the first run after the player has done both invoices that period. Nothing is skipped.
+  - Admin → Invoices lists who is waiting and what is missing, with a link to the player's contracts.
+  - The rule can be switched off in Billing details (on by default).
+- Admin → Contracts accepts `?player=` to show one player's contracts, with that player chosen for a new contract.
+- **Migration 0036 (run once in the SQL Editor):** `app.invoice_hold`, a new `app.generate_due_invoices` with the rule, `public.invoice_holds()` for admins, and the billing setting `require_consents`. 22 new database tests.
+
 ## Unreleased – lineup style first on phones (branch `phase2/board-mobile-order`)
 - Coach match page, lineup board: on phones and tablets the lineup style panel (style, formation, description) now comes before the starting XI pitch, then the players. Wide screens keep the pitch on the left with the style panel and players on the right. The order is the same for keyboard and screen-reader users. No database changes.
 

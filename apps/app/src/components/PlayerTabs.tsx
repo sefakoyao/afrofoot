@@ -24,7 +24,7 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
       {conductMissing && !path.startsWith('/me/conduct') ? (
         <div data-conduct-banner className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-danger/40 bg-danger/5 p-4">
           <p className="font-semibold">{t('conductBanner')}</p>
-          <Link href="/me/conduct" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('conductBannerCta')}</Link>
+          <Link href="/me/conduct#players" data-conduct-jump className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('conductBannerCta')}</Link>
         </div>
       ) : null}
       {contractToSign && !path.startsWith('/me/contract') ? (

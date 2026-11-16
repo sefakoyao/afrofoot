@@ -53,6 +53,8 @@ const billingSchema = z.object({
   payment_terms_days: z.coerce.number().int().min(0, 'r_terms').max(120, 'r_terms'),
   lead_days: z.coerce.number().int().min(0, 'r_lead').max(60, 'r_lead'),
   late_interest: z.string().trim().refine((v) => /^\d{1,2}(\.\d{1,2})?$/.test(v) && Number(v) <= 30, 'r_interest').transform((v) => Number(v).toFixed(2)),
+  // 0036: invoice a player only once the contract is signed and the Code of Conduct agreed (checkbox: absent = off)
+  require_consents: z.literal('on').optional().transform((v) => v === 'on'),
 });
 
 export async function saveBilling(fd: FormData): Promise<void> {

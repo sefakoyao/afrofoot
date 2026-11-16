@@ -1577,7 +1577,16 @@
     "pageOf": "Sivu {page}/{pages}",
     "prev": "Edellinen",
     "next": "Seuraava",
-    "invoicesLink": "Laskut"
+    "invoicesLink": "Laskut",
+    "b_require_consents": "Laskuta pelaajaa vasta, kun sopimus on allekirjoitettu ja toimintaohjeet hyväksytty",
+    "b_require_consents_hint": "Jäsenyys odottaa ja laskutetaan ensimmäisellä ajolla, kun pelaaja on tehnyt molemmat, joten mikään jakso ei jää laskuttamatta. Pelaajan allekirjoittama sopimus riittää, vaikka seura ei olisi vielä vahvistanut sitä.",
+    "holdRule": "Pelaajat laskutetaan, kun he ovat allekirjoittaneet sopimuksen ja hyväksyneet toimintaohjeet.",
+    "holdsTitle": "Odottaa ennen laskutusta ({count})",
+    "holdsLead": "Jäsenmaksulasku on erääntymässä, mutta odottaa:",
+    "holdDue": "eräpäivä {date}",
+    "holdMissing_conduct": "Toimintaohjeita ei hyväksytty",
+    "holdMissing_contract": "Ei allekirjoitettua sopimusta",
+    "holdOpenContracts": "Sopimukset"
   },
   "conduct": {
     "title": "Toimintaohjeet",
@@ -1606,7 +1615,12 @@
     "overviewAll": "Kaikki aktiiviset pelaajat ovat hyväksyneet nykyisen version.",
     "overviewCta": "Näytä ketkä",
     "coachBanner": "Lue ja hyväksy seuran toimintaohjeet (osio V koskee valmentajia).",
-    "coachIntro": "Virallinen teksti on englanniksi. Osio V on valmentajien, joukkueenjohtajien ja seuran toimihenkilöiden ohje."
+    "coachIntro": "Virallinen teksti on englanniksi. Osio V on valmentajien, joukkueenjohtajien ja seuran toimihenkilöiden ohje.",
+    "contents": "Kaikki osiot",
+    "jump_players": "Siirry pelaajien osioon",
+    "jump_coaches": "Siirry valmentajien osioon",
+    "jumpAgree": "Siirry hyväksymiseen",
+    "jumpAgreed": "Hyväksyntäsi"
   },
   "contract": {
     "adminTitle": "Pelaajasopimukset",

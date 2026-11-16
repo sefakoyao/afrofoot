@@ -56,7 +56,7 @@ export default async function CoachHome() {
       {conduct?.version && !conduct.agreedAt ? (
         <div data-conduct-banner className="flex flex-wrap items-center justify-between gap-3 rounded-card border-2 border-danger/40 bg-danger/5 p-4">
           <p className="font-semibold">{tc('coachBanner')}</p>
-          <Link href="/coach/conduct" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tc('readAndAgree')}</Link>
+          <Link href="/coach/conduct#coaches" className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tc('readAndAgree')}</Link>
         </div>
       ) : null}
       {(nextMatches ?? []).length ? (

@@ -147,6 +147,19 @@ so the link works on any device. (The default template only works in the browser
 
 **About robots:** the football check, a hidden honeypot field and a time check protect the app's forms. Supabase's own sign-up address can still be called directly with the public key, but such accounts stay pending and can do nothing. To also protect text-message costs at that level, Supabase's built-in CAPTCHA (Cloudflare Turnstile) can be added later. Do not switch it on in Supabase before the app shows the widget, or sign-up stops working.
 
+## 3l. Invoices after the contract and the Code of Conduct (migration 0036, release 0.24.0)
+**Database:** paste `supabase/migrations/20260101000036_invoice_after_consents.sql` into Supabase → SQL Editor and run it once.
+
+**From then on:**
+- A player's membership is invoiced (nightly job, or "Create due invoices now") only once the player has:
+  1. signed a contract that covers the invoice date (the club's countersignature is not needed), and
+  2. agreed to the current Code of Conduct in the app.
+- Until then the membership waits with its invoice date unchanged, so the first run afterwards invoices that period.
+- Admin → Invoices shows "Waiting before invoicing" with what each player still has to do.
+- Players without an app account cannot agree to the Code of Conduct, so they wait too. Invite them, or switch the rule off.
+
+**Switch:** Admin → Invoices → Billing details → "Invoice a player only after the contract is signed and the Code of Conduct agreed" (on by default).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

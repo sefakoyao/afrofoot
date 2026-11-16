@@ -1577,7 +1577,16 @@
     "pageOf": "Page {page} sur {pages}",
     "prev": "Précédent",
     "next": "Suivant",
-    "invoicesLink": "Factures"
+    "invoicesLink": "Factures",
+    "b_require_consents": "Facturer un joueur seulement après la signature du contrat et l’acceptation du code de conduite",
+    "b_require_consents_hint": "L’adhésion attend ; elle est facturée au premier passage après que le joueur a fait les deux, sans perdre de période. Un contrat signé par le joueur compte, même avant la contre-signature du club.",
+    "holdRule": "Les joueurs sont facturés une fois leur contrat signé et le code de conduite accepté.",
+    "holdsTitle": "En attente avant facturation ({count})",
+    "holdsLead": "Leur facture d’adhésion est due mais attend :",
+    "holdDue": "échéance {date}",
+    "holdMissing_conduct": "Code de conduite non accepté",
+    "holdMissing_contract": "Pas de contrat signé",
+    "holdOpenContracts": "Contrats"
   },
   "conduct": {
     "title": "Code de conduite",
@@ -1606,7 +1615,12 @@
     "overviewAll": "Tous les joueurs actifs ont accepté la version actuelle.",
     "overviewCta": "Voir qui",
     "coachBanner": "Lisez et acceptez le code de conduite du club (la section V concerne les entraîneurs).",
-    "coachIntro": "Le texte officiel est en anglais. La section V est le code des entraîneurs, managers et dirigeants du club."
+    "coachIntro": "Le texte officiel est en anglais. La section V est le code des entraîneurs, managers et dirigeants du club.",
+    "contents": "Toutes les sections",
+    "jump_players": "Aller à la section des joueurs",
+    "jump_coaches": "Aller à la section des entraîneurs",
+    "jumpAgree": "Aller à « J’accepte »",
+    "jumpAgreed": "Votre accord"
   },
   "contract": {
     "adminTitle": "Contrats de joueurs",
