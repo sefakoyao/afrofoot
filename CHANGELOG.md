@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – "My profile" tab (branch `phase2/profile-tab`)
+- **Player tabs:** Calendar · Membership · My season · **My profile**. The four tabs fit a phone screen; the selected tab is kept in view.
+- **My profile:**
+  - **Sport details:** team and division, position, second position, shirt number (set by the coach, read-only), preferred foot, height and weight, phone, and the emergency contact with its relation. A missing phone or emergency contact is flagged.
+  - Below it: the photo, and the form to edit sport details, phone and the **emergency contact** (relation drop-down).
+- **My season:** keeps the match statistics and training attendance; the profile card moved to My profile (with a link).
+- No database changes.
+
 ## Unreleased – Membership tab order: payments, team's goals, signed documents (branch `phase2/membership-order`)
 - **Player → Membership tab, new order:**
   1. **Payments:** summary, how to pay, invoices, payment history.

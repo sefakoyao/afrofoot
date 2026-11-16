@@ -9,6 +9,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export interface PlayerSport {
   id: string; position: string | null; secondaryPosition: string | null; preferredFoot: string | null;
   heightCm: number | null; weightKg: number | null; shirt: number | null;
+  teams: { name: string; division: string | null }[];
   phone: string | null; emergencyName: string | null; emergencyRelation: string | null; emergencyPhone: string | null;
 }
 
@@ -18,12 +19,13 @@ export async function loadPlayerSport(db: SupabaseClient, profileId: string): Pr
   if (!p) return null;
   const [{ data: priv }, { data: roster }] = await Promise.all([
     db.from('player_private').select('phone, emergency_name, emergency_relation, emergency_phone').eq('player_id', p.id).maybeSingle(),
-    db.from('team_players').select('jersey_number, team_seasons!inner(seasons!inner(is_current))')
-      .eq('player_id', p.id).is('left_on', null).eq('team_seasons.seasons.is_current', true).limit(1),
+    db.from('team_players').select('jersey_number, team_seasons!inner(division, teams!inner(name), seasons!inner(is_current))')
+      .eq('player_id', p.id).is('left_on', null).eq('team_seasons.seasons.is_current', true),
   ]);
   return {
     id: p.id, position: p.position, secondaryPosition: p.secondary_position, preferredFoot: p.preferred_foot,
     heightCm: p.height_cm, weightKg: p.weight_kg, shirt: (roster?.[0]?.jersey_number as number | null | undefined) ?? null,
+    teams: ((roster ?? []) as unknown as { team_seasons: { division: string | null; teams: { name: string } } }[]).map((r) => ({ name: r.team_seasons.teams.name, division: r.team_seasons.division })),
     phone: priv?.phone ?? null, emergencyName: priv?.emergency_name ?? null, emergencyRelation: priv?.emergency_relation ?? null, emergencyPhone: priv?.emergency_phone ?? null,
   };
 }

@@ -1278,7 +1278,8 @@
     "copied": "Copied",
     "teamGoalsTitle": "Team's goals",
     "teamGoalsNone": "The club has not written this season's goals yet.",
-    "documentsTitle": "Signed documents"
+    "documentsTitle": "Signed documents",
+    "tabProfile": "My profile"
   },
   "account": {
     "title": "My account",
@@ -1351,7 +1352,14 @@
     "e_photoType": "Use a JPEG, PNG or WebP picture.",
     "e_photoSize": "The picture is too large.",
     "relationChoose": "Choose…",
-    "relationOther": "Write the relation"
+    "relationOther": "Write the relation",
+    "detailsTitle": "Sport details",
+    "team": "Team",
+    "secondaryPosition": "Second position",
+    "heightWeight": "Height · weight",
+    "notSet": "not set yet",
+    "clubSetNote": "Team, positions and shirt number are set by your coach. You fill in the rest below.",
+    "seeProfile": "Your sport details and emergency contact are on the My profile tab."
   },
   "teams": {
     "title": "Teams",

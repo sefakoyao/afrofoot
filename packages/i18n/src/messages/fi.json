@@ -1278,7 +1278,8 @@
     "copied": "Kopioitu",
     "teamGoalsTitle": "Joukkueen tavoitteet",
     "teamGoalsNone": "Seura ei ole vielä kirjoittanut tämän kauden tavoitteita.",
-    "documentsTitle": "Allekirjoitetut asiakirjat"
+    "documentsTitle": "Allekirjoitetut asiakirjat",
+    "tabProfile": "Oma profiili"
   },
   "account": {
     "title": "Oma tili",
@@ -1351,7 +1352,14 @@
     "e_photoType": "Käytä JPEG-, PNG- tai WebP-kuvaa.",
     "e_photoSize": "Kuva on liian suuri.",
     "relationChoose": "Valitse…",
-    "relationOther": "Kirjoita suhde"
+    "relationOther": "Kirjoita suhde",
+    "detailsTitle": "Urheilutiedot",
+    "team": "Joukkue",
+    "secondaryPosition": "Toissijainen pelipaikka",
+    "heightWeight": "Pituus · paino",
+    "notSet": "ei vielä asetettu",
+    "clubSetNote": "Joukkueen, pelipaikat ja pelinumeron asettaa valmentajasi. Täytä loput alla.",
+    "seeProfile": "Urheilutietosi ja hätäyhteystietosi ovat Oma profiili -välilehdellä."
   },
   "teams": {
     "title": "Joukkueet",

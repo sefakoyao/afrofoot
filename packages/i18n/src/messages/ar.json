@@ -1278,7 +1278,8 @@
     "copied": "تم النسخ",
     "teamGoalsTitle": "أهداف الفريق",
     "teamGoalsNone": "لم يكتب النادي أهداف هذا الموسم بعد.",
-    "documentsTitle": "المستندات الموقّعة"
+    "documentsTitle": "المستندات الموقّعة",
+    "tabProfile": "ملفي"
   },
   "account": {
     "title": "حسابي",
@@ -1351,7 +1352,14 @@
     "e_photoType": "استخدم صورة بصيغة JPEG أو PNG أو WebP.",
     "e_photoSize": "الصورة كبيرة جدًا.",
     "relationChoose": "اختر…",
-    "relationOther": "اكتب صلة القرابة"
+    "relationOther": "اكتب صلة القرابة",
+    "detailsTitle": "البيانات الرياضية",
+    "team": "الفريق",
+    "secondaryPosition": "المركز الثاني",
+    "heightWeight": "الطول · الوزن",
+    "notSet": "لم يُحدَّد بعد",
+    "clubSetNote": "يحدد مدربك الفريق والمراكز ورقم القميص. أكمل الباقي أدناه.",
+    "seeProfile": "بياناتك الرياضية وجهة الاتصال للطوارئ في تبويب ملفي."
   },
   "teams": {
     "title": "الفرق",

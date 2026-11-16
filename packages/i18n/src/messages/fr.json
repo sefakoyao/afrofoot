@@ -1278,7 +1278,8 @@
     "copied": "Copié",
     "teamGoalsTitle": "Objectifs de l'équipe",
     "teamGoalsNone": "Le club n'a pas encore écrit les objectifs de cette saison.",
-    "documentsTitle": "Documents signés"
+    "documentsTitle": "Documents signés",
+    "tabProfile": "Mon profil"
   },
   "account": {
     "title": "Mon compte",
@@ -1351,7 +1352,14 @@
     "e_photoType": "Utilisez une image JPEG, PNG ou WebP.",
     "e_photoSize": "L'image est trop grande.",
     "relationChoose": "Choisir…",
-    "relationOther": "Précisez le lien"
+    "relationOther": "Précisez le lien",
+    "detailsTitle": "Infos sportives",
+    "team": "Équipe",
+    "secondaryPosition": "Poste secondaire",
+    "heightWeight": "Taille · poids",
+    "notSet": "pas encore défini",
+    "clubSetNote": "L'équipe, les postes et le numéro sont définis par ton entraîneur. Tu remplis le reste ci-dessous.",
+    "seeProfile": "Tes infos sportives et ton contact d'urgence sont dans l'onglet Mon profil."
   },
   "teams": {
     "title": "Équipes",
