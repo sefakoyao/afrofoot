@@ -2,19 +2,45 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Figtree, Cairo } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Analytics } from '@vercel/analytics/next';
 import { notFound } from 'next/navigation';
 import { LOCALES, dirOf, isLocale } from '@afrofoot/i18n';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { OG_IMAGE, SITE_NAME, SITE_URL, jsonLd, pageMeta } from '@/lib/seo';
 import '../globals.css';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', display: 'swap' });
 
-export const metadata: Metadata = {
-  title: { default: 'Afro Foot Club', template: '%s · Afro Foot Club' },
-  description: 'Afro Foot Club, Helsinki. One team, no borders, pure football.',
+// Optional: the code Google Search Console gives for the "HTML tag" check (the DNS check needs no code).
+const GOOGLE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
+/** Defaults for every page; each page sets its own title, description and language links (lib/seo.ts). */
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'site' });
+  // The home page's description and preview as defaults, but no address: pages without their own (404) get no canonical link.
+  const { alternates: _a, openGraph, ...defaults } = pageMeta({ locale, path: '/', description: t('seo_home') });
+  const { url: _u, ...og } = (openGraph ?? {}) as Record<string, unknown>;
+  return {
+    ...defaults,
+    openGraph: og,
+    metadataBase: new URL(SITE_URL),
+    title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+    applicationName: SITE_NAME,
+    icons: { icon: '/icon.png', apple: '/icon.png' },
+    ...(GOOGLE_VERIFICATION ? { verification: { google: GOOGLE_VERIFICATION } } : {}),
+  };
+}
+
+/** Structured data for search engines: who the club is (name, logo, contact, city). */
+const CLUB_LD = {
+  '@context': 'https://schema.org', '@type': 'SportsOrganization', name: SITE_NAME, alternateName: 'Afro Foot Club ry',
+  url: SITE_URL, logo: `${SITE_URL}/afc-logo.png`, image: SITE_URL + OG_IMAGE.url, sport: 'Football',
+  email: 'info@afrofoot.club', telephone: '+358504773030',
+  address: { '@type': 'PostalAddress', addressLocality: 'Helsinki', addressCountry: 'FI' },
 };
 
 export function generateStaticParams() {
@@ -35,6 +61,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <main>{children}</main>
           <Footer />
         </NextIntlClientProvider>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(CLUB_LD) }} />
+        {/* Cookie-free visitor statistics (Vercel Web Analytics); sends nothing outside a Vercel deployment. */}
+        <Analytics />
       </body>
     </html>
   );

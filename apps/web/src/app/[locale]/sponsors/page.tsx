@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { SponsorForm } from '@/components/forms/Forms';
@@ -5,6 +7,10 @@ import { Card, Check, H2, Hero, Section, Tag } from '@/components/Page';
 import { FORM_KEYS, pick } from '@/lib/labels';
 import Image from 'next/image';
 import { SPONSORS } from '@/lib/sponsors';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/sponsors', 'n_sp', 'seo_sp');
+}
 
 const PACKAGES = [
   ['pk1', 'pk1s', ['pk1a', 'pk1b', 'pk1c', 'pk1d']], ['pk2', 'pk2s', ['pk2a', 'pk2b', 'pk2c']], ['pk3', 'pk3s', ['pk3a', 'pk3b']], ['pk4', 'pk4s', ['pk4a']],
