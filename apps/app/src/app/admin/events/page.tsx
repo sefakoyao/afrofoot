@@ -14,20 +14,31 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * Admin → Events (migration 0034): club-wide and team events, from yesterday on, with cancel / restore, and the saved
- * places with their Google Maps links. Training and matches stay with the coaches (team pages).
+ * places with their Google Maps links. Admins can also add a training or game for a team (saved like the coaches' own);
+ * the next trainings and games of all teams are listed, while attendance and line-ups stay on the coaches' team pages.
  */
 export default async function AdminEventsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
-  const [sp, t, rawLocale, supabase] = await Promise.all([searchParams, getTranslations('events'), getLocale(), getSupabase()]);
+  const [sp, t, tm, tc, rawLocale, supabase] = await Promise.all([searchParams, getTranslations('events'), getTranslations('match'), getTranslations('coach'), getLocale(), getSupabase()]);
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
   const when = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const hm = new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
-  const [{ data: events }, { data: teamRows }, { data: places }] = supabase ? await Promise.all([
+  const nowIso = new Date().toISOString();
+  const [{ data: events }, { data: teamRows }, { data: places }, { data: sessions }, { data: games }] = supabase ? await Promise.all([
     supabase.from('club_events').select('id, kind, title, starts_at, ends_at, meet_at, meeting_point, status, public, team_season_id, description, locations(name, address, city, maps_url)')
       .gte('ends_at', new Date(Date.now() - 86400000).toISOString()).order('starts_at').limit(60),
     supabase.from('team_seasons').select('id, teams!inner(name), seasons!inner(is_current)').eq('seasons.is_current', true),
     supabase.from('locations').select('id, name, address, city, maps_url').eq('active', true).order('name'),
-  ]) : [{ data: [] }, { data: [] }, { data: [] }];
+    supabase.from('training_sessions').select('id, title, starts_at, status, team_season_id, locations(name)').gte('starts_at', nowIso).order('starts_at').limit(30),
+    supabase.from('matches').select('id, opponent, event_type, division, home_away, kickoff_at, status, team_season_id, locations(name)').gte('kickoff_at', nowIso).order('kickoff_at').limit(30),
+  ]) : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: [] }];
+  type Sport = { id: string; kind: 'training' | 'game' | 'friendly'; title: string; at: string; status: string; team: string | null; place: string | null; extra: string | null };
+  const sport: Sport[] = [
+    ...((sessions ?? []) as unknown as { id: string; title: string; starts_at: string; status: string; team_season_id: string; locations: { name: string } | null }[])
+      .map((x) => ({ id: x.id, kind: 'training' as const, title: x.title, at: x.starts_at, status: x.status, team: x.team_season_id, place: x.locations?.name ?? null, extra: null })),
+    ...((games ?? []) as unknown as { id: string; opponent: string; event_type: 'game' | 'friendly'; division: string | null; home_away: string; kickoff_at: string; status: string; team_season_id: string; locations: { name: string } | null }[])
+      .map((x) => ({ id: x.id, kind: x.event_type, title: x.opponent, at: x.kickoff_at, status: x.status, team: x.team_season_id, place: x.locations?.name ?? null, extra: [x.division, tm(x.home_away === 'away' ? 'away' : 'home')].filter(Boolean).join(' · ') })),
+  ].sort((a, b) => a.at.localeCompare(b.at)).slice(0, 30);
   const teams = ((teamRows ?? []) as unknown as { id: string; teams: { name: string } }[]).map((x) => ({ id: x.id, name: x.teams.name }));
   const teamName = new Map(teams.map((x) => [x.id, x.name]));
   const back = '/admin/events';
@@ -44,8 +55,26 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
         <EventList events={(events ?? []) as unknown as EventRow[]} back={back} canChange={() => true} fmt={{ when, hm }} teamName={(id) => (id ? teamName.get(id) ?? null : null)} />
         <details className="mt-4 rounded-card bg-surface p-4" open={(events ?? []).length === 0}>
           <summary className="cursor-pointer font-semibold">{t('addEvent')}</summary>
-          <EventForm back={back} places={(places ?? []).map((p) => ({ id: p.id, name: p.name, city: p.city }))} teams={teams} />
+          <EventForm back={back} places={(places ?? []).map((p) => ({ id: p.id, name: p.name, city: p.city }))} teams={teams} sport />
         </details>
+      </section>
+      <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="sp-h" data-sport-list>
+        <h2 id="sp-h" className="font-display text-xl font-extrabold">{t('sportTitle')}</h2>
+        <p className="mt-1 text-sm text-muted">{t('sportLead')}</p>
+        {sport.length === 0 ? <p className="mt-2 text-muted">{t('noSport')}</p> : (
+          <ul className="mt-2 divide-y divide-line">
+            {sport.map((x) => (
+              <li key={x.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2" data-sport-item={x.kind}>
+                <span>
+                  <span className="me-2 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-bold text-pitch">{t(`kind_${x.kind}`)}</span>
+                  <bdi className={`font-semibold ${x.status === 'cancelled' ? 'line-through' : ''}`}>{x.kind === 'training' ? x.title : tc('vsOpponent', { opponent: x.title })}</bdi>
+                  {x.extra ? <span className="text-sm text-muted"> · {x.extra}</span> : null}
+                </span>
+                <span className="text-sm text-muted">{when.format(new Date(x.at))}{x.team ? ` · ${teamName.get(x.team) ?? ''}` : ''}{x.place ? ` · ${x.place}` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="pl-h">
         <h2 id="pl-h" className="font-display text-xl font-extrabold">{t('placesTitle')}</h2>

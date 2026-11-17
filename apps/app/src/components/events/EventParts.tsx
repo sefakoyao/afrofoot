@@ -3,6 +3,7 @@ import { createEvent, setEventStatus } from '@/app/actions/events';
 import { EVENT_KINDS } from '@/lib/events';
 import { mapsLinkFor } from '@/lib/locations';
 import { helsinkiToday } from '@/lib/time';
+import { KindFields } from './KindFields';
 import { LocationPicker, PinIcon, type PlaceOption } from './LocationPicker';
 
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
@@ -30,8 +31,11 @@ export async function PublicField({ className = '' }: { className?: string }) {
   );
 }
 
-/** Add an event: for one team (coach: own teams) or, for admins, the whole club. */
-export async function EventForm({ back, places, teams, fixedTeam }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string }) {
+/**
+ * Add an event: for one team (coach: own teams) or, for admins, the whole club. With `sport` (Admin → Events) the type list
+ * also offers Training, Game and Friendly game; fields that do not apply to the chosen type hide themselves (CSS :has).
+ */
+export async function EventForm({ back, places, teams, fixedTeam, sport = false }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string; sport?: boolean }) {
   const t = await getTranslations('events');
   return (
     <form action={createEvent} className="mt-3 grid gap-3 sm:grid-cols-2" data-event-form>
@@ -43,21 +47,19 @@ export async function EventForm({ back, places, teams, fixedTeam }: { back: stri
             {(teams ?? []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select></label>
       )}
-      <label className="grid gap-1 text-sm font-semibold">{t('kind')}
-        <select name="kind" defaultValue="meeting" className={input}>{EVENT_KINDS.map((k) => <option key={k} value={k}>{t(`kind_${k}`)}</option>)}</select></label>
-      <label className="grid gap-1 text-sm font-semibold">{t('title')}<input name="title" required minLength={2} maxLength={120} placeholder={t('titleEg')} className={input} /></label>
+      <KindFields kinds={EVENT_KINDS} sport={sport} defaultKind="meeting" />
       <label className="grid gap-1 text-sm font-semibold">{t('date')}<input name="date" type="date" required min={helsinkiToday()} defaultValue={helsinkiToday()} className={input} /></label>
       <div className="grid grid-cols-2 gap-3">
         <label className="grid gap-1 text-sm font-semibold">{t('start')}<input name="start" type="time" required defaultValue="18:00" className={input} /></label>
-        <label className="grid gap-1 text-sm font-semibold">{t('end')}<input name="end" type="time" required defaultValue="19:00" className={input} /></label>
+        <label className="grid gap-1 text-sm font-semibold [form:has(select[name=kind]_option[value=game]:checked)_&]:hidden [form:has(select[name=kind]_option[value=friendly]:checked)_&]:hidden" data-end-time>{t('end')}<input name="end" type="time" required defaultValue="19:00" className={input} /></label>
       </div>
-      <label className="grid gap-1 text-sm font-semibold">{t('endDate')}<input name="end_date" type="date" min={helsinkiToday()} className={input} />
+      <label className={`grid gap-1 text-sm font-semibold ${sport ? '[form:has(select[name=kind]_option[value=game]:checked)_&]:hidden [form:has(select[name=kind]_option[value=friendly]:checked)_&]:hidden [form:has(select[name=kind]_option[value=training]:checked)_&]:hidden' : ''}`} data-end-date>{t('endDate')}<input name="end_date" type="date" min={helsinkiToday()} className={input} />
         <span className="text-xs font-normal text-muted">{t('endDateHint')}</span></label>
       <div className="hidden sm:block" />
       <MeetFields />
       <LocationPicker places={places} className="sm:col-span-2" />
-      <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('description')}<textarea name="description" maxLength={2000} rows={3} className="w-full rounded-control border border-line bg-raised p-3" /></label>
-      <PublicField className="sm:col-span-2" />
+      <label className={`grid gap-1 text-sm font-semibold sm:col-span-2 ${sport ? '[form:has(select[name=kind]_option[value=game]:checked)_&]:hidden [form:has(select[name=kind]_option[value=friendly]:checked)_&]:hidden' : ''}`} data-description>{t('description')}<textarea name="description" maxLength={2000} rows={3} className="w-full rounded-control border border-line bg-raised p-3" /></label>
+      <PublicField className={`sm:col-span-2 ${sport ? '[form:has(select[name=kind]_option[value=game]:checked)_&]:hidden [form:has(select[name=kind]_option[value=friendly]:checked)_&]:hidden' : ''}`} />
       <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{t('add')}</button>
     </form>
   );
