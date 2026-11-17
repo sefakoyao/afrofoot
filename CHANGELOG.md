@@ -3,6 +3,16 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – trainings and games from Admin → Events (branch `phase2/admin-sport-events`)
+- **Admin → Events:** the event type list now starts with **Training**, **Game (league)** and **Friendly game** (grouped as "Trainings and games"), then the other events.
+  - They are saved exactly like the coaches' own trainings and games, so they appear in the team's calendar, on the coach's pages and, for public teams, on the website.
+  - A training or game needs a team, and starts and ends on the same day.
+  - **Training:** title, start and end, meeting time and point, place, and a focus (the description, up to 200 characters).
+  - **Game:** opponent, home or away, division (required for a league game), kick-off, place. It gets the standard pre-game protocol: meeting 90 minutes before unless a meeting time is given, then warm-up and briefing.
+  - Fields that don't apply hide themselves; for a game, that's the end time, end date, description and "on the website".
+- New **"Trainings and games"** list on the same page: the next trainings and games of all teams. Attendance and line-ups stay on the coaches' team pages.
+- Coaches' own event form is unchanged; they keep their training and game forms on the team page. No database changes.
+
 ## Unreleased – home page: fixtures placeholder, 100+ players (branch `phase2/home-placeholders`)
 - **Next match placeholder:** when no game is scheduled (off-season, or fixtures not published yet), the hero slide and the "Next match" section say *Fixtures coming soon: league games and pre-season friendlies will appear here as soon as they are confirmed*, with **View calendar** and **Apply for a tryout**. As soon as a game is scheduled in the member app, it replaces the placeholder (within a minute).
 - **Hero:** "100+ players" instead of "102+", in the number and in the intro text, in all four languages.

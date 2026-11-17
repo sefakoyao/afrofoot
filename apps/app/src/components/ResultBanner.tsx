@@ -23,8 +23,8 @@ const KEYS = {
       'r_evInvalid', 'r_evPlayer', 'r_evNotSquad', 'r_evNotOnPitch', 'r_evAlreadyPlayed', 'r_evOnlySub', 'r_evFinished', 'r_phaseOrder'],
   },
   events: {
-    ok: ['e_created', 'e_cancelled', 'e_restored'],
-    err: ['e_invalid', 'e_error', 'e_title', 'e_date', 'e_time', 'e_end', 'e_long', 'e_meet', 'e_location', 'e_notYours'],
+    ok: ['e_created', 'e_cancelled', 'e_restored', 'e_trainingCreated', 'e_matchCreated'],
+    err: ['e_invalid', 'e_error', 'e_title', 'e_date', 'e_time', 'e_end', 'e_long', 'e_meet', 'e_location', 'e_notYours', 'e_team', 'e_division', 'e_sameDay'],
   },
   contract: {
     ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined', 'r_settingsSaved', 'r_refilled'],
