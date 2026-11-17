@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – modern standings on the home page (branch `phase2/standings-banner`)
+- **Home → Standings:** "Latest results" and the league table (e.g. "Miesten Nelonen · Group 4") get black header banners with the green-to-yellow band from the top of the logo.
+- **Results:** a round W / D / L badge per game from the club's side (green win, yellow draw, black loss; read out in full by screen readers), the club's name in bold and the score in a black pill.
+- **Table:** a yellow strip "Afro Foot Club: 10. of 12 · 14 points", position badges (leader in green), and the club's row highlighted in yellow.
+- **Design system:** the logo's yellow (#EDF70F, token `gold`) is now allowed as a secondary accent, only as a fill with black text (CLAUDE.md, `docs/01-design-system.md`). New texts in four languages; no database changes.
+
 ## Unreleased – squad from Palloliitto, no consent needed (branch `phase2/squad-palloliitto`, migration 0042, release 0.30.0)
 - **Website, team page:** the squad now lists **every player on the club's current Palloliitto roster** (Palloliitto's public player register), without asking each player first. Only name, shirt number, position, and league goals and games; never birth year or nationality. A note says where the list comes from and how to be removed.
 - **Only the current roster:** players removed or marked inactive at Palloliitto are kept for the admin but not shown, and drop off at the next sync. Positions are stored as goalkeeper / defender / midfielder / forward (the service writes English or Finnish).

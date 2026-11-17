@@ -1134,7 +1134,14 @@
     "th_goals": "Goals",
     "sq_stats": "{goals} goals · {games} games · {season}",
     "sq_empty": "The squad appears here after the next update from Palloliitto.",
-    "sq_source": "From the Palloliitto player register. A player who prefers not to be listed can remove themselves in the member app or write to the club."
+    "sq_source": "From the Palloliitto player register. A player who prefers not to be listed can remove themselves in the member app or write to the club.",
+    "res_w": "W",
+    "res_d": "D",
+    "res_l": "L",
+    "res_win": "Win",
+    "res_draw": "Draw",
+    "res_loss": "Loss",
+    "st_you": "Afro Foot Club: {pos}. of {n} · {pts} points"
   },
   "admin": {
     "navOverview": "Overview",

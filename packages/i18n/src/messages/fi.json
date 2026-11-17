@@ -1134,7 +1134,14 @@
     "th_goals": "Maalit",
     "sq_stats": "{goals} maalia · {games} ottelua · {season}",
     "sq_empty": "Pelaajalista näkyy tässä seuraavan Palloliitto-päivityksen jälkeen.",
-    "sq_source": "Palloliiton pelaajarekisteristä. Pelaaja, joka ei halua näkyä listalla, voi poistaa itsensä jäsensovelluksessa tai kirjoittaa seuralle."
+    "sq_source": "Palloliiton pelaajarekisteristä. Pelaaja, joka ei halua näkyä listalla, voi poistaa itsensä jäsensovelluksessa tai kirjoittaa seuralle.",
+    "res_w": "V",
+    "res_d": "T",
+    "res_l": "H",
+    "res_win": "Voitto",
+    "res_draw": "Tasapeli",
+    "res_loss": "Tappio",
+    "st_you": "Afro Foot Club: {pos}. / {n} · {pts} pistettä"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

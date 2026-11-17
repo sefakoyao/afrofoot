@@ -1,6 +1,6 @@
 # Design system
 
-**Direction (updated 13 Nov): light theme, colours of the official logo.** The logo (black shield, green AFRO FOOT lettering, green top band, ivory lion) sets the palette: **green, black and white**. **No yellow.** White / off-white surfaces, near-black text, **logo green** (#3DAF2C) for primary buttons and highlights (with black text), **dark green** (#2A8A1C) for links and text accents, **black** for the top bar and footer. No dark mode in v1.
+**Direction (updated 13 Nov): light theme, colours of the official logo.** The logo (black shield, green AFRO FOOT lettering, green top band, ivory lion) sets the palette: **green, black and white**, plus the **logo yellow** (#EDF70F, token `gold`, from the end of the logo's top band) as a secondary accent since 17 Nov 2026: only as a fill with black text (result badges, the club's row, the green→yellow logo band), never as text on white. White / off-white surfaces, near-black text, **logo green** (#3DAF2C) for primary buttons and highlights (with black text), **dark green** (#2A8A1C) for links and text accents, **black** for the top bar and footer. No dark mode in v1.
 
 | Token | Value | Use |
 |---|---|---|
@@ -32,7 +32,7 @@
 
 ## Visual direction v2 — "big-club editorial" (inspired by hjk.fi)
 
-Colours unchanged: green #3DAF2C (accent), black, white. No yellow.
+Colours: green #3DAF2C (accent), black, white; logo yellow #EDF70F (`gold`) only as a fill with black text.
 - **Header**: black utility bar (audience links Men/Women/Juniors, social, join CTA) + white main bar with logo and a two-tier menu (label + small sub-label).
 - **Hero**: full-bleed black, huge uppercase headline, diagonal green slash, angled photo, angled bottom edge; CTAs are angled-corner buttons with uppercase text.
 - **Modules**: green promo band with one imperative headline + CTA; next-match block in black; news cards (image, date, category, headline, "Read more", "All news" link); results list beside standings; three image tiles; sponsors in tiers (main / partners); black footer with three brand values, contact block, social row, legal bar.

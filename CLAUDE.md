@@ -8,7 +8,7 @@ Rebuild of Afro Foot Club: public site (www.afrofoot.club, `apps/web`) and secur
 
 ## Rules
 - Languages en / fi / fr / ar. Arabic is RTL: use logical CSS properties. All text comes from `packages/i18n/src/messages/*.json` (`site.*` holds every preview text). Run `pnpm i18n:check`.
-- Colours: green #3DAF2C, black, white. **No yellow.** Typeface: Figtree (Latin), Cairo (Arabic). Round, pill buttons, soft cards.
+- Colours: green #3DAF2C, black, white; the logo's yellow (#EDF70F, token `gold`) as a secondary accent, only as a fill with black text (badges, highlights, the logo band), never as text on white. Typeface: Figtree (Latin), Cairo (Arabic). Round, pill buttons, soft cards.
 - Security: RLS default-deny, audit trail, server-side validation (zod) mirroring the DB constraints. No hard-coded data in production. Secrets only as environment variables (names in the plan), never in the repo. Torneopal key is server-side only.
 - Phone numbers must include the country code (+358 …); nationality is an ISO country code; birth date fields use the calendar picker.
 - Players with overdue fees cannot sign in (custom access token hook, migration 0022). Payment must stay possible from the public Membership page.
