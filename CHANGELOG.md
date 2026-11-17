@@ -14,6 +14,10 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
   - Admins never see or set a password and cannot sign in as the member. Every email sent is written to the audit log.
 - **Fix: reset and confirmation links now open on any device.** Until now a "Forgot password" link only worked in the browser that asked for it (Supabase's default email template uses PKCE), so opening the email on a phone said "link invalid". These emails are now sent without PKCE, and the new `/auth/hash` page takes over the session the link brings. The recommended `token_hash` template (§3b) still works as before.
 - Database: `signin_status()` and `log_signin_help()`, admins only. 11 database checks, 21 browser checks (including resetting a password on a second device).
+## Unreleased – contract blanks: fee from the membership plans, clear list of what is missing (branch `phase2/contract-blanks`)
+- **Membership fee line in contracts:** when Admin → Contracts → "Membership fee for the season" is left empty, contracts now use the club's active membership plans, e.g. "EUR 240 per year (or EUR 60 per quarter, or EUR 20 per month), invoiced through the Afro Foot Club app". The settings box shows that line and links to Invoices → Membership plans to change the amounts. A text written there still takes precedence.
+- **"Some [[…]] blanks are not filled in yet":** a draft contract now lists each missing blank, what it is (the team's season objectives, a fee line, or a blank typed into the text) and a link to where it is filled in, then says to click "Fill in again from the template".
+- The "incomplete" warning only shows when there is neither a fee line nor an active plan. No database changes.
 
 ## Unreleased – all-time top scorers (branch `phase2/top-scorers`, migration 0043, release 0.31.0)
 - **Team page, squad:** a corner card **"All-time top scorers"** beside the squad (above it on phones). It lists the club's top three in league and cup goals from the Palloliitto results service, with games, seasons ("2024–2026") and "former player" where it applies. Friendlies don't count. Black card with the logo band; medals in yellow, white and green.

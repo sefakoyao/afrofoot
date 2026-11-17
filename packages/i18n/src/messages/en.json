@@ -1883,7 +1883,7 @@
     "autoYears": "Contract length",
     "autoFieldsNote": "The team's season and objectives are written on each team's page.",
     "autoSave": "Save the settings",
-    "autoIncomplete": "Write the membership fee line (and keep the \"includes\" list), otherwise automatic contracts stay drafts.",
+    "autoIncomplete": "Add a membership plan (Invoices → Membership plans) or write the membership fee line, and keep the \"includes\" list; otherwise automatic contracts stay drafts.",
     "r_settingsSaved": "Settings saved.",
     "refill": "Fill in again from the template",
     "refillNote": "Rewrites the text from the template with the current team objectives and fee lines. Your edits to this draft are replaced.",
@@ -1893,7 +1893,16 @@
     "autoTeamFeeEg": "e.g. EUR 300 per season, invoiced through the app in instalments",
     "autoIncluded": "The membership fee includes (one per line)",
     "autoNotIncluded": "The membership fee does not include (one per line)",
-    "autoListHint": "Written in English, like the contracts. The agreement also says that players are not paid, that they buy their own licence (with a link to the prices on the website), and that the board may exceptionally waive a fee on the coach's or team manager's proposal."
+    "autoListHint": "Written in English, like the contracts. The agreement also says that players are not paid, that they buy their own licence (with a link to the prices on the website), and that the board may exceptionally waive a fee on the coach's or team manager's proposal.",
+    "autoTeamFeeFromPlans": "Left empty, contracts use the club's membership plans:",
+    "autoTeamFeeOwn": "This text replaces the line made from the membership plans:",
+    "autoTeamFeePlansLink": "Change the amounts under Invoices → Membership plans",
+    "fix_objectives": "The team's season objectives",
+    "fix_fees": "The membership fee lines",
+    "fix_text": "A blank in the contract text",
+    "fixGo_objectives": "Write them on the team's page →",
+    "fixGo_fees": "Fill them in under Automatic contracts →",
+    "blanksThenRefill": "Then come back and click \"Fill in again from the template\". A blank typed into the text is completed in the text below."
   },
   "match": {
     "title": "Match day",

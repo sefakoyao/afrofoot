@@ -7,7 +7,7 @@ import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_COLUMNS, STATUS_BADGE, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
+import { CONTRACT_COLUMNS, STATUS_BADGE, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -32,6 +32,8 @@ export default async function ContractPage({ params, searchParams }: { params: P
   const st = shownStatus(c, helsinkiToday());
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
   const blanks = hasBlanks(c.body);
+  const missing = blanksIn(c.body);
+  const fixHref = { objectives: c.team_season_id ? `/admin/teams/${c.team_season_id}#objectives` : null, fees: '/admin/contracts#auto-h', text: null } as const;
   const Step = ({ op, label, tone = 'primary', confirm }: { op: string; label: string; tone?: 'primary' | 'secondary' | 'danger'; confirm?: string }) => (
     <form action={contractStep}>
       <input type="hidden" name="id" value={c.id} /><input type="hidden" name="op" value={op} />
@@ -56,7 +58,21 @@ export default async function ContractPage({ params, searchParams }: { params: P
       {c.status === 'draft' ? (
         <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="edit-h">
           <h2 id="edit-h" className="font-display text-xl font-extrabold">{t('editDraft')}</h2>
-          {blanks ? <p role="alert" className="mt-2 rounded-card bg-danger/10 p-3 font-semibold text-danger" data-blanks>{t('blanksLeft')}</p> : null}
+          {blanks ? (
+            <div role="alert" className="mt-2 rounded-card bg-danger/10 p-4 text-danger" data-blanks>
+              <p className="font-semibold">{t('blanksLeft')}</p>
+              <ul className="mt-2 grid gap-2 text-sm">
+                {missing.map((b) => (
+                  <li key={b.text} className="rounded-control bg-raised p-3 text-fg" data-blank={b.fix}>
+                    <span className="block font-semibold">{t(`fix_${b.fix}`)}</span>
+                    <span className="mt-0.5 block text-muted" lang="en" dir="ltr">[[{b.text}]]</span>
+                    {fixHref[b.fix] ? <a href={fixHref[b.fix]!} className="mt-1 inline-block font-semibold text-pitch underline underline-offset-2">{t(`fixGo_${b.fix}` as 'fixGo_fees')}</a> : null}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-sm text-fg">{t('blanksThenRefill')}</p>
+            </div>
+          ) : null}
           <form action={saveContract} className="mt-3 grid gap-3 sm:grid-cols-3">
             <input type="hidden" name="id" value={c.id} />
             <label className="grid gap-1 text-sm font-semibold sm:col-span-3">{t('contractTitle')}<input name="title" required minLength={3} maxLength={160} defaultValue={c.title} className={input} /></label>
