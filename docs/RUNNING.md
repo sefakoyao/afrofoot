@@ -184,7 +184,15 @@ Paste `supabase/content/news_import_old_site.sql` into Supabase → SQL Editor a
 - **Visitor statistics:** Vercel → the `web` project → **Analytics** → *Enable*, then redeploy. Cookie-free (no consent banner needed; stated in the privacy policy). Shows visitors, top pages, referrers, countries, devices.
 - **Google Search Console** (search terms, position on Google, indexing problems): <https://search.google.com/search-console> → *Add property* → **Domain** `afrofoot.club` → copy the `google-site-verification=…` TXT value → GoDaddy → DNS → add a **TXT** record, name `@`, that value → back in Search Console, *Verify* (can take up to an hour). Then *Sitemaps* → submit `https://www.afrofoot.club/sitemap.xml`. Do this after the DNS switch to Vercel.
 
-## 4. Payments setup
+## 3q. Saved places page (migration 0039, release 0.27.0)
+**Database:** paste `supabase/migrations/20260101000039_saved_places.sql` into Supabase → SQL Editor and run it once (fresh installs get it with `supabase/paste/part3.sql`).
+
+**From then on:**
+- **Places** in the admin and coach menus: add pitches, halls and gyms, and edit any saved place (name, type, address, postal code, city, Google Maps link, how to find it, public transport, parking, notes for coaches).
+- Players see *How to get there* under the place in their calendar when directions, transport or parking are filled in. Notes for coaches are not shown to players.
+- Admins also hide a place (no longer offered in event forms; events keep it) or show it again, and delete a place nothing uses. The database refuses to delete a place used by a training, schedule, game or event.
+- Every change is in the audit log.
+
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
 - Plans (monthly / quarterly / yearly) and prices are created by an administrator; none are hard-coded.

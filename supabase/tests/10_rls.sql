@@ -471,7 +471,8 @@ select t.check('player reads locations (route guide)', (select count(*) from loc
 select t.check('player cannot add or change locations', t.raises($$insert into locations (name) values ('Sneaky')$$) and t.rows($$update locations set name = 'x'$$) = 0);
 select t.admin();
 select t.login('00000000-0000-0000-0000-000000000004');
-select t.check('another coach cannot edit it', t.rows($$update locations set name = 'Hijack' where name = 'Töölö Pitch'$$) = 0);
+select t.check('another coach can fix its details (since 0039)', t.rows($$update locations set notes = 'Changing rooms open 30 min before' where name = 'Töölö Pitch'$$) = 1);
+select t.check('another coach cannot hide it (admins only, 0039)', t.raises($$update locations set active = false where name = 'Töölö Pitch'$$));
 select t.admin();
 select t.service();
 update training_sessions set location_id = (select id from locations where name = 'Töölö Pitch') where schedule_id = '71000000-0000-0000-0000-000000000001';

@@ -22,6 +22,10 @@ const KEYS = {
     err: ['r_invalid', 'r_error', 'r_notYourTeam', 'r_opponent', 'r_division', 'r_date', 'r_time', 'r_protocolTimes', 'r_planLong', 'r_lineupInvalid', 'r_lineupLocked', 'r_notRoster', 'r_rotationInvalid',
       'r_evInvalid', 'r_evPlayer', 'r_evNotSquad', 'r_evNotOnPitch', 'r_evAlreadyPlayed', 'r_evOnlySub', 'r_evFinished', 'r_phaseOrder'],
   },
+  places: {
+    ok: ['r_created', 'r_saved', 'r_hidden', 'r_shown', 'r_deleted'],
+    err: ['r_invalid', 'r_duplicate', 'r_inUse', 'r_notAllowed', 'r_error'],
+  },
   events: {
     ok: ['e_created', 'e_cancelled', 'e_restored'],
     err: ['e_invalid', 'e_error', 'e_title', 'e_date', 'e_time', 'e_end', 'e_long', 'e_meet', 'e_location', 'e_notYours'],

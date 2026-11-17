@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – saved places page (branch `phase2/saved-places`, migration 0039, release 0.27.0)
+- **Places** page for admins and coaches (menu: *Places*): add a pitch, hall or gym once, then choose it in any training, game or event form.
+  - Edit any saved place: name, type, street address, postal code, city, Google Maps link (with *Find it on Google Maps*), how to find it, public transport, parking and notes for coaches.
+  - After saving, the page scrolls back to that place and highlights it.
+  - A map link the app made from the address is rebuilt when the address changes; a link pasted from Google Maps is kept.
+- **Players** see *How to get there* (directions, transport, parking) under the place in their calendar. Notes for coaches stay with coaches.
+- **Admins** also see how often each place is used and who added it, hide a place (no longer offered in forms; events keep it) or show it again, and delete an unused place after confirming.
+- **Database (0039):**
+  - Coaches may edit every saved place, not only the ones they added. Only admins hide or show a place, and nobody changes who added it.
+  - A place in use cannot be deleted.
+  - Length checks mirror the form.
+  - 28 new database checks; one older check updated to the new rule.
+
 ## Unreleased – player guide on the admin and coach pages (branch `phase2/player-guide`)
 - **Player guide card** on the admin and coach home pages: a one-page PDF for players (create an account, sign in, agree to the Code of Conduct, sign the contract, pay the fee) in English, Finnish, French and Arabic.
   - One download button per language (the viewer's own language is highlighted) and **Copy link** to paste the guide's address into WhatsApp or an email.
