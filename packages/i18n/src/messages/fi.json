@@ -1131,7 +1131,9 @@
     "st_group": "Lohko {group}",
     "st_season": "Kausi {season}",
     "st_final": "lopullinen sarjataulukko",
-    "th_goals": "Maalit"
+    "th_goals": "Maalit",
+    "sq_stats": "{goals} maalia · {games} ottelua · {season}",
+    "sq_empty": "Pelaajat näkyvät tässä, kun he ovat valinneet näkyä seuran verkkosivuilla (jäsensovelluksessa, Oma profiili)."
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
@@ -1409,7 +1411,14 @@
     "heightWeight": "Pituus · paino",
     "notSet": "ei vielä asetettu",
     "clubSetNote": "Joukkueen, pelipaikat ja pelinumeron asettaa valmentajasi. Täytä loput alla.",
-    "seeProfile": "Urheilutietosi ja hätäyhteystietosi ovat Oma profiili -välilehdellä."
+    "seeProfile": "Urheilutietosi ja hätäyhteystietosi ovat Oma profiili -välilehdellä.",
+    "webTitle": "Seuran verkkosivuilla",
+    "webOn": "Olet mukana joukkueen pelaajalistassa sivulla www.afrofoot.club.",
+    "webOff": "Et näy seuran verkkosivuilla.",
+    "webWhat": "Jos valitset näkyä, pelaajalistassa näkyvät nimesi, pelinumerosi, pelipaikkasi, kansalaisuutesi, kuvasi (jos lisäsit sen) sekä sarjamaalisi ja -ottelusi Palloliiton tulospalvelusta. Voit muuttaa tätä milloin tahansa.",
+    "webShow": "Näytä minut seuran verkkosivuilla",
+    "webHide": "Poista minut seuran verkkosivuilta",
+    "webSaved": "Tallennettu. Muutos näkyy verkkosivuilla minuutin kuluessa."
   },
   "teams": {
     "title": "Joukkueet",
@@ -2170,7 +2179,7 @@
     "h_purposes": "Käyttötarkoitukset ja oikeusperusteet",
     "purposes_items": "Jäsenyytesi hoitaminen – joukkueet, harjoitukset, ottelut, viestintä ja käyttäjätilisi: jäsensopimuksen täyttäminen (GDPR 6.1 b).\nMaksut, laskut ja kirjanpito: sopimuksen täyttäminen ja kirjanpitolain vaatimukset (6.1 b ja c).\nPelaajasopimukset ja toimintaohjeet: sopimuksen täyttäminen sekä seuran oikeutettu etu reiluun ja turvalliseen jalkapalloon (6.1 b ja f).\nHätäyhteystiedot: pelaajien elintärkeiden etujen suojaaminen ja seuran oikeutettu etu turvalliseen toimintaan (6.1 d ja f).\nNimesi tai kuvasi julkinen näyttäminen (pelaajalista verkkosivuilla, julkiset kokoonpanot, seuran media): vain suostumuksellasi, jonka voit perua milloin tahansa (6.1 a).\nTietoturva ja muutosloki: seuran oikeutettu etu suojata jäsenten tietoja (6.1 f).",
     "h_public": "Mikä on julkista",
-    "public_text": "Otteluohjelma, tulokset ja sarjataulukot ovat julkisia verkkosivuillamme. Nimesi näkyy pelaajalistassa ja julkisissa kokoonpanoissa vain, jos olet antanut siihen luvan; muuten sinut näytetään muodossa \"Pelaaja #\" ja pelinumero. Virallisten sarjojen tulokset ja tilastot tulevat myös Palloliiton julkisesta tulospalvelusta.",
+    "public_text": "Otteluohjelma, tulokset ja sarjataulukot ovat julkisia verkkosivuillamme. Valitset jäsensovelluksessa (Oma profiili), näytkö joukkueen pelaajalistassa verkkosivuilla: jos näyt, siinä näkyvät nimesi, pelinumerosi, pelipaikkasi, kansalaisuutesi, kuvasi (jos lisäsit sen) sekä sarjamaalisi ja -ottelusi; muuten nimeäsi ei näytetä, ja julkisissa kokoonpanoissa näkyy \"Pelaaja #\" ja pelinumerosi. Virallisten sarjojen tulokset ja tilastot tulevat Suomen Palloliiton julkisesta tulospalvelusta; maaliesi ja otteluidesi näyttämiseksi seura säilyttää siellä rekisteröityjen pelaajiensa luettelon (nimi, pelinumero, pelipaikka ja sarjatilastot), jonka näkevät vain seuran ylläpitäjät ja valmentajat.",
     "h_who": "Kuka näkee tietosi",
     "who_items": "Sinä: oma profiilisi, vastauksesi, tilastosi, laskusi, hyväksyntäsi ja sopimuksesi.\nValmentajasi: omien joukkueidensa pelaajat – yhteys- ja hätäyhteystiedot, osallistuminen ja vastaukset, kokoonpanot, toimintaohjeiden hyväksyntä ja pelaajasopimukset (vain luku).\nJoukkuekaverit: joukkueen aikataulut ja julkaistu ottelukokoonpano.\nSeuran ylläpitäjät: seuran toiminnassa tarvittavat tiedot.\nSeuran puolesta toimivat palveluntarjoajat (alla). Emme koskaan myy tietojasi emmekä käytä niitä mainontaan.",
     "h_processors": "Palveluntarjoajat",
@@ -2311,8 +2320,25 @@
     "r_disabled": "Päivitys on poistettu käytöstä asetuksissa (federation: enabled = false).",
     "r_noKey": "TORNEOPAL_API_KEY puuttuu jäsensovellukselta: lisää se Verceliin (projekti afrofoot-app → Environment Variables) ja julkaise uudelleen.",
     "r_refused": "Palloliitto hylkäsi API-avaimen. Tarkista TORNEOPAL_API_KEY Vercelissä.",
-    "r_failed": "Päivitys epäonnistui. Verkkosivut näyttävät edellisen taulukon. Syy näkyy yllä.",
+    "r_failed": "Päivitys epäonnistui. Verkkosivut näyttävät edellisen taulukon. Syy näkyy alla.",
     "r_settings": "Sarja-asetukset puuttuvat: aja migraatio 0040 Supabasessa.",
-    "r_error": "Jokin meni vikaan. Yritä uudelleen."
+    "r_error": "Jokin meni vikaan. Yritä uudelleen.",
+    "nav": "Palloliiton pelaajat",
+    "linkTitle": "Palloliiton pelaajat",
+    "linkLead": "Yhdistä jokainen Palloliittoon rekisteröity pelaaja hänen tiliinsä sovelluksessa. Yhdistetyt pelaajat, jotka ovat valinneet näkyä verkkosivuilla, näkyvät pelaajalistassa sarjamaaleineen ja -otteluineen. Samannimistä ehdotetaan; mitään ei yhdistetä ennen tallennusta.",
+    "counts": "{total} Palloliiton pelaajaa · {linked} yhdistetty · {shown} näkyy verkkosivuilla",
+    "colPalloliitto": "Palloliitto",
+    "colApp": "Pelaaja sovelluksessa",
+    "colStats": "Sarja",
+    "notLinked": "– ei yhdistetty –",
+    "suggested": "ehdotus",
+    "onWebsite": "verkkosivuilla",
+    "save": "Tallenna",
+    "statsShort": "{goals} maalia · {games} ottelua",
+    "empty": "Ei vielä Palloliiton pelaajia: päivitä ensin sarjataulukko ylläpidon etusivulla.",
+    "linkPlayers": "Yhdistä Palloliiton pelaajat",
+    "r_linked": "Tallennettu.",
+    "r_taken": "Tämä pelaaja on jo yhdistetty toiseen Palloliiton pelaajaan.",
+    "r_invalid": "Tarkista valinta ja yritä uudelleen."
   }
 }

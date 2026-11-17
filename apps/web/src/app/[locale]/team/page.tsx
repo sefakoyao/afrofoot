@@ -10,10 +10,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return staticPageMeta((await params).locale, '/team', 'n_team', 'seo_team');
 }
 
+// Rebuilt at most once a minute, so a player's choice to appear (or not) and new Palloliitto statistics show without a deploy.
+export const revalidate = 60;
+
 async function getSquad(): Promise<SquadPlayer[]> {
   const db = getPublicClient();
   if (!db) return [];
-  const { data } = await db.from('public_players').select('id,display_name,position,jersey_number,nationality').order('jersey_number', { ascending: true, nullsFirst: false });
+  const { data } = await db.from('public_players').select('id,display_name,position,jersey_number,nationality,goals,appearances,stats_season').order('jersey_number', { ascending: true, nullsFirst: false });
   return (data ?? []) as SquadPlayer[];
 }
 
@@ -37,9 +40,11 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
       </Section>
       <Section id="squad">
         <H2>{t('sq_h')}</H2>
-        <p className="mt-1 text-sm text-muted">{t('sq_hint')}</p>
-        {/* Players listed here have consented to a public listing (database view public_players). */}
-        <Squad players={squad} labels={pick(t, ['sq_all', 'position_gk', 'position_df', 'position_mf', 'position_fw'])} />
+        {/* Players listed here have chosen to appear (players.show_publicly, view public_players); goals and games come
+            from Palloliitto once an admin linked them (migration 0041). */}
+        {squad.length ? (
+          <Squad players={squad} labels={{ ...pick(t, ['sq_all', 'position_gk', 'position_df', 'position_mf', 'position_fw']), sq_stats: t.raw('sq_stats') as string }} />
+        ) : <p className="mt-3 rounded-card border border-line bg-raised p-5 text-muted" data-squad-empty>{t('sq_empty')}</p>}
       </Section>
     </>
   );

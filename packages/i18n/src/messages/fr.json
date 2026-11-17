@@ -1131,7 +1131,9 @@
     "st_group": "Groupe {group}",
     "st_season": "Saison {season}",
     "st_final": "classement final",
-    "th_goals": "Buts"
+    "th_goals": "Buts",
+    "sq_stats": "{goals} buts · {games} matchs · {season}",
+    "sq_empty": "Les joueurs apparaissent ici dès qu’ils choisissent d’être affichés sur le site du club (dans l’application, Mon profil)."
   },
   "admin": {
     "navOverview": "Vue d’ensemble",
@@ -1409,7 +1411,14 @@
     "heightWeight": "Taille · poids",
     "notSet": "pas encore défini",
     "clubSetNote": "L'équipe, les postes et le numéro sont définis par ton entraîneur. Tu remplis le reste ci-dessous.",
-    "seeProfile": "Tes infos sportives et ton contact d'urgence sont dans l'onglet Mon profil."
+    "seeProfile": "Tes infos sportives et ton contact d'urgence sont dans l'onglet Mon profil.",
+    "webTitle": "Sur le site du club",
+    "webOn": "Vous figurez dans l’effectif sur www.afrofoot.club.",
+    "webOff": "Vous n’apparaissez pas sur le site du club.",
+    "webWhat": "Si vous choisissez d’apparaître, l’effectif affiche votre nom, numéro, poste, nationalité, photo (si vous en avez ajouté une) ainsi que vos buts et matchs de championnat issus de Palloliitto. Vous pouvez changer cela à tout moment.",
+    "webShow": "M’afficher sur le site du club",
+    "webHide": "Me retirer du site du club",
+    "webSaved": "Enregistré. Le site affiche le changement d’ici une minute."
   },
   "teams": {
     "title": "Équipes",
@@ -2170,7 +2179,7 @@
     "h_purposes": "Finalités et bases légales",
     "purposes_items": "Gestion de votre adhésion – équipes, entraînements, matchs, communication et compte membre : exécution du contrat d'adhésion (RGPD art. 6(1)(b)).\nCotisations, factures et comptabilité : exécution du contrat et respect de la loi finlandaise sur la comptabilité (art. 6(1)(b) et (c)).\nContrats de joueur et code de conduite : exécution du contrat et intérêt légitime du club à un football loyal et sûr (art. 6(1)(b) et (f)).\nPersonnes à prévenir en cas d'urgence : protection des intérêts vitaux des joueurs et intérêt légitime du club à des activités sûres (art. 6(1)(d) et (f)).\nAffichage public de votre nom ou de votre photo (liste des joueurs du site, compositions publiques, médias du club) : uniquement avec votre consentement, que vous pouvez retirer à tout moment (art. 6(1)(a)).\nSécurité et journal des modifications : intérêt légitime du club à protéger les données des membres (art. 6(1)(f)).",
     "h_public": "Ce qui est public",
-    "public_text": "Le calendrier, les résultats et les classements sont publics sur notre site. Votre nom n'apparaît dans la liste des joueurs et les compositions publiques que si vous l'avez accepté ; sinon vous êtes affiché comme « Joueur # » avec votre numéro. Les résultats et statistiques des compétitions officielles proviennent aussi du service public de résultats de la Fédération finlandaise de football.",
+    "public_text": "Le calendrier des matchs, les résultats et les classements sont publics sur notre site. Vous choisissez dans l'application membres (Mon profil) si vous apparaissez dans l'effectif sur le site : si oui, il affiche votre nom, numéro, poste, nationalité, photo (si vous en avez ajouté une) et vos buts et matchs de championnat ; sinon votre nom n'est pas affiché, et les compositions publiques indiquent « Joueur # » et votre numéro. Les résultats et statistiques des compétitions officielles proviennent du service de résultats public de la Fédération finlandaise de football ; pour afficher vos buts et matchs, le club conserve la liste de ses joueurs qui y sont enregistrés (nom, numéro, poste et statistiques de championnat), visible uniquement par les administrateurs et entraîneurs du club.",
     "h_who": "Qui peut voir vos données",
     "who_items": "Vous : votre profil, vos réponses, statistiques, factures, engagements et contrat.\nVos entraîneurs : les joueurs de leurs propres équipes – coordonnées et contacts d'urgence, présences et réponses, compositions, statut du code de conduite et contrats (lecture seule).\nVos coéquipiers : le calendrier de l'équipe et, une fois publiée, la composition du match.\nLes administrateurs du club : ce qui est nécessaire pour gérer le club.\nLes prestataires travaillant pour le club (ci-dessous). Nous ne vendons jamais vos données et ne les utilisons pas pour la publicité.",
     "h_processors": "Prestataires de services",
@@ -2311,8 +2320,25 @@
     "r_disabled": "La mise à jour est désactivée dans les réglages (federation : enabled = false).",
     "r_noKey": "TORNEOPAL_API_KEY n’est pas défini pour l’application : ajoutez-le dans Vercel (projet afrofoot-app → Environment Variables) puis redéployez.",
     "r_refused": "Palloliitto a refusé la clé API. Vérifiez TORNEOPAL_API_KEY dans Vercel.",
-    "r_failed": "La mise à jour a échoué. Le site garde le classement précédent. La raison est indiquée ci-dessus.",
+    "r_failed": "La mise à jour a échoué. Le site garde le classement précédent. La raison est indiquée ci-dessous.",
     "r_settings": "Les réglages du championnat manquent : exécutez la migration 0040 dans Supabase.",
-    "r_error": "Une erreur s’est produite. Veuillez réessayer."
+    "r_error": "Une erreur s’est produite. Veuillez réessayer.",
+    "nav": "Joueurs Palloliitto",
+    "linkTitle": "Joueurs Palloliitto",
+    "linkLead": "Reliez chaque joueur enregistré auprès de Palloliitto à son compte dans l’application. Les joueurs reliés qui ont choisi d’apparaître sur le site figurent dans l’effectif avec leurs buts et matchs de championnat. Un nom correspondant est proposé ; rien n’est relié avant l’enregistrement.",
+    "counts": "{total} joueurs Palloliitto · {linked} reliés · {shown} affichés sur le site",
+    "colPalloliitto": "Palloliitto",
+    "colApp": "Joueur dans l’application",
+    "colStats": "Championnat",
+    "notLinked": "– non relié –",
+    "suggested": "suggéré",
+    "onWebsite": "sur le site",
+    "save": "Enregistrer",
+    "statsShort": "{goals} buts · {games} matchs",
+    "empty": "Pas encore de joueurs Palloliitto : mettez d’abord à jour le classement depuis l’accueil admin.",
+    "linkPlayers": "Relier les joueurs Palloliitto",
+    "r_linked": "Enregistré.",
+    "r_taken": "Ce joueur est déjà relié à un autre joueur Palloliitto.",
+    "r_invalid": "Vérifiez la sélection et réessayez."
   }
 }

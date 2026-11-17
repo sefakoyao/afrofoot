@@ -204,6 +204,13 @@ The website's **Standings** section, the latest results and, when no game is ent
 
 **How it chooses what to show:** the newest season whose league table has games played; last season's final table stays until the new season's first games are played. A competition can be hidden: set `show_publicly = false` on its row in `federation_competitions` (the sync keeps that choice). Raw answers are not stored (they name referees and players).
 
+## 3s. Squad on the website (migration 0041, release 0.29.0)
+1. **Database:** paste `supabase/migrations/20260101000041_squad_consent_stats.sql` into Supabase → SQL Editor (project of the website) and run it once.
+2. **Players** decide in the member app: **My profile → On the club website → Show me on the club website** (and can remove themselves at any time). Only they appear on www.afrofoot.club/team#squad.
+3. **Admin → League table → Update the league table now** also fetches the club's registered players and their league goals and games from Palloliitto (stored for admins and coaches only).
+4. **Admin → Palloliitto players:** link each Palloliitto player to the player in the app (a same-name player is suggested; nothing is linked until you click Save). Linked players who chose to appear show "7 goals · 18 games · 2026" on their card.
+The team page refreshes every minute.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

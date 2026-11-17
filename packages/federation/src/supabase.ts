@@ -28,6 +28,13 @@ export function supabaseStore(db: Db): Store {
       await must(db.from('federation_standings').delete().eq('competition_external_id', key), 'standings (clear)');
       if (rows.length) await must(db.from('federation_standings').insert(rows.map((r) => ({ ...r, synced_at: now() }))), 'standings');
     },
+    async upsertPlayers(rows) {
+      // player_id (the link to an app player) is never sent, so an admin's link is kept
+      if (rows.length) await must(db.from('federation_players').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id' }), 'players');
+    },
+    async upsertPlayerStats(rows) {
+      if (rows.length) await must(db.from('federation_player_stats').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'player_external_id,competition_external_id' }), 'player stats');
+    },
     async upsertMatches(rows) {
       for (let i = 0; i < rows.length; i += 200) {
         await must(db.from('federation_matches').upsert(rows.slice(i, i + 200).map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id' }), 'matches');
@@ -56,7 +63,7 @@ export async function syncFromSettings(db: Db, api: Api, apiKey: string): Promis
     run ? db.from('sync_runs').update({ status, rows_upserted: rows, error, finished_at: now() }).eq('id', run.id) : Promise.resolve();
   try {
     const result = await runSync(api, supabaseStore(db), teams);
-    await finish('ok', result.standings + result.matches + result.competitions, null);
+    await finish('ok', result.standings + result.matches + result.competitions + result.players, null);
     return { ok: true, ...result };
   } catch (e) {
     const message = (e instanceof Error ? e.message : 'Sync failed').split(apiKey || '\u0000').join('[key]').slice(0, 300);

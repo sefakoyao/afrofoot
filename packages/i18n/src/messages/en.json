@@ -1131,7 +1131,9 @@
     "st_group": "Group {group}",
     "st_season": "Season {season}",
     "st_final": "final table",
-    "th_goals": "Goals"
+    "th_goals": "Goals",
+    "sq_stats": "{goals} goals · {games} games · {season}",
+    "sq_empty": "Players appear here once they choose to be shown on the club website (in the member app, My profile)."
   },
   "admin": {
     "navOverview": "Overview",
@@ -1409,7 +1411,14 @@
     "heightWeight": "Height · weight",
     "notSet": "not set yet",
     "clubSetNote": "Team, positions and shirt number are set by your coach. You fill in the rest below.",
-    "seeProfile": "Your sport details and emergency contact are on the My profile tab."
+    "seeProfile": "Your sport details and emergency contact are on the My profile tab.",
+    "webTitle": "On the club website",
+    "webOn": "You are listed in the squad on www.afrofoot.club.",
+    "webOff": "You are not shown on the club website.",
+    "webWhat": "If you choose to appear, the squad shows your name, shirt number, position, nationality, photo (if you added one) and your league goals and games from Palloliitto. You can change this at any time.",
+    "webShow": "Show me on the club website",
+    "webHide": "Remove me from the club website",
+    "webSaved": "Saved. The website shows the change within a minute."
   },
   "teams": {
     "title": "Teams",
@@ -2170,7 +2179,7 @@
     "h_purposes": "Why we use it, and on what legal basis",
     "purposes_items": "Running your membership – teams, trainings, matches, communication and your member account: to perform the membership agreement (GDPR Art. 6(1)(b)).\nFees, invoices and bookkeeping: to perform the agreement and to meet the Finnish Accounting Act (Art. 6(1)(b) and (c)).\nPlayer contracts and the Code of Conduct: to perform the agreement, and the club's legitimate interest in fair and safe football (Art. 6(1)(b) and (f)).\nEmergency contacts: to protect players' vital interests and the club's legitimate interest in safe activities (Art. 6(1)(d) and (f)).\nShowing your name or photo publicly (website player list, public lineups, club media): only with your consent, which you can withdraw at any time (Art. 6(1)(a)).\nSecurity and change logs: the club's legitimate interest in protecting members' data (Art. 6(1)(f)).",
     "h_public": "What is public",
-    "public_text": "Match fixtures, results and team standings are public on our website. Your name appears on the website's player list and in public lineups only if you have agreed to it; otherwise you are shown as \"Player #\" and your shirt number. Results and statistics from official competitions also come from the Football Association of Finland's public results service.",
+    "public_text": "Match fixtures, results and team standings are public on our website. You choose in the member app (My profile) whether you appear in the squad on the website: if you do, it shows your name, shirt number, position, nationality, photo (if you added one) and your league goals and games; otherwise your name is not listed, and public lineups show \"Player #\" and your shirt number. Results and statistics from official competitions come from the Football Association of Finland's public results service; to show your goals and games, the club keeps the list of its players registered there (name, shirt number, position and league statistics), which only club admins and coaches can see.",
     "h_who": "Who can see your data",
     "who_items": "You: your own profile, replies, statistics, invoices, agreements and contract.\nYour coaches: the players of their own teams – contact and emergency details, attendance and replies, lineups, Code of Conduct status and player contracts (read-only).\nTeammates: team schedules and, once published, the match lineup.\nClub administrators: what is needed to run the club.\nService providers working for the club (below). We never sell your data or use it for advertising.",
     "h_processors": "Service providers",
@@ -2311,8 +2320,25 @@
     "r_disabled": "The update is switched off in the settings (federation: enabled = false).",
     "r_noKey": "TORNEOPAL_API_KEY is not set for the member app: add it in Vercel (project afrofoot-app → Environment Variables) and redeploy.",
     "r_refused": "Palloliitto refused the API key. Check TORNEOPAL_API_KEY in Vercel.",
-    "r_failed": "The update failed. The website keeps the previous table. The reason is shown above.",
+    "r_failed": "The update failed. The website keeps the previous table. The reason is shown below.",
     "r_settings": "The league settings are missing: run migration 0040 in Supabase.",
-    "r_error": "Something went wrong. Please try again."
+    "r_error": "Something went wrong. Please try again.",
+    "nav": "Palloliitto players",
+    "linkTitle": "Palloliitto players",
+    "linkLead": "Link each player registered with Palloliitto to their account in the app. Linked players who chose to appear on the website are listed in the squad with their league goals and games. A matching name is suggested; nothing is linked until you save.",
+    "counts": "{total} Palloliitto players · {linked} linked · {shown} shown on the website",
+    "colPalloliitto": "Palloliitto",
+    "colApp": "Player in the app",
+    "colStats": "League",
+    "notLinked": "– not linked –",
+    "suggested": "suggested",
+    "onWebsite": "on the website",
+    "save": "Save",
+    "statsShort": "{goals} goals · {games} games",
+    "empty": "No Palloliitto players yet: update the league table on the admin home first.",
+    "linkPlayers": "Link Palloliitto players",
+    "r_linked": "Saved.",
+    "r_taken": "That app player is already linked to another Palloliitto player.",
+    "r_invalid": "Please check the selection and try again."
   }
 }
