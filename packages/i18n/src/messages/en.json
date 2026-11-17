@@ -1153,7 +1153,8 @@
     "ts_former": "former player",
     "ts_years": "{from}–{to}",
     "ft_crafted": "Crafted by {company}",
-    "ft_version": "Version"
+    "ft_version": "Version",
+    "mail_js": "Email address shown when JavaScript is on"
   },
   "admin": {
     "navOverview": "Overview",
@@ -1353,7 +1354,8 @@
     "teamGoalsTitle": "Team's goals",
     "teamGoalsNone": "The club has not written this season's goals yet.",
     "documentsTitle": "Signed documents",
-    "tabProfile": "My profile"
+    "tabProfile": "My profile",
+    "mailJs": "Email address shown when JavaScript is on"
   },
   "account": {
     "title": "My account",

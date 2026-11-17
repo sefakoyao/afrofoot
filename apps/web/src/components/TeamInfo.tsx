@@ -1,12 +1,15 @@
+import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
+import { CLUB_EMAIL, encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { ButtonLink, Card, H2, Hero, Section, Tag } from './Page';
 
 /** Women's and juniors' pages share one layout. Details are sample text until the club supplies the final information. */
 export async function TeamInfo({ variant }: { variant: 'w' | 'j' }) {
   const t = await getTranslations('site');
-  const rows: [string, string][] = [
+  const rows: [string, ReactNode][] = [
     ['tp_age', t(`tp_age_${variant}`)], ['tp_tr', t(`tp_tr_${variant}`)], ['tp_ven', t('tp_ven_v')],
-    ['tp_coach', t('tp_coach_v')], ['tp_start', t('tp_start_v')], ['tp_contact', 'info@afrofoot.club'],
+    ['tp_coach', t('tp_coach_v')], ['tp_start', t('tp_start_v')], ['tp_contact', <ProtectedEmail key="mail" code={encodeEmail(CLUB_EMAIL)} fallback={t('mail_js')} className="text-pitch underline underline-offset-2" />],
   ];
   return (
     <>

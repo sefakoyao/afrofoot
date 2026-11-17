@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { CLUB_EMAIL, encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Hero } from '@/components/Page';
 import { getPublicClient } from '@/lib/supabase';
@@ -15,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export const dynamic = 'force-dynamic';
 
 /** Contact address on the site when the club's billing details (Admin → Invoices) have no email yet. */
-const FALLBACK_EMAIL = 'info@afrofoot.club';
+const FALLBACK_EMAIL = CLUB_EMAIL;
 const SECTIONS = ['controller', 'data', 'purposes', 'public', 'who', 'processors', 'retention', 'rights', 'delete', 'children', 'cookies', 'security', 'changes'] as const;
 
 /** The club's own details from its public billing settings (migration 0027), so they are kept in one place. */
@@ -35,7 +37,11 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const { locale } = await params;
   setRequestLocale(locale);
   const [t, club] = await Promise.all([getTranslations('privacyPolicy'), clubDetails()]);
-  const mail = (chunks: ReactNode) => <a href={`mailto:${club.email}`} className="font-semibold text-pitch underline" dir="ltr">{chunks}</a>;
+  // the link text is a phrase from the policy; the address itself only appears once the browser has decoded it
+  // In every language the <mail> link wraps only {email}: the link shows the decoded address, so the page itself never
+  // contains it ({email} is filled with a neutral placeholder that is never shown).
+  const mailJs = (await getTranslations('site'))('mail_js');
+  const mail = () => <ProtectedEmail code={encodeEmail(club.email)} fallback={mailJs} className="font-semibold text-pitch underline" />;
   const list = (key: string) => (
     <ul className="mt-3 grid list-disc gap-2 ps-6 leading-relaxed">{t(key as 'data_items').split('\n').map((line) => <li key={line}>{line}</li>)}</ul>
   );
@@ -43,7 +49,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     controller: <>
       <p>{t('controller')}</p>
       {club.businessId || club.address ? <p className="mt-2 text-muted">{club.businessId ? t('controller_details', { id: club.businessId }) : null}{club.businessId && club.address ? ' · ' : ''}{club.address}</p> : null}
-      <p className="mt-2">{t.rich('contact', { email: club.email, mail })}</p>
+      <p className="mt-2">{t.rich('contact', { email: '', mail })}</p>
     </>,
     data: <><p>{t('data_lead')}</p>{list('data_items')}<p className="mt-3 rounded-card bg-surface p-3">{t('data_health')}</p></>,
     purposes: list('purposes_items'),
@@ -51,8 +57,8 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
     who: list('who_items'),
     processors: <>{list('processors_items')}<p className="mt-3">{t('processors_transfer')}</p></>,
     retention: list('retention_items'),
-    rights: <><p>{t('rights_lead')}</p>{list('rights_items')}<p className="mt-3">{t.rich('rights_how', { email: club.email, mail })}</p></>,
-    delete: <p>{t.rich('delete_text', { email: club.email, mail })}</p>,
+    rights: <><p>{t('rights_lead')}</p>{list('rights_items')}<p className="mt-3">{t.rich('rights_how', { email: '', mail })}</p></>,
+    delete: <p>{t.rich('delete_text', { email: '', mail })}</p>,
     children: <p>{t('children_text')}</p>,
     cookies: <p>{t('cookies_text')}</p>,
     security: <p>{t('security_text')}</p>,

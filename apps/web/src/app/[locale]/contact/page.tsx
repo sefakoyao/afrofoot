@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { staticPageMeta } from '@/lib/seo';
+import { CLUB_EMAIL, encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { ContactForm } from '@/components/forms/Forms';
@@ -21,7 +23,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <h3 className="font-display text-xl font-extrabold">{t('ct_find')}</h3>
-            <p className="mt-3 font-bold">info@afrofoot.club<br />+358 50 477 3030</p>
+            <p className="mt-3 font-bold"><ProtectedEmail code={encodeEmail(CLUB_EMAIL)} fallback={t('mail_js')} className="text-pitch underline underline-offset-2" /><br /><a href="tel:+358504773030" dir="ltr">+358 50 477 3030</a></p>
             <p className="mt-2 text-muted">Afro Foot Club ry · Finland</p>
           </Card>
           <Card>

@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+import { CLUB_EMAIL, encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { CRAFTED_BY, releaseLabel, yearNow } from '@afrofoot/ui/release';
 import { Link } from '@/i18n/routing';
 
@@ -21,7 +23,7 @@ export async function Footer() {
           </div>
           <div>
             <h4 className="font-display font-bold text-accent">{t('ft_c')}</h4>
-            <p className="mt-2 text-white/80">info@afrofoot.club<br />+358 50 477 3030</p>
+            <p className="mt-2 text-white/80"><ProtectedEmail code={encodeEmail(CLUB_EMAIL)} fallback={t('mail_js')} className="hover:text-accent" /><br /><a href="tel:+358504773030" className="hover:text-accent" dir="ltr">+358 50 477 3030</a></p>
           </div>
           <nav aria-label="Footer" className="grid grid-cols-2 gap-x-4 gap-y-1">
             {LINKS.map(([href, k]) => <Link key={href} href={href} className="text-white/80 hover:text-accent">{t(k)}</Link>)}

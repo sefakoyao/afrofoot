@@ -1,3 +1,5 @@
+import { encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
@@ -22,7 +24,7 @@ export default async function PayPage() {
       <p className="text-muted">{t('payPublicLead')}</p>
       {billing ? <PayDetails billing={billing} /> : <p className="rounded-card bg-surface p-4">{t('payNotReady')}</p>}
       <p className="text-sm text-muted">{t('payPublicRef')}</p>
-      {billing?.email ? <p className="text-sm">{t('payContact')} <a href={`mailto:${billing.email}`} className="font-semibold text-pitch underline">{billing.email}</a>{billing.phone ? <> · <a href={`tel:${billing.phone.replace(/\s+/g, '')}`} dir="ltr" className="font-semibold text-pitch underline">{billing.phone}</a></> : null}</p> : null}
+      {billing?.email ? <p className="text-sm">{t('payContact')} <ProtectedEmail code={encodeEmail(billing.email)} fallback={t('mailJs')} className="font-semibold text-pitch underline" />{billing.phone ? <> · <a href={`tel:${billing.phone.replace(/\s+/g, '')}`} dir="ltr" className="font-semibold text-pitch underline">{billing.phone}</a></> : null}</p> : null}
       <Link href="/login" className="text-center text-sm font-semibold text-pitch underline underline-offset-2">{t('payBackToLogin')}</Link>
     </div>
   );

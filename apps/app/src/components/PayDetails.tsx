@@ -1,3 +1,5 @@
+import { encodeEmail } from '@afrofoot/ui/email';
+import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
 import { CopyButton } from '@/components/CopyButton';
@@ -18,7 +20,7 @@ export async function PayDetails({ billing, items }: { billing: PayBilling; item
   const money = new Intl.NumberFormat(tag, { style: 'currency', currency: CURRENCY });
   const date = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
   if (!billing.iban) {
-    return <p className="rounded-card bg-surface p-4" data-pay-missing>{t('payNotReady')}{billing.email ? <> <a href={`mailto:${billing.email}`} className="font-semibold text-pitch underline">{billing.email}</a></> : null}</p>;
+    return <p className="rounded-card bg-surface p-4" data-pay-missing>{t('payNotReady')}{billing.email ? <> <ProtectedEmail code={encodeEmail(billing.email)} fallback={t('mailJs')} className="font-semibold text-pitch underline" /></> : null}</p>;
   }
   const Row = ({ k, v, copy, mono }: { k: string; v: string; copy?: string; mono?: boolean }) => (
     <div className="flex flex-wrap items-center justify-between gap-2 py-2">

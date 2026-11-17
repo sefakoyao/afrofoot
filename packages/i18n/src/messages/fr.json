@@ -1153,7 +1153,8 @@
     "ts_former": "ancien joueur",
     "ts_years": "{from}–{to}",
     "ft_crafted": "Réalisé par {company}",
-    "ft_version": "Version"
+    "ft_version": "Version",
+    "mail_js": "Adresse e-mail affichée lorsque JavaScript est activé"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",
@@ -1353,7 +1354,8 @@
     "teamGoalsTitle": "Objectifs de l'équipe",
     "teamGoalsNone": "Le club n'a pas encore écrit les objectifs de cette saison.",
     "documentsTitle": "Documents signés",
-    "tabProfile": "Mon profil"
+    "tabProfile": "Mon profil",
+    "mailJs": "Adresse e-mail affichée lorsque JavaScript est activé"
   },
   "account": {
     "title": "Mon compte",

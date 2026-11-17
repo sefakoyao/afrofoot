@@ -1153,7 +1153,8 @@
     "ts_former": "لاعب سابق",
     "ts_years": "{from}–{to}",
     "ft_crafted": "تصميم وتنفيذ {company}",
-    "ft_version": "الإصدار"
+    "ft_version": "الإصدار",
+    "mail_js": "يظهر البريد الإلكتروني عند تفعيل JavaScript"
   },
   "admin": {
     "navOverview": "نظرة عامة",
@@ -1353,7 +1354,8 @@
     "teamGoalsTitle": "أهداف الفريق",
     "teamGoalsNone": "لم يكتب النادي أهداف هذا الموسم بعد.",
     "documentsTitle": "المستندات الموقّعة",
-    "tabProfile": "ملفي"
+    "tabProfile": "ملفي",
+    "mailJs": "يظهر البريد الإلكتروني عند تفعيل JavaScript"
   },
   "account": {
     "title": "حسابي",

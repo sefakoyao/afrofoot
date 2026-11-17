@@ -1153,7 +1153,8 @@
     "ts_former": "entinen pelaaja",
     "ts_years": "{from}–{to}",
     "ft_crafted": "Toteutus: {company}",
-    "ft_version": "Versio"
+    "ft_version": "Versio",
+    "mail_js": "Sähköpostiosoite näkyy, kun JavaScript on käytössä"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
@@ -1353,7 +1354,8 @@
     "teamGoalsTitle": "Joukkueen tavoitteet",
     "teamGoalsNone": "Seura ei ole vielä kirjoittanut tämän kauden tavoitteita.",
     "documentsTitle": "Allekirjoitetut asiakirjat",
-    "tabProfile": "Oma profiili"
+    "tabProfile": "Oma profiili",
+    "mailJs": "Sähköpostiosoite näkyy, kun JavaScript on käytössä"
   },
   "account": {
     "title": "Oma tili",

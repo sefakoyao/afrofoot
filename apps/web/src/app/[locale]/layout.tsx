@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 const CLUB_LD = {
   '@context': 'https://schema.org', '@type': 'SportsOrganization', name: SITE_NAME, alternateName: 'Afro Foot Club ry',
   url: SITE_URL, logo: `${SITE_URL}/afc-logo.png`, image: SITE_URL + OG_IMAGE.url, sport: 'Football',
-  email: 'info@afrofoot.club', telephone: '+358504773030',
+  telephone: '+358504773030', // no email here: structured data is a favourite source of address harvesters
   address: { '@type': 'PostalAddress', addressLocality: 'Helsinki', addressCountry: 'FI' },
 };
 
