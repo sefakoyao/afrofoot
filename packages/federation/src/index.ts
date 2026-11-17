@@ -7,6 +7,7 @@
  */
 export * from './map.ts';
 export * from './sync.ts';
+export * from './supabase.ts';
 export const DEFAULT_BASE_URL = 'https://spl.torneopal.net/taso/rest';
 
 export class FederationError extends Error {

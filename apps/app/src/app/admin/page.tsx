@@ -6,9 +6,10 @@ import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
 import { PlayerGuideCard } from '@/components/PlayerGuideCard';
+import { LeagueSyncCard } from '@/components/admin/LeagueSyncCard';
 
 /** Admin home: who is waiting for approval, and how many active members there are per role. */
-export default async function AdminHome() {
+export default async function AdminHome({ searchParams }: { searchParams: Promise<{ result?: string }> }) {
   const member = await requireArea('admin');
   const [t, ta, tr, supabase] = await Promise.all([getTranslations('app'), getTranslations('admin'), getTranslations('role'), getSupabase()]);
   const { data } = supabase ? await supabase.from('profiles').select('id, role, status') : { data: [] };
@@ -70,6 +71,8 @@ export default async function AdminHome() {
           ))}
         </dl>
       </section>
+
+      <LeagueSyncCard result={(await searchParams).result} />
 
       <PlayerGuideCard />
     </div>

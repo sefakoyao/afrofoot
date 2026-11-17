@@ -13,6 +13,9 @@ importers:
       '@afrofoot/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@afrofoot/federation':
+        specifier: workspace:*
+        version: link:../../packages/federation
       '@afrofoot/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

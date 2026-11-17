@@ -3,7 +3,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const config: NextConfig = {
-  transpilePackages: ['@afrofoot/ui', '@afrofoot/db', '@afrofoot/i18n'],
+  transpilePackages: ['@afrofoot/ui', '@afrofoot/db', '@afrofoot/i18n', '@afrofoot/federation'],
   poweredByHeader: false,
   async headers() {
     return [{ source: '/:path*', headers: [

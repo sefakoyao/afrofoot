@@ -2298,5 +2298,21 @@
     "relative": "Autre parent",
     "friend": "Ami(e)",
     "other": "Autre…"
+  },
+  "fed": {
+    "title": "Classement (Palloliitto)",
+    "lead": "Le site affiche le classement et les résultats du service de résultats de Palloliitto. Ils se mettent à jour chaque nuit ; mettez-les à jour après un match.",
+    "button": "Mettre à jour le classement",
+    "lastOk": "Dernière mise à jour : {date}",
+    "lastFailed": "La dernière tentative a échoué le {date} : {error}",
+    "never": "Pas encore mis à jour.",
+    "club": "{team} : {position}e sur {teams} · {points} points ({competition}, {season})",
+    "r_synced": "Classement mis à jour. Le site l’affiche d’ici une minute.",
+    "r_disabled": "La mise à jour est désactivée dans les réglages (federation : enabled = false).",
+    "r_noKey": "TORNEOPAL_API_KEY n’est pas défini pour l’application : ajoutez-le dans Vercel (projet afrofoot-app → Environment Variables) puis redéployez.",
+    "r_refused": "Palloliitto a refusé la clé API. Vérifiez TORNEOPAL_API_KEY dans Vercel.",
+    "r_failed": "La mise à jour a échoué. Le site garde le classement précédent. La raison est indiquée ci-dessus.",
+    "r_settings": "Les réglages du championnat manquent : exécutez la migration 0040 dans Supabase.",
+    "r_error": "Une erreur s’est produite. Veuillez réessayer."
   }
 }

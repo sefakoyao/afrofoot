@@ -2298,5 +2298,21 @@
     "relative": "Muu sukulainen",
     "friend": "Ystävä",
     "other": "Muu…"
+  },
+  "fed": {
+    "title": "Sarjataulukko (Palloliitto)",
+    "lead": "Verkkosivut näyttävät sarjataulukon ja tulokset Palloliiton tulospalvelusta. Ne päivittyvät joka yö; päivitä heti ottelun jälkeen.",
+    "button": "Päivitä sarjataulukko nyt",
+    "lastOk": "Viimeisin päivitys: {date}",
+    "lastFailed": "Viimeisin yritys epäonnistui {date}: {error}",
+    "never": "Ei vielä päivitetty.",
+    "club": "{team}: {position}. / {teams} · {points} pistettä ({competition}, {season})",
+    "r_synced": "Sarjataulukko päivitetty. Verkkosivut näyttävät sen minuutin kuluessa.",
+    "r_disabled": "Päivitys on poistettu käytöstä asetuksissa (federation: enabled = false).",
+    "r_noKey": "TORNEOPAL_API_KEY puuttuu jäsensovellukselta: lisää se Verceliin (projekti afrofoot-app → Environment Variables) ja julkaise uudelleen.",
+    "r_refused": "Palloliitto hylkäsi API-avaimen. Tarkista TORNEOPAL_API_KEY Vercelissä.",
+    "r_failed": "Päivitys epäonnistui. Verkkosivut näyttävät edellisen taulukon. Syy näkyy yllä.",
+    "r_settings": "Sarja-asetukset puuttuvat: aja migraatio 0040 Supabasessa.",
+    "r_error": "Jokin meni vikaan. Yritä uudelleen."
   }
 }

@@ -194,12 +194,13 @@ The website's **Standings** section, the latest results and, when no game is ent
    - `CRON_SECRET`: a long random value, e.g. the output of `openssl rand -base64 32`. Vercel sends it to the sync route; nothing else can start it.
    Then redeploy.
 3. **Schedule:** `apps/web/vercel.json` runs `/api/federation-sync` every day at 05:23 UTC (Vercel → web project → *Cron Jobs* shows it). On a paid Vercel plan it can run more often (change `schedule`, e.g. `"23 * * * *"` for hourly).
-4. **First run now** (instead of waiting for the night), from your computer:
+4. **Update now from the member app (easiest):** add `TORNEOPAL_API_KEY` to the Vercel **app** project too (Secret, Production) and redeploy it. Then **Admin → home → League table (Palloliitto) → "Update the league table now"**. It runs with your admin rights: no service key or cron secret needed. The card shows the club's position and the last update (or why it failed).
+5. **Or start a run from your computer** (the website route, same result):
    ```bash
    curl -H "Authorization: Bearer YOUR_CRON_SECRET" https://www.afrofoot.club/api/federation-sync
    ```
    It answers `{"ok":true,"teams":1,"competitions":…,"standings":12,"matches":…}`. The home page shows the table within a minute.
-5. **Check runs:** Supabase → Table Editor → `sync_runs` (status, rows, error). Errors never contain the key.
+6. **Check runs:** Supabase → Table Editor → `sync_runs` (status, rows, error). Errors never contain the key.
 
 **How it chooses what to show:** the newest season whose league table has games played; last season's final table stays until the new season's first games are played. A competition can be hidden: set `show_publicly = false` on its row in `federation_competitions` (the sync keeps that choice). Raw answers are not stored (they name referees and players).
 

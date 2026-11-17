@@ -2298,5 +2298,21 @@
     "relative": "قريب آخر",
     "friend": "صديق / صديقة",
     "other": "أخرى…"
+  },
+  "fed": {
+    "title": "جدول الدوري (Palloliitto)",
+    "lead": "يعرض الموقع جدول الدوري والنتائج من خدمة نتائج Palloliitto. يتم تحديثها كل ليلة؛ حدّثها الآن بعد المباراة.",
+    "button": "حدّث جدول الدوري الآن",
+    "lastOk": "آخر تحديث: {date}",
+    "lastFailed": "فشلت المحاولة الأخيرة في {date}: {error}",
+    "never": "لم يتم التحديث بعد.",
+    "club": "{team}: المركز {position} من {teams} · {points} نقطة ({competition}، {season})",
+    "r_synced": "تم تحديث جدول الدوري. سيظهر على الموقع خلال دقيقة.",
+    "r_disabled": "التحديث متوقف في الإعدادات (federation: enabled = false).",
+    "r_noKey": "لم يُضبط TORNEOPAL_API_KEY لتطبيق الأعضاء: أضفه في Vercel (مشروع afrofoot-app ← Environment Variables) ثم أعد النشر.",
+    "r_refused": "رفض Palloliitto مفتاح API. تحقق من TORNEOPAL_API_KEY في Vercel.",
+    "r_failed": "فشل التحديث. يحتفظ الموقع بالجدول السابق. السبب موضح أعلاه.",
+    "r_settings": "إعدادات الدوري مفقودة: شغّل الترحيل 0040 في Supabase.",
+    "r_error": "حدث خطأ ما. حاول مرة أخرى."
   }
 }
