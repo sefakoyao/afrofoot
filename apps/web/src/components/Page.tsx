@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { Link } from '@/i18n/routing';
 
 export function Hero({ title, lead, upcoming }: { title: string; lead?: string; upcoming?: string }) {
@@ -19,8 +19,8 @@ export const Section = ({ id, children }: { id?: string; children: ReactNode }) 
 );
 
 export const H2 = ({ children }: { children: ReactNode }) => <h2 className="font-display text-3xl font-extrabold text-pitch">{children}</h2>;
-export const Card = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-card border border-line bg-raised p-5 shadow-sm ${className}`}>{children}</div>
+export const Card = ({ children, className = '', ...rest }: { children: ReactNode; className?: string } & Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'children'>) => (
+  <div {...rest} className={`rounded-card border border-line bg-raised p-5 shadow-sm ${className}`}>{children}</div>
 );
 export const Tag = ({ children, solid }: { children: ReactNode; solid?: boolean }) => (
   <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${solid ? 'bg-accent/20 text-pitch' : 'bg-line text-muted'}`}>{children}</span>

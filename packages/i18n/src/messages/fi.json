@@ -1125,7 +1125,13 @@
     "seo_contact": "Ota yhteyttä Afro Foot Clubiin Helsingissä: kysymykset, yhteistyö ja mediatiedustelut.",
     "seo_privacy": "Miten Afro Foot Club käsittelee henkilötietoja verkkosivuilla ja jäsensovelluksessa, ja oikeutesi tietosuoja-asetuksen mukaan.",
     "nm_soon_h": "Ottelut tulossa pian",
-    "nm_soon_p": "Sarjaottelut ja harjoitusottelut ilmestyvät tähän heti, kun ne on vahvistettu. Seuraa kalenteria tai tule sillä välin treenaamaan kanssamme."
+    "nm_soon_p": "Sarjaottelut ja harjoitusottelut ilmestyvät tähän heti, kun ne on vahvistettu. Seuraa kalenteria tai tule sillä välin treenaamaan kanssamme.",
+    "sync_fed": "Lähde: Palloliiton tulospalvelu · päivitetty {date}",
+    "sync_fed_plain": "Lähde: Palloliiton tulospalvelu",
+    "st_group": "Lohko {group}",
+    "st_season": "Kausi {season}",
+    "st_final": "lopullinen sarjataulukko",
+    "th_goals": "Maalit"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

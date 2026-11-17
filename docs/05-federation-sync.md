@@ -28,12 +28,8 @@ Vercel Cron (every 15–60 min) → server route → TorneopalClient → upsert 
 | Player goals, cards, appearances | player stats (if available) | player profile, team stats, admin analytics |
 | Opponent info and venues | matches/venues | match page |
 
-## Current status (honest)
-- **Done and tested:** database tables + RLS + public views (10 new tests), key-safe HTTP client (7 tests against a mock server: retries, timeout, 403, bad JSON, no key leakage, path-injection guard).
-- **Not done:** mappers and the sync route. The official help page could not be read (blocked for automated readers) and this build
-  environment cannot reach the API, so exact command names/response fields are unverified. Writing mappers now would be guesswork.
-
-## Next steps
-1. Run the probe on a normal machine: `TORNEOPAL_API_KEY=… pnpm fed:probe "Afro Foot"` → creates `packages/federation/fixtures/*.json` (key redacted).
-2. Send those files (or the saved help page). Then: mappers + tests against the real responses, the sync route, and the admin linking screen.
-3. Put the team and competition IDs into `site_settings.federation` and set `enabled: true`.
+## Current status
+- **Done and tested (release 0.28.0, migration 0040):** mappers (`packages/federation/src/map.ts`) and the sync run (`sync.ts`), tested against trimmed real answers for Afro Foot Club (`fixtures/`, no player, referee or official data): `pnpm --filter @afrofoot/federation test`.
+  The sync route `apps/web/src/app/api/federation-sync` (Vercel Cron, `CRON_SECRET`), the public views and the home page's Standings section. Set-up: `docs/RUNNING.md` §3r.
+- Verified commands: `getTeam` (team_id → groups per season), `getGroup` (competition_id, category_id, group_id → table), `getMatches` (team_id → all games). Errors come back as HTTP 200 with `call.status = "error"`.
+- **Not done yet:** player statistics (`federation_players`, `federation_player_stats`: the answers name players, so linking stays manual and needs an admin screen) and an admin "sync now" button.

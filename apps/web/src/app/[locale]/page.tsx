@@ -24,19 +24,46 @@ export const revalidate = 60;
 
 interface Fixture { id: string; team_name: string; opponent: string; home_away: string | null; kickoff_at: string; status: string; goals_for: number | null; goals_against: number | null; venue: string | null; city: string | null }
 interface Record_ { team_season_id: string; team_name: string; competition: string; played: number; won: number; drawn: number; lost: number; points: number }
+/** Palloliitto league table row and game (migration 0040 views, filled by /api/federation-sync). */
+interface FedStanding { competition_external_id: string; competition: string; category: string | null; group_name: string | null; season: number | null; position: number; team_name: string; is_club: boolean;
+  played: number; won: number; drawn: number; lost: number; goals_for: number; goals_against: number; points: number; synced_at: string }
+interface FedGame { external_id: string; competition_external_id: string; competition: string; category: string | null; kind: string; kickoff_at: string | null; home_name: string; away_name: string;
+  home_goals: number | null; away_goals: number | null; venue: string | null; status: string; synced_at: string }
+/** A game as the home page shows it: home team first, the score in the same order. */
+interface Game { id: string; label: string; tag: string; kickoff_at: string; place: string | null; score: string | null }
 
 async function getHomeData() {
   const db = getPublicClient();
-  if (!db) return { fixtures: [] as Fixture[], records: [] as Record_[], posts: [] as Post[] };
-  const [f, r, n] = await Promise.all([
+  if (!db) return { fixtures: [] as Fixture[], records: [] as Record_[], posts: [] as Post[], fedTable: [] as FedStanding[], fedGames: [] as FedGame[] };
+  const [f, r, n, st, fg] = await Promise.all([
     db.from('public_fixtures').select('id,team_name,opponent,home_away,kickoff_at,status,goals_for,goals_against,venue,city').order('kickoff_at', { ascending: false }).limit(40),
     db.from('public_team_records').select('team_season_id,team_name,competition,played,won,drawn,lost,points').order('points', { ascending: false }).limit(12),
     getPosts(3),
+    db.from('public_standings').select('competition_external_id,competition,category,group_name,season,position,team_name,is_club,played,won,drawn,lost,goals_for,goals_against,points,synced_at')
+      .order('season', { ascending: false }).order('position').limit(200),
+    db.from('public_league_fixtures').select('external_id,competition_external_id,competition,category,kind,kickoff_at,home_name,away_name,home_goals,away_goals,venue,status,synced_at')
+      .or('home_is_club.eq.true,away_is_club.eq.true').order('kickoff_at', { ascending: false }).limit(60),
   ]);
-  return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: n };
+  return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: n, fedTable: (st.data ?? []) as FedStanding[], fedGames: (fg.data ?? []) as FedGame[] };
 }
 
 const vs = (m: Fixture) => (m.home_away === 'away' ? `${m.opponent}  vs  ${m.team_name}` : `${m.team_name}  vs  ${m.opponent}`);
+const ownGame = (m: Fixture): Game => ({
+  id: m.id, label: vs(m), tag: m.team_name, kickoff_at: m.kickoff_at, place: m.venue ? `${m.venue}${m.city ? `, ${m.city}` : ''}` : null,
+  score: m.goals_for === null || m.goals_against === null ? null : m.home_away === 'away' ? `${m.goals_against} – ${m.goals_for}` : `${m.goals_for} – ${m.goals_against}`,
+});
+const fedGame = (m: FedGame): Game => ({
+  id: m.external_id, label: `${m.home_name}  vs  ${m.away_name}`, tag: m.category || m.competition, kickoff_at: m.kickoff_at ?? '', place: m.venue,
+  score: m.home_goals === null || m.away_goals === null ? null : `${m.home_goals} – ${m.away_goals}`,
+});
+
+/** The league table to show: the newest season whose table has games played (last season's final table until then). */
+function pickTable(rows: FedStanding[]): FedStanding[] {
+  const groups = new Map<string, FedStanding[]>();
+  for (const r of rows) groups.set(r.competition_external_id, [...(groups.get(r.competition_external_id) ?? []), r]);
+  const tables = [...groups.values()].filter((g) => g.some((r) => r.played > 0)).sort((a, b) => (b[0]?.season ?? 0) - (a[0]?.season ?? 0));
+  return (tables[0] ?? []).sort((a, b) => a.position - b.position);
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -47,10 +74,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const when = new Intl.DateTimeFormat(intl, { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Helsinki' });
   const day = new Intl.DateTimeFormat(intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
   const short = new Intl.DateTimeFormat(intl, { day: '2-digit', month: '2-digit', timeZone: 'Europe/Helsinki' });
-  const { fixtures, records, posts } = await getHomeData();
+  const { fixtures, records, posts, fedTable, fedGames } = await getHomeData();
   const now = Date.now();
-  const next = fixtures.filter((m) => m.status === 'scheduled' && new Date(m.kickoff_at).getTime() >= now).sort((a, b) => +new Date(a.kickoff_at) - +new Date(b.kickoff_at))[0];
-  const results = fixtures.filter((m) => m.status === 'played').slice(0, 3);
+  // Games entered in the member app come first for the next match; Palloliitto fills in when there are none.
+  const ownNext = fixtures.filter((m) => m.status === 'scheduled' && new Date(m.kickoff_at).getTime() >= now).sort((a, b) => +new Date(a.kickoff_at) - +new Date(b.kickoff_at))[0];
+  const fedNext = fedGames.filter((m) => m.status === 'fixture' && m.kickoff_at && Date.parse(m.kickoff_at) >= now).sort((a, b) => (a.kickoff_at ?? '').localeCompare(b.kickoff_at ?? ''))[0];
+  const next: Game | undefined = ownNext ? ownGame(ownNext) : fedNext ? fedGame(fedNext) : undefined;
+  // Results: the official ones from Palloliitto when synced, else the scores entered in the app.
+  const fedPlayed = fedGames.filter((m) => m.status === 'played' && m.home_goals !== null && m.kickoff_at);
+  const results: Game[] = (fedPlayed.length ? fedPlayed.map(fedGame) : fixtures.filter((m) => m.status === 'played').map(ownGame)).slice(0, 5);
+  const table = pickTable(fedTable);
+  const tableInfo = table[0];
+  const thisYear = Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Europe/Helsinki' }).format(new Date()));
+  // Final once the season is over, or the club has no games left to play in that league.
+  const tableFinal = !!tableInfo && ((tableInfo.season ?? thisYear) < thisYear
+    || !fedGames.some((m) => m.competition_external_id === tableInfo.competition_external_id && m.status === 'fixture'));
+  const syncedAt = [...table.map((r) => r.synced_at), ...fedGames.map((m) => m.synced_at)].sort().at(-1);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL; // member app not live yet: the training tile is hidden without it
 
   return (
@@ -82,9 +121,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>,
           ...(next ? [
             <div key="next" className="grid gap-4">
-              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k2')} · {next.team_name}</span>
-              <h2 className="font-display text-5xl font-black md:text-6xl">{vs(next)}</h2>
-              <p className="text-lg text-white/80">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k2')} · {next.tag}</span>
+              <h2 className="font-display text-5xl font-black md:text-6xl" dir="ltr">{next.label}</h2>
+              <p className="text-lg text-white/80">{when.format(new Date(next.kickoff_at))}{next.place ? ` · ${next.place}` : ''}</p>
               <div><Link href="/calendar" className="inline-block rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link></div>
             </div>,
           ] : [
@@ -100,8 +139,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ]),
           ...(results[0] ? [
             <div key="result" className="grid gap-4">
-              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k3')} · {results[0].team_name}</span>
-              <h2 className="font-display text-5xl font-black md:text-6xl" dir="ltr">{vs(results[0])} <span className="text-accent">{results[0].goals_for} – {results[0].goals_against}</span></h2>
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k3')} · {results[0].tag}</span>
+              <h2 className="font-display text-5xl font-black md:text-6xl" dir="ltr" data-latest-result>{results[0].label} <span className="text-accent">{results[0].score}</span></h2>
+              <p className="text-lg text-white/80">{day.format(new Date(results[0].kickoff_at))}</p>
               <div className="flex flex-wrap gap-3">
                 <Link href="/#standings" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('stand')}</Link>
                 <Link href="/news" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold">{t('allnews')}</Link>
@@ -132,9 +172,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <H2>{t('next')} {t('match')}</H2>
           <Card className="mt-4 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <Tag solid>{next.team_name}</Tag>
-              <p className="mt-2 font-display text-2xl font-extrabold">{vs(next)}</p>
-              <p className="text-muted">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
+              <Tag solid>{next.tag}</Tag>
+              <p className="mt-2 font-display text-2xl font-extrabold" dir="ltr" data-next-game>{next.label}</p>
+              <p className="text-muted">{when.format(new Date(next.kickoff_at))}{next.place ? ` · ${next.place}` : ''}</p>
             </div>
             <ButtonLink href="/calendar">{t('cal')}</ButtonLink>
           </Card>
@@ -188,25 +228,48 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </Section>
 
-      {records.length || results.length ? (
+      {table.length || records.length || results.length ? (
         <Section id="standings">
           <H2>{t('stand')}</H2>
-          <p className="mb-4 mt-1 text-sm text-muted">{t('sync')}</p>
-          <div className="grid gap-4 md:grid-cols-2">
+          {table.length ? (
+            <p className="mb-4 mt-1 text-sm text-muted" data-standings-source>{syncedAt ? t('sync_fed', { date: day.format(new Date(syncedAt)) }) : t('sync_fed_plain')}</p>
+          ) : <div className="mb-4" />}
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
             {results.length ? (
               <Card>
                 <h3 className="font-display text-xl font-extrabold">{t('res_h')}</h3>
-                <ul className="mt-3 divide-y divide-line">
+                <ul className="mt-3 divide-y divide-line" data-results>
                   {results.map((m) => (
-                    <li key={m.id} className="flex flex-wrap items-center gap-x-3 py-2">
-                      <span className="text-sm text-muted">{short.format(new Date(m.kickoff_at))}</span>
-                      <b>{vs(m)}</b><span className="font-display font-black">{m.goals_for} – {m.goals_against}</span><em className="text-sm text-muted">{t('lastm')}</em>
+                    <li key={m.id} className="grid gap-0.5 py-2">
+                      <span className="text-xs text-muted">{short.format(new Date(m.kickoff_at))} · {m.tag}</span>
+                      <span className="flex flex-wrap items-baseline justify-between gap-x-3" dir="ltr"><b>{m.label}</b><span className="font-display font-black tabular-nums">{m.score}</span></span>
                     </li>
                   ))}
                 </ul>
               </Card>
             ) : null}
-            {records.length ? (
+            {table.length && tableInfo ? (
+              <Card className="overflow-x-auto" data-league-table>
+                <h3 className="font-display text-xl font-extrabold">{tableInfo.category ?? tableInfo.competition}{tableInfo.group_name ? ` · ${t('st_group', { group: tableInfo.group_name })}` : ''}</h3>
+                <p className="text-sm text-muted">{tableInfo.season ? t('st_season', { season: tableInfo.season }) : tableInfo.competition}{tableFinal ? ` · ${t('st_final')}` : ''}</p>
+                <table className="mt-3 w-full text-start text-sm tabular-nums">
+                  <thead><tr className="text-muted">
+                    <th className="p-1 text-start">#</th><th className="p-1 text-start">{t('th_team')}</th>
+                    {(['th_p', 'th_w', 'th_d', 'th_l'] as const).map((k) => <th key={k} className="p-1 text-end">{t(k)}</th>)}
+                    <th className="hidden p-1 text-end sm:table-cell">{t('th_goals')}</th><th className="p-1 text-end">{t('th_pts')}</th>
+                  </tr></thead>
+                  <tbody>
+                    {table.map((r) => (
+                      <tr key={r.team_name} className={`border-t border-line ${r.is_club ? 'bg-accent/15 font-bold' : ''}`} data-club-row={r.is_club || undefined}>
+                        <td className="p-1">{r.position}</td><td className="p-1"><bdi className={r.is_club ? 'font-black' : 'font-semibold'}>{r.team_name}</bdi></td>
+                        <td className="p-1 text-end">{r.played}</td><td className="p-1 text-end">{r.won}</td><td className="p-1 text-end">{r.drawn}</td><td className="p-1 text-end">{r.lost}</td>
+                        <td className="hidden p-1 text-end sm:table-cell" dir="ltr">{r.goals_for}–{r.goals_against}</td><td className="p-1 text-end font-black">{r.points}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Card>
+            ) : records.length ? (
               <Card className="overflow-x-auto">
                 <table className="w-full text-start">
                   <thead><tr className="text-sm text-muted">

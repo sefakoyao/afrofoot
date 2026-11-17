@@ -1125,7 +1125,13 @@
     "seo_contact": "Contact Afro Foot Club in Helsinki: questions, partnerships and media enquiries.",
     "seo_privacy": "How Afro Foot Club handles personal data on its website and member app, and your rights under the GDPR.",
     "nm_soon_h": "Fixtures coming soon",
-    "nm_soon_p": "League games and pre-season friendlies will appear here as soon as they are confirmed. Follow the calendar, or come and train with us in the meantime."
+    "nm_soon_p": "League games and pre-season friendlies will appear here as soon as they are confirmed. Follow the calendar, or come and train with us in the meantime.",
+    "sync_fed": "Source: Palloliitto results service · updated {date}",
+    "sync_fed_plain": "Source: Palloliitto results service",
+    "st_group": "Group {group}",
+    "st_season": "Season {season}",
+    "st_final": "final table",
+    "th_goals": "Goals"
   },
   "admin": {
     "navOverview": "Overview",
