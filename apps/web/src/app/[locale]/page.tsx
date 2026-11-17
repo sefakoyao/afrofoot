@@ -304,7 +304,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                       {table.map((r) => (
                         <tr key={r.team_name} className={r.is_club ? 'bg-gold/45 font-bold' : 'border-t border-line'} data-club-row={r.is_club || undefined}>
                           <td className={`px-1.5 py-2 ${r.is_club ? 'rounded-s-xl' : ''}`}>
-                            <span className={`grid size-7 place-items-center rounded-full text-xs font-black ${r.is_club ? 'bg-fg text-gold' : r.position === 1 ? 'bg-accent text-on-accent' : 'bg-surface'}`}>{r.position}</span>
+                            <span className={`inline-grid size-7 place-items-center rounded-full text-xs font-black ${r.is_club ? 'bg-fg text-gold' : r.position === 1 ? 'bg-accent text-on-accent' : 'bg-surface'}`}>{r.position}</span>
                           </td>
                           <td className="px-1.5 py-2"><bdi className={r.is_club ? 'font-black' : 'font-semibold'}>{r.team_name}</bdi></td>
                           <td className="px-1.5 py-2 text-end">{r.played}</td><td className="px-1.5 py-2 text-end">{r.won}</td><td className="px-1.5 py-2 text-end">{r.drawn}</td><td className="px-1.5 py-2 text-end">{r.lost}</td>
@@ -328,7 +328,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     <tbody>
                       {records.map((r, i) => (
                         <tr key={r.team_season_id} className="border-t border-line">
-                          <td className="px-1.5 py-2"><span className="grid size-7 place-items-center rounded-full bg-surface text-xs font-black">{i + 1}</span></td><td className="px-1.5 py-2 font-bold">{r.team_name}</td>
+                          <td className="px-1.5 py-2"><span className="inline-grid size-7 place-items-center rounded-full bg-surface text-xs font-black">{i + 1}</span></td><td className="px-1.5 py-2 font-bold">{r.team_name}</td>
                           <td className="px-1.5 py-2 text-end">{r.played}</td><td className="px-1.5 py-2 text-end">{r.won}</td><td className="px-1.5 py-2 text-end">{r.drawn}</td><td className="px-1.5 py-2 text-end">{r.lost}</td>
                           <td className="px-1.5 py-2 text-end text-base font-black">{r.points}</td>
                         </tr>
