@@ -309,7 +309,7 @@
     "h1a": "Where the world",
     "h1b": "plays",
     "h1c": "as one.",
-    "lead": "Un club sans nation ni couleur : plus de 102 joueurs de plus de 40 nationalités, unis par le football.",
+    "lead": "Un club sans nation ni couleur : plus de 100 joueurs de plus de 40 nationalités, unis par le football.",
     "join": "Rejoindre le club",
     "partner": "Devenir partenaire",
     "players": "joueurs",
@@ -1123,7 +1123,9 @@
     "seo_join": "Rejoignez Afro Foot Club à Helsinki : réservez un essai gratuit, puis inscrivez-vous comme joueur ou membre en trois étapes.",
     "seo_sp": "Les sponsors et partenaires d’Afro Foot Club, et comment votre entreprise peut soutenir le football multiculturel à Helsinki.",
     "seo_contact": "Contactez Afro Foot Club à Helsinki : questions, partenariats et demandes des médias.",
-    "seo_privacy": "Comment Afro Foot Club traite les données personnelles sur son site et son application membres, et vos droits selon le RGPD."
+    "seo_privacy": "Comment Afro Foot Club traite les données personnelles sur son site et son application membres, et vos droits selon le RGPD.",
+    "nm_soon_h": "Matchs bientôt annoncés",
+    "nm_soon_p": "Les matchs de championnat et les matchs amicaux de présaison apparaîtront ici dès qu’ils seront confirmés. Suivez le calendrier, ou venez vous entraîner avec nous en attendant."
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

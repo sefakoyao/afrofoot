@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – home page: fixtures placeholder, 100+ players (branch `phase2/home-placeholders`)
+- **Next match placeholder:** when no game is scheduled (off-season, or fixtures not published yet), the hero slide and the "Next match" section say *Fixtures coming soon: league games and pre-season friendlies will appear here as soon as they are confirmed*, with **View calendar** and **Apply for a tryout**. As soon as a game is scheduled in the member app, it replaces the placeholder (within a minute).
+- **Hero:** "100+ players" instead of "102+", in the number and in the intro text, in all four languages.
+- No database changes.
+
 ## Unreleased – player guide on the admin and coach pages (branch `phase2/player-guide`)
 - **Player guide card** on the admin and coach home pages: a one-page PDF for players (create an account, sign in, agree to the Code of Conduct, sign the contract, pay the fee) in English, Finnish, French and Arabic.
   - One download button per language (the viewer's own language is highlighted) and **Copy link** to paste the guide's address into WhatsApp or an email.

@@ -309,7 +309,7 @@
     "h1a": "Missä maailma",
     "h1b": "pelaa",
     "h1c": "yhtenä.",
-    "lead": "Seura ilman kansallisuutta ja väriä: yli 102 pelaajaa yli 40 kansalaisuudesta, yhdistettynä jalkapallolla.",
+    "lead": "Seura ilman kansallisuutta ja väriä: yli 100 pelaajaa yli 40 kansalaisuudesta, yhdistettynä jalkapallolla.",
     "join": "Liity seuraan",
     "partner": "Ryhdy kumppaniksi",
     "players": "pelaajaa",
@@ -1123,7 +1123,9 @@
     "seo_join": "Liity Afro Foot Clubiin Helsingissä: varaa maksuton kokeilutreeni ja ilmoittaudu pelaajaksi tai jäseneksi kolmessa vaiheessa.",
     "seo_sp": "Afro Foot Clubin yhteistyökumppanit ja miten yrityksesi voi tukea monikulttuurista jalkapalloa Helsingissä.",
     "seo_contact": "Ota yhteyttä Afro Foot Clubiin Helsingissä: kysymykset, yhteistyö ja mediatiedustelut.",
-    "seo_privacy": "Miten Afro Foot Club käsittelee henkilötietoja verkkosivuilla ja jäsensovelluksessa, ja oikeutesi tietosuoja-asetuksen mukaan."
+    "seo_privacy": "Miten Afro Foot Club käsittelee henkilötietoja verkkosivuilla ja jäsensovelluksessa, ja oikeutesi tietosuoja-asetuksen mukaan.",
+    "nm_soon_h": "Ottelut tulossa pian",
+    "nm_soon_p": "Sarjaottelut ja harjoitusottelut ilmestyvät tähän heti, kun ne on vahvistettu. Seuraa kalenteria tai tule sillä välin treenaamaan kanssamme."
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
