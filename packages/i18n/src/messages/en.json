@@ -2298,5 +2298,21 @@
     "relative": "Other relative",
     "friend": "Friend",
     "other": "Other…"
+  },
+  "fed": {
+    "title": "League table (Palloliitto)",
+    "lead": "The website shows the league table and results from the Palloliitto results service. They update every night; update them now after a game.",
+    "button": "Update the league table now",
+    "lastOk": "Last update: {date}",
+    "lastFailed": "Last attempt failed on {date}: {error}",
+    "never": "Not updated yet.",
+    "club": "{team}: {position}. of {teams} · {points} points ({competition}, {season})",
+    "r_synced": "League table updated. The website shows it within a minute.",
+    "r_disabled": "The update is switched off in the settings (federation: enabled = false).",
+    "r_noKey": "TORNEOPAL_API_KEY is not set for the member app: add it in Vercel (project afrofoot-app → Environment Variables) and redeploy.",
+    "r_refused": "Palloliitto refused the API key. Check TORNEOPAL_API_KEY in Vercel.",
+    "r_failed": "The update failed. The website keeps the previous table. The reason is shown above.",
+    "r_settings": "The league settings are missing: run migration 0040 in Supabase.",
+    "r_error": "Something went wrong. Please try again."
   }
 }
