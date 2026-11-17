@@ -217,6 +217,11 @@ The team page refreshes every minute.
 3. www.afrofoot.club/team#squad then lists every player on the current roster (refreshes every minute).
 4. A player who prefers not to be listed: **My profile → Remove me from the club website** (needs their account linked under Admin → Palloliitto players), or an admin clicks **Hide** on that page.
 
+## 3u. All-time top scorers (migration 0043, release 0.31.0)
+1. **Database:** paste `supabase/migrations/20260101000043_top_scorers.sql` into Supabase → SQL Editor (project of the website) and run it once (after 0042).
+2. **Admin → League table → Update the league table now:** reads every season and cup the club has played on Palloliitto (takes a few seconds longer), and corrects the games counts.
+3. www.afrofoot.club/team#squad shows the corner within a minute. To leave someone out: Admin → Palloliitto players → Hide (former players are listed there too, greyed out).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

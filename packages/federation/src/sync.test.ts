@@ -29,6 +29,7 @@ function memoryStore() {
     async upsertMatches(rows) { for (const r of rows) db.matches.set(r.external_id, r); },
     async upsertPlayers(rows) { for (const r of rows) db.players.set(r.external_id, r); },
     async upsertPlayerStats(rows) { for (const r of rows) db.stats.set(`${r.player_external_id}@${r.competition_external_id}`, r); },
+    async addPlayers(rows) { for (const r of rows) if (!db.players.has(r.external_id)) db.players.set(r.external_id, r); },
   };
   return { db, store };
 }
@@ -36,14 +37,17 @@ function memoryStore() {
 test('a run stores the 2026 table, the games and the club flag', async () => {
   const api = fakeApi(); const { db, store } = memoryStore();
   const r = await runSync(api, store, ['35118195']);
-  assert.deepEqual(r, { teams: 1, competitions: db.competitions.size, standings: 12, matches: db.matches.size, players: 0 });
+  assert.deepEqual(r, { teams: 1, competitions: 7, standings: 12, matches: db.matches.size, players: 0 });
+  assert.equal(db.competitions.size, 12, 'the 7 of the last two seasons, plus 5 earlier league and cup groups (for the scorers)');
   assert.equal((db.standings.get('etejp26/M4/4') ?? []).length, 12);
   assert.ok(db.club.has('35118195'));
   assert.ok(db.competitions.has('etejp26/M4/4') && db.competitions.has('spljp26/MSC/' + matches.matches.find((m: Record<string, string>) => m.competition_id === 'spljp26').group_id));
   assert.ok([...db.matches.values()].filter((m) => m.status === 'played').length >= 20);
   assert.ok(db.teams.get('35118195')?.name === 'Afro Foot Club');
   assert.ok(api.calls.includes('getGroup:etejp26/M4/4'));
-  assert.ok(!api.calls.some((c) => c.startsWith('getGroup:spljp') || c.startsWith('getGroup:hkihar')), 'no tables for cups or friendlies');
+  assert.ok(!api.calls.some((c) => c.startsWith('getGroup:hkihar') || c.startsWith('getGroup:lahtiharj')), 'friendlies are never read');
+  assert.ok(api.calls.includes('getGroup:etejp22/M6/6') && api.calls.includes('getGroup:spljp23/MSC/4'), 'earlier seasons and cups are read for the scorers');
+  assert.deepEqual([...db.standings.keys()], ['etejp26/M4/4'], 'but no tables are stored for them');
 });
 
 test('a group not drawn yet keeps the existing table', async () => {
@@ -88,8 +92,9 @@ const fakePlayers = [
   { player_id: '904', first_name: 'Resting', last_name: 'Player', shirt_number: '5', position_en: 'defender', removed: '0000-00-00 00:00:00', inactive: '1', team_id: '35118195' },
 ];
 const fakeStats = [
-  { player_id: '901', team_id: '35118195', matches_played: '18', goals: '7', assists: '2', warnings: '1', suspensions: '0', player_name: 'Test Striker' },
-  { player_id: '777', team_id: '1001', matches_played: '20', goals: '15', player_name: 'Someone Else' },
+  // as the real answer: games in "matches", "matches_played" left empty
+  { player_id: '901', team_id: '35118195', matches: '18', matches_played: '', goals: '7', assists: '2', warnings: '1', suspensions: '0', first_name: 'Test', last_name: 'Striker', player_name: 'Striker Test' },
+  { player_id: '777', team_id: '1001', matches: '20', matches_played: '', goals: '15', first_name: 'Someone', last_name: 'Else' },
 ];
 
 test('players: only id, name, shirt number, position and roster status are kept', async () => {
@@ -118,6 +123,38 @@ test('a run stores the club\'s players and their league statistics, not other te
   assert.equal(db.players.get('901')?.display_name, 'Test Striker');
   assert.equal(db.stats.get('901@etejp26/M4/4')?.goals, 7);
   assert.ok(![...db.stats.keys()].some((k) => k.startsWith('777')), 'another team\'s player is not stored');
+});
+
+test('games come from "matches" (the real answer), with "matches_played" as a fallback', async () => {
+  const { mapGroupPlayerStats } = await import('./map.ts');
+  const g = (stats: unknown[]) => ({ group: { competition_id: 'x', category_id: 'y', group_id: '1', player_statistics: stats } });
+  assert.equal(mapGroupPlayerStats(g([{ player_id: '1', team_id: '9', matches: '14', matches_played: '' }]), new Set(['9']))[0]?.appearances, 14);
+  assert.equal(mapGroupPlayerStats(g([{ player_id: '1', team_id: '9', matches_played: '6' }]), new Set(['9']))[0]?.appearances, 6);
+});
+
+test('all-time: goals from earlier seasons keep former players\' names, without touching current players', async () => {
+  const season2024 = { group: { competition_id: 'etejp24', category_id: 'M5', group_id: '6', teams: [], player_statistics: [
+    { player_id: '901', team_id: '35118195', matches: '20', goals: '12', first_name: 'Old', last_name: 'Name' },
+    { player_id: '950', team_id: '35118195', matches: '19', goals: '21', first_name: 'Former', last_name: 'Scorer', birthyear: '1990' },
+    { player_id: '778', team_id: '1001', matches: '20', goals: '30', first_name: 'Rival', last_name: 'Striker' },
+  ] } };
+  const api = { calls: [] as string[], async call(cmd: string, p: Record<string, string>) {
+    const k = `${p.competition_id}/${p.category_id}/${p.group_id}`;
+    if (cmd === 'getTeam') return { ...team, team: { ...team.team, players: fakePlayers } };
+    if (cmd === 'getMatches') return matches;
+    if (k === 'etejp26/M4/4') return { ...group, group: { ...group.group, player_statistics: fakeStats } };
+    if (k === 'etejp24/M5/6') return season2024;
+    if (k === 'etejp23/M5/5') return { call: { status: 'error', error: 'temporarily unavailable' } };
+    return { group: { teams: [] } };
+  } };
+  const { db, store } = memoryStore();
+  await runSync(api, store, ['35118195']);
+  assert.equal(db.stats.get('950@etejp24/M5/6')?.goals, 21);
+  assert.equal(db.stats.get('901@etejp24/M5/6')?.goals, 12);
+  assert.deepEqual(db.players.get('950'), { external_id: '950', team_external_id: '35118195', display_name: 'Former Scorer', shirt_number: null, position: null, on_roster: false });
+  assert.equal(db.players.get('901')?.display_name, 'Test Striker', 'a current player is not renamed or taken off the roster');
+  assert.ok(!db.players.has('778') && ![...db.stats.keys()].some((k) => k.startsWith('778')), 'other teams\' players are not stored');
+  assert.ok(db.competitions.has('etejp24/M5/6') && db.competitions.has('etejp22/M6/6'), 'earlier competitions are known (season, kind) for the view');
 });
 
 test('positions in English and Finnish map to the club\'s four', async () => {

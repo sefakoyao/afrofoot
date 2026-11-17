@@ -2,13 +2,8 @@
 
 import { useState } from 'react';
 
-export interface SquadPlayer { id: string; display_name: string; position: string | null; jersey_number: number | null; nationality: string | null;
-  goals?: number | null; appearances?: number | null; stats_season?: number | null }
-
-/** "{goals} goals · {games} games · {season}" filled in (league statistics from Palloliitto, linked players only). */
-const statsLine = (tpl: string | undefined, p: SquadPlayer) => tpl && p.appearances != null
-  ? tpl.replace('{goals}', String(p.goals ?? 0)).replace('{games}', String(p.appearances)).replace('{season}', String(p.stats_season ?? '')).replace(/\s·\s$/, '')
-  : null;
+/** stats: "7 goals · 18 games · 2026", already translated on the server (league statistics from Palloliitto). */
+export interface SquadPlayer { id: string; display_name: string; position: string | null; jersey_number: number | null; nationality: string | null; stats?: string | null }
 
 const FILTERS = [['all', 'sq_all'], ['goalkeeper', 'position_gk'], ['defender', 'position_df'], ['midfielder', 'position_mf'], ['forward', 'position_fw']] as const;
 
@@ -23,14 +18,14 @@ export function Squad({ players, labels }: { players: SquadPlayer[]; labels: Rec
             className={`rounded-full border-2 px-4 py-1.5 font-semibold ${pos === v ? 'border-accent bg-accent text-on-accent' : 'border-line'}`}>{labels[k]}</button>
         ))}
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {shown.map((p) => (
           <div key={p.id} className="rounded-card border border-line bg-raised p-4 text-center">
             <div className="mx-auto grid size-16 place-items-center rounded-full bg-ink-950 font-display text-xl font-black text-accent" aria-hidden>
               {p.display_name.split(' ').map((w) => w[0]).slice(0, 2).join('')}
             </div>
             <p className="mt-2 font-display font-extrabold">{p.display_name}</p>
-            {statsLine(labels.sq_stats, p) ? <p className="mt-1 text-xs font-semibold text-pitch" data-player-stats>{statsLine(labels.sq_stats, p)}</p> : null}
+            {p.stats ? <p className="mt-1 text-xs font-semibold text-pitch" data-player-stats>{p.stats}</p> : null}
             <p className="text-sm text-muted">{[p.jersey_number ? `#${p.jersey_number}` : null, p.position ? labels[`position_${({ goalkeeper: 'gk', defender: 'df', midfielder: 'mf', forward: 'fw' } as Record<string, string>)[p.position] ?? ''}`] : null].filter(Boolean).join(' · ')}</p>
           </div>
         ))}

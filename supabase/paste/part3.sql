@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -1724,6 +1724,44 @@ grant select on public_squad to anon, authenticated;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.30.0','feature','Squad from Palloliitto',
   'The website''s squad shows the club''s players as registered with Palloliitto: name, shirt number, position, league goals and games. Players can remove themselves in My profile; admins can hide a player.','2026-11-17')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000043_top_scorers.sql =====
+-- 0043 All-time top scorers on the team page. Release 0.31.0.
+-- The sync now also reads the club's goals from every official group it has played on the Palloliitto results service
+-- (earlier seasons and cups; never friendlies). Former players are stored off the roster with their name only.
+-- The website shows the top three of the club's league and cup goals, with the same safeguards as the squad (0042):
+-- a player hidden by the club or who removed themselves in the app is never listed.
+-- Fix: games played come from "matches" in the service's answer ("matches_played" is empty); the next sync corrects them.
+
+create view public_top_scorers as
+with totals as (
+  select fp.display_name, fp.on_roster,
+         sum(fs.goals)::int as goals, sum(fs.appearances)::int as appearances,
+         min(c.season) as first_season, max(c.season) as last_season
+  from federation_players fp
+  join federation_teams ft on ft.external_id = fp.team_external_id and ft.is_club
+  left join players p on p.id = fp.player_id
+  join federation_player_stats fs on fs.player_external_id = fp.external_id
+  join federation_competitions c on c.external_id = fs.competition_external_id and c.kind in ('league', 'cup') and c.show_publicly
+  where not fp.hidden and not coalesce(p.website_hidden, false)
+  group by fp.external_id, fp.display_name, fp.on_roster
+)
+select (row_number() over (order by goals desc, appearances, display_name))::int as rank,
+       display_name, goals, appearances, on_roster as current_player, first_season, last_season,
+       (select min(c.season) from federation_competitions c
+         join federation_player_stats fs on fs.competition_external_id = c.external_id
+         where c.kind in ('league', 'cup') and c.show_publicly) as since_season
+from totals
+where goals > 0
+order by rank
+limit 3;
+grant select on public_top_scorers to anon, authenticated;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.31.0','feature','All-time top scorers',
+  'The team page shows the club''s three all-time top scorers in league and cup games, from the Palloliitto results service. Games played per player are now counted correctly.','2026-11-17')
 on conflict (version) do nothing;
 
 

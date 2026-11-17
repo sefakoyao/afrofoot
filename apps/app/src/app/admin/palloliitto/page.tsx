@@ -25,18 +25,18 @@ export default async function PalloliittoPlayersPage({ searchParams }: { searchP
   const [{ data: fed }, { data: app }, { data: stats }] = supabase ? await Promise.all([
     supabase.from('federation_players').select('external_id, display_name, shirt_number, position, player_id, hidden, on_roster').order('on_roster', { ascending: false }).order('shirt_number', { nullsFirst: false }).order('display_name'),
     supabase.from('players').select('id, first_name, last_name, website_hidden, status').neq('status', 'alumni').order('last_name'),
-    supabase.from('federation_player_stats').select('player_external_id, goals, appearances, competition_external_id'),
+    supabase.from('federation_player_stats').select('player_external_id, goals, appearances'),
   ]) : [{ data: [] }, { data: [] }, { data: [] }];
   const fedPlayers = (fed ?? []) as FedPlayer[];
   const appPlayers = (app ?? []) as AppPlayer[];
   const byId = new Map(appPlayers.map((p) => [p.id, p]));
   const linkedIds = new Set(fedPlayers.map((f) => f.player_id).filter(Boolean));
   const byName = new Map(appPlayers.map((p) => [norm(`${p.first_name} ${p.last_name}`), p]));
-  // latest league season per Palloliitto player: competition ids end with the season (etejp26/M4/4 → 26)
-  const latest = new Map<string, { goals: number; appearances: number; key: string }>();
-  for (const s of (stats ?? []) as { player_external_id: string; goals: number; appearances: number; competition_external_id: string }[]) {
-    const cur = latest.get(s.player_external_id);
-    if (!cur || s.competition_external_id > cur.key) latest.set(s.player_external_id, { goals: s.goals, appearances: s.appearances, key: s.competition_external_id });
+  // all-time league and cup totals per Palloliitto player (friendlies are never stored), as the website's top scorers
+  const latest = new Map<string, { goals: number; appearances: number }>();
+  for (const s of (stats ?? []) as { player_external_id: string; goals: number; appearances: number }[]) {
+    const cur = latest.get(s.player_external_id) ?? { goals: 0, appearances: 0 };
+    latest.set(s.player_external_id, { goals: cur.goals + s.goals, appearances: cur.appearances + s.appearances });
   }
   const linked = fedPlayers.filter((f) => f.player_id).length;
   // shown on the website: on the current roster, not hidden by the club, and not removed by the player (view public_squad)
@@ -65,13 +65,12 @@ export default async function PalloliittoPlayersPage({ searchParams }: { searchP
                     <p className="font-semibold"><bdi>{f.display_name}</bdi>{f.shirt_number !== null ? <span className="ms-2 text-muted" dir="ltr">#{f.shirt_number}</span> : null}</p>
                     <p className="text-xs text-muted">{[f.position, st ? t('statsShort', { goals: st.goals, games: st.appearances }) : null].filter(Boolean).join(' · ')}
                       {isShown(f) ? <span className="ms-2 rounded-full bg-accent/20 px-2 py-0.5 font-bold text-pitch" data-shown>{t('onWebsite')}</span>
-                        : <span className="ms-2 rounded-full bg-line px-2 py-0.5 font-bold" data-not-shown>{!f.on_roster ? t('offRoster') : f.hidden ? t('hiddenByAdmin') : t('removedSelf')}</span>}</p>
-                    {f.on_roster ? (
-                      <form action={setFederationPlayerHidden} className="mt-1">
-                        <input type="hidden" name="external_id" value={f.external_id} /><input type="hidden" name="hidden" value={f.hidden ? 'false' : 'true'} />
-                        <button className="text-xs font-semibold text-pitch underline underline-offset-2" data-hide-toggle>{f.hidden ? t('show') : t('hide')}</button>
-                      </form>
-                    ) : null}
+                        : <span className="ms-2 rounded-full bg-line px-2 py-0.5 font-bold" data-not-shown>{[!f.on_roster ? t('offRoster') : null, f.hidden ? t('hiddenByAdmin') : null, f.on_roster && !f.hidden ? t('removedSelf') : null].filter(Boolean).join(' · ')}</span>}</p>
+                    {/* former players too: they can still appear among the all-time top scorers (migration 0043) */}
+                    <form action={setFederationPlayerHidden} className="mt-1">
+                      <input type="hidden" name="external_id" value={f.external_id} /><input type="hidden" name="hidden" value={f.hidden ? 'false' : 'true'} />
+                      <button className="text-xs font-semibold text-pitch underline underline-offset-2" data-hide-toggle>{f.hidden ? t('show') : t('hide')}</button>
+                    </form>
                   </div>
                   <form action={linkFederationPlayer} className="flex gap-2">
                     <input type="hidden" name="external_id" value={f.external_id} />

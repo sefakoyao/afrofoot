@@ -1,9 +1,10 @@
 /**
  * One sync run: for each of the club's teams on the results service, read the team (its groups), the league tables of
- * the latest two seasons and the team's games, then write them through the given store. Pure orchestration: the caller
+ * the latest two seasons and the team's games, plus the club's goals from every official group it has played (all-time
+ * scorers), then write them through the given store. Pure orchestration: the caller
  * passes the API client and the database writes (apps/web /api/federation-sync), so it is tested with fakes (sync.test.ts).
  */
-import { groupsToSync, mapGroup, mapGroupPlayerStats, mapMatches, mapTeamPlayers, teamsFromMatches, type CompetitionRow, type MatchRow, type PlayerRow, type PlayerStatRow, type StandingRow, type TeamRow } from './map.ts';
+import { competitionFrom, groupsToSync, mapGroup, mapGroupPlayerStats, mapMatches, mapTeamPlayers, playersFromStats, teamsFromMatches, type CompetitionRow, type MatchRow, type PlayerRow, type PlayerStatRow, type StandingRow, type TeamRow } from './map.ts';
 
 export interface Api { call(command: string, params: Record<string, string>): Promise<unknown> }
 export interface Store {
@@ -15,10 +16,13 @@ export interface Store {
   /** The club's registered players (never links them to app players: an admin does that). */
   upsertPlayers(rows: PlayerRow[]): Promise<void>;
   upsertPlayerStats(rows: PlayerStatRow[]): Promise<void>;
+  /** Players known only from statistics (former players): added off the roster, existing rows are left as they are. */
+  addPlayers(rows: PlayerRow[]): Promise<void>;
 }
 export interface SyncResult { teams: number; competitions: number; standings: number; matches: number; players: number }
 
 type Json = Record<string, unknown>;
+const groupKeyOf = (groupAnswer: Json) => { const g = (groupAnswer.group ?? {}) as Json; return `${g.competition_id}/${g.category_id}/${g.group_id}`; };
 
 /** The service answers errors with HTTP 200 and {"call": {"status": "error", "error": "No API key provided"}}. */
 function refusal(answer: unknown): string | null {
@@ -54,6 +58,8 @@ export async function runSync(api: Api, store: Store, teamIds: string[]): Promis
     await store.upsertCompetitions([...competitions.values()]);
     await store.upsertTeams(teamsFromMatches(answer).filter((t) => inGames.has(t.external_id)));
 
+    const club = new Set([teamId]);
+    const statAnswers: Json[] = [];
     for (const g of [...competitions.values()].filter((c) => c.kind === 'league')) {
       const [competition_id = '', category_id = '', group_id = ''] = g.external_id.split('/');
       const groupAnswer = await ask(api, 'getGroup', { competition_id, category_id, group_id });
@@ -62,13 +68,28 @@ export async function runSync(api: Api, store: Store, teamIds: string[]): Promis
       await store.upsertTeams(table.teams);
       await store.replaceStandings(g.external_id, table.standings);
       result.standings += table.standings.length;
-      // goals and games of the club's own players only (other teams' players are not stored)
-      await store.upsertPlayerStats(mapGroupPlayerStats(groupAnswer, new Set([teamId])));
+      statAnswers.push(groupAnswer);
     }
     await store.upsertMatches(matches);
     const players = mapTeamPlayers(team);
     await store.upsertPlayers(players);
     result.players += players.length;
+
+    // Goals for the all-time scorers: every official group the team ever played (earlier seasons and cups), statistics
+    // only (no tables or games). A group the service cannot answer is skipped, so history never blocks the sync.
+    const allGroups = (((team.team as Json).groups ?? []) as Json[]).map(competitionFrom);
+    const history = [...new Map(allGroups.filter((c) => c.kind !== 'friendly' && !statAnswers.some((a) => groupKeyOf(a) === c.external_id)).map((c) => [c.external_id, c])).values()];
+    const known = new Set(competitions.keys());
+    await store.upsertCompetitions(history.filter((c) => !known.has(c.external_id)));
+    for (const c of history) {
+      const [competition_id = '', category_id = '', group_id = ''] = c.external_id.split('/');
+      try { statAnswers.push(await ask(api, 'getGroup', { competition_id, category_id, group_id })); } catch { /* skipped */ }
+    }
+    // goals and games of the club's own players only (other teams' players are not stored)
+    for (const a of statAnswers) {
+      await store.addPlayers(playersFromStats(a, club));
+      await store.upsertPlayerStats(mapGroupPlayerStats(a, club));
+    }
     await store.markClubTeams([teamId]);
     result.teams += 1; result.competitions += competitions.size; result.matches += matches.length;
   }
