@@ -45,3 +45,18 @@ export async function linkFederationPlayer(fd: FormData): Promise<void> {
   revalidatePath('/admin/palloliitto');
   back('r_linked', external);
 }
+
+/** Hide a Palloliitto player from the website's squad, or show them again (admins; e.g. when a player asks by email). */
+export async function setFederationPlayerHidden(fd: FormData): Promise<void> {
+  await requireArea('admin');
+  const external = String(fd.get('external_id') ?? '');
+  const hidden = fd.get('hidden') === 'true';
+  const back = (r: string): never => redirect(`/admin/palloliitto?result=${r}&player=${encodeURIComponent(external)}`);
+  if (!/^\d{1,12}$/.test(external)) return back('r_invalid');
+  const supabase = await getSupabase();
+  if (!supabase) return back('r_error');
+  const { data, error } = await supabase.from('federation_players').update({ hidden }).eq('external_id', external).select('external_id');
+  if (error || !data?.length) { if (error) console.error('[federation] hide refused', { code: error.code, message: error.message }); return back('r_invalid'); }
+  revalidatePath('/admin/palloliitto');
+  back(hidden ? 'r_hidden' : 'r_shown');
+}

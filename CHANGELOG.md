@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – squad from Palloliitto, no consent needed (branch `phase2/squad-palloliitto`, migration 0042, release 0.30.0)
+- **Website, team page:** the squad now lists **every player on the club's current Palloliitto roster** (Palloliitto's public player register), without asking each player first. Only name, shirt number, position, and league goals and games; never birth year or nationality. A note says where the list comes from and how to be removed.
+- **Only the current roster:** players removed or marked inactive at Palloliitto are kept for the admin but not shown, and drop off at the next sync. Positions are stored as goalkeeper / defender / midfielder / forward (the service writes English or Finnish).
+- **Opt-out instead of opt-in:** My profile → "On the club website" now says the player is shown and offers **"Remove me from the club website"** (and "Show me again"). It applies once the admin has linked the account to the Palloliitto player.
+- **Admin → Palloliitto players:** each row says whether the player is on the website, removed themselves, is hidden by the club or is off the roster, with **Hide / Show** (for example when someone asks by email). The sync never overwrites a hide, a self-removal or a link.
+- **Privacy policy** (four languages): the public squad is based on the club's legitimate interest and Palloliitto's public register, with the right to object in the app or by email.
+- 17 new database checks, updated sync tests, 19 browser checks. Set-up: `docs/RUNNING.md` §3t.
+
 ## Unreleased – squad on the website (branch `phase2/squad-consent`, migration 0041, release 0.29.0)
 - **Players decide:** a new **"On the club website"** section in My profile, with **"Show me on the club website"** and "Remove me". The database always had this consent, but nobody could set it, so the squad was empty. It says what is shown: name, shirt number, position, nationality, photo, league goals and games.
 - **Palloliitto players:** the sync (button and nightly) also stores the club's registered players and their league statistics. It keeps only the id, name, shirt number, position and statistics, never birth year, nationality or licence, and never other teams' players. Admins and coaches can read them.

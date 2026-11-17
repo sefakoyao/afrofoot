@@ -82,21 +82,24 @@ test('a new season\'s fixtures count before its group is listed', async () => {
 
 // Invented players in the service's format (the trimmed real fixtures contain no people).
 const fakePlayers = [
-  { player_id: '901', first_name: 'Test', last_name: 'Striker', shirt_number: '9', position_en: 'Forward', birthyear: '1999', nationality: 'XX', licence: 'ok', team_id: '35118195' },
-  { player_id: '902', first_name: 'Test', last_name: 'Keeper', shirt_number: '1', position: 'mv', team_id: '35118195' },
-  { player_id: '903', first_name: 'Gone', last_name: 'Player', shirt_number: '7', removed: '1', team_id: '35118195' },
+  { player_id: '901', first_name: 'Test', last_name: 'Striker', shirt_number: '9', position_en: 'forward', birthyear: '1999', nationality: 'XX', licence: 'ok', removed: '0000-00-00 00:00:00', inactive: '0', team_id: '35118195' },
+  { player_id: '902', first_name: 'Test', last_name: 'Keeper', shirt_number: '1', position: 'maalivahti', removed: '0000-00-00 00:00:00', inactive: '0', team_id: '35118195' },
+  { player_id: '903', first_name: 'Gone', last_name: 'Player', shirt_number: '7', position_en: 'midfield', removed: '2026-04-14 14:21:14', inactive: '0', team_id: '35118195' },
+  { player_id: '904', first_name: 'Resting', last_name: 'Player', shirt_number: '5', position_en: 'defender', removed: '0000-00-00 00:00:00', inactive: '1', team_id: '35118195' },
 ];
 const fakeStats = [
   { player_id: '901', team_id: '35118195', matches_played: '18', goals: '7', assists: '2', warnings: '1', suspensions: '0', player_name: 'Test Striker' },
   { player_id: '777', team_id: '1001', matches_played: '20', goals: '15', player_name: 'Someone Else' },
 ];
 
-test('players: only id, name, shirt number and position are kept; removed players are left out', async () => {
+test('players: only id, name, shirt number, position and roster status are kept', async () => {
   const { mapTeamPlayers } = await import('./map.ts');
   const rows = mapTeamPlayers({ team: { team_id: '35118195', players: fakePlayers } });
   assert.deepEqual(rows, [
-    { external_id: '901', team_external_id: '35118195', display_name: 'Test Striker', shirt_number: 9, position: 'Forward' },
-    { external_id: '902', team_external_id: '35118195', display_name: 'Test Keeper', shirt_number: 1, position: 'mv' },
+    { external_id: '901', team_external_id: '35118195', display_name: 'Test Striker', shirt_number: 9, position: 'forward', on_roster: true },
+    { external_id: '902', team_external_id: '35118195', display_name: 'Test Keeper', shirt_number: 1, position: 'goalkeeper', on_roster: true },
+    { external_id: '903', team_external_id: '35118195', display_name: 'Gone Player', shirt_number: 7, position: 'midfielder', on_roster: false },
+    { external_id: '904', team_external_id: '35118195', display_name: 'Resting Player', shirt_number: 5, position: 'defender', on_roster: false },
   ]);
   assert.ok(rows.every((r) => !('birthyear' in r) && !('nationality' in r) && !('licence' in r)));
 });
@@ -111,8 +114,17 @@ test('a run stores the club\'s players and their league statistics, not other te
   const api = fakeApi({ getTeam: { ...team, team: { ...team.team, players: fakePlayers } }, getGroup: { ...group, group: { ...group.group, player_statistics: fakeStats } } });
   const { db, store } = memoryStore();
   const r = await runSync(api, store, ['35118195']);
-  assert.equal(r.players, 2);
+  assert.equal(r.players, 4);
   assert.equal(db.players.get('901')?.display_name, 'Test Striker');
   assert.equal(db.stats.get('901@etejp26/M4/4')?.goals, 7);
   assert.ok(![...db.stats.keys()].some((k) => k.startsWith('777')), 'another team\'s player is not stored');
+});
+
+test('positions in English and Finnish map to the club\'s four', async () => {
+  const { positionOf } = await import('./map.ts');
+  assert.equal(positionOf({ position_en: 'midfield', position: 'keskikentta' }), 'midfielder');
+  assert.equal(positionOf({ position: 'hyokkaaja' }), 'forward');
+  assert.equal(positionOf({ position_fi: 'puolustaja' }), 'defender');
+  assert.equal(positionOf({ position: 'mv' }), 'goalkeeper');
+  assert.equal(positionOf({ position: '' }), null);
 });

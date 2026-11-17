@@ -132,24 +132,40 @@ export function teamsFromMatches(matchesAnswer: Json): TeamRow[] {
   return [...out.values()];
 }
 
-export interface PlayerRow { external_id: string; team_external_id: string; display_name: string; shirt_number: number | null; position: string | null }
+export type Position = 'goalkeeper' | 'defender' | 'midfielder' | 'forward';
+export interface PlayerRow {
+  external_id: string; team_external_id: string; display_name: string; shirt_number: number | null; position: Position | null; on_roster: boolean;
+}
 export interface PlayerStatRow {
   player_external_id: string; competition_external_id: string; appearances: number; goals: number; assists: number; yellow_cards: number; red_cards: number;
 }
 
+/** The service writes positions in English ("midfield") or Finnish ("keskikentta", "mv"): map them to the club's four. */
+export function positionOf(p: Json): Position | null {
+  const v = `${str(p.position_en)} ${str(p.position)} ${str(p.position_fi)}`.toLowerCase();
+  if (/goal|maalivahti|\bmv\b/.test(v)) return 'goalkeeper';
+  if (/defen|puolustaja/.test(v)) return 'defender';
+  if (/midfield|keskikent/.test(v)) return 'midfielder';
+  if (/forward|attack|striker|hy[oö]kk/.test(v)) return 'forward';
+  return null;
+}
+
+/** A player is off the roster once removed (a removal date instead of "0000-00-00 …") or marked inactive. */
+const onRoster = (p: Json) => { const removed = str(p.removed); return (!removed || removed.startsWith('0000') || removed === '0') && str(p.inactive) !== '1'; };
+
 /**
- * The team's registered players (getTeam → team.players): id, name, shirt number, position. Nothing else is kept
- * (no birth year, nationality, licence or physical data). Players marked removed or inactive are left out.
+ * The team's players (getTeam → team.players): id, name, shirt number, position and whether they are on the current
+ * roster. Nothing else is kept (no birth year, nationality, licence or physical data).
  */
 export function mapTeamPlayers(teamAnswer: Json): PlayerRow[] {
   const team = (teamAnswer.team ?? {}) as Json;
   const teamId = str(team.team_id);
   return ((team.players ?? []) as Json[])
-    .filter((p) => str(p.player_id) && (str(p.first_name) || str(p.last_name)) && str(p.removed) !== '1' && str(p.inactive) !== '1')
+    .filter((p) => str(p.player_id) && (str(p.first_name) || str(p.last_name)))
     .map((p) => ({
       external_id: str(p.player_id), team_external_id: teamId,
       display_name: [str(p.first_name), str(p.last_name)].filter(Boolean).join(' '),
-      shirt_number: intOrNull(p.shirt_number), position: str(p.position_en) || str(p.position) || null,
+      shirt_number: intOrNull(p.shirt_number), position: positionOf(p), on_roster: onRoster(p),
     }));
 }
 

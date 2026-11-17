@@ -19,7 +19,7 @@ insert into players (id, profile_id, first_name, last_name, status, position) va
 insert into team_players (team_season_id, player_id, jersey_number) values ('fb400000-0000-0000-0000-000000000001', 'fb500000-0000-0000-0000-000000000003', 9), ('fb400000-0000-0000-0000-000000000001', 'fb500000-0000-0000-0000-000000000004', 4);
 -- what the sync stores
 insert into federation_competitions (external_id, name, category, season, kind) values ('sq26/M4/4', 'Sq 2026', 'Miesten Nelonen', 2026, 'league'), ('sq25/M5/6', 'Sq 2025', 'Miesten Vitonen', 2025, 'league'), ('sqcup/MSC/1', 'Sq Cup', 'Cup', 2026, 'cup');
-insert into federation_players (external_id, team_external_id, display_name, shirt_number, position) values ('9001', '35118195', 'Sq One', 9, 'Forward'), ('9002', '35118195', 'Sq Two', 4, 'Defender');
+insert into federation_players (external_id, team_external_id, display_name, shirt_number, position) values ('9001', '35118195', 'Sq One', 9, 'forward'), ('9002', '35118195', 'Sq Two', 4, 'defender');
 insert into federation_player_stats (player_external_id, competition_external_id, appearances, goals) values ('9001', 'sq26/M4/4', 18, 7), ('9001', 'sq25/M5/6', 15, 11), ('9001', 'sqcup/MSC/1', 1, 3);
 
 -- ---------- the player decides ----------

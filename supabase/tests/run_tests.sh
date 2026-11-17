@@ -23,3 +23,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/98_amateur_contract.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/99_news_import.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A1_federation_sync.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A2_squad_consent.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/A3_squad_palloliitto.sql

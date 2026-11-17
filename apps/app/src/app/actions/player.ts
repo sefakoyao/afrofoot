@@ -48,15 +48,16 @@ async function save(fd: FormData): Promise<PlayerProfileState> {
 }
 
 /**
- * The player's own choice to appear in the squad on the club website (players.show_publicly, public_players view).
- * Runs as the player: RLS limits it to their own row and app.restrict_columns allows exactly this column.
+ * The player's own opt-out from the squad on the club website (players.website_hidden, view public_squad, migration
+ * 0042): the squad comes from Palloliitto's public player list, and a player can remove themselves at any time.
+ * Runs as the player: RLS limits it to their own row and app.restrict_columns allows this column.
  */
 export async function setWebsiteListing(fd: FormData): Promise<void> {
   const member = await requireArea('me');
   const show = fd.get('show') === 'on';
   const supabase = await getSupabase();
   if (supabase) {
-    const { error } = await supabase.from('players').update({ show_publicly: show }).eq('profile_id', member.id);
+    const { error } = await supabase.from('players').update({ website_hidden: !show }).eq('profile_id', member.id);
     if (error) console.error('[player] website listing refused', { code: error.code, message: error.message });
   }
   revalidatePath('/me/profile');
