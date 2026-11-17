@@ -3,6 +3,16 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – squad on the website (branch `phase2/squad-consent`, migration 0041, release 0.29.0)
+- **Players decide:** a new **"On the club website"** section in My profile, with **"Show me on the club website"** and "Remove me". The database always had this consent, but nobody could set it, so the squad was empty. It says what is shown: name, shirt number, position, nationality, photo, league goals and games.
+- **Palloliitto players:** the sync (button and nightly) also stores the club's registered players and their league statistics. It keeps only the id, name, shirt number, position and statistics, never birth year, nationality or licence, and never other teams' players. Admins and coaches can read them.
+- **Admin → Palloliitto players:** link each one to the app player. A same-name player is suggested, nothing is linked until you save, and each app player can be linked once. It shows how many are linked and shown, each player's goals and games, and who is on the website.
+- **Website, team page:** consenting players with "7 goals · 18 games · 2026" from the latest public league season, or a note that players appear once they choose to.
+- **Fix:** the team page was built once and never refreshed, so a player's choice or new statistics needed a redeploy. It now refreshes every minute.
+- **Fix:** the league card said "the reason is shown above"; it now says "below".
+- Privacy policy: the public squad and the Palloliitto player list are described exactly, in four languages.
+- 17 database checks, 3 new sync tests, 20 browser checks. Set-up: `docs/RUNNING.md` §3s.
+
 ## Unreleased – "Update the league table now" in the admin (branch `phase2/admin-sync-button`)
 - **Admin home → League table (Palloliitto):** shows the club's position, for example "Afro Foot Club: 10. of 12 · 14 points (Miesten Nelonen, 2026)", and the last update or why it failed. **"Update the league table now"** runs the Palloliitto sync right away, as the signed-in admin.
   - It needs only `TORNEOPAL_API_KEY` in the app's Vercel project: no service key and no cron secret. Admins' own rights already allow writing league data.

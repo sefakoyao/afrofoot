@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { requireArea } from '@/lib/auth';
 import { playerProfileSchema } from '@/lib/schemas';
 import { getSupabase } from '@/lib/supabase/server';
@@ -44,4 +45,20 @@ async function save(fd: FormData): Promise<PlayerProfileState> {
   }
   revalidatePath('/me', 'layout');
   return { status: 'ok' };
+}
+
+/**
+ * The player's own choice to appear in the squad on the club website (players.show_publicly, public_players view).
+ * Runs as the player: RLS limits it to their own row and app.restrict_columns allows exactly this column.
+ */
+export async function setWebsiteListing(fd: FormData): Promise<void> {
+  const member = await requireArea('me');
+  const show = fd.get('show') === 'on';
+  const supabase = await getSupabase();
+  if (supabase) {
+    const { error } = await supabase.from('players').update({ show_publicly: show }).eq('profile_id', member.id);
+    if (error) console.error('[player] website listing refused', { code: error.code, message: error.message });
+  }
+  revalidatePath('/me/profile');
+  redirect('/me/profile?website=saved#website');
 }

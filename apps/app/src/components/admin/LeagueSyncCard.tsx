@@ -29,8 +29,9 @@ export async function LeagueSyncCard({ result }: { result: unknown }) {
         {!run ? t('never') : run.status === 'ok' ? t('lastOk', { date: when.format(new Date(run.finished_at ?? run.started_at)) })
           : t('lastFailed', { date: when.format(new Date(run.started_at)), error: run.error ?? '?' })}
       </p>
-      <form action={syncLeagueNow} className="mt-4">
+      <form action={syncLeagueNow} className="mt-4 flex flex-wrap items-center gap-3">
         <button className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110" data-sync-now>{t('button')}</button>
+        <a href="/admin/palloliitto" className="text-sm font-semibold text-pitch underline underline-offset-2">{t('linkPlayers')} →</a>
       </form>
     </section>
   );

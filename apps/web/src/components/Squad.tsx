@@ -2,7 +2,13 @@
 
 import { useState } from 'react';
 
-export interface SquadPlayer { id: string; display_name: string; position: string | null; jersey_number: number | null; nationality: string | null }
+export interface SquadPlayer { id: string; display_name: string; position: string | null; jersey_number: number | null; nationality: string | null;
+  goals?: number | null; appearances?: number | null; stats_season?: number | null }
+
+/** "{goals} goals · {games} games · {season}" filled in (league statistics from Palloliitto, linked players only). */
+const statsLine = (tpl: string | undefined, p: SquadPlayer) => tpl && p.appearances != null
+  ? tpl.replace('{goals}', String(p.goals ?? 0)).replace('{games}', String(p.appearances)).replace('{season}', String(p.stats_season ?? '')).replace(/\s·\s$/, '')
+  : null;
 
 const FILTERS = [['all', 'sq_all'], ['goalkeeper', 'position_gk'], ['defender', 'position_df'], ['midfielder', 'position_mf'], ['forward', 'position_fw']] as const;
 
@@ -24,6 +30,7 @@ export function Squad({ players, labels }: { players: SquadPlayer[]; labels: Rec
               {p.display_name.split(' ').map((w) => w[0]).slice(0, 2).join('')}
             </div>
             <p className="mt-2 font-display font-extrabold">{p.display_name}</p>
+            {statsLine(labels.sq_stats, p) ? <p className="mt-1 text-xs font-semibold text-pitch" data-player-stats>{statsLine(labels.sq_stats, p)}</p> : null}
             <p className="text-sm text-muted">{[p.jersey_number ? `#${p.jersey_number}` : null, p.position ? labels[`position_${({ goalkeeper: 'gk', defender: 'df', midfielder: 'mf', forward: 'fw' } as Record<string, string>)[p.position] ?? ''}`] : null].filter(Boolean).join(' · ')}</p>
           </div>
         ))}

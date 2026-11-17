@@ -3,7 +3,7 @@
  * the latest two seasons and the team's games, then write them through the given store. Pure orchestration: the caller
  * passes the API client and the database writes (apps/web /api/federation-sync), so it is tested with fakes (sync.test.ts).
  */
-import { groupsToSync, mapGroup, mapMatches, teamsFromMatches, type CompetitionRow, type MatchRow, type StandingRow, type TeamRow } from './map.ts';
+import { groupsToSync, mapGroup, mapGroupPlayerStats, mapMatches, mapTeamPlayers, teamsFromMatches, type CompetitionRow, type MatchRow, type PlayerRow, type PlayerStatRow, type StandingRow, type TeamRow } from './map.ts';
 
 export interface Api { call(command: string, params: Record<string, string>): Promise<unknown> }
 export interface Store {
@@ -12,8 +12,11 @@ export interface Store {
   markClubTeams(externalIds: string[]): Promise<void>;
   replaceStandings(competitionExternalId: string, rows: StandingRow[]): Promise<void>;
   upsertMatches(rows: MatchRow[]): Promise<void>;
+  /** The club's registered players (never links them to app players: an admin does that). */
+  upsertPlayers(rows: PlayerRow[]): Promise<void>;
+  upsertPlayerStats(rows: PlayerStatRow[]): Promise<void>;
 }
-export interface SyncResult { teams: number; competitions: number; standings: number; matches: number }
+export interface SyncResult { teams: number; competitions: number; standings: number; matches: number; players: number }
 
 type Json = Record<string, unknown>;
 
@@ -31,7 +34,7 @@ async function ask(api: Api, command: string, params: Record<string, string>): P
 }
 
 export async function runSync(api: Api, store: Store, teamIds: string[]): Promise<SyncResult> {
-  const result: SyncResult = { teams: 0, competitions: 0, standings: 0, matches: 0 };
+  const result: SyncResult = { teams: 0, competitions: 0, standings: 0, matches: 0, players: 0 };
   const ids = [...new Set(teamIds.map((t) => String(t).trim()).filter((t) => /^\d+$/.test(t)))];
   for (const teamId of ids) {
     const team = await ask(api, 'getTeam', { team_id: teamId });
@@ -53,13 +56,19 @@ export async function runSync(api: Api, store: Store, teamIds: string[]): Promis
 
     for (const g of [...competitions.values()].filter((c) => c.kind === 'league')) {
       const [competition_id = '', category_id = '', group_id = ''] = g.external_id.split('/');
-      const table = mapGroup(await ask(api, 'getGroup', { competition_id, category_id, group_id }));
+      const groupAnswer = await ask(api, 'getGroup', { competition_id, category_id, group_id });
+      const table = mapGroup(groupAnswer);
       if (!table.standings.length) continue; // groups not drawn yet: keep what we have
       await store.upsertTeams(table.teams);
       await store.replaceStandings(g.external_id, table.standings);
       result.standings += table.standings.length;
+      // goals and games of the club's own players only (other teams' players are not stored)
+      await store.upsertPlayerStats(mapGroupPlayerStats(groupAnswer, new Set([teamId])));
     }
     await store.upsertMatches(matches);
+    const players = mapTeamPlayers(team);
+    await store.upsertPlayers(players);
+    result.players += players.length;
     await store.markClubTeams([teamId]);
     result.teams += 1; result.competitions += competitions.size; result.matches += matches.length;
   }

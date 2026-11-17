@@ -131,3 +131,37 @@ export function teamsFromMatches(matchesAnswer: Json): TeamRow[] {
   }
   return [...out.values()];
 }
+
+export interface PlayerRow { external_id: string; team_external_id: string; display_name: string; shirt_number: number | null; position: string | null }
+export interface PlayerStatRow {
+  player_external_id: string; competition_external_id: string; appearances: number; goals: number; assists: number; yellow_cards: number; red_cards: number;
+}
+
+/**
+ * The team's registered players (getTeam → team.players): id, name, shirt number, position. Nothing else is kept
+ * (no birth year, nationality, licence or physical data). Players marked removed or inactive are left out.
+ */
+export function mapTeamPlayers(teamAnswer: Json): PlayerRow[] {
+  const team = (teamAnswer.team ?? {}) as Json;
+  const teamId = str(team.team_id);
+  return ((team.players ?? []) as Json[])
+    .filter((p) => str(p.player_id) && (str(p.first_name) || str(p.last_name)) && str(p.removed) !== '1' && str(p.inactive) !== '1')
+    .map((p) => ({
+      external_id: str(p.player_id), team_external_id: teamId,
+      display_name: [str(p.first_name), str(p.last_name)].filter(Boolean).join(' '),
+      shirt_number: intOrNull(p.shirt_number), position: str(p.position_en) || str(p.position) || null,
+    }));
+}
+
+/** Per-player league statistics of one group (getGroup → player_statistics), only for the given (club) teams. */
+export function mapGroupPlayerStats(groupAnswer: Json, teamIds: Set<string>): PlayerStatRow[] {
+  const g = (groupAnswer.group ?? {}) as Json;
+  const key = groupKey(g.competition_id, g.category_id, g.group_id);
+  return ((g.player_statistics ?? []) as Json[])
+    .filter((s) => teamIds.has(str(s.team_id)) && str(s.player_id))
+    .map((s) => ({
+      player_external_id: str(s.player_id), competition_external_id: key,
+      appearances: int(s.matches_played ?? s.matches), goals: int(s.goals), assists: int(s.assists),
+      yellow_cards: int(s.warnings), red_cards: int(s.suspensions),
+    }));
+}
