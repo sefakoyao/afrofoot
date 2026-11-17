@@ -4,7 +4,7 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
 ## Unreleased – version and copyright in the footers (branch `phase2/footer-version`)
-- **Website footer:** "© 2026 Afro Foot Club ry · Crafted by Fazo Oy", then the privacy link and "Version v0.32.0 · d2f1d45" (release and deployed commit).
+- **Website footer:** "© 2026 Afro Foot Club ry · Crafted by Fazao Oy", then the privacy link and "Version v0.32.0 · d2f1d45" (release and deployed commit).
 - **Member app:** a new slim footer on every page with the same line.
 - The year follows the calendar (Helsinki time). The release comes from each app's `package.json` (now 0.32.0, kept equal to the latest release); the commit comes from Vercel (`VERCEL_GIT_COMMIT_SHA`), so the footer shows which code is live. The company name is set in one place (`packages/ui/src/release.ts`). Texts in four languages.
 

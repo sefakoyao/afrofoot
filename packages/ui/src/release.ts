@@ -1,5 +1,5 @@
 /** Who built the site and app, shown in both footers. */
-export const CRAFTED_BY = 'Fazo Oy';
+export const CRAFTED_BY = 'Fazao Oy';
 
 /** Current year in Finland, for the copyright line. */
 export const yearNow = (): number => Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Europe/Helsinki' }).format(new Date()));
