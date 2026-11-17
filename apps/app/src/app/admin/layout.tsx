@@ -12,6 +12,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const nav = [
     { href: '/admin', label: t('navOverview') },
     { href: '/admin/members', label: t('navMembers'), badge: pending },
+    { href: '/admin/signin-help', label: t('navSigninHelp') },
     { href: '/admin/teams', label: t('navTeams') },
     { href: '/admin/events', label: t('navEvents') },
     { href: '/admin/palloliitto', label: tf('nav') },

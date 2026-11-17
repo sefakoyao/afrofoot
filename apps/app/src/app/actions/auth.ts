@@ -1,6 +1,8 @@
 'use server';
 
 import { cookies, headers } from 'next/headers';
+import { z } from 'zod';
+import { mailer } from '@/lib/supabase/mailer';
 import { redirect } from 'next/navigation';
 import { isLocale } from '@afrofoot/i18n';
 import type { AuthError } from '@supabase/supabase-js';
@@ -103,14 +105,28 @@ export async function signOut(): Promise<void> {
 export async function requestPasswordReset(_: AuthState, fd: FormData): Promise<AuthState> {
   const p = forgotSchema.safeParse(fields(fd));
   if (!p.success) return { status: 'error', error: p.error.issues[0]?.message ?? 'invalidEmail', email: String(fd.get('email') ?? '').slice(0, 200) };
-  const supabase = await client();
-  if (!supabase) return fail('unavailable');
-  const { error } = await supabase.auth.resetPasswordForEmail(p.data.email, { redirectTo: `${await appOrigin()}/auth/confirm?next=/reset-password` });
+  // sent without PKCE, so the link also opens on another device than the one that asked (e.g. the email app on a phone)
+  const mail = mailer();
+  if (!mail) return fail('unavailable');
+  const { error } = await mail.auth.resetPasswordForEmail(p.data.email, { redirectTo: `${await appOrigin()}/auth/confirm?next=/reset-password` });
   if (error && (error.status === 429 || error.code?.startsWith('over_'))) return { status: 'error', error: 'tooManyAttempts', email: p.data.email };
   return { status: 'ok', message: 'linkSent' };
 }
 
-/** Needs the short-lived session created by the recovery link (/auth/confirm). */
+/**
+ * An email link opened with Supabase's default template ends with the session in the URL fragment (#access_token=…),
+ * which only the browser sees: /auth/hash hands it over here, and it is stored like any sign-in (cookies).
+ */
+export async function adoptLinkSession(accessToken: string, refreshToken: string): Promise<{ ok: boolean; blocked?: boolean }> {
+  const tokens = z.object({ a: z.string().min(20).max(4000), r: z.string().min(6).max(400) }).safeParse({ a: accessToken, r: refreshToken });
+  if (!tokens.success) return { ok: false };
+  const supabase = await client();
+  if (!supabase) return { ok: false };
+  const { error } = await supabase.auth.setSession({ access_token: tokens.data.a, refresh_token: tokens.data.r });
+  return error ? { ok: false, blocked: isFeeBlock(error) } : { ok: true };
+}
+
+/** Needs the short-lived session created by the recovery link (/auth/confirm or /auth/hash). */
 export async function updatePassword(_: AuthState, fd: FormData): Promise<AuthState> {
   const p = resetSchema.safeParse(fields(fd));
   if (!p.success) return fail(p.error.issues[0]?.message ?? 'passwordTooShort');

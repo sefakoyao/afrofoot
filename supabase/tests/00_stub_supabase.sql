@@ -6,6 +6,9 @@ do $$ begin
 end $$;
 create schema auth;
 create table auth.users (id uuid primary key default gen_random_uuid(), email text, phone text, raw_user_meta_data jsonb default '{}');
+-- sign-in facts read by signin_status (migration 0044), as in Supabase Auth
+alter table auth.users add column email_confirmed_at timestamptz, add column last_sign_in_at timestamptz, add column banned_until timestamptz;
+create table auth.identities (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade, provider text not null);
 create function auth.uid() returns uuid language sql stable as $$
   select coalesce(nullif(current_setting('request.jwt.claim.sub', true), ''), (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub'))::uuid $$;
 grant usage on schema auth, public to anon, authenticated;
