@@ -1134,7 +1134,14 @@
     "th_goals": "Buts",
     "sq_stats": "{goals} buts · {games} matchs · {season}",
     "sq_empty": "L’effectif apparaît ici après la prochaine mise à jour depuis Palloliitto.",
-    "sq_source": "D’après le registre des joueurs de Palloliitto. Un joueur qui préfère ne pas figurer peut se retirer dans l’application ou écrire au club."
+    "sq_source": "D’après le registre des joueurs de Palloliitto. Un joueur qui préfère ne pas figurer peut se retirer dans l’application ou écrire au club.",
+    "res_w": "V",
+    "res_d": "N",
+    "res_l": "D",
+    "res_win": "Victoire",
+    "res_draw": "Match nul",
+    "res_loss": "Défaite",
+    "st_you": "Afro Foot Club : {pos}e sur {n} · {pts} points"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

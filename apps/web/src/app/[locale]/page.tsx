@@ -28,9 +28,22 @@ interface Record_ { team_season_id: string; team_name: string; competition: stri
 interface FedStanding { competition_external_id: string; competition: string; category: string | null; group_name: string | null; season: number | null; position: number; team_name: string; is_club: boolean;
   played: number; won: number; drawn: number; lost: number; goals_for: number; goals_against: number; points: number; synced_at: string }
 interface FedGame { external_id: string; competition_external_id: string; competition: string; category: string | null; kind: string; kickoff_at: string | null; home_name: string; away_name: string;
-  home_goals: number | null; away_goals: number | null; venue: string | null; status: string; synced_at: string }
-/** A game as the home page shows it: home team first, the score in the same order. */
-interface Game { id: string; label: string; tag: string; kickoff_at: string; place: string | null; score: string | null }
+  home_goals: number | null; away_goals: number | null; venue: string | null; status: string; synced_at: string; home_is_club: boolean; away_is_club: boolean }
+/** A game as the home page shows it: home team first, the score in the same order; outcome is the club's (win, draw, loss). */
+type Outcome = 'w' | 'd' | 'l';
+interface Game { id: string; label: string; tag: string; kickoff_at: string; place: string | null; score: string | null; home: string; away: string; clubHome: boolean; outcome: Outcome | null }
+const outcomeOf = (ours: number | null, theirs: number | null): Outcome | null => (ours === null || theirs === null ? null : ours > theirs ? 'w' : ours < theirs ? 'l' : 'd');
+
+/** Card header of the standings: black, with the green-to-yellow band of the logo's top edge. */
+function Banner({ title, sub }: { title: string; sub?: string }) {
+  return (
+    <div className="relative bg-fg px-5 pb-4 pt-6 text-white">
+      <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-logo-band rtl:-scale-x-100" />
+      <h3 className="font-display text-xl font-extrabold leading-tight">{title}</h3>
+      {sub ? <p className="mt-0.5 text-sm text-white/70">{sub}</p> : null}
+    </div>
+  );
+}
 
 async function getHomeData() {
   const db = getPublicClient();
@@ -41,7 +54,7 @@ async function getHomeData() {
     getPosts(3),
     db.from('public_standings').select('competition_external_id,competition,category,group_name,season,position,team_name,is_club,played,won,drawn,lost,goals_for,goals_against,points,synced_at')
       .order('season', { ascending: false }).order('position').limit(200),
-    db.from('public_league_fixtures').select('external_id,competition_external_id,competition,category,kind,kickoff_at,home_name,away_name,home_goals,away_goals,venue,status,synced_at')
+    db.from('public_league_fixtures').select('external_id,competition_external_id,competition,category,kind,kickoff_at,home_name,away_name,home_goals,away_goals,venue,status,synced_at,home_is_club,away_is_club')
       .or('home_is_club.eq.true,away_is_club.eq.true').order('kickoff_at', { ascending: false }).limit(60),
   ]);
   return { fixtures: (f.data ?? []) as Fixture[], records: (r.data ?? []) as Record_[], posts: n, fedTable: (st.data ?? []) as FedStanding[], fedGames: (fg.data ?? []) as FedGame[] };
@@ -51,10 +64,14 @@ const vs = (m: Fixture) => (m.home_away === 'away' ? `${m.opponent}  vs  ${m.tea
 const ownGame = (m: Fixture): Game => ({
   id: m.id, label: vs(m), tag: m.team_name, kickoff_at: m.kickoff_at, place: m.venue ? `${m.venue}${m.city ? `, ${m.city}` : ''}` : null,
   score: m.goals_for === null || m.goals_against === null ? null : m.home_away === 'away' ? `${m.goals_against} – ${m.goals_for}` : `${m.goals_for} – ${m.goals_against}`,
+  home: m.home_away === 'away' ? m.opponent : m.team_name, away: m.home_away === 'away' ? m.team_name : m.opponent, clubHome: m.home_away !== 'away',
+  outcome: outcomeOf(m.goals_for, m.goals_against),
 });
 const fedGame = (m: FedGame): Game => ({
   id: m.external_id, label: `${m.home_name}  vs  ${m.away_name}`, tag: m.category || m.competition, kickoff_at: m.kickoff_at ?? '', place: m.venue,
   score: m.home_goals === null || m.away_goals === null ? null : `${m.home_goals} – ${m.away_goals}`,
+  home: m.home_name, away: m.away_name, clubHome: m.home_is_club,
+  outcome: m.home_is_club ? outcomeOf(m.home_goals, m.away_goals) : m.away_is_club ? outcomeOf(m.away_goals, m.home_goals) : null,
 });
 
 /** The league table to show: the newest season whose table has games played (last season's final table until then). */
@@ -85,6 +102,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const results: Game[] = (fedPlayed.length ? fedPlayed.map(fedGame) : fixtures.filter((m) => m.status === 'played').map(ownGame)).slice(0, 5);
   const table = pickTable(fedTable);
   const tableInfo = table[0];
+  const clubRow = table.find((r) => r.is_club);
   const thisYear = Number(new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Europe/Helsinki' }).format(new Date()));
   // Final once the season is over, or the club has no games left to play in that league.
   const tableFinal = !!tableInfo && ((tableInfo.season ?? thisYear) < thisYear
@@ -234,58 +252,90 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           {table.length ? (
             <p className="mb-4 mt-1 text-sm text-muted" data-standings-source>{syncedAt ? t('sync_fed', { date: day.format(new Date(syncedAt)) }) : t('sync_fed_plain')}</p>
           ) : <div className="mb-4" />}
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+          <div className="grid items-start gap-5 md:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
             {results.length ? (
-              <Card>
-                <h3 className="font-display text-xl font-extrabold">{t('res_h')}</h3>
-                <ul className="mt-3 divide-y divide-line" data-results>
-                  {results.map((m) => (
-                    <li key={m.id} className="grid gap-0.5 py-2">
-                      <span className="text-xs text-muted">{short.format(new Date(m.kickoff_at))} · {m.tag}</span>
-                      <span className="flex flex-wrap items-baseline justify-between gap-x-3" dir="ltr"><b>{m.label}</b><span className="font-display font-black tabular-nums">{m.score}</span></span>
-                    </li>
-                  ))}
+              <Card className="overflow-hidden !p-0">
+                <Banner title={t('res_h')} />
+                <ul className="divide-y divide-line px-5 py-1" data-results>
+                  {results.map((m) => {
+                    const o = m.outcome;
+                    return (
+                      <li key={m.id} className="flex items-center gap-3 py-3" data-outcome={o ?? undefined}>
+                        {o ? (
+                          <span title={t(o === 'w' ? 'res_win' : o === 'd' ? 'res_draw' : 'res_loss')}
+                            className={`grid size-9 shrink-0 place-items-center rounded-full font-display text-sm font-black ${o === 'w' ? 'bg-accent text-on-accent' : o === 'd' ? 'bg-gold text-fg' : 'bg-fg text-white'}`}>
+                            <span aria-hidden="true">{t(o === 'w' ? 'res_w' : o === 'd' ? 'res_d' : 'res_l')}</span>
+                            <span className="sr-only">{t(o === 'w' ? 'res_win' : o === 'd' ? 'res_draw' : 'res_loss')}</span>
+                          </span>
+                        ) : <span className="size-9 shrink-0" />}
+                        <span className="grid min-w-0 flex-1">
+                          <span className="text-xs text-muted">{short.format(new Date(m.kickoff_at))} · {m.tag}</span>
+                          <span className="truncate" dir="ltr">
+                            <bdi className={m.clubHome ? 'font-extrabold' : 'font-medium'}>{m.home}</bdi>
+                            <span className="mx-1.5 text-muted">–</span>
+                            <bdi className={m.clubHome ? 'font-medium' : 'font-extrabold'}>{m.away}</bdi>
+                          </span>
+                        </span>
+                        <span dir="ltr" className="shrink-0 rounded-full bg-fg px-3 py-1 font-display font-black tabular-nums text-white">{m.score}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </Card>
             ) : null}
             {table.length && tableInfo ? (
-              <Card className="overflow-x-auto" data-league-table>
-                <h3 className="font-display text-xl font-extrabold">{tableInfo.category ?? tableInfo.competition}{tableInfo.group_name ? ` · ${t('st_group', { group: tableInfo.group_name })}` : ''}</h3>
-                <p className="text-sm text-muted">{tableInfo.season ? t('st_season', { season: tableInfo.season }) : tableInfo.competition}{tableFinal ? ` · ${t('st_final')}` : ''}</p>
-                <table className="mt-3 w-full text-start text-sm tabular-nums">
-                  <thead><tr className="text-muted">
-                    <th className="p-1 text-start">#</th><th className="p-1 text-start">{t('th_team')}</th>
-                    {(['th_p', 'th_w', 'th_d', 'th_l'] as const).map((k) => <th key={k} className="p-1 text-end">{t(k)}</th>)}
-                    <th className="hidden p-1 text-end sm:table-cell">{t('th_goals')}</th><th className="p-1 text-end">{t('th_pts')}</th>
-                  </tr></thead>
-                  <tbody>
-                    {table.map((r) => (
-                      <tr key={r.team_name} className={`border-t border-line ${r.is_club ? 'bg-accent/15 font-bold' : ''}`} data-club-row={r.is_club || undefined}>
-                        <td className="p-1">{r.position}</td><td className="p-1"><bdi className={r.is_club ? 'font-black' : 'font-semibold'}>{r.team_name}</bdi></td>
-                        <td className="p-1 text-end">{r.played}</td><td className="p-1 text-end">{r.won}</td><td className="p-1 text-end">{r.drawn}</td><td className="p-1 text-end">{r.lost}</td>
-                        <td className="hidden p-1 text-end sm:table-cell" dir="ltr">{r.goals_for}–{r.goals_against}</td><td className="p-1 text-end font-black">{r.points}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <Card className="overflow-hidden !p-0" data-league-table>
+                <Banner
+                  title={`${tableInfo.category ?? tableInfo.competition}${tableInfo.group_name ? ` · ${t('st_group', { group: tableInfo.group_name })}` : ''}`}
+                  sub={`${tableInfo.season ? t('st_season', { season: tableInfo.season }) : tableInfo.competition}${tableFinal ? ` · ${t('st_final')}` : ''}`} />
+                {clubRow ? (
+                  <p className="bg-gold px-5 py-2 font-display text-sm font-extrabold text-fg" data-club-summary>
+                    {t('st_you', { pos: clubRow.position, n: table.length, pts: clubRow.points })}
+                  </p>
+                ) : null}
+                <div className="overflow-x-auto px-3 pb-3 pt-2 sm:px-4">
+                  <table className="w-full text-start text-sm tabular-nums">
+                    <thead><tr className="text-xs font-bold uppercase tracking-wide text-muted">
+                      <th className="px-1.5 py-2 text-start">#</th><th className="px-1.5 py-2 text-start">{t('th_team')}</th>
+                      {(['th_p', 'th_w', 'th_d', 'th_l'] as const).map((k) => <th key={k} className="px-1.5 py-2 text-end">{t(k)}</th>)}
+                      <th className="hidden px-1.5 py-2 text-end sm:table-cell">{t('th_goals')}</th><th className="px-1.5 py-2 text-end">{t('th_pts')}</th>
+                    </tr></thead>
+                    <tbody>
+                      {table.map((r) => (
+                        <tr key={r.team_name} className={r.is_club ? 'bg-gold/45 font-bold' : 'border-t border-line'} data-club-row={r.is_club || undefined}>
+                          <td className={`px-1.5 py-2 ${r.is_club ? 'rounded-s-xl' : ''}`}>
+                            <span className={`grid size-7 place-items-center rounded-full text-xs font-black ${r.is_club ? 'bg-fg text-gold' : r.position === 1 ? 'bg-accent text-on-accent' : 'bg-surface'}`}>{r.position}</span>
+                          </td>
+                          <td className="px-1.5 py-2"><bdi className={r.is_club ? 'font-black' : 'font-semibold'}>{r.team_name}</bdi></td>
+                          <td className="px-1.5 py-2 text-end">{r.played}</td><td className="px-1.5 py-2 text-end">{r.won}</td><td className="px-1.5 py-2 text-end">{r.drawn}</td><td className="px-1.5 py-2 text-end">{r.lost}</td>
+                          <td className="hidden px-1.5 py-2 text-end sm:table-cell" dir="ltr">{r.goals_for}–{r.goals_against}</td>
+                          <td className={`px-1.5 py-2 text-end text-base font-black ${r.is_club ? 'rounded-e-xl' : ''}`}>{r.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Card>
             ) : records.length ? (
-              <Card className="overflow-x-auto">
-                <table className="w-full text-start">
-                  <thead><tr className="text-sm text-muted">
-                    <th className="p-1 text-start">#</th><th className="p-1 text-start">{t('th_team')}</th>
-                    {(['th_p', 'th_w', 'th_d', 'th_l', 'th_pts'] as const).map((k) => <th key={k} className="p-1 text-end">{t(k)}</th>)}
-                  </tr></thead>
-                  <tbody>
-                    {records.map((r, i) => (
-                      <tr key={r.team_season_id} className="border-t border-line">
-                        <td className="p-1">{i + 1}</td><td className="p-1 font-bold">{r.team_name}</td>
-                        <td className="p-1 text-end">{r.played}</td><td className="p-1 text-end">{r.won}</td><td className="p-1 text-end">{r.drawn}</td><td className="p-1 text-end">{r.lost}</td>
-                        <td className="p-1 text-end font-black">{r.points}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <Card className="overflow-hidden !p-0">
+                <Banner title={t('stand')} />
+                <div className="overflow-x-auto px-3 pb-3 pt-2 sm:px-4">
+                  <table className="w-full text-start text-sm tabular-nums">
+                    <thead><tr className="text-xs font-bold uppercase tracking-wide text-muted">
+                      <th className="px-1.5 py-2 text-start">#</th><th className="px-1.5 py-2 text-start">{t('th_team')}</th>
+                      {(['th_p', 'th_w', 'th_d', 'th_l', 'th_pts'] as const).map((k) => <th key={k} className="px-1.5 py-2 text-end">{t(k)}</th>)}
+                    </tr></thead>
+                    <tbody>
+                      {records.map((r, i) => (
+                        <tr key={r.team_season_id} className="border-t border-line">
+                          <td className="px-1.5 py-2"><span className="grid size-7 place-items-center rounded-full bg-surface text-xs font-black">{i + 1}</span></td><td className="px-1.5 py-2 font-bold">{r.team_name}</td>
+                          <td className="px-1.5 py-2 text-end">{r.played}</td><td className="px-1.5 py-2 text-end">{r.won}</td><td className="px-1.5 py-2 text-end">{r.drawn}</td><td className="px-1.5 py-2 text-end">{r.lost}</td>
+                          <td className="px-1.5 py-2 text-end text-base font-black">{r.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </Card>
             ) : null}
           </div>

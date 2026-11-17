@@ -8,6 +8,7 @@
   --accent: 61 175 44;      /* logo green: primary buttons / highlights (black text on it) */
   --on-accent: 16 21 16;
   --pitch: 42 138 28;       /* dark green: links, text accents, success (readable on white) */
+  --gold: 237 247 15;       /* logo yellow (end of the top band): fills with black text only, never text on white */
   --radius-card: 16px;
   --radius-control: 10px;
   --space-section: 5rem;
