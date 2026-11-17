@@ -71,7 +71,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold hover:bg-white hover:text-black">{t('btn_tr')}</Link>
               </div>
               <dl className="flex flex-wrap gap-x-10 gap-y-3">
-                {([['102+', 'players'], ['40+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
+                {([['100+', 'players'], ['40+', 'nations'], ['2020', 'founded']] as const).map(([n, k]) => (
                   <div key={k}><dt className="font-display text-4xl font-black text-accent">{n}</dt><dd className="text-white/70">{t(k)}</dd></div>
                 ))}
               </dl>
@@ -87,7 +87,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p className="text-lg text-white/80">{when.format(new Date(next.kickoff_at))}{next.venue ? ` · ${next.venue}${next.city ? `, ${next.city}` : ''}` : ''}</p>
               <div><Link href="/calendar" className="inline-block rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link></div>
             </div>,
-          ] : []),
+          ] : [
+            <div key="next" className="grid gap-4" data-next-placeholder="hero">
+              <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k2')}</span>
+              <h2 className="font-display text-5xl font-black md:text-6xl">{t('nm_soon_h')}</h2>
+              <p className="max-w-xl text-lg text-white/80">{t('nm_soon_p')}</p>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/calendar" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('cal')}</Link>
+                <Link href="/join#tryout" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold">{t('btn_tr')}</Link>
+              </div>
+            </div>,
+          ]),
           ...(results[0] ? [
             <div key="result" className="grid gap-4">
               <span className="w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-on-accent">{t('hs_k3')} · {results[0].team_name}</span>
@@ -129,7 +139,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ButtonLink href="/calendar">{t('cal')}</ButtonLink>
           </Card>
         </Section>
-      ) : null}
+      ) : (
+        // No game scheduled yet (off-season, or fixtures not published): say so instead of hiding the section.
+        <Section>
+          <H2>{t('next')} {t('match')}</H2>
+          <Card className="mt-4 flex flex-wrap items-center justify-between gap-4">
+            <div className="max-w-2xl" data-next-placeholder="section">
+              <p className="font-display text-2xl font-extrabold">{t('nm_soon_h')}</p>
+              <p className="mt-1 text-muted">{t('nm_soon_p')}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink href="/calendar">{t('cal')}</ButtonLink>
+              <ButtonLink href="/join#tryout" ghost>{t('btn_tr')}</ButtonLink>
+            </div>
+          </Card>
+        </Section>
+      )}
 
       <Section id="news">
         <div className="flex items-center justify-between gap-3"><H2>{t('afro')} {t('newsw')}</H2><Link href="/news" className="font-semibold text-pitch underline">{t('allnews')} →</Link></div>
