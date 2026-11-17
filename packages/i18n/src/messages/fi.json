@@ -1133,7 +1133,8 @@
     "st_final": "lopullinen sarjataulukko",
     "th_goals": "Maalit",
     "sq_stats": "{goals} maalia · {games} ottelua · {season}",
-    "sq_empty": "Pelaajat näkyvät tässä, kun he ovat valinneet näkyä seuran verkkosivuilla (jäsensovelluksessa, Oma profiili)."
+    "sq_empty": "Pelaajalista näkyy tässä seuraavan Palloliitto-päivityksen jälkeen.",
+    "sq_source": "Palloliiton pelaajarekisteristä. Pelaaja, joka ei halua näkyä listalla, voi poistaa itsensä jäsensovelluksessa tai kirjoittaa seuralle."
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
@@ -1413,10 +1414,10 @@
     "clubSetNote": "Joukkueen, pelipaikat ja pelinumeron asettaa valmentajasi. Täytä loput alla.",
     "seeProfile": "Urheilutietosi ja hätäyhteystietosi ovat Oma profiili -välilehdellä.",
     "webTitle": "Seuran verkkosivuilla",
-    "webOn": "Olet mukana joukkueen pelaajalistassa sivulla www.afrofoot.club.",
-    "webOff": "Et näy seuran verkkosivuilla.",
-    "webWhat": "Jos valitset näkyä, pelaajalistassa näkyvät nimesi, pelinumerosi, pelipaikkasi, kansalaisuutesi, kuvasi (jos lisäsit sen) sekä sarjamaalisi ja -ottelusi Palloliiton tulospalvelusta. Voit muuttaa tätä milloin tahansa.",
-    "webShow": "Näytä minut seuran verkkosivuilla",
+    "webOn": "Näyt joukkueen pelaajalistassa sivulla www.afrofoot.club Palloliiton rekisterin mukaisesti.",
+    "webOff": "Olet poistanut itsesi seuran verkkosivuilta.",
+    "webWhat": "Verkkosivujen pelaajalista näyttää seuran pelaajat Palloliiton julkisesta pelaajarekisteristä: nimi, pelinumero, pelipaikka sekä sarjamaalit ja -ottelut (ei koskaan syntymävuotta tai kansalaisuutta). Voit poistaa itsesi milloin tahansa; poisto tulee voimaan, kun seura on yhdistänyt tilisi Palloliiton rekisteröintiisi.",
+    "webShow": "Näytä minut taas seuran verkkosivuilla",
     "webHide": "Poista minut seuran verkkosivuilta",
     "webSaved": "Tallennettu. Muutos näkyy verkkosivuilla minuutin kuluessa."
   },
@@ -2179,7 +2180,7 @@
     "h_purposes": "Käyttötarkoitukset ja oikeusperusteet",
     "purposes_items": "Jäsenyytesi hoitaminen – joukkueet, harjoitukset, ottelut, viestintä ja käyttäjätilisi: jäsensopimuksen täyttäminen (GDPR 6.1 b).\nMaksut, laskut ja kirjanpito: sopimuksen täyttäminen ja kirjanpitolain vaatimukset (6.1 b ja c).\nPelaajasopimukset ja toimintaohjeet: sopimuksen täyttäminen sekä seuran oikeutettu etu reiluun ja turvalliseen jalkapalloon (6.1 b ja f).\nHätäyhteystiedot: pelaajien elintärkeiden etujen suojaaminen ja seuran oikeutettu etu turvalliseen toimintaan (6.1 d ja f).\nNimesi tai kuvasi julkinen näyttäminen (pelaajalista verkkosivuilla, julkiset kokoonpanot, seuran media): vain suostumuksellasi, jonka voit perua milloin tahansa (6.1 a).\nTietoturva ja muutosloki: seuran oikeutettu etu suojata jäsenten tietoja (6.1 f).",
     "h_public": "Mikä on julkista",
-    "public_text": "Otteluohjelma, tulokset ja sarjataulukot ovat julkisia verkkosivuillamme. Valitset jäsensovelluksessa (Oma profiili), näytkö joukkueen pelaajalistassa verkkosivuilla: jos näyt, siinä näkyvät nimesi, pelinumerosi, pelipaikkasi, kansalaisuutesi, kuvasi (jos lisäsit sen) sekä sarjamaalisi ja -ottelusi; muuten nimeäsi ei näytetä, ja julkisissa kokoonpanoissa näkyy \"Pelaaja #\" ja pelinumerosi. Virallisten sarjojen tulokset ja tilastot tulevat Suomen Palloliiton julkisesta tulospalvelusta; maaliesi ja otteluidesi näyttämiseksi seura säilyttää siellä rekisteröityjen pelaajiensa luettelon (nimi, pelinumero, pelipaikka ja sarjatilastot), jonka näkevät vain seuran ylläpitäjät ja valmentajat.",
+    "public_text": "Otteluohjelma, tulokset ja sarjataulukot ovat julkisia verkkosivuillamme. Verkkosivujen pelaajalistassa näkyvät seuran pelaajat Suomen Palloliiton julkisen pelaajarekisterin mukaisesti: nimi, pelinumero, pelipaikka sekä sarjamaalit ja -ottelut – ei koskaan syntymävuotta, kansalaisuutta tai pelipassia. Teemme tämän seuran oikeutetun edun perusteella joukkueen esittelemiseksi. Voit vastustaa tätä milloin tahansa: poista itsesi jäsensovelluksessa (Oma profiili → Seuran verkkosivuilla) tai kirjoita meille, niin poistamme sinut listalta. Julkisissa kokoonpanoissa nimesi näkyy vain, jos olet antanut siihen luvan; muuten \"Pelaaja #\" ja pelinumerosi. Pelaajalistaa ja tilastoja varten seura säilyttää Palloliittoon rekisteröityjen pelaajiensa luettelon (nimi, pelinumero, pelipaikka, sarjatilastot), jonka jäsensovelluksessa näkevät vain seuran ylläpitäjät ja valmentajat.",
     "h_who": "Kuka näkee tietosi",
     "who_items": "Sinä: oma profiilisi, vastauksesi, tilastosi, laskusi, hyväksyntäsi ja sopimuksesi.\nValmentajasi: omien joukkueidensa pelaajat – yhteys- ja hätäyhteystiedot, osallistuminen ja vastaukset, kokoonpanot, toimintaohjeiden hyväksyntä ja pelaajasopimukset (vain luku).\nJoukkuekaverit: joukkueen aikataulut ja julkaistu ottelukokoonpano.\nSeuran ylläpitäjät: seuran toiminnassa tarvittavat tiedot.\nSeuran puolesta toimivat palveluntarjoajat (alla). Emme koskaan myy tietojasi emmekä käytä niitä mainontaan.",
     "h_processors": "Palveluntarjoajat",
@@ -2325,7 +2326,7 @@
     "r_error": "Jokin meni vikaan. Yritä uudelleen.",
     "nav": "Palloliiton pelaajat",
     "linkTitle": "Palloliiton pelaajat",
-    "linkLead": "Yhdistä jokainen Palloliittoon rekisteröity pelaaja hänen tiliinsä sovelluksessa. Yhdistetyt pelaajat, jotka ovat valinneet näkyä verkkosivuilla, näkyvät pelaajalistassa sarjamaaleineen ja -otteluineen. Samannimistä ehdotetaan; mitään ei yhdistetä ennen tallennusta.",
+    "linkLead": "Verkkosivujen pelaajalista näyttää seuran pelaajat Palloliiton julkisesta rekisteristä. Yhdistä jokainen pelaaja hänen sovellustiliinsä, jotta pelaajan oma poistopyyntö toimii; piilota pelaaja täällä, jos hän pyytää sitä sähköpostilla. Samannimistä ehdotetaan; mitään ei yhdistetä ennen tallennusta.",
     "counts": "{total} Palloliiton pelaajaa · {linked} yhdistetty · {shown} näkyy verkkosivuilla",
     "colPalloliitto": "Palloliitto",
     "colApp": "Pelaaja sovelluksessa",
@@ -2339,6 +2340,13 @@
     "linkPlayers": "Yhdistä Palloliiton pelaajat",
     "r_linked": "Tallennettu.",
     "r_taken": "Tämä pelaaja on jo yhdistetty toiseen Palloliiton pelaajaan.",
-    "r_invalid": "Tarkista valinta ja yritä uudelleen."
+    "r_invalid": "Tarkista valinta ja yritä uudelleen.",
+    "hide": "Piilota",
+    "show": "Näytä",
+    "hiddenByAdmin": "seura piilottanut",
+    "removedSelf": "poistanut itsensä",
+    "offRoster": "ei nykyisessä kokoonpanossa",
+    "r_hidden": "Piilotettu verkkosivuilta.",
+    "r_shown": "Näkyy taas verkkosivuilla."
   }
 }

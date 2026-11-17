@@ -23,7 +23,7 @@ const KEYS = {
       'r_evInvalid', 'r_evPlayer', 'r_evNotSquad', 'r_evNotOnPitch', 'r_evAlreadyPlayed', 'r_evOnlySub', 'r_evFinished', 'r_phaseOrder'],
   },
   fed: {
-    ok: ['r_synced', 'r_disabled', 'r_linked'],
+    ok: ['r_synced', 'r_disabled', 'r_linked', 'r_hidden', 'r_shown'],
     err: ['r_noKey', 'r_refused', 'r_failed', 'r_settings', 'r_error', 'r_taken', 'r_invalid'],
   },
   events: {

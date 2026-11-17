@@ -16,8 +16,10 @@ export const revalidate = 60;
 async function getSquad(): Promise<SquadPlayer[]> {
   const db = getPublicClient();
   if (!db) return [];
-  const { data } = await db.from('public_players').select('id,display_name,position,jersey_number,nationality,goals,appearances,stats_season').order('jersey_number', { ascending: true, nullsFirst: false });
-  return (data ?? []) as SquadPlayer[];
+  // The club's current Palloliitto roster minus anyone who opted out or was hidden (view public_squad, migration 0042).
+  const { data } = await db.from('public_squad').select('id,display_name,position,shirt_number,goals,appearances,stats_season').order('shirt_number', { ascending: true, nullsFirst: false });
+  return ((data ?? []) as { id: string; display_name: string; position: string | null; shirt_number: number | null; goals: number | null; appearances: number | null; stats_season: number | null }[])
+    .map((p) => ({ id: p.id, display_name: p.display_name, position: p.position, jersey_number: p.shirt_number, nationality: null, goals: p.goals, appearances: p.appearances, stats_season: p.stats_season }));
 }
 
 export default async function TeamPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -40,11 +42,11 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
       </Section>
       <Section id="squad">
         <H2>{t('sq_h')}</H2>
-        {/* Players listed here have chosen to appear (players.show_publicly, view public_players); goals and games come
-            from Palloliitto once an admin linked them (migration 0041). */}
+        {/* The club's players as registered with Palloliitto (public register), minus anyone who opted out (migration 0042). */}
         {squad.length ? (
           <Squad players={squad} labels={{ ...pick(t, ['sq_all', 'position_gk', 'position_df', 'position_mf', 'position_fw']), sq_stats: t.raw('sq_stats') as string }} />
         ) : <p className="mt-3 rounded-card border border-line bg-raised p-5 text-muted" data-squad-empty>{t('sq_empty')}</p>}
+        <p className="mt-3 text-xs text-muted" data-squad-source>{t('sq_source')}</p>
       </Section>
     </>
   );

@@ -17,7 +17,7 @@ export default async function PlayerProfilePage({ searchParams }: { searchParams
   const [t, tpos, trel, supabase] = await Promise.all([getTranslations('pp'), getTranslations('position'), getTranslations('relation'), getSupabase()]);
   const sport = supabase ? await loadPlayerSport(supabase, member.id) : null;
   // own photo (storage, own folder): a short-lived signed address
-  const { data: me } = supabase ? await supabase.from('players').select('photo_path, show_publicly').eq('profile_id', member.id).maybeSingle() : { data: null };
+  const { data: me } = supabase ? await supabase.from('players').select('photo_path, website_hidden').eq('profile_id', member.id).maybeSingle() : { data: null };
   const saved = (await searchParams).website === 'saved';
   const signed = supabase && me?.photo_path ? await supabase.storage.from('player-photos').createSignedUrl(me.photo_path, 3600) : null;
   const notSet = <span className="text-muted">{t('notSet')}</span>;
@@ -47,15 +47,15 @@ export default async function PlayerProfilePage({ searchParams }: { searchParams
             <h2 id="photo-h" className="mb-3 font-display text-lg font-extrabold">{t('photoTitle')}</h2>
             <PhotoForm current={signed?.data?.signedUrl ?? null} name={`${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || ''} />
           </section>
-          <section id="website" className="scroll-mt-24 rounded-card border border-line bg-raised p-6" aria-labelledby="web-h" data-website-listing={me?.show_publicly ? 'on' : 'off'}>
+          <section id="website" className="scroll-mt-24 rounded-card border border-line bg-raised p-6" aria-labelledby="web-h" data-website-listing={me && !me.website_hidden ? 'on' : 'off'}>
             <h2 id="web-h" className="font-display text-lg font-extrabold">{t('webTitle')}</h2>
             {saved ? <p role="status" className="mt-2 rounded-control bg-accent/15 px-3 py-2 text-sm font-semibold">{t('webSaved')}</p> : null}
-            <p className="mt-2 font-semibold">{me?.show_publicly ? t('webOn') : t('webOff')}</p>
+            <p className="mt-2 font-semibold">{me && !me.website_hidden ? t('webOn') : t('webOff')}</p>
             <p className="mt-1 text-sm text-muted">{t('webWhat')}</p>
             <form action={setWebsiteListing} className="mt-3">
-              <input type="hidden" name="show" value={me?.show_publicly ? 'off' : 'on'} />
-              <button className={`inline-flex min-h-11 items-center rounded-full px-5 font-display font-bold ${me?.show_publicly ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`} data-website-toggle>
-                {me?.show_publicly ? t('webHide') : t('webShow')}
+              <input type="hidden" name="show" value={me && !me.website_hidden ? 'off' : 'on'} />
+              <button className={`inline-flex min-h-11 items-center rounded-full px-5 font-display font-bold ${me && !me.website_hidden ? 'border-2 border-fg hover:bg-fg hover:text-raised' : 'bg-accent text-on-accent hover:brightness-110'}`} data-website-toggle>
+                {me && !me.website_hidden ? t('webHide') : t('webShow')}
               </button>
             </form>
           </section>

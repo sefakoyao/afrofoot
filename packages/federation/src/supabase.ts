@@ -29,8 +29,13 @@ export function supabaseStore(db: Db): Store {
       if (rows.length) await must(db.from('federation_standings').insert(rows.map((r) => ({ ...r, synced_at: now() }))), 'standings');
     },
     async upsertPlayers(rows) {
-      // player_id (the link to an app player) is never sent, so an admin's link is kept
-      if (rows.length) await must(db.from('federation_players').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id' }), 'players');
+      // player_id (the link to an app player) and hidden (an admin's choice) are never sent, so both are kept
+      if (!rows.length) return; // an empty answer never empties the roster
+      await must(db.from('federation_players').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id' }), 'players');
+      // players no longer on the team's list at all are off the roster too
+      const team = rows[0]?.team_external_id ?? '';
+      const ids = rows.map((r) => r.external_id).filter((x) => /^\d+$/.test(x));
+      if (team && ids.length) await must(db.from('federation_players').update({ on_roster: false }).eq('team_external_id', team).not('external_id', 'in', `(${ids.join(',')})`), 'players (roster)');
     },
     async upsertPlayerStats(rows) {
       if (rows.length) await must(db.from('federation_player_stats').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'player_external_id,competition_external_id' }), 'player stats');
