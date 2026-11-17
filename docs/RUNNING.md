@@ -222,6 +222,13 @@ The team page refreshes every minute.
 2. **Admin → League table → Update the league table now:** reads every season and cup the club has played on Palloliitto (takes a few seconds longer), and corrects the games counts.
 3. www.afrofoot.club/team#squad shows the corner within a minute. To leave someone out: Admin → Palloliitto players → Hide (former players are listed there too, greyed out).
 
+## 3v. When a merge does not reach production
+Every merge into `main` should build both Vercel projects (`afrofoot` for the website, `afrofoot-app` for the app) as **Production**.
+1. Check **Settings → Git → Production Branch** = `main` in both projects.
+2. Vercel → project → **Deployments**: the newest "Merge pull request #…" should be marked Production. If it is a Preview, use **⋯ → Promote to Production**; if it failed, read its build log.
+3. Never **Redeploy** an older deployment to "refresh" the site: it puts that older code back live.
+4. Quick check after a release: www.afrofoot.club/team#squad shows "All-time top scorers" (release 0.31.0 and later).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
