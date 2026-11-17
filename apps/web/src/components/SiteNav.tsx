@@ -9,7 +9,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 
 export type NavItem = { href: string; label: string; desc: string };
 export type NavGroup = { id: string; label: string; items: NavItem[] };
-type Labels = { menu: string; close: string; home: string; join: string; joinShort: string; signin: string; language: string };
+type Labels = { menu: string; close: string; home: string; signin: string; language: string };
 
 const Caret = ({ open }: { open?: boolean }) => (
   <svg aria-hidden="true" viewBox="0 0 24 24" className={`size-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
@@ -21,7 +21,7 @@ function Logo({ label, small }: { label: string; small?: boolean }) {
   return (
     <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={label}>
       <Image src="/afc-logo.png" alt="" width={small ? 28 : 34} height={small ? 40 : 48} priority />
-      <span className="font-display text-lg font-extrabold leading-tight">Afro Foot<br />Club</span>
+      <span className="font-display text-lg font-extrabold leading-tight max-[359px]:sr-only">Afro Foot<br />Club</span>
     </Link>
   );
 }
@@ -117,17 +117,16 @@ export function SiteNav({ groups, labels, appUrl }: { groups: NavGroup[]; labels
         </nav>
         <div className="hidden shrink-0 items-center gap-2 lg:ms-2 lg:flex xl:ms-4 xl:gap-2.5">
           <LanguageSwitcher label={labels.language} tone="light" />
-          {appUrl ? <a href={appUrl} className="whitespace-nowrap rounded-full border-2 border-fg px-4 py-1.5 font-display font-bold hover:bg-fg hover:text-raised">{labels.signin}</a> : null}
-          <Link href="/join" className="whitespace-nowrap rounded-full bg-accent px-5 py-2 font-display font-extrabold text-on-accent hover:brightness-95">{labels.join}</Link>
+          {appUrl ? <a href={appUrl} data-signin className="whitespace-nowrap rounded-full bg-accent font-display font-extrabold text-on-accent hover:brightness-95 px-5 py-2">{labels.signin}</a> : null}
         </div>
 
         {/* Phone */}
         <div className="ms-auto flex items-center gap-2 lg:hidden">
-          <Link href="/join" className="rounded-full bg-accent px-4 py-2 font-display font-extrabold text-on-accent">{labels.joinShort}</Link>
+          {appUrl ? <a href={appUrl} data-signin className="whitespace-nowrap rounded-full bg-accent font-display font-extrabold text-on-accent hover:brightness-95 px-4 py-2">{labels.signin}</a> : null}
           <button ref={menuBtn} type="button" aria-expanded={panel} aria-controls={uid + 'panel'} onClick={() => setPanel(true)} data-menu-button
-            className="flex items-center gap-2 rounded-full border-2 border-fg px-3.5 py-1.5 font-display font-bold">
+            className="flex items-center gap-2 rounded-full border-2 border-fg px-2.5 py-1.5 font-display font-bold sm:px-3.5">
             <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-            {labels.menu}
+            <span className="sr-only sm:not-sr-only">{labels.menu}</span>
           </button>
         </div>
       </div>
@@ -164,8 +163,7 @@ export function SiteNav({ groups, labels, appUrl }: { groups: NavGroup[]; labels
             })}
           </nav>
           <div className="flex flex-col gap-2.5 px-5 pb-8 pt-4">
-            <Link href="/join" onClick={() => setPanel(false)} className="rounded-full bg-accent py-3.5 text-center font-display font-extrabold text-on-accent">{labels.join}</Link>
-            {appUrl ? <a href={appUrl} className="rounded-full border-2 border-fg py-3 text-center font-display font-bold">{labels.signin}</a> : null}
+            {appUrl ? <a href={appUrl} data-signin className="rounded-full bg-accent font-display font-extrabold text-on-accent hover:brightness-95 py-3.5 text-center">{labels.signin}</a> : null}
             <nav aria-label={labels.language} className="mt-2 flex flex-wrap justify-center gap-2">
               {LOCALES.map((l) => (
                 <Link key={l} href={pathname} locale={l} hrefLang={l} lang={l} aria-current={l === locale ? 'true' : undefined}

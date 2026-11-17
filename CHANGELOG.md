@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – green Sign in button (branch `phase2/menu-signin`)
+- The green **Join the club** button is removed from the header and the phone menu; **Sign in** (to the member app) is now the green button. Join the club stays in the *Join us* menu and on the home page.
+- Phones: the header shows the logo, the green Sign in button and a ☰ menu button (the word "Menu" appears from 640 px). Below 360 px the logo is shown without the club name, so the header fits small phones in all four languages.
+- No database changes.
+
 ## Unreleased – search engines and visitor statistics (branch `phase2/seo`)
 - **Every page has its own title and description** in en / fi / fr / ar (for example "Rejoindre le club · Afro Foot Club"); the home page is "Afro Foot Club – football club in Helsinki".
 - **News articles** use their headline, summary and cover picture in Google results and in link previews, with article data for Google.
