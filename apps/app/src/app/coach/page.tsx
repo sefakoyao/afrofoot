@@ -6,6 +6,7 @@ import { myTeams } from '@/lib/coach';
 import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { loadConductStatus } from '@/lib/conduct';
+import { PlayerGuideCard } from '@/components/PlayerGuideCard';
 
 type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; team_season_id: string };
 
@@ -105,6 +106,8 @@ export default async function CoachHome() {
           </section>
         </>
       )}
+
+      <PlayerGuideCard />
     </div>
   );
 }

@@ -230,7 +230,13 @@
     "comingSoon": "Työkalusi tulevat tähän sitä mukaa kuin ne julkaistaan.",
     "skipToContent": "Siirry sisältöön",
     "myAccount": "Oma tili",
-    "homeLink": "Takaisin omalle etusivulle"
+    "homeLink": "Takaisin omalle etusivulle",
+    "guideTitle": "Pelaajan opas",
+    "guideLead": "Yksi sivu pelaajille: tilin luominen, kirjautuminen, toimintaohjeiden hyväksyminen, sopimuksen allekirjoitus ja jäsenmaksu. Jaa se joukkueellesi.",
+    "guideDownload": "Lataa opas kielellä {language} (PDF)",
+    "guideCopy": "Kopioi linkki",
+    "guideCopied": "Linkki kopioitu",
+    "guideCopyHint": "Kopioi linkin oppaaseen omalla kielelläsi, liitettäväksi WhatsAppiin tai sähköpostiin."
   },
   "privacy": {
     "publicConsent": "Näytä minut julkisella pelaajalistalla"

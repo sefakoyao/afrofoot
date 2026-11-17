@@ -230,7 +230,13 @@
     "comingSoon": "Vos outils apparaîtront ici au fur et à mesure de leur mise en ligne.",
     "skipToContent": "Aller au contenu",
     "myAccount": "Mon compte",
-    "homeLink": "Retour à ma page d'accueil"
+    "homeLink": "Retour à ma page d'accueil",
+    "guideTitle": "Guide du joueur",
+    "guideLead": "Une page pour les joueurs : créer un compte, se connecter, accepter le Code de conduite, signer le contrat et payer la cotisation. Partagez-la avec votre équipe.",
+    "guideDownload": "Télécharger le guide en {language} (PDF)",
+    "guideCopy": "Copier le lien",
+    "guideCopied": "Lien copié",
+    "guideCopyHint": "Copie le lien du guide dans votre langue, à coller dans WhatsApp ou un e-mail."
   },
   "privacy": {
     "publicConsent": "M'afficher dans la liste publique des joueurs"
