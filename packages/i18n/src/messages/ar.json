@@ -30,7 +30,10 @@
     "saved": "تم الحفظ",
     "notAllowed": "ليست لديك صلاحية للقيام بهذا الإجراء.",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "footRights": "© {year} Afro Foot Club ry",
+    "footCrafted": "تصميم وتنفيذ {company}",
+    "footVersion": "الإصدار"
   },
   "auth": {
     "email": "البريد الإلكتروني",
@@ -758,7 +761,7 @@
     "val3": "كرة قدم خالصة",
     "ft_c": "التواصل",
     "ft_priv": "الخصوصية",
-    "ft_rights": "© 2026 Afro Foot Club ry",
+    "ft_rights": "© {year} Afro Foot Club ry",
     "lastm": "انتهت",
     "hs_k2": "المباراة القادمة",
     "hs_k3": "آخر نتيجة",
@@ -1148,7 +1151,9 @@
     "ts_goals": "{n, plural, zero {هدف} one {هدف} two {هدفان} few {أهداف} many {هدفًا} other {هدف}}",
     "ts_games": "{n, plural, zero {# مباراة} one {مباراة واحدة} two {مباراتان} few {# مباريات} many {# مباراة} other {# مباراة}}",
     "ts_former": "لاعب سابق",
-    "ts_years": "{from}–{to}"
+    "ts_years": "{from}–{to}",
+    "ft_crafted": "تصميم وتنفيذ {company}",
+    "ft_version": "الإصدار"
   },
   "admin": {
     "navOverview": "نظرة عامة",

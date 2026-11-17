@@ -30,7 +30,10 @@
     "saved": "Enregistré",
     "notAllowed": "Vous n'avez pas la permission d'effectuer cette action.",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "footRights": "© {year} Afro Foot Club ry",
+    "footCrafted": "Réalisé par {company}",
+    "footVersion": "Version"
   },
   "auth": {
     "email": "E-mail",
@@ -758,7 +761,7 @@
     "val3": "Football pur",
     "ft_c": "Contact",
     "ft_priv": "Confidentialité",
-    "ft_rights": "© 2026 Afro Foot Club ry",
+    "ft_rights": "© {year} Afro Foot Club ry",
     "lastm": "Terminé",
     "hs_k2": "Prochain match",
     "hs_k3": "Dernier résultat",
@@ -1148,7 +1151,9 @@
     "ts_goals": "{n, plural, one {but} other {buts}}",
     "ts_games": "{n, plural, one {# match} other {# matchs}}",
     "ts_former": "ancien joueur",
-    "ts_years": "{from}–{to}"
+    "ts_years": "{from}–{to}",
+    "ft_crafted": "Réalisé par {company}",
+    "ft_version": "Version"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",
