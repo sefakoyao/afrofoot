@@ -25,18 +25,18 @@ export default async function PalloliittoPlayersPage({ searchParams }: { searchP
   const [{ data: fed }, { data: app }, { data: stats }] = supabase ? await Promise.all([
     supabase.from('federation_players').select('external_id, display_name, shirt_number, position, player_id, hidden, on_roster').order('on_roster', { ascending: false }).order('shirt_number', { nullsFirst: false }).order('display_name'),
     supabase.from('players').select('id, first_name, last_name, website_hidden, status').neq('status', 'alumni').order('last_name'),
-    supabase.from('federation_player_stats').select('player_external_id, goals, appearances, competition_external_id'),
+    supabase.from('federation_player_stats').select('player_external_id, goals, appearances'),
   ]) : [{ data: [] }, { data: [] }, { data: [] }];
   const fedPlayers = (fed ?? []) as FedPlayer[];
   const appPlayers = (app ?? []) as AppPlayer[];
   const byId = new Map(appPlayers.map((p) => [p.id, p]));
   const linkedIds = new Set(fedPlayers.map((f) => f.player_id).filter(Boolean));
   const byName = new Map(appPlayers.map((p) => [norm(`${p.first_name} ${p.last_name}`), p]));
-  // latest league season per Palloliitto player: competition ids end with the season (etejp26/M4/4 → 26)
-  const latest = new Map<string, { goals: number; appearances: number; key: string }>();
-  for (const s of (stats ?? []) as { player_external_id: string; goals: number; appearances: number; competition_external_id: string }[]) {
-    const cur = latest.get(s.player_external_id);
-    if (!cur || s.competition_external_id > cur.key) latest.set(s.player_external_id, { goals: s.goals, appearances: s.appearances, key: s.competition_external_id });
+  // all-time league and cup totals per Palloliitto player (friendlies are never stored), as the website's top scorers
+  const latest = new Map<string, { goals: number; appearances: number }>();
+  for (const s of (stats ?? []) as { player_external_id: string; goals: number; appearances: number }[]) {
+    const cur = latest.get(s.player_external_id) ?? { goals: 0, appearances: 0 };
+    latest.set(s.player_external_id, { goals: cur.goals + s.goals, appearances: cur.appearances + s.appearances });
   }
   const linked = fedPlayers.filter((f) => f.player_id).length;
   // shown on the website: on the current roster, not hidden by the club, and not removed by the player (view public_squad)

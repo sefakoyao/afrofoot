@@ -2339,7 +2339,7 @@
     "r_error": "Something went wrong. Please try again.",
     "nav": "Palloliitto players",
     "linkTitle": "Palloliitto players",
-    "linkLead": "The website's squad lists the club's players from Palloliitto's public player list. Link each one to their account in the app, so a player's own choice to be removed applies; hide a player here when they ask by email. A matching name is suggested; nothing is linked until you save. Former players are listed too (greyed out): they can appear among the all-time top scorers, and Hide also works for them.",
+    "linkLead": "The website's squad lists the club's players from Palloliitto's public player list. Link each one to their account in the app, so a player's own choice to be removed applies; hide a player here when they ask by email. A matching name is suggested; nothing is linked until you save. Former players are listed too (greyed out): they can appear among the all-time top scorers, and Hide also works for them. Goals and games shown here are all-time totals in league and cup games.",
     "counts": "{total} Palloliitto players · {linked} linked · {shown} shown on the website",
     "colPalloliitto": "Palloliitto",
     "colApp": "Player in the app",

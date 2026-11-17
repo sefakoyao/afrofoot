@@ -2339,7 +2339,7 @@
     "r_error": "Jokin meni vikaan. Yritä uudelleen.",
     "nav": "Palloliiton pelaajat",
     "linkTitle": "Palloliiton pelaajat",
-    "linkLead": "Verkkosivujen pelaajalista näyttää seuran pelaajat Palloliiton julkisesta rekisteristä. Yhdistä jokainen pelaaja hänen sovellustiliinsä, jotta pelaajan oma poistopyyntö toimii; piilota pelaaja täällä, jos hän pyytää sitä sähköpostilla. Samannimistä ehdotetaan; mitään ei yhdistetä ennen tallennusta. Myös entiset pelaajat näkyvät (harmaina): he voivat olla kaikkien aikojen maalitykkien joukossa, ja Piilota toimii myös heille.",
+    "linkLead": "Verkkosivujen pelaajalista näyttää seuran pelaajat Palloliiton julkisesta rekisteristä. Yhdistä jokainen pelaaja hänen sovellustiliinsä, jotta pelaajan oma poistopyyntö toimii; piilota pelaaja täällä, jos hän pyytää sitä sähköpostilla. Samannimistä ehdotetaan; mitään ei yhdistetä ennen tallennusta. Myös entiset pelaajat näkyvät (harmaina): he voivat olla kaikkien aikojen maalitykkien joukossa, ja Piilota toimii myös heille. Tässä näkyvät maalit ja ottelut ovat kaikkien aikojen sarja- ja cupsummat.",
     "counts": "{total} Palloliiton pelaajaa · {linked} yhdistetty · {shown} näkyy verkkosivuilla",
     "colPalloliitto": "Palloliitto",
     "colApp": "Pelaaja sovelluksessa",

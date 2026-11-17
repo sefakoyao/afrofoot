@@ -2339,7 +2339,7 @@
     "r_error": "Une erreur s’est produite. Veuillez réessayer.",
     "nav": "Joueurs Palloliitto",
     "linkTitle": "Joueurs Palloliitto",
-    "linkLead": "L’effectif du site présente les joueurs du club d’après la liste publique de Palloliitto. Reliez chacun à son compte dans l’application pour que son propre retrait s’applique ; masquez un joueur ici s’il le demande par e-mail. Un nom correspondant est proposé ; rien n’est relié avant l’enregistrement. Les anciens joueurs figurent aussi (grisés) : ils peuvent apparaître parmi les meilleurs buteurs de tous les temps, et Masquer fonctionne aussi pour eux.",
+    "linkLead": "L’effectif du site présente les joueurs du club d’après la liste publique de Palloliitto. Reliez chacun à son compte dans l’application pour que son propre retrait s’applique ; masquez un joueur ici s’il le demande par e-mail. Un nom correspondant est proposé ; rien n’est relié avant l’enregistrement. Les anciens joueurs figurent aussi (grisés) : ils peuvent apparaître parmi les meilleurs buteurs de tous les temps, et Masquer fonctionne aussi pour eux. Les buts et matchs affichés ici sont les totaux de tous les temps en championnat et en coupe.",
     "counts": "{total} joueurs Palloliitto · {linked} reliés · {shown} affichés sur le site",
     "colPalloliitto": "Palloliitto",
     "colApp": "Joueur dans l’application",
