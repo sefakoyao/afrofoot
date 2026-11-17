@@ -182,6 +182,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                       <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email ?? m.phone}</bdi>{m.email ? null : <span className="ms-2 rounded-full bg-line px-2 text-xs" dir="auto">{t('phoneAccount')}</span>}</p>
                     </td>
                     <td className="px-4 py-3">{tr(mRole)}
+                      <a href={`/admin/signin-help?member=${m.id}#help`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-signin-help-link>{t('signinHelp')}</a>
                       {playerOf.get(m.id) ? <a href={`/admin/invoices?player=${playerOf.get(m.id)}#list-h`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-invoices-link>{tInv('invoicesLink')}</a> : null}</td>
                     <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[m.status] ?? ''}`}>{ts(m.status)}</span></td>
                     <td className="whitespace-nowrap px-4 py-3">{fmt.date.format(new Date(m.created_at))}</td>

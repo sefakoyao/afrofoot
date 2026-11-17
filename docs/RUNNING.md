@@ -229,6 +229,11 @@ Every merge into `main` should build both Vercel projects (`afrofoot` for the we
 3. Never **Redeploy** an older deployment to "refresh" the site: it puts that older code back live.
 4. Quick check after a release: www.afrofoot.club/team#squad shows "All-time top scorers" (release 0.31.0 and later).
 
+## 3w. Sign-in help (migration 0044, release 0.32.0)
+1. **Database:** paste `supabase/migrations/20260101000044_signin_help.sql` into Supabase → SQL Editor (project of the website and app) and run it once.
+2. **Supabase → Authentication → URL Configuration → Redirect URLs** must allow `https://app.afrofoot.club/auth/confirm` (already needed, §3b). Nothing else to set: reset and confirmation links now work with the default email templates on any device.
+3. Use it: Admin → **Sign-in help**, search the member, follow "What stops them, and what to do".
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

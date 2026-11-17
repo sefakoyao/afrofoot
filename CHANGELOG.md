@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sign-in help for admins (branch `phase2/signin-help`, migration 0044, release 0.32.0)
+- **Admin → Sign-in help** (also a link on every row in Members): find a member and see why they cannot sign in.
+  - **Facts shown:** account status, email confirmed, last sign-in, sign-in method (email and password, Google, Facebook, phone) and unpaid fees.
+  - **Problems named, each with its fix:** email not confirmed, waiting for approval, suspended, blocked by overdue fees, signed up with Google or Facebook, phone-only account, never signed in.
+- **Actions:**
+  - **Send a password reset link.**
+  - **Send the confirmation email again.**
+  - **Allow sign-in until a date** despite overdue fees, with a reason (up to 90 days). The public payment page link is shown too.
+  - Admins never see or set a password and cannot sign in as the member. Every email sent is written to the audit log.
+- **Fix: reset and confirmation links now open on any device.** Until now a "Forgot password" link only worked in the browser that asked for it (Supabase's default email template uses PKCE), so opening the email on a phone said "link invalid". These emails are now sent without PKCE, and the new `/auth/hash` page takes over the session the link brings. The recommended `token_hash` template (§3b) still works as before.
+- Database: `signin_status()` and `log_signin_help()`, admins only. 11 database checks, 21 browser checks (including resetting a password on a second device).
+
 ## Unreleased – all-time top scorers (branch `phase2/top-scorers`, migration 0043, release 0.31.0)
 - **Team page, squad:** a corner card **"All-time top scorers"** beside the squad (above it on phones). It lists the club's top three in league and cup goals from the Palloliitto results service, with games, seasons ("2024–2026") and "former player" where it applies. Friendlies don't count. Black card with the logo band; medals in yellow, white and green.
 - **Sync:** also reads the club's goals from every earlier season and cup group (statistics only, no tables or games). Former players are stored off the roster with their name only. A group the service can't answer is skipped.
