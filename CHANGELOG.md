@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sync key details (branch `phase2/fed-key-details`)
+- When Supabase refuses `SUPABASE_SERVICE_ROLE_KEY`, the sync's answer adds safe facts about the value, never the key itself: its length, stray spaces or quotes, its role, and whether its project matches `NEXT_PUBLIC_SUPABASE_URL`. A value that isn't an API key (the JWT Secret) is named as such.
+- A key pasted with a space or line break around it now works.
+
 ## Unreleased – clearer sync messages (branch `phase2/fed-sync-diagnostics`)
 - `/api/federation-sync` now says what is wrong instead of answering "disabled" whenever it can't read its settings:
   - the public (anon or publishable) key put in `SUPABASE_SERVICE_ROLE_KEY`
