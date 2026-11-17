@@ -1880,7 +1880,7 @@
     "autoYears": "Durée du contrat",
     "autoFieldsNote": "La saison et les objectifs s'écrivent sur la page de chaque équipe.",
     "autoSave": "Enregistrer les réglages",
-    "autoIncomplete": "Écrivez la ligne de cotisation (et gardez la liste « comprend »), sinon les contrats automatiques restent en brouillon.",
+    "autoIncomplete": "Ajoutez une formule d’adhésion (Factures → Formules d’adhésion) ou écrivez la ligne de cotisation, et gardez la liste « comprend » ; sinon les contrats automatiques restent en brouillon.",
     "r_settingsSaved": "Réglages enregistrés.",
     "refill": "Remplir à nouveau depuis le modèle",
     "refillNote": "Réécrit le texte depuis le modèle avec les objectifs et lignes de frais actuels. Vos modifications de ce brouillon sont remplacées.",
@@ -1890,7 +1890,16 @@
     "autoTeamFeeEg": "ex. EUR 300 per season, invoiced through the app in instalments",
     "autoIncluded": "La cotisation comprend (un par ligne)",
     "autoNotIncluded": "La cotisation ne comprend pas (un par ligne)",
-    "autoListHint": "En anglais, comme les contrats. L'accord précise aussi que les joueurs ne sont pas payés, qu'ils achètent leur licence (lien vers les prix sur le site) et que le bureau peut exceptionnellement exonérer un joueur sur proposition de l'entraîneur ou du team manager."
+    "autoListHint": "En anglais, comme les contrats. L'accord précise aussi que les joueurs ne sont pas payés, qu'ils achètent leur licence (lien vers les prix sur le site) et que le bureau peut exceptionnellement exonérer un joueur sur proposition de l'entraîneur ou du team manager.",
+    "autoTeamFeeFromPlans": "Laissé vide, les contrats utilisent les formules d’adhésion du club :",
+    "autoTeamFeeOwn": "Ce texte remplace la ligne tirée des formules d’adhésion :",
+    "autoTeamFeePlansLink": "Modifier les montants dans Factures → Formules d’adhésion",
+    "fix_objectives": "Les objectifs de la saison de l’équipe",
+    "fix_fees": "Les lignes de cotisation",
+    "fix_text": "Un blanc dans le texte du contrat",
+    "fixGo_objectives": "Les écrire sur la page de l’équipe →",
+    "fixGo_fees": "Les remplir dans Contrats automatiques →",
+    "blanksThenRefill": "Revenez ensuite ici et cliquez sur « Remplir à nouveau depuis le modèle ». Un blanc saisi à la main se complète dans le texte ci-dessous."
   },
   "match": {
     "title": "Jour de match",

@@ -1880,7 +1880,7 @@
     "autoYears": "Sopimuksen pituus",
     "autoFieldsNote": "Joukkueen kausi ja tavoitteet kirjoitetaan joukkueen sivulle.",
     "autoSave": "Tallenna asetukset",
-    "autoIncomplete": "Kirjoita jäsenmaksurivi (ja pidä \"sisältää\"-lista), muuten automaattiset sopimukset jäävät luonnoksiksi.",
+    "autoIncomplete": "Lisää jäsenmaksu (Laskut → Jäsenmaksusuunnitelmat) tai kirjoita jäsenmaksurivi, ja säilytä \"sisältää\"-luettelo; muuten automaattiset sopimukset jäävät luonnoksiksi.",
     "r_settingsSaved": "Asetukset tallennettu.",
     "refill": "Täytä uudelleen pohjasta",
     "refillNote": "Kirjoittaa tekstin uudelleen pohjasta nykyisillä tavoitteilla ja maksuriveillä. Muokkauksesi tähän luonnokseen korvautuvat.",
@@ -1890,7 +1890,16 @@
     "autoTeamFeeEg": "esim. EUR 300 per season, invoiced through the app in instalments",
     "autoIncluded": "Jäsenmaksu sisältää (yksi per rivi)",
     "autoNotIncluded": "Jäsenmaksu ei sisällä (yksi per rivi)",
-    "autoListHint": "Kirjoita englanniksi kuten sopimukset. Sopimuksessa todetaan myös, ettei pelaajille makseta, että he ostavat pelipassin itse (linkki hintoihin verkkosivuilla) ja että hallitus voi poikkeustapauksissa vapauttaa maksusta valmentajan tai joukkueenjohtajan esityksestä."
+    "autoListHint": "Kirjoita englanniksi kuten sopimukset. Sopimuksessa todetaan myös, ettei pelaajille makseta, että he ostavat pelipassin itse (linkki hintoihin verkkosivuilla) ja että hallitus voi poikkeustapauksissa vapauttaa maksusta valmentajan tai joukkueenjohtajan esityksestä.",
+    "autoTeamFeeFromPlans": "Tyhjänä sopimukset käyttävät seuran jäsenmaksuja:",
+    "autoTeamFeeOwn": "Tämä teksti korvaa jäsenmaksuista tehdyn rivin:",
+    "autoTeamFeePlansLink": "Muuta summia kohdassa Laskut → Jäsenmaksusuunnitelmat",
+    "fix_objectives": "Joukkueen kauden tavoitteet",
+    "fix_fees": "Jäsenmaksurivit",
+    "fix_text": "Täyttämätön kohta sopimustekstissä",
+    "fixGo_objectives": "Kirjoita ne joukkueen sivulle →",
+    "fixGo_fees": "Täytä ne kohdassa Automaattiset sopimukset →",
+    "blanksThenRefill": "Palaa sitten tänne ja valitse \"Täytä uudelleen pohjasta\". Tekstiin kirjoitettu kohta täydennetään alla olevaan tekstiin."
   },
   "match": {
     "title": "Ottelupäivä",
