@@ -1,6 +1,11 @@
 # Permission matrix (enforced by RLS; mirrored in `packages/db/src/roles.ts`)
 Legend: ● full · ◐ own team / own data · ○ read only · — none
 
+**Player-coach** (migration 0045): has both the Player and the Coach column. Exceptions on their own player record:
+it is never "coached" by themselves (no self-evaluation, own goals or own private data as coach), only the player
+columns can be changed (no own fee exemption), own event replies close at kick-off, and the fee block applies.
+Database helpers: `app.is_coach()` (coach, player_coach) and `app.is_playing()` (player, player_coach).
+
 | Data | Anonymous | Player | Coach | Club admin | Super admin |
 |---|---|---|---|---|---|
 | Published pages, news, sponsors, public settings | ○ | ○ | ○ | ● | ● |

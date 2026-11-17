@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { isAdminRole } from '@afrofoot/db';
+import { isAdminRole, isCoachRole } from '@afrofoot/db';
 import { requireMember } from '@/lib/auth';
 import { coachesTeam } from '@/lib/coach';
 import { EVENT_KINDS, SPORT_KINDS } from '@/lib/events';
@@ -35,7 +35,7 @@ async function writer(fd: FormData, team: string | null) {
   const supabase = await getSupabase();
   if (!supabase) back(fd, 'e_error');
   const admin = isAdminRole(member.role);
-  if (!admin && (member.role !== 'coach' || !team || !(await coachesTeam(supabase, member.id, team)))) back(fd, 'e_notYours');
+  if (!admin && (!isCoachRole(member.role) || !team || !(await coachesTeam(supabase, member.id, team)))) back(fd, 'e_notYours');
   return { member, supabase };
 }
 

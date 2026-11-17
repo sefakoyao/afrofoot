@@ -143,7 +143,8 @@
     "super_admin": "Super administrateur",
     "club_admin": "Administrateur du club",
     "coach": "Coach",
-    "player": "Joueur"
+    "player": "Joueur",
+    "player_coach": "Joueur-entraîneur"
   },
   "status": {
     "pending": "En attente",
@@ -240,7 +241,9 @@
     "guideDownload": "Télécharger le guide en {language} (PDF)",
     "guideCopy": "Copier le lien",
     "guideCopied": "Lien copié",
-    "guideCopyHint": "Copie le lien du guide dans votre langue, à coller dans WhatsApp ou un e-mail."
+    "guideCopyHint": "Copie le lien du guide dans votre langue, à coller dans WhatsApp ou un e-mail.",
+    "switchToPlayer": "Ma page joueur",
+    "switchToCoach": "Entraînement"
   },
   "privacy": {
     "publicConsent": "M'afficher dans la liste publique des joueurs"

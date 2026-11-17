@@ -1,4 +1,5 @@
 import 'server-only';
+import { isPlayerRole } from '@afrofoot/db';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
@@ -27,7 +28,7 @@ export async function ensurePlayerRecord(db: SupabaseClient, profileId: string):
   const { data: existing } = await db.from('players').select('id').eq('profile_id', profileId).maybeSingle();
   if (existing) return { id: existing.id };
   const { data: prof } = await db.from('profiles').select('first_name, last_name, role').eq('id', profileId).maybeSingle();
-  if (!prof || prof.role !== 'player') return { error: 'notPlayer' };
+  if (!prof || !isPlayerRole(prof.role)) return { error: 'notPlayer' };
   if (!prof.first_name?.trim() || !prof.last_name?.trim()) return { error: 'noName' };
   const { data, error } = await db.from('players').insert({ profile_id: profileId, first_name: prof.first_name, last_name: prof.last_name, status: 'active', joined_on: today() }).select('id').single();
   if (error || !data) { console.error('[roster] player record refused', { code: error?.code, message: error?.message }); return { error: 'failed' }; }

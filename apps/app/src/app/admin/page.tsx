@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { ROLES } from '@afrofoot/db';
+import { isPlayerRole, ROLES } from '@afrofoot/db';
 import { requireArea } from '@/lib/auth';
 import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
@@ -14,7 +14,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   const [t, ta, tr, supabase] = await Promise.all([getTranslations('app'), getTranslations('admin'), getTranslations('role'), getSupabase()]);
   const { data } = supabase ? await supabase.from('profiles').select('id, role, status') : { data: [] };
   const tc = await getTranslations('conduct');
-  const activePlayers = (data ?? []).filter((r) => r.role === 'player' && r.status === 'active').map((r) => r.id);
+  const activePlayers = (data ?? []).filter((r) => isPlayerRole(r.role) && r.status === 'active').map((r) => r.id);
   const noConduct = supabase ? (await missingConsent(supabase, activePlayers)).size : 0;
   const { count: toCountersign } = supabase ? await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed') : { count: 0 };
   const tk = await getTranslations('contract');

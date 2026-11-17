@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
-import type { Area } from '@afrofoot/db';
+import { canEnter, type Area } from '@afrofoot/db';
 import type { Member } from '@/lib/auth';
 import { signOut } from '@/app/actions/auth';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -32,6 +32,9 @@ export async function AppShell({ area, member, nav, children }: { area: Area; me
               <a href="/account" className="font-semibold underline-offset-4 hover:underline" title={t('myAccount')}>{name}</a>
               <span className="ms-2 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-on-accent">{tr(member.role)}</span>
             </span>
+            {/* a player-coach moves between their coaching pages and their own player pages */}
+            {area === 'coach' && canEnter(member.role, 'me') ? <a href="/me" className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold hover:bg-white hover:text-ink-950" data-area-switch="me">{t('switchToPlayer')}</a> : null}
+            {area === 'me' && canEnter(member.role, 'coach') ? <a href="/coach" className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold hover:bg-white hover:text-ink-950" data-area-switch="coach">{t('switchToCoach')}</a> : null}
             <LanguageSwitcher />
             <form action={signOut}>
               <button type="submit" className="min-h-9 rounded-full border-2 border-white/70 px-4 text-sm font-bold hover:bg-white hover:text-ink-950">{tn('logout')}</button>
