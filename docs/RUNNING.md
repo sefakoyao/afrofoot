@@ -184,6 +184,25 @@ Paste `supabase/content/news_import_old_site.sql` into Supabase → SQL Editor a
 - **Visitor statistics:** Vercel → the `web` project → **Analytics** → *Enable*, then redeploy. Cookie-free (no consent banner needed; stated in the privacy policy). Shows visitors, top pages, referrers, countries, devices.
 - **Google Search Console** (search terms, position on Google, indexing problems): <https://search.google.com/search-console> → *Add property* → **Domain** `afrofoot.club` → copy the `google-site-verification=…` TXT value → GoDaddy → DNS → add a **TXT** record, name `@`, that value → back in Search Console, *Verify* (can take up to an hour). Then *Sitemaps* → submit `https://www.afrofoot.club/sitemap.xml`. Do this after the DNS switch to Vercel.
 
+## 3r. League table and results from Palloliitto (migration 0040, release 0.28.0)
+The website's **Standings** section, the latest results and, when no game is entered in the app, the next match come from the Palloliitto results service (Torneopal). A sync job fetches them once a day.
+
+1. **Database:** paste `supabase/migrations/20260101000040_federation_sync.sql` into Supabase → SQL Editor and run it once. It sets the club's Palloliitto team (35118195) and switches the sync on.
+2. **Vercel → the `web` project → Settings → Environment Variables** (Production, all three **server-only**, never with a `NEXT_PUBLIC_` prefix):
+   - `TORNEOPAL_API_KEY`: the key from Palloliitto (Torneopal).
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase → Project Settings → API → *service_role* secret. Only the sync route uses it.
+   - `CRON_SECRET`: a long random value, e.g. the output of `openssl rand -base64 32`. Vercel sends it to the sync route; nothing else can start it.
+   Then redeploy.
+3. **Schedule:** `apps/web/vercel.json` runs `/api/federation-sync` every day at 05:23 UTC (Vercel → web project → *Cron Jobs* shows it). On a paid Vercel plan it can run more often (change `schedule`, e.g. `"23 * * * *"` for hourly).
+4. **First run now** (instead of waiting for the night), from your computer:
+   ```bash
+   curl -H "Authorization: Bearer YOUR_CRON_SECRET" https://www.afrofoot.club/api/federation-sync
+   ```
+   It answers `{"ok":true,"teams":1,"competitions":…,"standings":12,"matches":…}`. The home page shows the table within a minute.
+5. **Check runs:** Supabase → Table Editor → `sync_runs` (status, rows, error). Errors never contain the key.
+
+**How it chooses what to show:** the newest season whose league table has games played; last season's final table stays until the new season's first games are played. A competition can be hidden: set `show_publicly = false` on its row in `federation_competitions` (the sync keeps that choice). Raw answers are not stored (they name referees and players).
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

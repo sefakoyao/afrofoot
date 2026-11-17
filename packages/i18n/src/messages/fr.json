@@ -1125,7 +1125,13 @@
     "seo_contact": "Contactez Afro Foot Club à Helsinki : questions, partenariats et demandes des médias.",
     "seo_privacy": "Comment Afro Foot Club traite les données personnelles sur son site et son application membres, et vos droits selon le RGPD.",
     "nm_soon_h": "Matchs bientôt annoncés",
-    "nm_soon_p": "Les matchs de championnat et les matchs amicaux de présaison apparaîtront ici dès qu’ils seront confirmés. Suivez le calendrier, ou venez vous entraîner avec nous en attendant."
+    "nm_soon_p": "Les matchs de championnat et les matchs amicaux de présaison apparaîtront ici dès qu’ils seront confirmés. Suivez le calendrier, ou venez vous entraîner avec nous en attendant.",
+    "sync_fed": "Source : service de résultats de Palloliitto · mis à jour le {date}",
+    "sync_fed_plain": "Source : service de résultats de Palloliitto",
+    "st_group": "Groupe {group}",
+    "st_season": "Saison {season}",
+    "st_final": "classement final",
+    "th_goals": "Buts"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

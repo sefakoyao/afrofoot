@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – league table and results from Palloliitto (branch `phase2/federation-sync`, migration 0040, release 0.28.0)
+- **Home page, Standings:** the real league table from the Palloliitto results service: Miesten Nelonen, group 4, 2026, Afro Foot Club highlighted. It's marked "final table" once the club has no games left in it. Next to it are the club's latest five results (league, cup and friendlies). The source line now shows the real update date instead of the fixed "updated 12 min ago".
+- **Hero:** "Latest result" shows the newest official result. "Next match" uses the next Palloliitto fixture when none is entered in the app.
+- **Off-season:** last season's final table stays until the new season's first games are played. The 2027 season (Miesten Vitonen, group 2) takes over by itself.
+- **Fix:** an away game's score was shown in the wrong order next to the team names. Now it's always home team first, with the score in the same order.
+- **Sync job:** `/api/federation-sync` runs daily via Vercel Cron and only with `CRON_SECRET`. It needs `TORNEOPAL_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` (all server-only). Every run is in `sync_runs`, errors never contain the key, and a failed run keeps the existing data.
+- **Database (0040):**
+  - Competitions have a season, a kind (league, cup or friendly) and a group name, and are public by default; an admin can still hide one.
+  - Teams have an `is_club` flag.
+  - The public views carry these fields.
+  - The club's team (35118195) is set in the settings.
+- **Tests:** 16 tests of the mappers and the sync, against trimmed real answers with no player, referee or official data; 17 database checks; 16 browser checks. Set-up: `docs/RUNNING.md` §3r.
+
 ## Unreleased – trainings and games from Admin → Events (branch `phase2/admin-sport-events`)
 - **Admin → Events:** the event type list now starts with **Training**, **Game (league)** and **Friendly game** (grouped as "Trainings and games"), then the other events.
   - They are saved exactly like the coaches' own trainings and games, so they appear in the team's calendar, on the coach's pages and, for public teams, on the website.

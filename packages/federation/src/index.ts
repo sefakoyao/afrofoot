@@ -2,10 +2,11 @@
  * Client for the Finnish FA results service (Torneopal "taso" REST API). SERVER-SIDE ONLY:
  * the key must never reach the browser (no NEXT_PUBLIC_ prefix, never bundled into client components).
  *
- * STATUS: transport only. Command names and response shapes are taken from third-party projects and are NOT yet
- * verified against the official help page / a real response. Run `pnpm --filter @afrofoot/federation probe` with the key
- * to capture real responses into ./fixtures, then the mappers (map.ts) are written and tested against them.
+ * Commands used by the sync (getTeam, getGroup, getMatches) and their answers are verified against real responses for
+ * Afro Foot Club (trimmed copies in ../fixtures; mappers in map.ts, the sync run in sync.ts, both tested).
  */
+export * from './map.ts';
+export * from './sync.ts';
 export const DEFAULT_BASE_URL = 'https://spl.torneopal.net/taso/rest';
 
 export class FederationError extends Error {
