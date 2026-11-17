@@ -2,6 +2,7 @@ import { timingSafeEqual } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { TorneopalClient, runSync, type Store } from '@afrofoot/federation';
+import { keyKind } from '@/lib/supabase-key';
 
 /**
  * League tables and results from the Palloliitto results service (migration 0040). Called by Vercel Cron (vercel.json)
@@ -49,11 +50,18 @@ export async function GET(req: Request): Promise<Response> {
   if (!authorized(req)) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL, service = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !service) return NextResponse.json({ ok: false, error: 'database not configured' }, { status: 503 });
+  if (keyKind(service) === 'public') {
+    return NextResponse.json({ ok: false, error: 'SUPABASE_SERVICE_ROLE_KEY holds the public (anon / publishable) key: use the service_role (secret) key from Supabase → Project Settings → API' }, { status: 503 });
+  }
   const db = createClient(url, service, { auth: { persistSession: false, autoRefreshToken: false } });
 
-  const { data: setting } = await db.from('site_settings').select('value').eq('key', 'federation').maybeSingle();
-  const cfg = (setting?.value ?? {}) as { enabled?: boolean; team_ids?: unknown[] };
-  if (!cfg.enabled) return NextResponse.json({ ok: true, skipped: 'disabled' });
+  // A wrong key or project shows up here: say so instead of reporting the sync as switched off.
+  const { data: setting, error: settingError } = await db.from('site_settings').select('value').eq('key', 'federation').maybeSingle();
+  if (settingError) return NextResponse.json({ ok: false, error: `could not read the settings (${settingError.message.slice(0, 120)}): check SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL` }, { status: 503 });
+  if (!setting) return NextResponse.json({ ok: false, error: 'no federation settings found: run migration 0040 in this Supabase project, or check that SUPABASE_SERVICE_ROLE_KEY is the service_role key of the same project as NEXT_PUBLIC_SUPABASE_URL' }, { status: 503 });
+  const cfg = (setting.value ?? {}) as { enabled?: boolean; team_ids?: unknown[] };
+  if (!cfg.enabled) return NextResponse.json({ ok: true, skipped: 'disabled', hint: 'site_settings "federation" has enabled = false: see docs/RUNNING.md §3r' });
+  if (!(cfg.team_ids ?? []).length) return NextResponse.json({ ok: false, error: 'site_settings "federation" has no team_ids: add the club team id (35118195)' }, { status: 503 });
 
   const { data: run } = await db.from('sync_runs').insert({ kind: 'federation' }).select('id').single();
   const finish = (status: 'ok' | 'failed', rows: number, error: string | null) =>

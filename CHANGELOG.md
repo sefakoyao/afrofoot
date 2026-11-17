@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – clearer sync messages (branch `phase2/fed-sync-diagnostics`)
+- `/api/federation-sync` now says what is wrong instead of answering "disabled" whenever it can't read its settings:
+  - the public (anon or publishable) key put in `SUPABASE_SERVICE_ROLE_KEY`
+  - the settings couldn't be read (wrong key or project)
+  - no settings row (migration 0040 not run in this project)
+  - no team configured
+  - "disabled" now only means the setting is switched off, with a pointer to `docs/RUNNING.md` §3r
+- No database changes.
+
 ## Unreleased – league table and results from Palloliitto (branch `phase2/federation-sync`, migration 0040, release 0.28.0)
 - **Home page, Standings:** the real league table from the Palloliitto results service: Miesten Nelonen, group 4, 2026, Afro Foot Club highlighted. It's marked "final table" once the club has no games left in it. Next to it are the club's latest five results (league, cup and friendlies). The source line now shows the real update date instead of the fixed "updated 12 min ago".
 - **Hero:** "Latest result" shows the newest official result. "Next match" uses the next Palloliitto fixture when none is entered in the app.
