@@ -46,6 +46,8 @@ export type ContractSettings = {
   team_fee: string; included: string; not_included: string;
   // 0037 fields, still filled in for the earlier template "Player contract"
   club_fees: string; max_fee_per_year: string; volunteer_amount: string;
+  /** The fee line made from the active membership plans (Admin → Invoices → Plans), used when team_fee is left empty. */
+  plan_fee?: string;
 };
 export const CONTRACT_DEFAULTS: ContractSettings = {
   auto: 'send', years: 1, team_fee: '',
@@ -53,8 +55,30 @@ export const CONTRACT_DEFAULTS: ContractSettings = {
   not_included: 'Player insurance\nPlayer licence', club_fees: '', max_fee_per_year: '', volunteer_amount: '',
 };
 
+export type Plan = { amount_cents: number; period: string };
+const PERIOD_ORDER = ['year', 'season', 'quarter', 'month'] as const;
+const PERIOD_WORD: Record<string, string> = { year: 'per year', season: 'per season', quarter: 'per quarter', month: 'per month' };
+const euros = (cents: number) => `EUR ${cents % 100 ? (cents / 100).toFixed(2) : String(cents / 100)}`;
+
+/**
+ * The contract's membership fee line from the club's active plans, longest period first, e.g.
+ * "EUR 240 per year (or EUR 60 per quarter, or EUR 20 per month), invoiced through the Afro Foot Club app". Empty without plans.
+ */
+export function feeLineFromPlans(plans: Plan[]): string {
+  const rows = plans.filter((p) => p.amount_cents > 0 && p.period in PERIOD_WORD)
+    .sort((a, b) => PERIOD_ORDER.indexOf(a.period as 'year') - PERIOD_ORDER.indexOf(b.period as 'year') || b.amount_cents - a.amount_cents);
+  const seen = new Set<string>();
+  const parts = rows.filter((r) => !seen.has(r.period) && seen.add(r.period)).map((r) => `${euros(r.amount_cents)} ${PERIOD_WORD[r.period]}`);
+  if (!parts.length) return '';
+  const [first, ...rest] = parts;
+  return `${first}${rest.length ? ` (or ${rest.join(', or ')})` : ''}, invoiced through the Afro Foot Club app`;
+}
+
 export async function loadContractSettings(db: SupabaseClient): Promise<ContractSettings> {
-  const { data } = await db.from('site_settings').select('value').eq('key', 'contracts').maybeSingle();
+  const [{ data }, { data: plans }] = await Promise.all([
+    db.from('site_settings').select('value').eq('key', 'contracts').maybeSingle(),
+    db.from('membership_plans').select('amount_cents, period').eq('active', true),
+  ]);
   const v = (data?.value ?? {}) as Partial<Record<keyof ContractSettings, unknown>>;
   const str = (k: keyof ContractSettings) => (typeof v[k] === 'string' ? (v[k] as string).trim() : '');
   const years = Number(v.years);
@@ -64,6 +88,7 @@ export async function loadContractSettings(db: SupabaseClient): Promise<Contract
     team_fee: str('team_fee'), included: typeof v.included === 'string' ? str('included') : CONTRACT_DEFAULTS.included,
     not_included: typeof v.not_included === 'string' ? str('not_included') : CONTRACT_DEFAULTS.not_included,
     club_fees: str('club_fees'), max_fee_per_year: str('max_fee_per_year'), volunteer_amount: str('volunteer_amount'),
+    plan_fee: feeLineFromPlans((plans ?? []) as Plan[]),
   };
 }
 
@@ -99,13 +124,26 @@ export function fillTemplate(body: string, v: TemplateValues): string {
     season: v.season ?? '', division: v.division ?? '',
     season_objectives: objectives, club_fees: v.settings?.club_fees?.trim() ?? '',
     max_fee_per_year: v.settings?.max_fee_per_year?.trim() ?? '', volunteer_amount: v.settings?.volunteer_amount?.trim() ?? '',
-    team_fee: v.settings?.team_fee?.trim() ?? '', included_list: bullets(v.settings?.included), not_included_list: bullets(v.settings?.not_included),
+    team_fee: v.settings?.team_fee?.trim() || v.settings?.plan_fee?.trim() || '', included_list: bullets(v.settings?.included), not_included_list: bullets(v.settings?.not_included),
     prices_link: `${webUrl()}/membership#fees`,
   };
   return body.replace(/\{\{(\w+)\}\}/g, (m, k: string) => (values[k] ? values[k]! : BLANKS[k] ?? (k in values ? '' : m)));
 }
 
 export const hasBlanks = (body: string) => body.includes('[[');
+
+/** Where an admin fills in each kind of blank: the team's page (season objectives) or Admin → Contracts (fee lines). */
+export type BlankFix = 'objectives' | 'fees' | 'text';
+const FIX_OF: Record<string, BlankFix> = {
+  season_objectives: 'objectives', team_fee: 'fees', included_list: 'fees', not_included_list: 'fees', club_fees: 'fees', max_fee_per_year: 'fees', volunteer_amount: 'fees',
+};
+/** The [[…]] blanks still in a contract text, each with where it is fixed (a blank typed by hand is fixed in the text). */
+export function blanksIn(body: string): { text: string; fix: BlankFix }[] {
+  const known = new Map(Object.entries(BLANKS).map(([k, v]) => [v, FIX_OF[k] ?? 'text']));
+  const out = new Map<string, BlankFix>();
+  for (const m of body.matchAll(/\[\[([\s\S]*?)\]\]/g)) out.set(m[1]!.trim(), known.get(m[0]) ?? 'text');
+  return [...out].map(([text, fix]) => ({ text, fix }));
+}
 
 /** The signed-in player's contracts (RLS: their own, never drafts), newest first. */
 export async function myContracts(db: SupabaseClient): Promise<Contract[]> {

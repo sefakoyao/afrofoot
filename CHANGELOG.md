@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – contract blanks: fee from the membership plans, clear list of what is missing (branch `phase2/contract-blanks`)
+- **Membership fee line in contracts:** when Admin → Contracts → "Membership fee for the season" is left empty, contracts now use the club's active membership plans, e.g. "EUR 240 per year (or EUR 60 per quarter, or EUR 20 per month), invoiced through the Afro Foot Club app". The settings box shows that line and links to Invoices → Membership plans to change the amounts. A text written there still takes precedence.
+- **"Some [[…]] blanks are not filled in yet":** a draft contract now lists each missing blank, what it is (the team's season objectives, a fee line, or a blank typed into the text) and a link to where it is filled in, then says to click "Fill in again from the template".
+- The "incomplete" warning only shows when there is neither a fee line nor an active plan. No database changes.
+
 ## Unreleased – all-time top scorers (branch `phase2/top-scorers`, migration 0043, release 0.31.0)
 - **Team page, squad:** a corner card **"All-time top scorers"** beside the squad (above it on phones). It lists the club's top three in league and cup goals from the Palloliitto results service, with games, seasons ("2024–2026") and "former player" where it applies. Friendlies don't count. Black card with the logo band; medals in yellow, white and green.
 - **Sync:** also reads the club's goals from every earlier season and cup group (statistics only, no tables or games). Former players are stored off the roster with their name only. A group the service can't answer is skipped.

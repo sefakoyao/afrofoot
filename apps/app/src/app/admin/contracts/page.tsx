@@ -141,7 +141,13 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
           <label className="grid gap-1 text-sm font-semibold">{t('autoYears')}
             <select name="years" defaultValue={String(settings.years)} className={input}>{[1, 2, 3].map((y) => <option key={y} value={y}>{t('yearsN', { count: y })}</option>)}</select></label>
           <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('autoTeamFee')}
-            <input name="team_fee" maxLength={200} defaultValue={settings.team_fee} placeholder={t('autoTeamFeeEg')} className={input} lang="en" dir="ltr" data-team-fee /></label>
+            <input name="team_fee" maxLength={200} defaultValue={settings.team_fee} placeholder={settings.plan_fee || t('autoTeamFeeEg')} className={input} lang="en" dir="ltr" data-team-fee />
+            {settings.plan_fee ? (
+              <span className="text-xs font-normal text-muted" data-plan-fee>
+                {settings.team_fee ? t('autoTeamFeeOwn') : t('autoTeamFeeFromPlans')} <bdi lang="en" dir="ltr" className="font-semibold text-fg">{settings.plan_fee}</bdi>.{' '}
+                <a href="/admin/invoices#plans-h" className="font-semibold text-pitch underline underline-offset-2">{t('autoTeamFeePlansLink')}</a>
+              </span>
+            ) : null}</label>
           <label className="grid gap-1 text-sm font-semibold">{t('autoIncluded')}
             <textarea name="included" rows={6} maxLength={1000} defaultValue={settings.included} lang="en" dir="ltr" className="rounded-control border border-line bg-raised p-3 font-normal" data-included /></label>
           <label className="grid gap-1 text-sm font-semibold">{t('autoNotIncluded')}
@@ -150,7 +156,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
           <p className="text-xs text-muted sm:col-span-2">{t('autoFieldsNote')}</p>
           <button className="min-h-11 justify-self-start rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">{t('autoSave')}</button>
         </form>
-        {!settings.team_fee || !settings.included
+        {!(settings.team_fee || settings.plan_fee) || !settings.included
           ? <p className="mt-3 rounded-card bg-danger/10 p-3 text-sm font-semibold text-danger" data-auto-incomplete>{t('autoIncomplete')}</p> : null}
       </section>
 
