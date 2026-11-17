@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – all-time top scorers (branch `phase2/top-scorers`, migration 0043, release 0.31.0)
+- **Team page, squad:** a corner card **"All-time top scorers"** beside the squad (above it on phones). It lists the club's top three in league and cup goals from the Palloliitto results service, with games, seasons ("2024–2026") and "former player" where it applies. Friendlies don't count. Black card with the logo band; medals in yellow, white and green.
+- **Sync:** also reads the club's goals from every earlier season and cup group (statistics only, no tables or games). Former players are stored off the roster with their name only. A group the service can't answer is skipped.
+- **Same safeguards as the squad:** a player who removed themselves in the app, or whom an admin hid, is not listed. Admin → Palloliitto players now offers Hide for former players too.
+- **Fix:** every player showed "0 games": Palloliitto puts games in `matches`, not `matches_played`. Corrected at the next update.
+- **Fix:** "1 goals" → "1 goal" (plural forms in four languages, Arabic included). The translation check now reads plural messages properly.
+- 11 new database checks, 3 new sync tests, 18 browser checks. Set-up: `docs/RUNNING.md` §3u.
+
 ## Unreleased – modern standings on the home page (branch `phase2/standings-banner`)
 - **Home → Standings:** "Latest results" and the league table (e.g. "Miesten Nelonen · Group 4") get black header banners with the green-to-yellow band from the top of the logo.
 - **Results:** a round W / D / L badge per game from the club's side (green win, yellow draw, black loss; read out in full by screen readers), the club's name in bold and the score in a black pill.

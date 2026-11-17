@@ -65,13 +65,12 @@ export default async function PalloliittoPlayersPage({ searchParams }: { searchP
                     <p className="font-semibold"><bdi>{f.display_name}</bdi>{f.shirt_number !== null ? <span className="ms-2 text-muted" dir="ltr">#{f.shirt_number}</span> : null}</p>
                     <p className="text-xs text-muted">{[f.position, st ? t('statsShort', { goals: st.goals, games: st.appearances }) : null].filter(Boolean).join(' · ')}
                       {isShown(f) ? <span className="ms-2 rounded-full bg-accent/20 px-2 py-0.5 font-bold text-pitch" data-shown>{t('onWebsite')}</span>
-                        : <span className="ms-2 rounded-full bg-line px-2 py-0.5 font-bold" data-not-shown>{!f.on_roster ? t('offRoster') : f.hidden ? t('hiddenByAdmin') : t('removedSelf')}</span>}</p>
-                    {f.on_roster ? (
-                      <form action={setFederationPlayerHidden} className="mt-1">
-                        <input type="hidden" name="external_id" value={f.external_id} /><input type="hidden" name="hidden" value={f.hidden ? 'false' : 'true'} />
-                        <button className="text-xs font-semibold text-pitch underline underline-offset-2" data-hide-toggle>{f.hidden ? t('show') : t('hide')}</button>
-                      </form>
-                    ) : null}
+                        : <span className="ms-2 rounded-full bg-line px-2 py-0.5 font-bold" data-not-shown>{[!f.on_roster ? t('offRoster') : null, f.hidden ? t('hiddenByAdmin') : null, f.on_roster && !f.hidden ? t('removedSelf') : null].filter(Boolean).join(' · ')}</span>}</p>
+                    {/* former players too: they can still appear among the all-time top scorers (migration 0043) */}
+                    <form action={setFederationPlayerHidden} className="mt-1">
+                      <input type="hidden" name="external_id" value={f.external_id} /><input type="hidden" name="hidden" value={f.hidden ? 'false' : 'true'} />
+                      <button className="text-xs font-semibold text-pitch underline underline-offset-2" data-hide-toggle>{f.hidden ? t('show') : t('hide')}</button>
+                    </form>
                   </div>
                   <form action={linkFederationPlayer} className="flex gap-2">
                     <input type="hidden" name="external_id" value={f.external_id} />

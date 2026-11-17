@@ -37,6 +37,10 @@ export function supabaseStore(db: Db): Store {
       const ids = rows.map((r) => r.external_id).filter((x) => /^\d+$/.test(x));
       if (team && ids.length) await must(db.from('federation_players').update({ on_roster: false }).eq('team_external_id', team).not('external_id', 'in', `(${ids.join(',')})`), 'players (roster)');
     },
+    async addPlayers(rows) {
+      const unique = [...new Map(rows.map((r) => [r.external_id, r])).values()];
+      if (unique.length) await must(db.from('federation_players').upsert(unique.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id', ignoreDuplicates: true }), 'former players');
+    },
     async upsertPlayerStats(rows) {
       if (rows.length) await must(db.from('federation_player_stats').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'player_external_id,competition_external_id' }), 'player stats');
     },

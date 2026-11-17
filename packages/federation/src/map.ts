@@ -169,15 +169,31 @@ export function mapTeamPlayers(teamAnswer: Json): PlayerRow[] {
     }));
 }
 
-/** Per-player league statistics of one group (getGroup → player_statistics), only for the given (club) teams. */
+const clubStats = (groupAnswer: Json, teamIds: Set<string>): Json[] =>
+  (((groupAnswer.group ?? {}) as Json).player_statistics as Json[] | undefined ?? []).filter((s) => teamIds.has(str(s.team_id)) && str(s.player_id));
+
+/**
+ * Per-player statistics of one group (getGroup → player_statistics), only for the given (club) teams.
+ * Games played are in "matches": the real answer leaves "matches_played" empty.
+ */
 export function mapGroupPlayerStats(groupAnswer: Json, teamIds: Set<string>): PlayerStatRow[] {
   const g = (groupAnswer.group ?? {}) as Json;
   const key = groupKey(g.competition_id, g.category_id, g.group_id);
-  return ((g.player_statistics ?? []) as Json[])
-    .filter((s) => teamIds.has(str(s.team_id)) && str(s.player_id))
-    .map((s) => ({
-      player_external_id: str(s.player_id), competition_external_id: key,
-      appearances: int(s.matches_played ?? s.matches), goals: int(s.goals), assists: int(s.assists),
-      yellow_cards: int(s.warnings), red_cards: int(s.suspensions),
-    }));
+  return clubStats(groupAnswer, teamIds).map((s) => ({
+    player_external_id: str(s.player_id), competition_external_id: key,
+    appearances: int(s.matches) || int(s.matches_played), goals: int(s.goals), assists: int(s.assists),
+    yellow_cards: int(s.warnings), red_cards: int(s.suspensions),
+  }));
+}
+
+/**
+ * Players named in a group's statistics (e.g. an earlier season), as off-roster rows: so former players' goals keep a
+ * name for the all-time scorers. Only id and name; the sync adds them without touching players it already has.
+ */
+export function playersFromStats(groupAnswer: Json, teamIds: Set<string>): PlayerRow[] {
+  return clubStats(groupAnswer, teamIds).map((s) => ({
+    external_id: str(s.player_id), team_external_id: str(s.team_id),
+    display_name: [str(s.first_name), str(s.last_name)].filter(Boolean).join(' ') || str(s.player_name),
+    shirt_number: null, position: null, on_roster: false,
+  })).filter((p) => p.display_name);
 }
