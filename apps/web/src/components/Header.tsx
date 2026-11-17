@@ -20,7 +20,7 @@ export async function Header() {
   return (
     <header className="sticky top-0 z-40">
       <SiteNav groups={groups} appUrl={APP_URL}
-        labels={{ menu: t('mn_menu'), close: t('mn_close'), home: t('mn_home'), join: t('au_join'), joinShort: t('mn_join_short'), signin: t('signin'), language: tn('language') }} />
+        labels={{ menu: t('mn_menu'), close: t('mn_close'), home: t('mn_home'), signin: t('signin'), language: tn('language') }} />
     </header>
   );
 }
