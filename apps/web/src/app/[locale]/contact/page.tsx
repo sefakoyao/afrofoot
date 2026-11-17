@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { ContactForm } from '@/components/forms/Forms';
 import { Card, Hero, Section } from '@/components/Page';
 import { FORM_KEYS, pick } from '@/lib/labels';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/contact', 'n_contact', 'seo_contact');
+}
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

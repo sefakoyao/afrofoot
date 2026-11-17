@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ButtonLink, Card, H2, Hero, Section, Tag } from '@/components/Page';
 import { Squad, type SquadPlayer } from '@/components/Squad';
 import { pick } from '@/lib/labels';
 import { getPublicClient } from '@/lib/supabase';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/team', 'n_team', 'seo_team');
+}
 
 async function getSquad(): Promise<SquadPlayer[]> {
   const db = getPublicClient();

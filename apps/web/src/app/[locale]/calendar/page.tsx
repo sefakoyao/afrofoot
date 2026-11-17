@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { ClubCalendar, type CalItem } from '@/components/ClubCalendar';
@@ -9,8 +10,7 @@ import { getPublicClient } from '@/lib/supabase';
 export const revalidate = 60;
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  return { title: (await getTranslations({ locale, namespace: 'site' }))('cal_h') };
+  return staticPageMeta((await params).locale, '/calendar', 'cal_h', 'seo_cal');
 }
 
 type Row = { id: string; event_type: 'game' | 'friendly' | 'practice' | 'event'; kind: string | null; team_name: string | null; title: string; home_away: string | null; division: string | null;

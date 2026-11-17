@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { Faq } from '@/components/Faq';
@@ -10,6 +12,12 @@ import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
 import { Link } from '@/i18n/routing';
 import { getPublicClient } from '@/lib/supabase';
 import { STRIP } from '@/lib/sponsors';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'site' });
+  return { ...pageMeta({ locale, path: '/', title: t('seo_home_title'), description: t('seo_home') }), title: { absolute: t('seo_home_title') } };
+}
 
 // Rebuilt at most once a minute so the next match and results follow the member app without a deploy.
 export const revalidate = 60;

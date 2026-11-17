@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { Faq } from '@/components/Faq';
@@ -7,6 +9,10 @@ import { ButtonLink, Card, H2, Hero, Section } from '@/components/Page';
 import { countryOptions } from '@/lib/countries';
 import { FORM_KEYS, pick } from '@/lib/labels';
 import { getPlans } from '@/lib/plans';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/join', 'join', 'seo_join');
+}
 
 const STEPS = [['jn1_t', 'jn1_p'], ['jn2_t', 'jn2_p'], ['jn3_t', 'jn3_p']] as const;
 

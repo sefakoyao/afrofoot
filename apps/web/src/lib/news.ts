@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import type { Translations } from '@afrofoot/i18n';
 import { getPublicClient } from './supabase';
 
@@ -27,9 +28,10 @@ export async function getPosts(limit: number): Promise<Post[]> {
   return (data ?? []) as Post[];
 }
 
-export async function getPost(slug: string): Promise<Post | null> {
+/** One published post; cached per request, so the page and its metadata share one query. */
+export const getPost = cache(async (slug: string): Promise<Post | null> => {
   const db = getPublicClient();
   if (!db) return null;
   const { data } = await db.from('news_posts').select(`${POST_COLUMNS},body_md`).eq('status', 'published').eq('slug', slug).maybeSingle();
   return (data as Post | null) ?? null;
-}
+});

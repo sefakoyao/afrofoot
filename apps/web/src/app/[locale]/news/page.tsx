@@ -1,8 +1,14 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { NewsCard } from '@/components/NewsCard';
 import { Hero, Section } from '@/components/Page';
 import { getPosts } from '@/lib/news';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/news', 'n_news', 'seo_news');
+}
 
 // Rebuilt at most once a minute, so new articles show without a deploy.
 export const revalidate = 60;
@@ -16,7 +22,7 @@ export default async function NewsPage({ params }: { params: Promise<{ locale: s
   const posts = await getPosts(100); // the whole archive, including the articles imported from the old website
   return (
     <>
-      <Hero title={t('newsw')} />
+      <Hero title={t('n_news')} />
       <Section>
         {posts.length === 0 ? <p className="text-muted">{t('news_empty')}</p> : (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

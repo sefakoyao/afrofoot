@@ -178,6 +178,12 @@ The fee exemption is a clause in the agreement. The board's decisions themselves
 ## 3o. News from the old website (content, no migration)
 Paste `supabase/content/news_import_old_site.sql` into Supabase → SQL Editor and run it once. It adds the 37 articles from the old WordPress site with their original dates. Their pictures ship with the website. Running it again is safe: articles that already exist (same address) are not touched. Old article addresses (`/YYYY/MM/DD/<article>/`) redirect to `/news/<article>`.
 
+## 3p. Search engines and visitor statistics (website, no migration)
+- **Built in:** every page has its own title and description in its language, a canonical link and links to its other language versions (hreflang), a link preview (picture `apps/web/public/og-image.jpg`), structured data (the club; each news article), `/sitemap.xml` (pages and articles in all languages, refreshed hourly) and `/robots.txt`. Preview deployments are not indexed.
+- **Variables** (Vercel `web` project, all optional): `NEXT_PUBLIC_SITE_URL` (defaults to `https://www.afrofoot.club`; used for canonical links and the sitemap), `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (only if Search Console is verified with the "HTML tag" method; the DNS method needs nothing here).
+- **Visitor statistics:** Vercel → the `web` project → **Analytics** → *Enable*, then redeploy. Cookie-free (no consent banner needed; stated in the privacy policy). Shows visitors, top pages, referrers, countries, devices.
+- **Google Search Console** (search terms, position on Google, indexing problems): <https://search.google.com/search-console> → *Add property* → **Domain** `afrofoot.club` → copy the `google-site-verification=…` TXT value → GoDaddy → DNS → add a **TXT** record, name `@`, that value → back in Search Console, *Verify* (can take up to an hour). Then *Sitemaps* → submit `https://www.afrofoot.club/sitemap.xml`. Do this after the DNS switch to Vercel.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

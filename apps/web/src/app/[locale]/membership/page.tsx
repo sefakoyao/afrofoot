@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { FeeFinder } from '@/components/FeeFinder';
@@ -5,6 +7,10 @@ import { InvoiceForm } from '@/components/forms/Forms';
 import { ButtonLink, Card, Check, H2, Hero, Section, Tag } from '@/components/Page';
 import { FEE_KEYS, FORM_KEYS, pick } from '@/lib/labels';
 import { getPlans } from '@/lib/plans';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  return staticPageMeta((await params).locale, '/membership', 'n_mem', 'seo_mem');
+}
 
 const PLAN_TEXT = { m: ['per_m', 'pm_u_m', 'pm_sub_m'], q: ['per_q', 'pm_u_q', 'pm_sub_q'], y: ['per_y', 'pm_u_y', 'pm_sub_y'] } as const;
 

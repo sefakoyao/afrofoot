@@ -3,10 +3,12 @@ import type { ReactNode } from 'react';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Hero } from '@/components/Page';
 import { getPublicClient } from '@/lib/supabase';
+import { pageMeta } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  return { title: (await getTranslations({ locale, namespace: 'privacyPolicy' }))('title') };
+  const [t, ts] = await Promise.all([getTranslations({ locale, namespace: 'privacyPolicy' }), getTranslations({ locale, namespace: 'site' })]);
+  return pageMeta({ locale, path: '/privacy', title: t('title'), description: ts('seo_privacy') });
 }
 
 /** Rendered on each visit so the club's details (billing settings) are always current; one small query. */

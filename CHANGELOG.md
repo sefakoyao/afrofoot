@@ -3,6 +3,17 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – search engines and visitor statistics (branch `phase2/seo`)
+- **Every page has its own title and description** in en / fi / fr / ar (for example "Rejoindre le club · Afro Foot Club"); the home page is "Afro Foot Club – football club in Helsinki".
+- **News articles** use their headline, summary and cover picture in Google results and in link previews, with article data for Google.
+- **Link previews** on Facebook, WhatsApp, LinkedIn and X: a club picture (`og-image.jpg`, 1200×630) for every page.
+- **Languages for Google:** each page lists its four language versions (hreflang) and its own canonical address, so the versions are not treated as duplicates and searchers get their language.
+- **`/sitemap.xml`** (11 pages and every article, in 4 languages, refreshed hourly) and **`/robots.txt`**; preview deployments are not indexed.
+- **Structured data** about the club (sports organisation, logo, contact, Helsinki).
+- **Visitor statistics:** Vercel Web Analytics (cookie-free; enable it in the Vercel dashboard). The privacy policy explains it and now also lists Twilio (sign-in codes by text message).
+- **Fix:** the News page heading read "أفرو" in Arabic and "News" in French; it now uses the menu word.
+- Set-up steps, including Google Search Console: `docs/RUNNING.md` §3p. No database changes.
+
 ## Unreleased – website menu with sub-menus (branch `phase2/web-menus`)
 - **Four menus instead of twelve links:** Teams ▾ · Matches ▾ · Club ▾ · Join us ▾, then the language, Sign in and a green **Join the club** button. The black top bar is gone; the logo leads home.
   - Teams: Men, Women, Juniors. Matches: Calendar, Results & standings. Club: News, Sponsors & partners, Contact. Join us: Join the club, Book a try-out, Membership & fees, Pay my fee.
