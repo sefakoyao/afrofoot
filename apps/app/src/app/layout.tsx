@@ -4,6 +4,7 @@ import { Figtree, Cairo } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { dirOf, isLocale, DEFAULT_LOCALE } from '@afrofoot/i18n';
+import { AppFooter } from '@/components/AppFooter';
 import { NavProgress } from '@/components/NavProgress';
 import './globals.css';
 
@@ -30,10 +31,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   };
   return (
     <html lang={locale} dir={dirOf(locale)} className={`${figtree.variable} ${cairo.variable}`}>
-      <body className="min-h-screen font-sans">
+      <body className="flex min-h-screen flex-col font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Suspense fallback={null}><NavProgress /></Suspense>
-          {children}
+          <div className="flex-1">{children}</div>
+          <AppFooter />
         </NextIntlClientProvider>
       </body>
     </html>

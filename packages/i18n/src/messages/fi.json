@@ -30,7 +30,10 @@
     "saved": "Tallennettu",
     "notAllowed": "Sinulla ei ole oikeutta tähän toimintoon.",
     "yes": "Kyllä",
-    "no": "Ei"
+    "no": "Ei",
+    "footRights": "© {year} Afro Foot Club ry",
+    "footCrafted": "Toteutus: {company}",
+    "footVersion": "Versio"
   },
   "auth": {
     "email": "Sähköposti",
@@ -758,7 +761,7 @@
     "val3": "Puhdas jalkapallo",
     "ft_c": "Yhteystiedot",
     "ft_priv": "Tietosuoja",
-    "ft_rights": "© 2026 Afro Foot Club ry",
+    "ft_rights": "© {year} Afro Foot Club ry",
     "lastm": "Päättyi",
     "hs_k2": "Seuraava ottelu",
     "hs_k3": "Viimeisin tulos",
@@ -1148,7 +1151,9 @@
     "ts_goals": "{n, plural, one {maali} other {maalia}}",
     "ts_games": "{n, plural, one {# ottelu} other {# ottelua}}",
     "ts_former": "entinen pelaaja",
-    "ts_years": "{from}–{to}"
+    "ts_years": "{from}–{to}",
+    "ft_crafted": "Toteutus: {company}",
+    "ft_version": "Versio"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

@@ -30,7 +30,10 @@
     "saved": "Saved",
     "notAllowed": "You do not have permission to do this.",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "footRights": "© {year} Afro Foot Club ry",
+    "footCrafted": "Crafted by {company}",
+    "footVersion": "Version"
   },
   "auth": {
     "email": "Email",
@@ -758,7 +761,7 @@
     "val3": "Pure football",
     "ft_c": "Contact",
     "ft_priv": "Privacy policy",
-    "ft_rights": "© 2026 Afro Foot Club ry",
+    "ft_rights": "© {year} Afro Foot Club ry",
     "lastm": "Full time",
     "hs_k2": "Next match",
     "hs_k3": "Latest result",
@@ -1148,7 +1151,9 @@
     "ts_goals": "{n, plural, one {goal} other {goals}}",
     "ts_games": "{n, plural, one {# game} other {# games}}",
     "ts_former": "former player",
-    "ts_years": "{from}–{to}"
+    "ts_years": "{from}–{to}",
+    "ft_crafted": "Crafted by {company}",
+    "ft_version": "Version"
   },
   "admin": {
     "navOverview": "Overview",

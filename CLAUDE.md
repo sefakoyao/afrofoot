@@ -14,3 +14,4 @@ Rebuild of Afro Foot Club: public site (www.afrofoot.club, `apps/web`) and secur
 - Players with overdue fees cannot sign in (custom access token hook, migration 0022). Payment must stay possible from the public Membership page.
 - Database: migrations in `supabase/migrations`, tests with `sh supabase/tests/run_tests.sh` (needs a local Postgres; expect no ERROR/FAIL lines). Add a test for every new policy or constraint.
 - Work in branches and open pull requests; never push untested code to `main`.
+- Releases: bump `version` in `apps/web/package.json` and `apps/app/package.json` with each new release number (shown in both footers with the deployed commit).

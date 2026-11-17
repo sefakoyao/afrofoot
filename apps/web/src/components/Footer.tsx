@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
+import { CRAFTED_BY, releaseLabel, yearNow } from '@afrofoot/ui/release';
 import { Link } from '@/i18n/routing';
 
 // The footer lists every page, so nothing is more than one click away even though the header groups them.
@@ -26,10 +27,15 @@ export async function Footer() {
             {LINKS.map(([href, k]) => <Link key={href} href={href} className="text-white/80 hover:text-accent">{t(k)}</Link>)}
           </nav>
         </div>
-        <p className="mt-8 flex flex-wrap justify-between gap-3 border-t border-white/15 pt-4 text-sm text-white/60">
-          <span>{t('ft_rights')}</span>
-          <Link href="/privacy" className="text-white/80 underline-offset-2 hover:text-accent hover:underline" data-privacy-link>{t('ft_priv')}</Link>
-        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-white/15 pt-4 text-sm text-white/60">
+          <p className="flex flex-wrap gap-x-2" data-copyright>
+            <span>{t('ft_rights', { year: yearNow() })}</span><span aria-hidden="true">·</span><span>{t('ft_crafted', { company: CRAFTED_BY })}</span>
+          </p>
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <Link href="/privacy" className="text-white/80 underline-offset-2 hover:text-accent hover:underline" data-privacy-link>{t('ft_priv')}</Link>
+            {releaseLabel() ? <span dir="ltr" className="tabular-nums" data-release>{t('ft_version')} {releaseLabel()}</span> : null}
+          </p>
+        </div>
       </div>
     </footer>
   );
