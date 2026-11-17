@@ -230,7 +230,13 @@
     "comingSoon": "Your tools will appear here as they are released.",
     "skipToContent": "Skip to content",
     "myAccount": "My account",
-    "homeLink": "Back to my home page"
+    "homeLink": "Back to my home page",
+    "guideTitle": "Player guide",
+    "guideLead": "One page for players: create an account, sign in, agree to the Code of Conduct, sign the contract and pay the fee. Share it with your team.",
+    "guideDownload": "Download the guide in {language} (PDF)",
+    "guideCopy": "Copy link",
+    "guideCopied": "Link copied",
+    "guideCopyHint": "Copies the link to the guide in your language, to paste in WhatsApp or an email."
   },
   "privacy": {
     "publicConsent": "Show me on the public player list"

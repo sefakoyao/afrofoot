@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – player guide on the admin and coach pages (branch `phase2/player-guide`)
+- **Player guide card** on the admin and coach home pages: a one-page PDF for players (create an account, sign in, agree to the Code of Conduct, sign the contract, pay the fee) in English, Finnish, French and Arabic.
+  - One download button per language (the viewer's own language is highlighted) and **Copy link** to paste the guide's address into WhatsApp or an email.
+  - The PDFs (`apps/app/public/guides/player-guide-<lang>.pdf`) hold no personal data and open without signing in, so players can read them before they have an account.
+- `scripts/player-guide/`: the guide's text and the steps to rebuild the PDFs after a change (fonts Figtree and Cairo, as on the website). A rebuild fails if a language no longer fits on one page.
+- No database changes.
+
 ## Unreleased – green Sign in button (branch `phase2/menu-signin`)
 - The green **Join the club** button is removed from the header and the phone menu; **Sign in** (to the member app) is now the green button. Join the club stays in the *Join us* menu and on the home page.
 - Phones: the header shows the logo, the green Sign in button and a ☰ menu button (the word "Menu" appears from 640 px). Below 360 px the logo is shown without the club name, so the header fits small phones in all four languages.

@@ -5,6 +5,7 @@ import { requireArea } from '@/lib/auth';
 import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
+import { PlayerGuideCard } from '@/components/PlayerGuideCard';
 
 /** Admin home: who is waiting for approval, and how many active members there are per role. */
 export default async function AdminHome() {
@@ -69,6 +70,8 @@ export default async function AdminHome() {
           ))}
         </dl>
       </section>
+
+      <PlayerGuideCard />
     </div>
   );
 }
