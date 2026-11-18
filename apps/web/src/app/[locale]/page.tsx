@@ -31,8 +31,14 @@ interface FedGame { external_id: string; competition_external_id: string; compet
   home_goals: number | null; away_goals: number | null; venue: string | null; status: string; synced_at: string; home_is_club: boolean; away_is_club: boolean }
 /** A game as the home page shows it: home team first, the score in the same order; outcome is the club's (win, draw, loss). */
 type Outcome = 'w' | 'd' | 'l';
-interface Game { id: string; label: string; tag: string; kickoff_at: string; place: string | null; score: string | null; home: string; away: string; clubHome: boolean; outcome: Outcome | null }
+interface Game { id: string; label: string; tag: string; kickoff_at: string; place: string | null; score: string | null; home: string; away: string; clubHome: boolean; outcome: Outcome | null; href?: string }
 const outcomeOf = (ours: number | null, theirs: number | null): Outcome | null => (ours === null || theirs === null ? null : ours > theirs ? 'w' : ours < theirs ? 'l' : 'd');
+
+/** A results line: a link to the game's page when there is one (Palloliitto games), else plain. */
+function Row({ href, children }: { href?: string; children: React.ReactNode }) {
+  const cls = 'flex items-center gap-3 py-3';
+  return href ? <Link href={href} className={`${cls} -mx-2 rounded-control px-2 hover:bg-surface`} data-game-link>{children}</Link> : <div className={cls}>{children}</div>;
+}
 
 /** Card header of the standings: black, with the green-to-yellow band of the logo's top edge. */
 function Banner({ title, sub }: { title: string; sub?: string }) {
@@ -72,6 +78,7 @@ const fedGame = (m: FedGame): Game => ({
   score: m.home_goals === null || m.away_goals === null ? null : `${m.home_goals} – ${m.away_goals}`,
   home: m.home_name, away: m.away_name, clubHome: m.home_is_club,
   outcome: m.home_is_club ? outcomeOf(m.home_goals, m.away_goals) : m.away_is_club ? outcomeOf(m.away_goals, m.home_goals) : null,
+  href: `/results/${m.external_id}`,
 });
 
 /** The league table to show: the newest season whose table has games played (last season's final table until then). */
@@ -161,8 +168,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <h2 className="font-display text-5xl font-black md:text-6xl" dir="ltr" data-latest-result>{results[0].label} <span className="text-accent">{results[0].score}</span></h2>
               <p className="text-lg text-white/80">{day.format(new Date(results[0].kickoff_at))}</p>
               <div className="flex flex-wrap gap-3">
-                <Link href="/#standings" className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent">{t('stand')}</Link>
-                <Link href="/news" className="rounded-full border-2 border-white px-7 py-3 font-display font-bold">{t('allnews')}</Link>
+                {results[0].href ? <Link href={results[0].href} className="rounded-full bg-accent px-7 py-3 font-display font-bold text-on-accent" data-hero-game>{t('md_details')}</Link> : null}
+                <Link href="/#standings" className={`rounded-full px-7 py-3 font-display font-bold ${results[0].href ? 'border-2 border-white' : 'bg-accent text-on-accent'}`}>{t('stand')}</Link>
               </div>
             </div>,
           ] : []),
@@ -260,7 +267,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   {results.map((m) => {
                     const o = m.outcome;
                     return (
-                      <li key={m.id} className="flex items-center gap-3 py-3" data-outcome={o ?? undefined}>
+                      <li key={m.id} data-outcome={o ?? undefined}>
+                        <Row href={m.href}>
                         {o ? (
                           <span title={t(o === 'w' ? 'res_win' : o === 'd' ? 'res_draw' : 'res_loss')}
                             className={`grid size-9 shrink-0 place-items-center rounded-full font-display text-sm font-black ${o === 'w' ? 'bg-accent text-on-accent' : o === 'd' ? 'bg-gold text-fg' : 'bg-fg text-white'}`}>
@@ -277,6 +285,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                           </span>
                         </span>
                         <span dir="ltr" className="shrink-0 rounded-full bg-fg px-3 py-1 font-display font-black tabular-nums text-white">{m.score}</span>
+                        {m.href ? <span aria-hidden="true" className="shrink-0 text-muted rtl:-scale-x-100">›</span> : null}
+                        </Row>
                       </li>
                     );
                   })}

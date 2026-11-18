@@ -4,7 +4,7 @@
  * scorers), then write them through the given store. Pure orchestration: the caller
  * passes the API client and the database writes (apps/web /api/federation-sync), so it is tested with fakes (sync.test.ts).
  */
-import { competitionFrom, groupsToSync, mapGroup, mapGroupPlayerStats, mapMatches, mapTeamPlayers, playersFromStats, teamsFromMatches, type CompetitionRow, type MatchRow, type PlayerRow, type PlayerStatRow, type StandingRow, type TeamRow } from './map.ts';
+import { competitionFrom, groupsToSync, mapGroup, mapGroupPlayerStats, mapMatchDetails, mapMatches, mapTeamPlayers, playersFromStats, teamsFromMatches, type MatchDetails, type CompetitionRow, type MatchRow, type PlayerRow, type PlayerStatRow, type StandingRow, type TeamRow } from './map.ts';
 
 export interface Api { call(command: string, params: Record<string, string>): Promise<unknown> }
 export interface Store {
@@ -18,8 +18,15 @@ export interface Store {
   upsertPlayerStats(rows: PlayerStatRow[]): Promise<void>;
   /** Players known only from statistics (former players): added off the roster, existing rows are left as they are. */
   addPlayers(rows: PlayerRow[]): Promise<void>;
+  /** Of these played games, the ones whose details are missing or may still change (played in the last 7 days). */
+  matchesNeedingDetails(externalIds: string[]): Promise<string[]>;
+  /** A game's half-time score, attendance, goals and cards (replaces what was stored for it). */
+  replaceMatchDetails(details: MatchDetails): Promise<void>;
 }
-export interface SyncResult { teams: number; competitions: number; standings: number; matches: number; players: number }
+export interface SyncResult { teams: number; competitions: number; standings: number; matches: number; players: number; details?: number }
+
+/** At most this many getMatch calls per run; the rest follow on the next runs. */
+export const DETAILS_PER_RUN = 40;
 
 type Json = Record<string, unknown>;
 const groupKeyOf = (groupAnswer: Json) => { const g = (groupAnswer.group ?? {}) as Json; return `${g.competition_id}/${g.category_id}/${g.group_id}`; };
@@ -71,6 +78,16 @@ export async function runSync(api: Api, store: Store, teamIds: string[]): Promis
       statAnswers.push(groupAnswer);
     }
     await store.upsertMatches(matches);
+
+    // Game details (goals, cards, half-time score) for played games: missing ones first, recent ones again.
+    const played = matches.filter((m) => m.status === 'played' || m.status === 'forfeited').map((m) => m.external_id);
+    const want = played.length ? (await store.matchesNeedingDetails(played)).slice(0, DETAILS_PER_RUN) : [];
+    for (const matchId of want) {
+      try {
+        const details = mapMatchDetails(await ask(api, 'getMatch', { match_id: matchId }));
+        if (details) { await store.replaceMatchDetails(details); result.details = (result.details ?? 0) + 1; }
+      } catch { /* one game the service cannot answer does not stop the run */ }
+    }
     const players = mapTeamPlayers(team);
     await store.upsertPlayers(players);
     result.players += players.length;

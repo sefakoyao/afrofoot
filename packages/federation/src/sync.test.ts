@@ -15,12 +15,33 @@ function fakeApi(over: Partial<Record<string, unknown>> = {}) {
     if (cmd === 'getTeam') return team;
     if (cmd === 'getMatches') return matches;
     if (cmd === 'getGroup') return `${p.competition_id}/${p.category_id}/${p.group_id}` === 'etejp26/M4/4' ? group : { group: { teams: [] } };
+    if (cmd === 'getMatch') return fakeMatch(p.match_id ?? '');
     throw new Error('unexpected ' + cmd);
   } };
 }
+/** A getMatch answer shaped like the real one (field names checked against it), with invented people. */
+function fakeMatch(id: string) {
+  return { call: { status: 'ok' }, match: {
+    match_id: id, team_A_id: '35118195', team_B_id: '999', fs_A: '2', fs_B: '1', hts_A: '1', hts_B: '1', attendance: '45',
+    referee_1_name: 'Never Stored', venue_name: 'Test Field',
+    goals: [
+      { team_id: '999', player_id: '7001', first_name: 'Away', last_name: 'Scorer', time_min: '12', score_A: 0, score_B: 1, birthyear: '1990' },
+      { team_id: '35118195', player_id: '901', first_name: 'Test', last_name: 'Striker', time_min: '40', score_A: 1, score_B: 1 },
+      { team_id: '35118195', player_id: '901', first_name: 'Test', last_name: 'Striker', time_min: '77', score_A: 2, score_B: 1 },
+    ],
+    bookings: [
+      { code: 'varoitus', team_id: '999', player_id: '7002', first_name: 'Away', last_name: 'Defender', time_min: '40' },
+      { code: 'ulosajo', team_id: '35118195', player_id: '902', first_name: 'Test', last_name: 'Keeper', time_min: '88' },
+      { code: 'other', team_id: '999', player_id: '7003', time_min: '50' },
+    ],
+    lineups: [{ player_id: '901', birthyear: '1999' }],
+  } };
+}
+
 function memoryStore() {
   const db = { competitions: new Map<string, unknown>(), teams: new Map<string, { name: string }>(), club: new Set<string>(), standings: new Map<string, unknown[]>(), matches: new Map<string, { status: string }>(),
-    players: new Map<string, { display_name: string; shirt_number: number | null }>(), stats: new Map<string, { goals: number; appearances: number }>() };
+    players: new Map<string, { display_name: string; shirt_number: number | null }>(), stats: new Map<string, { goals: number; appearances: number }>(),
+    details: new Map<string, { events: unknown[] }>() };
   const store: Store = {
     async upsertCompetitions(rows) { for (const r of rows) db.competitions.set(r.external_id, r); },
     async upsertTeams(rows) { for (const r of rows) db.teams.set(r.external_id, r); },
@@ -30,6 +51,8 @@ function memoryStore() {
     async upsertPlayers(rows) { for (const r of rows) db.players.set(r.external_id, r); },
     async upsertPlayerStats(rows) { for (const r of rows) db.stats.set(`${r.player_external_id}@${r.competition_external_id}`, r); },
     async addPlayers(rows) { for (const r of rows) if (!db.players.has(r.external_id)) db.players.set(r.external_id, r); },
+    async matchesNeedingDetails(ids) { return ids.filter((i) => !db.details.has(i)); },
+    async replaceMatchDetails(d) { db.details.set(d.external_id, d); },
   };
   return { db, store };
 }
@@ -37,7 +60,7 @@ function memoryStore() {
 test('a run stores the 2026 table, the games and the club flag', async () => {
   const api = fakeApi(); const { db, store } = memoryStore();
   const r = await runSync(api, store, ['35118195']);
-  assert.deepEqual(r, { teams: 1, competitions: 7, standings: 12, matches: db.matches.size, players: 0 });
+  assert.deepEqual(r, { teams: 1, competitions: 7, standings: 12, matches: db.matches.size, players: 0, details: Math.min(40, [...db.matches.values()].filter((m) => m.status === 'played' || m.status === 'forfeited').length) });
   assert.equal(db.competitions.size, 12, 'the 7 of the last two seasons, plus 5 earlier league and cup groups (for the scorers)');
   assert.equal((db.standings.get('etejp26/M4/4') ?? []).length, 12);
   assert.ok(db.club.has('35118195'));
@@ -164,4 +187,34 @@ test('positions in English and Finnish map to the club\'s four', async () => {
   assert.equal(positionOf({ position_fi: 'puolustaja' }), 'defender');
   assert.equal(positionOf({ position: 'mv' }), 'goalkeeper');
   assert.equal(positionOf({ position: '' }), null);
+});
+
+test('game details: half-time score, attendance, goals and cards in time order; no referees or birth years', async () => {
+  const { mapMatchDetails } = await import('./map.ts');
+  const d = mapMatchDetails(fakeMatch('5001'))!;
+  assert.equal(d.ht_home, 1); assert.equal(d.ht_away, 1); assert.equal(d.attendance, 45);
+  assert.deepEqual(d.events.map((e) => `${e.seq}:${e.minute}:${e.kind}:${e.player_name}:${e.score_home ?? ''}-${e.score_away ?? ''}`),
+    ['1:12:goal:Away Scorer:0-1', '2:40:goal:Test Striker:1-1', '3:40:yellow:Away Defender:-', '4:77:goal:Test Striker:2-1', '5:88:red:Test Keeper:-']);
+  const text = JSON.stringify(d);
+  assert.ok(!text.includes('Never Stored') && !text.includes('birthyear') && !text.includes('1990'), 'referees and birth years are not kept');
+  assert.equal(mapMatchDetails({ match: {} }), null);
+});
+
+test('a run fetches details of played games only, skips one the service refuses, and does not fetch them twice', async () => {
+  const played = matches.matches.filter((m: Record<string, string>) => ['played', 'forfeited', 'walkover'].includes(String(m.status).toLowerCase())).map((m: Record<string, string>) => m.match_id);
+  let refused = '';
+  const api = fakeApi(); const base = api.call.bind(api);
+  // the first game the run asks for is refused by the service
+  api.call = async (cmd: string, p: Record<string, string>) => {
+    if (cmd === 'getMatch' && (!refused || p.match_id === refused)) { refused = p.match_id ?? ''; api.calls.push(`getMatch:${refused}`); return { call: { status: 'error', error: 'not found' } }; }
+    return base(cmd, p);
+  };
+  const { db, store } = memoryStore();
+  const r = await runSync(api, store, ['35118195']);
+  const asked = api.calls.filter((c) => c.startsWith('getMatch:'));
+  assert.ok(asked.length > 0 && asked.length <= 40, 'at most 40 games per run');
+  assert.ok(asked.every((c) => played.includes(c.slice('getMatch:'.length))), 'only played games');
+  assert.ok(!db.details.has(refused) && r.details === asked.length - 1, 'the refused game is skipped, the run goes on');
+  const again = fakeApi(); await runSync(again, store, ['35118195']);
+  assert.ok(again.calls.filter((c) => c.startsWith('getMatch:')).every((c) => c === `getMatch:${refused}`), 'stored games are not fetched again');
 });

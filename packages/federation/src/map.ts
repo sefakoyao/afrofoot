@@ -197,3 +197,42 @@ export function playersFromStats(groupAnswer: Json, teamIds: Set<string>): Playe
     shirt_number: null, position: null, on_roster: false,
   })).filter((p) => p.display_name);
 }
+
+export type MatchEventKind = 'goal' | 'yellow' | 'red';
+export interface MatchEventRow {
+  match_external_id: string; seq: number; kind: MatchEventKind; minute: number | null; team_external_id: string;
+  player_external_id: string | null; player_name: string | null; score_home: number | null; score_away: number | null;
+}
+export interface MatchDetails { external_id: string; ht_home: number | null; ht_away: number | null; attendance: number | null; events: MatchEventRow[] }
+
+/** Card codes of the service (Finnish): "varoitus" is a caution (yellow), "ulosajo" a sending-off (red). */
+const CARD: Record<string, MatchEventKind> = { varoitus: 'yellow', ulosajo: 'red' };
+
+/**
+ * One game in detail (getMatch): half-time score, attendance, and its goals and cards in time order with the minute,
+ * the player's id and name and (for goals) the running score. Referees, officials, line-ups, birth years and the raw
+ * answer are not kept.
+ */
+export function mapMatchDetails(matchAnswer: Json): MatchDetails | null {
+  const m = (matchAnswer.match ?? {}) as Json;
+  const id = str(m.match_id);
+  if (!id) return null;
+  const name = (e: Json) => [str(e.first_name), str(e.last_name)].filter(Boolean).join(' ') || str(e.player_name) || null;
+  const raw: Omit<MatchEventRow, 'seq'>[] = [
+    ...((m.goals ?? []) as Json[]).map((g) => ({
+      match_external_id: id, kind: 'goal' as const, minute: intOrNull(g.time_min), team_external_id: str(g.team_id),
+      player_external_id: str(g.player_id) || null, player_name: name(g), score_home: intOrNull(g.score_A), score_away: intOrNull(g.score_B),
+    })),
+    ...((m.bookings ?? []) as Json[]).filter((b) => CARD[str(b.code)]).map((b) => ({
+      match_external_id: id, kind: CARD[str(b.code)]!, minute: intOrNull(b.time_min), team_external_id: str(b.team_id),
+      player_external_id: str(b.player_id) || null, player_name: name(b), score_home: null, score_away: null,
+    })),
+  ].filter((e) => e.team_external_id);
+  // time order; at the same minute a goal before a card
+  raw.sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999) || (a.kind === 'goal' ? -1 : 1) - (b.kind === 'goal' ? -1 : 1));
+  const attendance = intOrNull(m.attendance);
+  return {
+    external_id: id, ht_home: intOrNull(m.hts_A), ht_away: intOrNull(m.hts_B), attendance: attendance && attendance > 0 ? attendance : null,
+    events: raw.map((e, i) => ({ ...e, seq: i + 1 })),
+  };
+}
