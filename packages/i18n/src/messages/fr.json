@@ -1398,7 +1398,8 @@
     "remWhat": "Seulement pour les entraînements et matchs sans réponse. Les autres e-mails du club ne changent pas.",
     "remNoEmail": "Ton compte n’a pas d’adresse e-mail : aucun rappel ne peut être envoyé.",
     "remTurnOff": "Désactiver les rappels",
-    "remTurnOn": "Activer les rappels"
+    "remTurnOn": "Activer les rappels",
+    "tabQuiz": "Quiz"
   },
   "account": {
     "title": "Mon compte",
@@ -2570,5 +2571,33 @@
     "r_invalid": "Une donnée du formulaire n’est pas valide.",
     "r_error": "Cela n’a pas fonctionné. Réessayez dans un instant.",
     "r_gone": "Cette demande n’existe plus."
+  },
+  "quiz": {
+    "title": "Quiz foot",
+    "lead": "Cinq questions rapides : les Lois du jeu et ton club. Une nouvelle partie à chaque fois.",
+    "empty": "Pas encore de questions.",
+    "cardTitle": "Quiz foot",
+    "cardLead": "Cinq questions rapides sur les règles et le club. Combien de bonnes réponses ?",
+    "play": "Jouer",
+    "of": "Question {n} sur {total}",
+    "next": "Question suivante",
+    "finish": "Voir mon score",
+    "right": "Bonne réponse !",
+    "wrong": "Pas tout à fait.",
+    "again": "Rejouer",
+    "score": "Tu as {score} bonnes réponses sur {total}.",
+    "perfect": "Score parfait !",
+    "good": "Bien joué !",
+    "keep": "Continue l’entraînement, réessaie !",
+    "source": "Source",
+    "club": "Le club",
+    "rules": "Lois du jeu",
+    "q_top": "Qui a marqué le plus de buts en championnat et en coupe pour le club en {from}–{to} ?",
+    "a_top": "{name} a marqué {goals} buts en {from}–{to}.",
+    "q_level": "Quel est le plus haut niveau de championnat joué par le club ?",
+    "a_level": "{league}. Championnats joués jusqu’ici : {all}.",
+    "q_founded": "En quelle année Afro Foot Club a-t-il été fondé ?",
+    "a_founded": "Afro Foot Club a été fondé en {year}.",
+    "src_palloliitto": "Service de résultats de Palloliitto"
   }
 }

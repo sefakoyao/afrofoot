@@ -1398,7 +1398,8 @@
     "remWhat": "Only for trainings and games you have not answered yet. Announcements and other club emails are not affected.",
     "remNoEmail": "Your account has no email address, so no reminders can be sent.",
     "remTurnOff": "Turn reminders off",
-    "remTurnOn": "Turn reminders on"
+    "remTurnOn": "Turn reminders on",
+    "tabQuiz": "Quiz"
   },
   "account": {
     "title": "My account",
@@ -2570,5 +2571,33 @@
     "r_invalid": "Something in the form is not valid.",
     "r_error": "That did not work. Try again in a moment.",
     "r_gone": "This request no longer exists."
+  },
+  "quiz": {
+    "title": "Football quiz",
+    "lead": "Five quick questions: the Laws of the Game and your club. A new round every time.",
+    "empty": "No questions yet.",
+    "cardTitle": "Football quiz",
+    "cardLead": "Five quick questions on the rules and the club. How many can you get?",
+    "play": "Play",
+    "of": "Question {n} of {total}",
+    "next": "Next question",
+    "finish": "See my score",
+    "right": "Correct!",
+    "wrong": "Not quite.",
+    "again": "Play again",
+    "score": "You got {score} of {total} right.",
+    "perfect": "Perfect score!",
+    "good": "Well played!",
+    "keep": "Keep training, try again!",
+    "source": "Source",
+    "club": "The club",
+    "rules": "Laws of the Game",
+    "q_top": "Who scored the most league and cup goals for the club in {from}–{to}?",
+    "a_top": "{name} scored {goals} goals in {from}–{to}.",
+    "q_level": "What is the highest league the club has played in?",
+    "a_level": "{league}. Leagues played so far: {all}.",
+    "q_founded": "In which year was Afro Foot Club founded?",
+    "a_founded": "Afro Foot Club was founded in {year}.",
+    "src_palloliitto": "Palloliitto results service"
   }
 }

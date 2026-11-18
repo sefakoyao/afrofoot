@@ -28,7 +28,7 @@ const CANCELLED = new Set(['cancelled', 'postponed']);
 export default async function CalendarTab({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const member = await requireArea('me');
   const sp = await searchParams;
-  const [t, tav, rawLocale, supabase] = await Promise.all([getTranslations('me'), getTranslations('availability'), getLocale(), getSupabase()]);
+  const [t, tav, tq, rawLocale, supabase] = await Promise.all([getTranslations('me'), getTranslations('availability'), getTranslations('quiz'), getLocale(), getSupabase()]);
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
   const today = helsinkiToday();
   const wanted = typeof sp.m === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(sp.m) ? sp.m : today.slice(0, 7);
@@ -194,6 +194,16 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
           <ul className="mt-2"><Item e={next} /></ul>
         </section>
       ) : null}
+
+      {/* a football quiz after signing in; brought forward when nothing is on today (migration 0049) */}
+      <a href="/me/quiz" className={`group flex items-center gap-4 rounded-card border-2 p-4 transition hover:border-accent ${events.some((x) => dayKey(x.starts_at) === dayKey(nowIso) && !CANCELLED.has(x.status)) ? 'border-line bg-raised' : 'border-accent bg-accent/10'}`} data-quiz-card>
+        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-fg text-2xl" aria-hidden="true">⚽</span>
+        <span className="grid min-w-0 flex-1">
+          <span className="font-display text-lg font-extrabold">{tq('cardTitle')}</span>
+          <span className="text-sm text-muted">{tq('cardLead')}</span>
+        </span>
+        <span className="shrink-0 rounded-full bg-accent px-4 py-2 font-display text-sm font-bold text-on-accent group-hover:brightness-110">{tq('play')}</span>
+      </a>
 
       <section aria-labelledby="month-h" className="grid gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – football quiz for players (branch `phase2/quiz`, migration 0049, release 0.37.0)
+- **Player area:** a **Football quiz** card right after signing in (highlighted in green when nothing is on that day) and a new **Quiz** tab.
+- **Each round, 5 questions,** one at a time. The right answer is shown with a short explanation and the Law it comes from, then the score ("Well played!") and **Play again** (a new random round).
+  - **3 Laws of the Game questions**, picked from 12: goal over the line, offside from throw-ins, goalkeeper 8-second rule (2025/26), minimum players, second yellow, penalty goalkeeper position, throw-in feet, goal kick, 1-metre wall distance, ball hitting the referee, accidental handball before a goal, scoring from kick-off.
+  - **2 club questions from live data:**
+    - **top scorer of the last two seasons** (league and cup, from Palloliitto)
+    - **highest league played** (worked out from the Palloliitto competitions: currently Nelonen)
+    - **founding year** (club setting: 2020)
+    - A question is left out when the data can't make it fair, e.g. a tie for top scorer.
+- **Questions are data** (`quiz_questions`, en/fi/fr/ar), editable by admins, so no question is hard-coded. Players hidden by the club or who opted out of the website never appear. Scores are not stored.
+- Texts in four languages, right-to-left in Arabic. 16 database checks, 21 browser checks.
+
 ## Unreleased – news in pages of 9 (branch `phase2/news-pages`)
 - **News page:** 9 articles per page instead of the whole archive at once.
   - Under the list: **‹ Previous · 1 2 3 … 5 · Next ›**, with the current page highlighted and "…" when there are many pages.

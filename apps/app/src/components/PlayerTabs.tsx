@@ -29,6 +29,7 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
     { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
     { href: '/me/season', label: t('tabSeason'), active: path.startsWith('/me/season') },
     { href: '/me/profile', label: t('tabProfile'), active: path.startsWith('/me/profile') },
+    { href: '/me/quiz', label: t('tabQuiz'), active: path.startsWith('/me/quiz') },
   ];
   return (
     <div className="grid gap-3">
