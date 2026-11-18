@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – e-signature look on contracts (branch `phase2/esign-look`, release 0.40.0, no database change)
+- **Signatures drawn from the typed names** of both parties in a handwriting font (Great Vibes, SIL Open Font License, Latin letters incl. Finnish and French accents), on the contract page and in the PDF. Arabic-script names use the normal bold font.
+- **Live preview while signing:** "Your signature will look like this" under the name field on the player's contract page; admins see their own club signature above **Countersign**.
+- **Each signature shows** the signature over a line, the printed name, "Signed electronically" with the date and time, and a **Signature ID** (AF-XXXX-XXXX-XXXX, derived from the contract, party, name, time and text fingerprint), the same on the page and in the PDF.
+- PDF: the club column is titled "For <club legal name>", plus a note on how the signatures were made. The SHA-256 fingerprint is kept.
+- 13 browser checks.
+
 ## Unreleased – sign-in log (branch `phase2/signin-log`, migration 0051, release 0.39.0)
 - **Admin → Sign-in help → Sign-in log**, for today, 7, 30 or 90 days:
   - tiles for successful sign-ins (and how many members), failed sign-ins, reset emails sent, and reset emails **not** sent

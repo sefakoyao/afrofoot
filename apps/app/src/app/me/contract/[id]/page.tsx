@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { declineContract, signContract } from '@/app/actions/contracts';
+import { SignaturePreview } from '@/components/SignaturePreview';
 import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
 import { ResultBanner } from '@/components/ResultBanner';
@@ -53,9 +54,7 @@ export default async function MyContractPage({ params, searchParams }: { params:
           <h2 id="sign-h" className="font-display text-xl font-extrabold">{t('signTitle')}</h2>
           <form action={signContract} className="mt-3 grid gap-4">
             <input type="hidden" name="id" value={c.id} />
-            <label className="grid gap-1 font-semibold">{t('typeName')}
-              <input name="name" required minLength={2} maxLength={160} autoComplete="name" className="min-h-12 rounded-control border border-line bg-raised px-3 text-lg" />
-              <span className="text-sm font-normal text-muted">{t('typeNameHint', { name: fullName || '–' })}</span></label>
+            <SignaturePreview label={t('typeName')} hint={t('typeNameHint', { name: fullName || '–' })} previewLabel={t('sigPreview')} placeholder={t('sigPreviewEmpty')} />
             <label className="flex items-start gap-3">
               <input type="checkbox" name="agree" required className="mt-1 size-6 shrink-0 accent-[rgb(var(--accent))]" />
               <span>{t('signCheckbox')}</span>

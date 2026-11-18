@@ -1967,7 +1967,12 @@
     "fix_text": "Un blanc dans le texte du contrat",
     "fixGo_objectives": "Les écrire sur la page de l’équipe →",
     "fixGo_fees": "Les remplir dans Contrats automatiques →",
-    "blanksThenRefill": "Revenez ensuite ici et cliquez sur « Remplir à nouveau depuis le modèle ». Un blanc saisi à la main se complète dans le texte ci-dessous."
+    "blanksThenRefill": "Revenez ensuite ici et cliquez sur « Remplir à nouveau depuis le modèle ». Un blanc saisi à la main se complète dans le texte ci-dessous.",
+    "signatureId": "ID de signature",
+    "esignNote": "Chaque partie a signé dans l’application avec son propre compte en tapant son nom et en confirmant. Le nom tapé est affiché en style manuscrit ; l’ID de signature renvoie à l’enregistrement de la signature.",
+    "sigPreview": "Votre signature ressemblera à ceci",
+    "sigPreviewEmpty": "Tapez votre nom ci-dessus pour voir votre signature",
+    "sigPreviewClub": "Votre signature pour le club"
   },
   "match": {
     "title": "Jour de match",

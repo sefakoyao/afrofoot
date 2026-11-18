@@ -2,11 +2,15 @@ import 'server-only';
 import fontkit from '@pdf-lib/fontkit';
 import { PDFDocument, rgb, type PDFFont, type PDFPage } from 'pdf-lib';
 import type { Contract } from './contracts';
+import { signatureId } from './esign';
+import { scriptable } from './esign-script';
 import { FONT_BOLD, FONT_REGULAR, LOGO_PNG } from './invoice/assets';
+import { FONT_SIGNATURE } from './signature-font';
 
 /**
  * Player contract as an A4 PDF: logo, title and term, the text ("## " headings, "- " bullets), and a signature page with
- * both electronic signatures (name and time, Helsinki) and the SHA-256 fingerprint of the signed text.
+ * both electronic signatures (the typed name drawn in a handwriting font, the printed name, time in Helsinki and a
+ * signature reference) and the SHA-256 fingerprint of the signed text.
  */
 const W = 595.28, H = 841.89, M = 56, BOTTOM = 64;
 const INK = rgb(0.08, 0.08, 0.08), MUTED = rgb(0.38, 0.38, 0.38), GREEN = rgb(0.16, 0.54, 0.11);
@@ -19,6 +23,7 @@ export async function renderContractPdf(c: Contract, player: string, club: strin
   doc.setTitle(`${c.title} – ${player}`); doc.setAuthor(club); doc.setCreator('Afro Foot member app');
   const regular = await doc.embedFont(Buffer.from(FONT_REGULAR, 'base64'), { subset: true });
   const bold = await doc.embedFont(Buffer.from(FONT_BOLD, 'base64'), { subset: true });
+  const script = await doc.embedFont(Buffer.from(FONT_SIGNATURE, 'base64'), { subset: true });
   const logo = await doc.embedPng(Buffer.from(LOGO_PNG, 'base64'));
 
   let page: PDFPage = doc.addPage([W, H]);
@@ -64,22 +69,36 @@ export async function renderContractPdf(c: Contract, player: string, club: strin
     else para(line, { gap: 6 });
   }
 
-  // signatures
-  y -= 14; need(190);
+  // signatures: the typed name drawn as a signature over a line, then the printed name, the time and a reference
+  y -= 14; need(230);
   page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.8, color: INK }); y -= 18;
-  para('Electronic signatures', { font: bold, size: 12.5, gap: 8 });
-  const col = (x: number, who: string, name: string | null, at: string | null, top: number) => {
+  para('Electronic signatures', { font: bold, size: 12.5, gap: 4 });
+  const colW = (W - 2 * M - 28) / 2;
+  const col = (x: number, who: string, party: 'player' | 'club', name: string | null, at: string | null, top: number) => {
     page.drawText(who, { x, y: top, size: 8.5, font: bold, color: MUTED });
-    page.drawText(name ?? 'Not signed', { x, y: top - 18, size: 12, font: bold, color: name ? INK : MUTED });
-    if (at) page.drawText(when(at), { x, y: top - 33, size: 9, font: regular, color: MUTED });
+    const lineY = top - 56;
+    if (name && at) {
+      // as large as fits the column, handwriting font when the name is in Latin letters
+      const font = scriptable(name) ? script : bold;
+      let size = font === script ? 30 : 16;
+      while (size > 12 && font.widthOfTextAtSize(name, size) > colW) size -= 1;
+      page.drawText(name, { x: x + 4, y: lineY + 8, size, font, color: rgb(0.05, 0.12, 0.35) });
+    }
+    page.drawLine({ start: { x, y: lineY }, end: { x: x + colW, y: lineY }, thickness: 0.6, color: MUTED });
+    page.drawText(name ?? 'Not signed yet', { x, y: lineY - 14, size: 10.5, font: bold, color: name ? INK : MUTED });
+    if (at) {
+      page.drawText(`Signed electronically ${when(at)}`, { x, y: lineY - 27, size: 8, font: regular, color: MUTED });
+      const ref = signatureId(c, party);
+      if (ref) page.drawText(`Signature ID ${ref}`, { x, y: lineY - 38, size: 8, font: regular, color: MUTED });
+    }
   };
-  col(M, 'PLAYER', c.player_signed_name, c.player_signed_at, y - 8);
-  col(W / 2 + 10, 'CLUB REPRESENTATIVE', c.club_signed_name, c.club_signed_at, y - 8);
-  y -= 56;
+  col(M, 'PLAYER', 'player', c.player_signed_name, c.player_signed_at, y - 6);
+  col(M + colW + 28, `FOR ${club}`.toUpperCase(), 'club', c.club_signed_name, c.club_signed_at, y - 6);
+  y -= 112;
   if (c.status === 'declined') para(`Declined by the player on ${when(c.declined_at)}${c.decline_reason ? `: ${c.decline_reason}` : ''}`, { color: rgb(0.7, 0.1, 0.1) });
   if (c.status === 'cancelled') para(`Cancelled by the club on ${when(c.cancelled_at)}.`, { color: MUTED });
   if (c.terminated_on) para(`Terminated on ${day(c.terminated_on)}${c.termination_reason ? `: ${c.termination_reason}` : ''}`, { color: MUTED });
-  if (c.sent_at) para(`Sent to the player on ${when(c.sent_at)}. Signed in the Afro Foot Club member app by each party with their own account.`, { size: 8.5, color: MUTED, gap: 2 });
+  if (c.sent_at) para(`Sent to the player on ${when(c.sent_at)}. Each party signed in the Afro Foot Club member app with their own account by typing their name and confirming; the typed name is shown above in a handwriting style. The signature IDs refer to these records.`, { size: 8.5, color: MUTED, gap: 2 });
   if (c.body_sha256) para(`SHA-256 fingerprint of the contract text: ${c.body_sha256}`, { size: 7.5, color: MUTED });
   if (c.status === 'active' || c.status === 'terminated') para('Signed by both parties.', { font: bold, size: 9, color: GREEN });
 
