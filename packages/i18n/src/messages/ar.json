@@ -1410,7 +1410,10 @@
     "balanceDue": "الاستحقاق",
     "balanceAmount": "المبلغ",
     "balanceTotal": "الرصيد الإجمالي",
-    "balanceFees": "رسوم العضوية"
+    "balanceFees": "رسوم العضوية",
+    "partOf": "دُفع {paid} من {total}",
+    "partPaid": "دُفع {paid} · المتبقي للدفع {left}",
+    "received": "استُلم {amount} في {date}"
   },
   "account": {
     "title": "حسابي",
@@ -1827,7 +1830,21 @@
     "balCreate": "إنشاء الفواتير",
     "r_balanceCreated": "أُنشئت فواتير الرصيد. تظهر أدناه وفي تبويب العضوية للاعب.",
     "r_balancePlayer": "اختر لاعبًا.",
-    "r_balanceEmpty": "املأ سطرًا واحدًا على الأقل بوصف ومبلغ."
+    "r_balanceEmpty": "املأ سطرًا واحدًا على الأقل بوصف ومبلغ.",
+    "partPaidOf": "دُفع {paid} · المتبقي {left}",
+    "st_partial": "مدفوعة جزئيًا",
+    "markPaidRest": "تعليم كمدفوعة ({amount})",
+    "payments": "{count, plural, =0 {دفعة} one {الدفعات (#)} two {الدفعات (#)} few {الدفعات (#)} many {الدفعات (#)} other {الدفعات (#)}}",
+    "partLead": "سجّل ما دفعه اللاعب. المتبقي: {left}.",
+    "partAmount": "المبلغ المدفوع (يورو)",
+    "partDate": "تاريخ الدفع",
+    "partNote": "ملاحظة (اختيارية)",
+    "partNoteEg": "مثلًا نقدًا في التدريب",
+    "partSave": "تسجيل الدفعة",
+    "r_partRecorded": "سُجلت الدفعة. لا يزال الباقي مستحقًا.",
+    "r_receiptDeleted": "حُذفت الدفعة. تُفتح الفاتورة من جديد إن كانت مدفوعة.",
+    "r_partAmount": "أدخل مبلغًا بين 0.01 والمبلغ المتبقي، مثل 10 أو 10,50.",
+    "r_partDate": "لا يمكن أن يكون تاريخ الدفع في المستقبل."
   },
   "conduct": {
     "title": "مدونة السلوك",

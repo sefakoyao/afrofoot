@@ -19,7 +19,7 @@ type Summary = {
   team_name: string | null; paid_cents: number; owed_cents: number; overdue_cents: number; next_due_on: string | null;
   sign_in_blocked_from: string | null; exempt_until: string | null; grace_days: number | null; policy_enabled: boolean | null;
 };
-type Payment = { id: string; amount_cents: number; currency: string; due_on: string | null; paid_at: string | null; reference: string | null; invoice_number: string | null; checkout_url: string | null; display_status: string; title?: string | null; season_name?: string | null };
+type Payment = { id: string; amount_cents: number; currency: string; due_on: string | null; paid_at: string | null; reference: string | null; invoice_number: string | null; checkout_url: string | null; display_status: string; title?: string | null; season_name?: string | null; paid_cents?: number; due_cents?: number };
 
 const BADGE: Record<string, string> = { paid: 'bg-accent/20 text-pitch', overdue: 'bg-danger/15 text-danger', pending: 'bg-line text-fg', failed: 'bg-danger/15 text-danger', refunded: 'bg-line text-muted' };
 const day = (iso: string) => new Date(`${iso}T12:00:00Z`); // a date without time, shown in Helsinki time
@@ -56,6 +56,12 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
   const monthYear = new Intl.DateTimeFormat(LOCALE_LABELS[isLocale(rawLocale) ? rawLocale : 'en'].intl, { month: 'short', year: 'numeric', timeZone: 'UTC' });
   const period = (id: string) => { const x = span.get(id); if (!x) return null; const a = monthYear.format(day(x.from)), b = monthYear.format(day(x.to)); return a === b ? a : `${a} – ${b}`; };
   const payments = (paymentRows as Payment[] | null) ?? [];
+  // 0056: what is still due on a payment (part payments deducted), and the payments received on own invoices
+  const left = (p: Payment) => (p.display_status === 'paid' ? 0 : p.due_cents ?? p.amount_cents);
+  const { data: receiptRows } = supabase && invoices.length
+    ? await supabase.from('payment_receipts').select('id, payment_id, amount_cents, paid_on').in('payment_id', invoices.map((p) => p.id)).order('paid_on') : { data: [] };
+  const receipts = new Map<string, { id: string; amount_cents: number; paid_on: string }[]>();
+  for (const r of (receiptRows ?? []) as { id: string; payment_id: string; amount_cents: number; paid_on: string }[]) receipts.set(r.payment_id, [...(receipts.get(r.payment_id) ?? []), r]);
   // unpaid items, oldest due first, each named by its title (balance invoices), its months, or "Membership fees"
   const owing = payments.filter((p) => ['pending', 'overdue', 'failed'].includes(p.display_status)).sort((a, b) => (a.due_on ?? '').localeCompare(b.due_on ?? ''));
   const label = (p: Payment) => p.title || period(p.id) || t('balanceFees');
@@ -66,7 +72,7 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
   const billing = supabase && (s?.owed_cents ?? 0) > 0 ? await loadBilling(supabase) : null;
   const openItems = payments.filter((p) => p.reference && ['pending', 'overdue', 'failed'].includes(p.display_status))
     .sort((a, b) => (a.due_on ?? '').localeCompare(b.due_on ?? ''))
-    .map((p) => ({ id: p.id, invoiceNumber: p.invoice_number, reference: p.reference!, amountCents: p.amount_cents, dueOn: p.due_on, overdue: p.display_status === 'overdue' }));
+    .map((p) => ({ id: p.id, invoiceNumber: p.invoice_number, reference: p.reference!, amountCents: left(p), dueOn: p.due_on, overdue: p.display_status === 'overdue' }));
   const conduct = supabase ? await loadConductStatus(supabase, member.id) : null;
   const contracts = supabase ? await myContracts(supabase) : [];
   const dd = (iso: string) => fmt.date.format(day(iso));
@@ -119,12 +125,12 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
                     <th scope="row" className="px-2 py-2 text-start font-semibold"><bdi>{label(p)}</bdi>{p.invoice_number ? <span className="block text-xs font-normal text-muted" dir="ltr" style={{ textAlign: 'start' }}>{t('invoiceNo')} {p.invoice_number}</span> : null}</th>
                     <td className="px-2 py-2">{p.season_name ?? '–'}</td>
                     <td className={`whitespace-nowrap px-2 py-2 ${p.display_status === 'overdue' ? 'font-bold text-danger' : ''}`}>{p.due_on ? fmt.date.format(day(p.due_on)) : '–'}{p.display_status === 'overdue' ? ` · ${t('st_overdue')}` : ''}</td>
-                    <td className="px-2 py-2 text-end font-semibold tabular-nums">{eur(p.amount_cents)}</td>
+                    <td className="px-2 py-2 text-end font-semibold tabular-nums">{eur(left(p))}{(p.paid_cents ?? 0) > 0 ? <span className="block text-xs font-normal text-muted" data-balance-part>{t('partOf', { paid: eur(p.paid_cents ?? 0), total: eur(p.amount_cents) })}</span> : null}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot className="border-t-2 border-line font-bold">
-                <tr data-my-balance-total><th scope="row" colSpan={3} className="px-2 py-2 text-start">{t('balanceTotal')}</th><td className="px-2 py-2 text-end tabular-nums">{eur(owing.reduce((a, p) => a + p.amount_cents, 0))}</td></tr>
+                <tr data-my-balance-total><th scope="row" colSpan={3} className="px-2 py-2 text-start">{t('balanceTotal')}</th><td className="px-2 py-2 text-end tabular-nums">{eur(owing.reduce((a, p) => a + left(p), 0))}</td></tr>
               </tfoot>
             </table>
           </div>
@@ -165,6 +171,17 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{st === 'overdue' ? t('st_overdue') : st === 'paid' ? ts('paid') : t('st_open')}</span>
                   </div>
                   <p className="font-display text-2xl font-black">{eur(p.amount_cents)}</p>
+                  {st !== 'paid' && (p.paid_cents ?? 0) > 0 ? (
+                    <div className="grid gap-1" data-card-part>
+                      <p className="text-sm font-semibold text-pitch">{t('partPaid', { paid: eur(p.paid_cents ?? 0), left: eur(left(p)) })}</p>
+                      <div className="h-2 overflow-hidden rounded-full bg-line" role="img" aria-label={t('partPaid', { paid: eur(p.paid_cents ?? 0), left: eur(left(p)) })}><div className="h-full rounded-full bg-accent" style={{ width: `${Math.round(((p.paid_cents ?? 0) / p.amount_cents) * 100)}%` }} /></div>
+                    </div>
+                  ) : null}
+                  {receipts.get(p.id)?.length ? (
+                    <ul className="text-xs text-muted" data-card-receipts>
+                      {receipts.get(p.id)!.map((r) => <li key={r.id}>{t('received', { amount: eur(r.amount_cents), date: fmt.date.format(day(r.paid_on)) })}</li>)}
+                    </ul>
+                  ) : null}
                   <p className="text-sm text-muted">{st === 'paid' ? t('paidOn', { date: p.paid_at ? fmt.date.format(new Date(p.paid_at)) : '–' }) : t('dueOn', { date: p.due_on ? fmt.date.format(day(p.due_on)) : '–' })}</p>
                   <a href={`/invoices/${p.id}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center justify-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('openPdf')}</a>
                 </li>

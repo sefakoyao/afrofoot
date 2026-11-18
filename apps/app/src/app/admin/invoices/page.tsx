@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
-import { addMembership, addPastDue, createBalanceInvoices, createPlan, markPaid, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
+import { addMembership, addPastDue, createBalanceInvoices, createPlan, deleteReceipt, markPaid, recordPartPayment, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
@@ -51,6 +51,12 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     ids.length ? supabase.from('payment_lines').select('id, payment_id, description, unit_price_cents, kind').in('kind', ['past_due', 'balance']).in('payment_id', ids).order('position') : Promise.resolve({ data: [] }),
     supabase.from('seasons').select('id, name, starts_on, is_current').order('starts_on', { ascending: false }).limit(20),
   ]);
+  // 0056: payments received on the invoices of this page
+  const { data: receiptRows } = ids.length ? await supabase.from('payment_receipts').select('id, payment_id, amount_cents, paid_on, note').in('payment_id', ids).order('paid_on') : { data: [] };
+  const receipts = new Map<string, { id: string; cents: number; on: string; note: string | null }[]>();
+  for (const r of (receiptRows ?? []) as { id: string; payment_id: string; amount_cents: number; paid_on: string; note: string | null }[]) {
+    receipts.set(r.payment_id, [...(receipts.get(r.payment_id) ?? []), { id: r.id, cents: r.amount_cents, on: r.paid_on, note: r.note }]);
+  }
   const pastDue = new Map<string, { id: string; description: string; cents: number }[]>();
   const balanceTitle = new Map<string, string>();
   for (const l of (pastRows ?? []) as { id: string; payment_id: string; description: string; unit_price_cents: number; kind: string }[]) {
@@ -193,9 +199,11 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                         {balanceTitle.get(r.id) ? <span className="block text-xs text-muted" data-balance-title><bdi>{balanceTitle.get(r.id)}</bdi></span> : null}</td>
                       <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(r.issuedAt))}</td>
                       <td className="whitespace-nowrap px-2 py-2">{eur(r.amountCents)}
+                        {r.status !== 'paid' && r.paidCents > 0 ? <span className="block text-xs font-semibold text-pitch" data-part-paid>{t('partPaidOf', { paid: eur(r.paidCents), left: eur(r.amountCents - r.paidCents) })}</span> : null}
                         {pastDue.get(r.id)?.length ? <span className="block text-xs text-muted" data-past-due-total>{t('pastDueIncl', { amount: eur(pastDue.get(r.id)!.reduce((a, l) => a + l.cents, 0)) })}</span> : null}</td>
                       <td className="whitespace-nowrap px-2 py-2">{day(r.dueOn)}</td>
-                      <td className="px-2 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{t(`st_${st === 'open' ? 'pending' : st}` as 'st_paid')}</span></td>
+                      <td className="px-2 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`} data-status-badge={st}>{t(`st_${st === 'open' ? 'pending' : st}` as 'st_paid')}</span>
+                        {st !== 'paid' && r.paidCents > 0 ? <span className="mt-1 block w-fit rounded-full bg-accent/15 px-2 py-0.5 text-xs font-bold text-pitch" data-part-badge>{t('st_partial')}</span> : null}</td>
                       <td className="px-2 py-2">
                         <div className="flex flex-wrap justify-end gap-2">
                           <a href={`/invoices/${r.id}`} target="_blank" rel="noopener" className="inline-flex min-h-9 items-center rounded-full border border-line px-3 font-semibold hover:border-accent">PDF</a>
@@ -224,7 +232,34 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                           ) : null}
                           {r.status === 'pending' || r.status === 'failed' ? (
                             <form action={markPaid}><input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value={back} />
-                              <button className="min-h-9 rounded-full bg-accent px-3 font-bold text-on-accent hover:brightness-110">{t('markPaid')}</button></form>
+                              <button className="min-h-9 rounded-full bg-accent px-3 font-bold text-on-accent hover:brightness-110" data-mark-paid>{r.paidCents > 0 ? t('markPaidRest', { amount: eur(r.amountCents - r.paidCents) }) : t('markPaid')}</button></form>
+                          ) : null}
+                          {r.status === 'pending' || r.status === 'failed' || receipts.get(r.id)?.length ? (
+                            <details className="w-full" data-payments={r.invoiceNumber}>
+                              <summary className="ms-auto inline-flex min-h-9 cursor-pointer list-none items-center rounded-full border border-line px-3 font-semibold hover:border-accent">{t('payments', { count: receipts.get(r.id)?.length ?? 0 })}</summary>
+                              <div className="ms-auto mt-2 grid w-72 max-w-[80vw] gap-3 rounded-card border border-line bg-raised p-3 text-start shadow-sm">
+                                {receipts.get(r.id)?.map((x) => (
+                                  <form key={x.id} action={deleteReceipt} className="flex items-center gap-2 rounded-control bg-surface p-2 text-xs" data-receipt>
+                                    <input type="hidden" name="receipt_id" value={x.id} /><input type="hidden" name="back" value={back} />
+                                    <span className="min-w-0 flex-1"><span className="font-bold">{eur(x.cents)}</span> · {day(x.on)}{x.note ? <> · <bdi>{x.note}</bdi></> : null}</span>
+                                    <button className="min-h-8 rounded-full border border-danger px-2 font-bold text-danger hover:bg-danger/10" data-delete-receipt>{t('pastDueRemove')}</button>
+                                  </form>
+                                ))}
+                                {r.status === 'pending' || r.status === 'failed' ? (
+                                  <form action={recordPartPayment} className="grid gap-2" data-part-form>
+                                    <input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value={back} />
+                                    <p className="text-xs text-muted">{t('partLead', { left: eur(r.amountCents - r.paidCents) })}</p>
+                                    <label className="grid gap-1 text-xs font-semibold">{t('partAmount')}
+                                      <input name="amount" required inputMode="decimal" placeholder="10,00" className={input} data-part-amount /></label>
+                                    <label className="grid gap-1 text-xs font-semibold">{t('partDate')}
+                                      <input name="paid_on" type="date" required max={today} defaultValue={today} className={input} /></label>
+                                    <label className="grid gap-1 text-xs font-semibold">{t('partNote')}
+                                      <input name="note" maxLength={200} placeholder={t('partNoteEg')} className={input} /></label>
+                                    <button className={btn} data-part-save>{t('partSave')}</button>
+                                  </form>
+                                ) : null}
+                              </div>
+                            </details>
                           ) : null}
                         </div>
                       </td>

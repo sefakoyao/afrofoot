@@ -3,6 +3,22 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – part payments (branch `phase2/partial-payments`, migration 0056, release 0.46.0)
+- **Admin → Finance → Invoices → Payments** on every unpaid invoice: record what the player actually paid (amount, date, optional note), e.g. €10 of a €20 invoice.
+  - The rest stays owed. The row shows **Partly paid** and "€10.00 paid · €10.00 left".
+  - **Mark paid** now records the rest in one click ("Mark paid (€10.00)").
+  - Each payment received is listed and can be **deleted** if recorded by mistake; a paid invoice then opens again.
+  - Invoices become paid automatically when the payments reach the amount.
+- **What is owed is amount − paid everywhere:**
+  - the invoice list totals
+  - Finance → Player balances and Overview (collected includes part payments)
+  - Sign-in help
+  - the player's summary, balance breakdown, invoice cards (paid / still to pay, with a bar and the payments received) and "How to pay"
+- **Invoice PDF:** after a part payment it shows the invoice total, "Paid so far" and "Amount still due". The payment slip and bank barcode use the amount still due.
+- An overdue invoice still blocks sign-in after the grace period until it is paid in full (or the player is exempted).
+- Invoices paid before this release count as fully paid.
+- 23 database checks, 14 browser checks.
+
 ## Unreleased – menus in sections that open and close (branch `phase2/nav-groups`, release 0.45.0, no database change)
 - **Admin menu in sections:**
   - **Overview**

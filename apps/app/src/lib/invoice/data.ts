@@ -22,7 +22,7 @@ export async function loadBilling(db: SupabaseClient): Promise<Billing & { lead_
  */
 export async function loadInvoice(db: SupabaseClient, id: string, playerUrl: string): Promise<InvoiceData | null> {
   const { data: p } = await db.from('payments')
-    .select('id, player_id, invoice_number, reference, amount_cents, due_on, status, paid_at, invoice_sent_at, created_at, players(first_name, last_name)')
+    .select('id, player_id, invoice_number, reference, amount_cents, paid_cents, due_on, status, paid_at, invoice_sent_at, created_at, players(first_name, last_name)')
     .eq('id', id).maybeSingle();
   if (!p || !p.invoice_number || !p.reference) return null;
   const [{ data: lines }, { data: priv }] = await Promise.all([
@@ -34,7 +34,7 @@ export async function loadInvoice(db: SupabaseClient, id: string, playerUrl: str
   const items = (lines ?? []).map((l) => ({ description: l.description, date: l.line_date, quantity: Number(l.quantity), unit: l.unit, unitPriceCents: l.unit_price_cents, vatPercent: Number(l.vat_percent) }));
   return {
     number: p.invoice_number, reference: p.reference, issuedOn: new Date(issued).toLocaleDateString('en-CA', { timeZone: 'Europe/Helsinki' }),
-    dueOn: p.due_on, amountCents: p.amount_cents, status: p.status, paidAt: p.paid_at,
+    dueOn: p.due_on, amountCents: p.amount_cents, paidCents: p.status === 'paid' ? p.amount_cents : (p.paid_cents ?? 0), status: p.status, paidAt: p.paid_at,
     // invoices made before lines existed show one line for the whole amount
     lines: items.length ? items : [{ description: 'Membership fees', date: p.due_on, quantity: 1, unit: 'kpl', unitPriceCents: p.amount_cents, vatPercent: 0 }],
     payer: { name: player ? `${player.first_name} ${player.last_name}` : '', street: priv?.address ?? null, postalCity: priv?.city ?? null },

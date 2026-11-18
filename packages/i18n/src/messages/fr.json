@@ -1410,7 +1410,10 @@
     "balanceDue": "Échéance",
     "balanceAmount": "Montant",
     "balanceTotal": "Solde total",
-    "balanceFees": "Cotisations"
+    "balanceFees": "Cotisations",
+    "partOf": "{paid} sur {total} payés",
+    "partPaid": "{paid} payés · reste {left} à payer",
+    "received": "Reçu {amount} le {date}"
   },
   "account": {
     "title": "Mon compte",
@@ -1827,7 +1830,21 @@
     "balCreate": "Créer les factures",
     "r_balanceCreated": "Factures de solde créées. Elles figurent ci-dessous et dans l’onglet Adhésion du joueur.",
     "r_balancePlayer": "Choisissez un joueur.",
-    "r_balanceEmpty": "Remplissez au moins une ligne avec un libellé et un montant."
+    "r_balanceEmpty": "Remplissez au moins une ligne avec un libellé et un montant.",
+    "partPaidOf": "{paid} payés · reste {left}",
+    "st_partial": "Payée en partie",
+    "markPaidRest": "Marquer payée ({amount})",
+    "payments": "{count, plural, =0 {Paiement} one {Paiements (#)} other {Paiements (#)}}",
+    "partLead": "Enregistrez ce que le joueur a payé. Reste dû : {left}.",
+    "partAmount": "Montant payé (EUR)",
+    "partDate": "Payé le",
+    "partNote": "Note (facultative)",
+    "partNoteEg": "p. ex. Espèces à l’entraînement",
+    "partSave": "Enregistrer le paiement",
+    "r_partRecorded": "Paiement enregistré. Le reste est toujours dû.",
+    "r_receiptDeleted": "Paiement supprimé. La facture est rouverte si elle était payée.",
+    "r_partAmount": "Saisissez un montant entre 0,01 et ce qui reste dû, p. ex. 10 ou 10,50.",
+    "r_partDate": "La date de paiement ne peut pas être dans le futur."
   },
   "conduct": {
     "title": "Code de conduite",

@@ -37,3 +37,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/B4_contract_signatory.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B5_past_due.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B6_finance.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B7_balance_invoices.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/B8_partial_payments.sql

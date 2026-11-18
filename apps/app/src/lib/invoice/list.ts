@@ -8,7 +8,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 export const INVOICE_STATUSES = ['open', 'overdue', 'paid'] as const;
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 export interface InvoiceFilters { q: string; status: InvoiceStatus | ''; month: string; player: string; page: number }
-export interface InvoiceRow { id: string; invoiceNumber: string; amountCents: number; dueOn: string | null; status: string; issuedAt: string; playerId: string; playerName: string }
+export interface InvoiceRow { id: string; invoiceNumber: string; amountCents: number; paidCents: number; dueOn: string | null; status: string; issuedAt: string; playerId: string; playerName: string }
 export interface InvoiceList { rows: InvoiceRow[]; count: number; pages: number; totals: Record<InvoiceStatus, { n: number; cents: number }> }
 
 export const PAGE_SIZE = 25;
@@ -46,19 +46,23 @@ export async function listInvoices(db: SupabaseClient, f: InvoiceFilters, today:
     return q;
   };
   const [{ data, count }, { data: all }] = await Promise.all([
-    base('id, invoice_number, amount_cents, due_on, status, invoice_sent_at, created_at, player_id, players!inner(first_name, last_name)', { count: 'exact' })
+    base('id, invoice_number, amount_cents, paid_cents, due_on, status, invoice_sent_at, created_at, player_id, players!inner(first_name, last_name)', { count: 'exact' })
       .order('invoice_sent_at', { ascending: false, nullsFirst: false }).order('invoice_number', { ascending: false })
       .range((f.page - 1) * PAGE_SIZE, f.page * PAGE_SIZE - 1),
-    base('amount_cents, status, due_on, players!inner(id)').limit(5000),
+    base('amount_cents, paid_cents, status, due_on, players!inner(id)').limit(5000),
   ]);
-  type Raw = { id: string; invoice_number: string; amount_cents: number; due_on: string | null; status: string; invoice_sent_at: string | null; created_at: string; player_id: string; players: { first_name: string; last_name: string } };
+  type Raw = { id: string; invoice_number: string; amount_cents: number; paid_cents: number; due_on: string | null; status: string; invoice_sent_at: string | null; created_at: string; player_id: string; players: { first_name: string; last_name: string } };
   const totals: InvoiceList['totals'] = { open: { n: 0, cents: 0 }, overdue: { n: 0, cents: 0 }, paid: { n: 0, cents: 0 } };
-  for (const r of (all as unknown as { amount_cents: number; status: string; due_on: string | null }[] | null) ?? []) {
+  // 0056: what was paid counts as paid (also part payments of open invoices); open and overdue count what is left
+  for (const r of (all as unknown as { amount_cents: number; paid_cents: number; status: string; due_on: string | null }[] | null) ?? []) {
     const s = effectiveStatus(r.status, r.due_on, today) as InvoiceStatus;
-    if (s in totals) { totals[s].n += 1; totals[s].cents += r.amount_cents; }
+    const paid = r.paid_cents ?? 0;
+    if (s === 'paid') { totals.paid.n += 1; totals.paid.cents += r.amount_cents; continue; }
+    if (s in totals) { totals[s].n += 1; totals[s].cents += r.amount_cents - paid; }
+    totals.paid.cents += paid;
   }
   const rows = ((data as unknown as Raw[] | null) ?? []).map((r) => ({
-    id: r.id, invoiceNumber: r.invoice_number, amountCents: r.amount_cents, dueOn: r.due_on, status: r.status,
+    id: r.id, invoiceNumber: r.invoice_number, amountCents: r.amount_cents, paidCents: r.paid_cents ?? 0, dueOn: r.due_on, status: r.status,
     issuedAt: r.invoice_sent_at ?? r.created_at, playerId: r.player_id, playerName: `${r.players.first_name} ${r.players.last_name}`,
   }));
   return { rows, count: count ?? 0, pages: Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE)), totals };

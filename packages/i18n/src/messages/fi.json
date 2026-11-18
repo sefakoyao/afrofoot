@@ -1410,7 +1410,10 @@
     "balanceDue": "Eräpäivä",
     "balanceAmount": "Summa",
     "balanceTotal": "Saldo yhteensä",
-    "balanceFees": "Jäsenmaksut"
+    "balanceFees": "Jäsenmaksut",
+    "partOf": "{paid}/{total} maksettu",
+    "partPaid": "{paid} maksettu · {left} vielä maksettavana",
+    "received": "Vastaanotettu {amount} {date}"
   },
   "account": {
     "title": "Oma tili",
@@ -1827,7 +1830,21 @@
     "balCreate": "Luo laskut",
     "r_balanceCreated": "Saldolaskut luotu. Ne näkyvät alla ja pelaajan Jäsenyys-välilehdellä.",
     "r_balancePlayer": "Valitse pelaaja.",
-    "r_balanceEmpty": "Täytä vähintään yksi rivi kuvauksella ja summalla."
+    "r_balanceEmpty": "Täytä vähintään yksi rivi kuvauksella ja summalla.",
+    "partPaidOf": "{paid} maksettu · {left} jäljellä",
+    "st_partial": "Osittain maksettu",
+    "markPaidRest": "Merkitse maksetuksi ({amount})",
+    "payments": "{count, plural, =0 {Maksu} one {Maksut (#)} other {Maksut (#)}}",
+    "partLead": "Kirjaa, mitä pelaaja maksoi. Vielä maksamatta: {left}.",
+    "partAmount": "Maksettu summa (EUR)",
+    "partDate": "Maksupäivä",
+    "partNote": "Huomautus (valinnainen)",
+    "partNoteEg": "esim. Käteinen treeneissä",
+    "partSave": "Kirjaa maksu",
+    "r_partRecorded": "Maksu kirjattu. Loppuosa on vielä maksamatta.",
+    "r_receiptDeleted": "Maksu poistettu. Lasku avautuu uudelleen, jos se oli maksettu.",
+    "r_partAmount": "Anna summa väliltä 0,01 ja maksamatta oleva summa, esim. 10 tai 10,50.",
+    "r_partDate": "Maksupäivä ei voi olla tulevaisuudessa."
   },
   "conduct": {
     "title": "Toimintaohjeet",
