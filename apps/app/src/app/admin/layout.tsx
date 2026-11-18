@@ -11,22 +11,23 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const pending = supabase ? (await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'pending')).count ?? 0 : 0;
   const toCountersign = supabase ? (await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed')).count ?? 0 : 0;
   const requests = supabase ? await newRequestCount(supabase) : 0;
+  // grouped sections that open and close (components/AreaNav): only the section holding the current page is open
+  const people = t('navGroupPeople'), teamsGroup = t('navGroupTeams'), club = t('navGroupClub'), finance = tm('navGroup');
   const nav = [
     { href: '/admin', label: t('navOverview') },
-    { href: '/admin/requests', label: t('navRequests'), badge: requests },
-    { href: '/admin/members', label: t('navMembers'), badge: pending },
-    { href: '/admin/signin-help', label: t('navSigninHelp') },
-    { href: '/admin/teams', label: t('navTeams') },
-    { href: '/admin/events', label: t('navEvents') },
-    { href: '/admin/palloliitto', label: tf('nav') },
-    { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign },
-    // 0054: everything about money in one group
-    { href: '/admin/finance', label: tm('navOverview'), group: tm('navGroup'), exact: true },
-    { href: '/admin/finance/balances', label: tm('navBalances'), group: tm('navGroup') },
-    { href: '/admin/invoices', label: t('navInvoices'), group: tm('navGroup') },
-    { href: '/admin/finance/expenses', label: tm('navExpenses'), group: tm('navGroup') },
-    { href: '/admin/quiz', label: t('navQuiz') },
-    { href: '/admin/audit', label: t('navAudit') },
+    { href: '/admin/requests', label: t('navRequests'), badge: requests, group: people },
+    { href: '/admin/members', label: t('navMembers'), badge: pending, group: people },
+    { href: '/admin/signin-help', label: t('navSigninHelp'), group: people },
+    { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign, group: people },
+    { href: '/admin/teams', label: t('navTeams'), group: teamsGroup },
+    { href: '/admin/events', label: t('navEvents'), group: teamsGroup },
+    { href: '/admin/palloliitto', label: tf('nav'), group: teamsGroup },
+    { href: '/admin/finance', label: tm('navOverview'), group: finance, exact: true },
+    { href: '/admin/finance/balances', label: tm('navBalances'), group: finance },
+    { href: '/admin/invoices', label: t('navInvoices'), group: finance },
+    { href: '/admin/finance/expenses', label: tm('navExpenses'), group: finance },
+    { href: '/admin/quiz', label: t('navQuiz'), group: club },
+    { href: '/admin/audit', label: t('navAudit'), group: club },
   ];
   return <AppShell area="admin" member={member} nav={nav}>{children}</AppShell>;
 }

@@ -1285,7 +1285,10 @@
     "mailReady": "Lähetys toimii: {delivered} viestiä toimitettu 7 päivän aikana, {queued} odottaa.",
     "mailSetup": "Sähköposteja ei vielä lähetetä: Resend-avain puuttuu Supabasen Vaultista (katso ohje). Muistutukset, hyväksymisviestit ja pyyntöhälytykset odottavat enintään 2 päivää.",
     "mailFailed": "{count, plural, one {# viesti epäonnistui} other {# viestiä epäonnistui}} 7 päivän aikana.",
-    "navQuiz": "Visa"
+    "navQuiz": "Visa",
+    "navGroupPeople": "Ihmiset",
+    "navGroupTeams": "Joukkueet ja tapahtumat",
+    "navGroupClub": "Seura"
   },
   "me": {
     "team": "Joukkue",

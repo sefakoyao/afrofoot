@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – menus in sections that open and close (branch `phase2/nav-groups`, release 0.45.0, no database change)
+- **Admin menu in sections:**
+  - **Overview**
+  - **People:** Requests, Members, Sign-in help, Contracts
+  - **Teams & events:** Teams, Events, Palloliitto players
+  - **Finance:** Overview, Player balances, Invoices, Expenses
+  - **Club:** Quiz, Audit log
+- **Coach menu:** Overview, **My teams** (one item per team) and Code of Conduct.
+- **Each section opens and closes** with its heading. Only the section holding the current page is open; opening another one closes it.
+  - A closed section shows the total of its badges, e.g. new requests and members waiting.
+  - Works with the keyboard and screen readers (`aria-expanded`).
+  - On phones the tab row scrolls so the opened section is on screen.
+- 17 browser checks.
+
 ## Unreleased – balance invoices (branch `phase2/balance-invoices`, migration 0055, release 0.44.0)
 - **Admin → Finance → Invoices → New balance invoices:** choose a player and a due date, then fill in up to 6 rows. Each row has a **season**, a **description** (e.g. "Balance 2024", "Player licence 2026") and an **amount** typed in by hand.
   - Each row becomes **its own invoice** with its own number, reference, PDF and bank barcode.

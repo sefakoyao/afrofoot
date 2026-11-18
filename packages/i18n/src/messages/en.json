@@ -1285,7 +1285,10 @@
     "mailReady": "Sending works: {delivered} emails delivered in the last 7 days, {queued} waiting.",
     "mailSetup": "Emails are not being sent yet: the Resend key is missing in Supabase Vault (see the setup guide). Reminders, approval emails and request alerts wait up to 2 days.",
     "mailFailed": "{count, plural, one {# email failed} other {# emails failed}} in the last 7 days.",
-    "navQuiz": "Quiz"
+    "navQuiz": "Quiz",
+    "navGroupPeople": "People",
+    "navGroupTeams": "Teams & events",
+    "navGroupClub": "Club"
   },
   "me": {
     "team": "Team",
