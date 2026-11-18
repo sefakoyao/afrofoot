@@ -63,3 +63,16 @@ export async function setWebsiteListing(fd: FormData): Promise<void> {
   revalidatePath('/me/profile');
   redirect('/me/profile?website=saved#website');
 }
+
+/** The member's own choice to get reply reminders by email (profiles.reminder_emails, migration 0048). */
+export async function setReminderEmails(fd: FormData): Promise<void> {
+  const member = await requireArea('me');
+  const on = fd.get('on') === 'on';
+  const supabase = await getSupabase();
+  if (supabase) {
+    const { error } = await supabase.from('profiles').update({ reminder_emails: on }).eq('id', member.id);
+    if (error) console.error('[player] reminder setting refused', { code: error.code, message: error.message });
+  }
+  revalidatePath('/me/profile');
+  redirect('/me/profile?reminders=saved#reminders');
+}

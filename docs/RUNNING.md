@@ -248,6 +248,18 @@ Every merge into `main` should build both Vercel projects (`afrofoot` for the we
 2. Admin → **Update the league table now**: reads up to 40 played games in detail per run (run it two or three times the first time, or let the nightly update fill the rest).
 3. On www.afrofoot.club, each result under "Latest results" opens its game page.
 
+## 3aa. Club emails: Resend, reply deadlines and reminders (migration 0048, release 0.36.0)
+Emails (reminders, approval, request alerts) are sent by the database through Resend. The key is stored only in Supabase Vault.
+1. **Database:** Supabase → SQL Editor: run `supabase/migrations/20260101000048_email_notifications.sql` once. It enables `pg_net` and `pg_cron` and schedules the two jobs.
+   Check: `select jobname, schedule from cron.job where jobname like 'afrofoot-email%';` lists two jobs. If not, enable both under Database → Extensions, then run only the last `do $$ … cron.schedule …` block of the file again.
+2. **Resend account:** sign up at resend.com (free: 3,000 emails a month).
+3. **Domain:** Resend → Domains → Add domain → `afrofoot.club`, region **Ireland (eu-west-1)**. Resend shows 3–4 DNS records (an MX and a TXT on `send`, a TXT on `resend._domainkey`, optionally `_dmarc`).
+4. **GoDaddy:** My Products → afrofoot.club → DNS → Add for each record, copying Type, Name and Value exactly (MX priority 10). The existing records (website, app, email) stay as they are. Then Resend → Verify; it takes minutes to a few hours.
+5. **API key:** Resend → API Keys → Create: name "Supabase", permission **Sending access**, domain `afrofoot.club`. Copy it (it is shown once).
+6. **Supabase Vault:** Supabase → the project → **Integrations → Vault** (or Database → Vault) → *Add new secret*: name `resend_api_key`, value: the key. Never put it in the repo, in Vercel or in chat.
+7. **Check:** Admin → Overview → **Club emails** says "Sending works". Approving a test account, or sending the website contact form, delivers an email within 2 minutes.
+Settings (sender `noreply@afrofoot.club`, reply-to and alerts `info@afrofoot.club`, app link): `site_settings` key `email`.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

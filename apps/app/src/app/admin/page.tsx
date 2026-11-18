@@ -18,6 +18,9 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   const noConduct = supabase ? (await missingConsent(supabase, activePlayers)).size : 0;
   const { count: toCountersign } = supabase ? await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed') : { count: 0 };
   const tk = await getTranslations('contract');
+  // Club emails (migration 0048): is sending set up, and how the last 7 days went. Missing before 0048 is run: no card.
+  const { data: emailRows } = supabase ? await supabase.rpc('email_status') : { data: null };
+  const mail = (emailRows as { key_set: boolean; sender_ready: boolean; queued: number; delivered: number; failed: number; last_error: string | null }[] | null)?.[0] ?? null;
   const rows = data ?? [];
   const count = (status: string) => rows.filter((r) => r.status === status).length;
   const pending = count('pending');
@@ -42,6 +45,14 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
         <p className="mt-1">{noConduct ? tc('overviewMissing', { count: noConduct }) : tc('overviewAll')}</p>
         {noConduct ? <Link href="/admin/members?conduct=missing" className="mt-3 inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{tc('overviewCta')}</Link> : null}
       </section>
+
+      {mail ? (
+        <section className={`rounded-card border-2 p-6 ${!mail.key_set || !mail.sender_ready || mail.failed ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`} data-email-status={mail.key_set && mail.sender_ready ? 'ready' : 'setup'}>
+          <h2 className="font-display text-lg font-extrabold">{ta('mailTitle')}</h2>
+          <p className="mt-1">{mail.key_set && mail.sender_ready ? ta('mailReady', { delivered: mail.delivered, queued: mail.queued }) : ta('mailSetup')}</p>
+          {mail.failed ? <p className="mt-1 font-semibold text-danger">{ta('mailFailed', { count: mail.failed })}{mail.last_error ? <span className="block text-xs font-normal" dir="ltr">{mail.last_error.slice(0, 160)}</span> : null}</p> : null}
+        </section>
+      ) : null}
 
       {toCountersign ? (
         <section className="rounded-card border-2 border-danger/40 bg-danger/5 p-6" data-countersign-count={toCountersign}>
