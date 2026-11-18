@@ -37,6 +37,7 @@ Prerequisites: Node 20+, pnpm 9+, Docker, Supabase CLI.
 - **Reset email (recommended)**: Authentication → Email templates → *Reset password*: set the link to
   `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password`.
   The default template also works, but only in the browser that asked for the link (PKCE); the template above works on any device.
+- **Auth emails need custom SMTP (required for members).** Supabase's built-in mail server only delivers to the project team's own addresses (about 2 emails per hour), so members never get reset or confirmation emails without this. Authentication → Emails → **SMTP Settings** → enable custom SMTP: host `smtp.resend.com`, port `465`, username `resend`, password = a Resend API key (Resend → API Keys, "Sending access", domain afrofoot.club), sender email `noreply@afrofoot.club`, sender name `Afro Foot Club`. Then Authentication → **Rate Limits** → raise "emails sent per hour" (e.g. 100). Check: Admin → Sign-in help → Sign-in log shows "Reset emails not sent" when Supabase refuses to send (migration 0051).
 - **Variables** for the Vercel `app` project: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`; optional `APP_URL` and `NEXT_PUBLIC_WEB_URL`. The member app does not use the service-role key.
 - Roles: new accounts are pending players. A super administrator activates them and sets the role (`profiles.role`, `profiles.status`); role changes take effect on the next page load.
 
