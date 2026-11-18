@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – cancelled events hidden from players (branch `phase2/hide-cancelled`)
+- **Website → Calendar** and the **player's list in the member app** no longer show cancelled trainings, games, friendlies or club events. Until now they were shown crossed out.
+- **Postponed** games and events still show, marked "Postponed", until they get a new date.
+- Coaches and admins still see cancelled events in their own lists, with "Restore". No database changes.
+
 ## Unreleased – requests inbox (branch `phase2/requests-inbox`, migration 0046, release 0.34.0)
 - **Admin → Requests**, a new menu item with the number of new requests:
   - It lists everything sent from the website forms: tryout requests, team enrolments, membership invoice requests and messages (sponsor enquiries are messages marked "Sponsorship").
