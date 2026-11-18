@@ -137,7 +137,8 @@
     "item_flag": "corner flag",
     "item_gloves": "goalkeeper glove",
     "signUpUnavailable": "Creating an account is not possible right now. Please try again later.",
-    "linkOpening": "Opening your link…"
+    "linkOpening": "Opening your link…",
+    "fifaId": "FIFA ID"
   },
   "role": {
     "super_admin": "Super administrator",
@@ -1157,7 +1158,8 @@
     "ts_years": "{from}–{to}",
     "ft_crafted": "Crafted by {company}",
     "ft_version": "Version",
-    "mail_js": "Email address shown when JavaScript is on"
+    "mail_js": "Email address shown when JavaScript is on",
+    "fifa_id": "FIFA ID"
   },
   "admin": {
     "navOverview": "Overview",

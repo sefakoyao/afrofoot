@@ -1,3 +1,4 @@
+import { FifaBadge } from '@afrofoot/ui/fifa-badge';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
@@ -44,7 +45,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <p className="font-semibold">{t('noAccount')}</p>
         <Link href="/signup" className="mt-2 inline-flex min-h-11 items-center rounded-full bg-ink-950 px-6 font-display font-bold text-white hover:brightness-125" data-signup-link>{t('signUp')}</Link>
       </div>
-      <p className="mt-6 text-center text-xs text-muted"><a href={`${webUrl()}/privacy`} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-pitch" data-privacy-link>{t('privacy')}</a></p>
+      <p className="mt-5 text-center"><FifaBadge label={t('fifaId')} tone="light" /></p>
+      <p className="mt-3 text-center text-xs text-muted"><a href={`${webUrl()}/privacy`} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-pitch" data-privacy-link>{t('privacy')}</a></p>
     </>
   );
 }

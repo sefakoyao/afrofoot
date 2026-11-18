@@ -137,7 +137,8 @@
     "item_flag": "راية الركنية",
     "item_gloves": "قفاز حارس المرمى",
     "signUpUnavailable": "لا يمكن إنشاء حساب حاليًا. يرجى المحاولة لاحقًا.",
-    "linkOpening": "جارٍ فتح الرابط…"
+    "linkOpening": "جارٍ فتح الرابط…",
+    "fifaId": "معرّف FIFA"
   },
   "role": {
     "super_admin": "مشرف عام",
@@ -1157,7 +1158,8 @@
     "ts_years": "{from}–{to}",
     "ft_crafted": "تصميم وتنفيذ {company}",
     "ft_version": "الإصدار",
-    "mail_js": "يظهر البريد الإلكتروني عند تفعيل JavaScript"
+    "mail_js": "يظهر البريد الإلكتروني عند تفعيل JavaScript",
+    "fifa_id": "معرّف FIFA"
   },
   "admin": {
     "navOverview": "نظرة عامة",
