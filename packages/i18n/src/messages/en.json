@@ -1972,7 +1972,16 @@
     "esignNote": "Each party signed in the app with their own account by typing their name and confirming. The typed name is shown in a handwriting style; the signature ID refers to the record of the signing.",
     "sigPreview": "Your signature will look like this",
     "sigPreviewEmpty": "Type your name above to see your signature",
-    "sigPreviewClub": "Your signature for the club"
+    "sigPreviewClub": "Your signature for the club",
+    "signatoryTitle": "Who signs for the club",
+    "signatoryName": "Signatory's name",
+    "signatoryNameEg": "First and last name",
+    "signatoryRole": "Title",
+    "signatoryRoleEg": "e.g. General Manager",
+    "signatoryHint": "Printed and drawn as the club's signature when an admin countersigns. The admin who clicks is still recorded in the audit log. Leave the name empty to use the countersigning admin's own name. Contracts already countersigned keep their signature.",
+    "signatoryFromSettings": "The club's signature uses the signatory from the contract settings; you are recorded as the admin who countersigned.",
+    "signatoryYou": "The club's signature uses your name (no signatory set in the contract settings).",
+    "signatoryChange": "Change"
   },
   "match": {
     "title": "Match day",

@@ -10,11 +10,11 @@ export const LIVE: readonly ContractStatus[] = ['sent', 'player_signed', 'active
 export interface Contract {
   id: string; player_id: string; team_season_id: string | null; title: string; years: number; starts_on: string; ends_on: string;
   body: string; body_sha256: string | null; status: ContractStatus; sent_at: string | null;
-  player_signed_at: string | null; player_signed_name: string | null; club_signed_at: string | null; club_signed_name: string | null;
+  player_signed_at: string | null; player_signed_name: string | null; club_signed_at: string | null; club_signed_name: string | null; club_signed_title?: string | null;
   declined_at: string | null; decline_reason: string | null; cancelled_at: string | null; terminated_on: string | null; termination_reason: string | null;
   created_at: string;
 }
-export const CONTRACT_COLUMNS = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at';
+export const CONTRACT_COLUMNS = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, club_signed_title, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at';
 
 export const STATUS_BADGE: Record<ContractStatus | 'expired', string> = {
   draft: 'bg-line text-fg', sent: 'bg-ink-950 text-white', player_signed: 'bg-danger text-white', active: 'bg-accent/20 text-pitch',
@@ -44,13 +44,15 @@ export type ContractSettings = {
   auto: 'send' | 'draft' | 'off'; years: 1 | 2 | 3;
   // 0038 amateur agreement: the membership fee line and what it includes / excludes (one item per line)
   team_fee: string; included: string; not_included: string;
+  // 0052 who signs for the club (name and title), used when an admin countersigns
+  signatory_name: string; signatory_title: string;
   // 0037 fields, still filled in for the earlier template "Player contract"
   club_fees: string; max_fee_per_year: string; volunteer_amount: string;
   /** The fee line made from the active membership plans (Admin → Invoices → Plans), used when team_fee is left empty. */
   plan_fee?: string;
 };
 export const CONTRACT_DEFAULTS: ContractSettings = {
-  auto: 'send', years: 1, team_fee: '',
+  auto: 'send', years: 1, team_fee: '', signatory_name: '', signatory_title: '',
   included: 'League fee per player\nTraining and games\nTraining ground booking\nThe Afro Foot Club app\nPersonal development plan',
   not_included: 'Player insurance\nPlayer licence', club_fees: '', max_fee_per_year: '', volunteer_amount: '',
 };
@@ -87,6 +89,7 @@ export async function loadContractSettings(db: SupabaseClient): Promise<Contract
     years: years === 2 || years === 3 ? years : 1,
     team_fee: str('team_fee'), included: typeof v.included === 'string' ? str('included') : CONTRACT_DEFAULTS.included,
     not_included: typeof v.not_included === 'string' ? str('not_included') : CONTRACT_DEFAULTS.not_included,
+    signatory_name: str('signatory_name'), signatory_title: str('signatory_title'),
     club_fees: str('club_fees'), max_fee_per_year: str('max_fee_per_year'), volunteer_amount: str('volunteer_amount'),
     plan_fee: feeLineFromPlans((plans ?? []) as Plan[]),
   };

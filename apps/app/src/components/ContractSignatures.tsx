@@ -8,7 +8,7 @@ import { SignatureMark } from './SignatureMark';
 export async function ContractSignatures({ c }: { c: Contract }) {
   const [t, fmt] = await Promise.all([getTranslations('contract'), dateFormats()]);
   const at = (iso: string | null) => (iso ? fmt.dateTime.format(new Date(iso)) : null);
-  const Sig = ({ who, party, name, when, waiting }: { who: string; party: 'player' | 'club'; name: string | null; when: string | null; waiting: string }) => {
+  const Sig = ({ who, party, name, title, when, waiting }: { who: string; party: 'player' | 'club'; name: string | null; title?: string | null; when: string | null; waiting: string }) => {
     const ref = signatureId(c, party);
     return (
       <div className="rounded-card bg-surface p-4" data-signature={party}>
@@ -17,6 +17,7 @@ export async function ContractSignatures({ c }: { c: Contract }) {
           <>
             <SignatureMark name={name} />
             <p className="mt-2 font-display font-extrabold"><bdi>{name}</bdi></p>
+            {title ? <p className="text-sm font-semibold" data-signature-title><bdi>{title}</bdi></p> : null}
             <p className="text-sm text-muted">{t('signedAt', { date: when })}</p>
             {ref ? <p className="text-xs text-muted" dir="ltr" style={{ textAlign: 'start' }} data-signature-id>{t('signatureId')} <span className="font-mono">{ref}</span></p> : null}
           </>
@@ -34,7 +35,7 @@ export async function ContractSignatures({ c }: { c: Contract }) {
       <h2 id="sig-h" className="font-display text-xl font-extrabold">{t('signatures')}</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Sig who={t('sigPlayer')} party="player" name={c.player_signed_name} when={at(c.player_signed_at)} waiting={c.status === 'declined' ? t('declinedAt', { date: at(c.declined_at) ?? '' }) : t('notSigned')} />
-        <Sig who={t('sigClub')} party="club" name={c.club_signed_name} when={at(c.club_signed_at)} waiting={t('notSigned')} />
+        <Sig who={t('sigClub')} party="club" name={c.club_signed_name} title={c.club_signed_title} when={at(c.club_signed_at)} waiting={t('notSigned')} />
       </div>
       {c.decline_reason ? <p className="mt-3 text-sm">{t('reason')}: <bdi>{c.decline_reason}</bdi></p> : null}
       {c.terminated_on ? <p className="mt-3 text-sm">{t('terminatedInfo', { date: fmt.date.format(new Date(`${c.terminated_on}T12:00:00Z`)) })}{c.termination_reason ? <> · <bdi>{c.termination_reason}</bdi></> : null}</p> : null}

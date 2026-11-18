@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -2809,6 +2809,38 @@ end $$;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.39.0','feature','Sign-in log',
   'Admin → Sign-in help shows a summary of sign-ins over 1–90 days: successes, failures and their reasons, password-reset emails and whether they could be sent, members having trouble, and each member''s recent attempts. Kept 90 days.','2026-11-18')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000052_contract_signatory.sql =====
+-- 0052 Who signs contracts for the club (release 0.41.0).
+-- Admin → Contracts → settings get the club's signatory: a name and a title (e.g. "General Manager"), kept in
+-- site_settings 'contracts' as signatory_name / signatory_title. When an admin countersigns, the contract records that
+-- name and title as the club's signature (the admin who clicked stays in club_signed_by and the audit log). Without a
+-- signatory the admin's own name is used, as before. Signatures stay frozen once made.
+
+alter table player_contracts add column club_signed_title text check (char_length(club_signed_title) between 1 and 80);
+
+-- Runs after app.guard_contract (triggers on the same event fire in name order: guard, guard_signatory).
+create function app.contract_signatory() returns trigger language plpgsql security definer set search_path = public as $$
+declare v_name text; v_title text;
+begin
+  if tg_op = 'INSERT' then new.club_signed_title := null; return new; end if;
+  if new.status = 'active' and old.status is distinct from 'active' then
+    select nullif(trim(value ->> 'signatory_name'), ''), nullif(trim(value ->> 'signatory_title'), '')
+      into v_name, v_title from site_settings where key = 'contracts';
+    if char_length(v_name) between 2 and 160 then new.club_signed_name := v_name; end if;
+    new.club_signed_title := left(v_title, 80);
+  elsif new.club_signed_title is distinct from old.club_signed_title then
+    raise exception 'Signatures cannot be edited' using errcode = 'check_violation';
+  end if;
+  return new;
+end $$;
+create trigger guard_signatory before insert or update on player_contracts for each row execute function app.contract_signatory();
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.41.0','feature','Club signatory and contract footer',
+  'Admin → Contracts → settings: the name and title of the person who signs contracts for the club, used when an admin countersigns. Contract PDFs have a footer with the club''s details on every page.','2026-11-18')
 on conflict (version) do nothing;
 
 

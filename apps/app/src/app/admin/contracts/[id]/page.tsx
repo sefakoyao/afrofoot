@@ -8,7 +8,7 @@ import { ContractSignatures } from '@/components/ContractSignatures';
 import { SignatureMark } from '@/components/SignatureMark';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_COLUMNS, STATUS_BADGE, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
+import { CONTRACT_COLUMNS, STATUS_BADGE, loadContractSettings, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -29,6 +29,9 @@ export default async function ContractPage({ params, searchParams }: { params: P
   if (!supabase) notFound();
   const { data } = await supabase.from('player_contracts').select(`${CONTRACT_COLUMNS}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle();
   if (!data) notFound();
+  const settings = await loadContractSettings(supabase);
+  // who the club's signature names: the signatory set in the contract settings (0052), else the admin who countersigns
+  const signer = settings.signatory_name || `${me.firstName} ${me.lastName}`.trim();
   const c = data as unknown as Contract & { players: { first_name: string; last_name: string } };
   const st = shownStatus(c, helsinkiToday());
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
@@ -109,10 +112,15 @@ export default async function ContractPage({ params, searchParams }: { params: P
           <h2 className="font-display text-xl font-extrabold">{t('countersign')}</h2>
           <div className="rounded-card bg-surface p-4 sm:max-w-md">
             <p className="text-xs font-bold uppercase tracking-widest text-muted">{t('sigPreviewClub')}</p>
-            <SignatureMark name={`${me.firstName} ${me.lastName}`.trim() || null} placeholder="–" />
-            <p className="mt-2 font-display font-extrabold"><bdi>{`${me.firstName} ${me.lastName}`.trim()}</bdi></p>
+            <SignatureMark name={signer || null} placeholder="–" />
+            <p className="mt-2 font-display font-extrabold" data-signer><bdi>{signer || t('sigClub')}</bdi></p>
+            {settings.signatory_title ? <p className="text-sm text-muted" data-signer-title><bdi>{settings.signatory_title}</bdi></p> : null}
           </div>
-          <Step op="countersign" label={t('countersign')} confirm={t('countersignNote')} />
+          <p className="text-sm text-muted" data-signer-note>
+            {settings.signatory_name ? t('signatoryFromSettings') : t('signatoryYou')}{' '}
+            <a href="/admin/contracts#auto-h" className="font-semibold text-pitch underline underline-offset-2">{t('signatoryChange')}</a>
+          </p>
+          <Step op="countersign" label={t('countersign')} />
         </section>
       ) : null}
       {c.status === 'sent' || c.status === 'player_signed' ? <Step op="cancel" label={t('cancel')} tone="danger" /> : null}

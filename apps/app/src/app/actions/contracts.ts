@@ -166,12 +166,15 @@ const settingsSchema = z.object({
   years: z.coerce.number().int().min(1, 'r_invalid').max(3, 'r_invalid'),
   team_fee: z.string().trim().max(200, 'r_invalid'),
   included: list, not_included: list,
+  // 0052: '' (the countersigning admin's own name) or 2–120 characters; title up to 80 (DB: club_signed_name 2–160, title 1–80)
+  signatory_name: z.union([z.literal(''), z.string().trim().min(2, 'r_invalid').max(120, 'r_invalid')]),
+  signatory_title: z.string().trim().max(80, 'r_invalid'),
 });
 
 /** What happens when a player joins a team, the contract length, and the fee lines printed in every contract. */
 export async function saveContractSettings(fd: FormData): Promise<void> {
   const { supabase } = await adminDb();
-  const p = settingsSchema.safeParse(Object.fromEntries(['auto', 'years', 'team_fee', 'included', 'not_included'].map((k) => [k, fd.get(k) ?? ''])));
+  const p = settingsSchema.safeParse(Object.fromEntries(['auto', 'years', 'team_fee', 'included', 'not_included', 'signatory_name', 'signatory_title'].map((k) => [k, String(fd.get(k) ?? '').trim()])));
   if (!p.success) go('/admin/contracts', 'r_invalid', '#auto-h');
   // keep the 0037 fields (used by the earlier template) while saving the amateur agreement's fields
   const { data: old } = await supabase.from('site_settings').select('value').eq('key', 'contracts').maybeSingle();
