@@ -137,7 +137,8 @@
     "item_flag": "kulmalippu",
     "item_gloves": "maalivahdin hanska",
     "signUpUnavailable": "Tilin luominen ei onnistu juuri nyt. Yritä myöhemmin uudelleen.",
-    "linkOpening": "Avataan linkkiä…"
+    "linkOpening": "Avataan linkkiä…",
+    "fifaId": "FIFA ID"
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
@@ -1157,7 +1158,8 @@
     "ts_years": "{from}–{to}",
     "ft_crafted": "Toteutus: {company}",
     "ft_version": "Versio",
-    "mail_js": "Sähköpostiosoite näkyy, kun JavaScript on käytössä"
+    "mail_js": "Sähköpostiosoite näkyy, kun JavaScript on käytössä",
+    "fifa_id": "FIFA ID"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

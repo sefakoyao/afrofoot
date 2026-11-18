@@ -137,7 +137,8 @@
     "item_flag": "drapeau de corner",
     "item_gloves": "gant de gardien",
     "signUpUnavailable": "Impossible de créer un compte pour le moment. Réessayez plus tard.",
-    "linkOpening": "Ouverture du lien…"
+    "linkOpening": "Ouverture du lien…",
+    "fifaId": "ID FIFA"
   },
   "role": {
     "super_admin": "Super administrateur",
@@ -1157,7 +1158,8 @@
     "ts_years": "{from}–{to}",
     "ft_crafted": "Réalisé par {company}",
     "ft_version": "Version",
-    "mail_js": "Adresse e-mail affichée lorsque JavaScript est activé"
+    "mail_js": "Adresse e-mail affichée lorsque JavaScript est activé",
+    "fifa_id": "ID FIFA"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – FIFA ID badge (branch `phase2/fifa-badge`)
+- The club's **FIFA ID 149PZFE** as an outline badge (design option A) under the logo in the website footer, and on the member app's sign-in page just before "Privacy policy".
+- One shared component (`packages/ui` `FifaBadge`, the ID set in one place). Label in four languages (fr "ID FIFA", ar "معرّف FIFA"); the ID always reads left to right.
+
 ## Unreleased – player-coach role (branch `phase2/player-coach`, migration 0045, release 0.33.0)
 - **New role "Player-coach"** (fi Pelaajavalmentaja, fr Joueur-entraîneur, ar لاعب ومدرب) for a coach who also plays. One account, two areas:
   - It lands on the coach area, with a **"My player page"** button in the header and **"Coaching"** to go back.

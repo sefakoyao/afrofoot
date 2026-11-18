@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { CLUB_EMAIL, encodeEmail } from '@afrofoot/ui/email';
+import { FifaBadge } from '@afrofoot/ui/fifa-badge';
 import { ProtectedEmail } from '@afrofoot/ui/protected-email';
 import { CRAFTED_BY, releaseLabel, yearNow } from '@afrofoot/ui/release';
 import { Link } from '@/i18n/routing';
@@ -17,9 +18,12 @@ export async function Footer() {
           <span>{t('val1')}</span><span>{t('val2')}</span><span>{t('val3')}</span>
         </p>
         <div className="mt-8 grid gap-8 md:grid-cols-3">
-          <div className="flex items-center gap-3">
-            <Image src="/afc-logo.png" alt="" width={34} height={48} />
-            <p className="font-display text-lg font-extrabold">Afro Foot Club ry</p>
+          <div className="grid content-start gap-3.5">
+            <div className="flex items-center gap-3">
+              <Image src="/afc-logo.png" alt="" width={34} height={48} />
+              <p className="font-display text-lg font-extrabold">Afro Foot Club ry</p>
+            </div>
+            <p><FifaBadge label={t('fifa_id')} tone="dark" /></p>
           </div>
           <div>
             <h4 className="font-display font-bold text-accent">{t('ft_c')}</h4>
