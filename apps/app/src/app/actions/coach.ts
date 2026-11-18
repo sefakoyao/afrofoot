@@ -115,3 +115,22 @@ export async function saveAttendance(fd: FormData): Promise<void> {
   revalidatePath('/me', 'layout');
   back(fd, 'r_attendanceSaved');
 }
+
+/** The reply deadline of a training or game (migration 0048): players can sign in or out until then; reminders follow it. */
+export async function setReplyBy(fd: FormData): Promise<void> {
+  const { supabase } = await session(fd);
+  const p = z.object({ kind: z.enum(['training', 'game']), id: uuid, date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_date'), time: hhmm })
+    .safeParse({ kind: fd.get('kind'), id: fd.get('id'), date: fd.get('date'), time: fd.get('time') });
+  if (!p.success) back(fd, p.error.issues[0]?.message === 'r_time' ? 'r_time' : 'r_date');
+  const v = p.data;
+  const at = helsinkiToIso(v.date, v.time);
+  const table = v.kind === 'training' ? 'training_sessions' : 'matches';
+  const startCol = v.kind === 'training' ? 'starts_at' : 'kickoff_at';
+  const { data: row } = await supabase.from(table).select(startCol).eq('id', v.id).maybeSingle();
+  if (!row) back(fd, 'r_invalid');
+  if (at > (row as Record<string, string>)[startCol]!) back(fd, 'r_replyByLate');
+  const { data, error } = await supabase.from(table).update({ reply_by: at }).eq('id', v.id).select('id');
+  if (error || !data?.length) back(fd, 'r_error');
+  revalidatePath('/coach', 'layout');
+  back(fd, 'r_replyBySaved');
+}

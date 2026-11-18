@@ -1275,7 +1275,11 @@
     "result_bulkAlready": "{count} oli jo joukkueessa.",
     "navSigninHelp": "Kirjautumisapu",
     "signinHelp": "Kirjautumisapu",
-    "navRequests": "Pyynnöt"
+    "navRequests": "Pyynnöt",
+    "mailTitle": "Seuran sähköpostit",
+    "mailReady": "Lähetys toimii: {delivered} viestiä toimitettu 7 päivän aikana, {queued} odottaa.",
+    "mailSetup": "Sähköposteja ei vielä lähetetä: Resend-avain puuttuu Supabasen Vaultista (katso ohje). Muistutukset, hyväksymisviestit ja pyyntöhälytykset odottavat enintään 2 päivää.",
+    "mailFailed": "{count, plural, one {# viesti epäonnistui} other {# viestiä epäonnistui}} 7 päivän aikana."
   },
   "me": {
     "team": "Joukkue",
@@ -1380,7 +1384,16 @@
     "teamGoalsNone": "Seura ei ole vielä kirjoittanut tämän kauden tavoitteita.",
     "documentsTitle": "Allekirjoitetut asiakirjat",
     "tabProfile": "Oma profiili",
-    "mailJs": "Sähköpostiosoite näkyy, kun JavaScript on käytössä"
+    "mailJs": "Sähköpostiosoite näkyy, kun JavaScript on käytössä",
+    "replyBy": "Vastaa viimeistään {when}",
+    "repliesClosed": "Vastaukset on suljettu",
+    "remTitle": "Muistutukset sähköpostiin",
+    "remOn": "Saat muistutuksen, kun et ole vastannut harjoitukseen tai otteluun: 3 päivää ennen vastausaikaa ja viimeisenä päivänä.",
+    "remOff": "Sähköpostimuistutukset ovat pois päältä.",
+    "remWhat": "Vain harjoituksista ja otteluista, joihin et ole vielä vastannut. Muut seuran viestit eivät muutu.",
+    "remNoEmail": "Tililläsi ei ole sähköpostiosoitetta, joten muistutuksia ei voi lähettää.",
+    "remTurnOff": "Poista muistutukset",
+    "remTurnOn": "Ota muistutukset käyttöön"
   },
   "account": {
     "title": "Oma tili",
@@ -1648,7 +1661,14 @@
     "groupOut": "Poissa",
     "groupNone": "Ei vastannut",
     "showNames": "Näytä nimet",
-    "hideNames": "Piilota nimet"
+    "hideNames": "Piilota nimet",
+    "replyByLabel": "Pelaajat vastaavat viimeistään",
+    "change": "Muuta",
+    "time": "Kellonaika",
+    "save": "Tallenna",
+    "replyByHint": "Asetetaan automaattisesti: harjoitukset edellisenä päivänä klo 20, ottelut kahta päivää ennen. Vastaamattomat saavat sähköpostin 3 päivää ennen ja viimeisenä päivänä.",
+    "r_replyBySaved": "Vastausaika tallennettu.",
+    "r_replyByLate": "Vastausajan pitää olla ennen alkua."
   },
   "inv": {
     "title": "Laskut",

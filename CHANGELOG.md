@@ -3,6 +3,21 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – reply deadlines, reminders and club emails (branch `phase2/email-reminders`, migration 0048, release 0.36.0)
+- **Reply deadline** on every training and game, set automatically: trainings the **day before at 20:00**, games **two days before at 20:00** (Helsinki time). Coaches change it on the training or game page ("Players reply by …"). Players see "Reply by Tue 25.11. 20:00"; after the deadline their replies close, while coaches can still record them.
+- **Email reminders** to players who **have not replied**: **3 days before the deadline** and **on the last day** (morning), each sent once.
+  - The email names the training or game, the deadline and links straight to it in the app.
+  - Players can switch them off in My profile.
+  - No reminders to players without an email address or who are blocked by overdue fees.
+- **Approval email:** when an admin approves an account, the member gets "Welcome to Afro Foot Club: your account is approved" with the sign-in link, in their language (en/fi/fr/ar).
+- **Request alerts:** each new tryout request, team enrolment, invoice request or message from the website sends an email to **info@afrofoot.club** with the name and a link to Admin → Requests (no contact details in the email).
+- **How it's sent:**
+  - Everything goes from the database: a queue (`email_outbox`), a job every 2 minutes that sends through **Resend**, and a daily job at 08:05 / 09:05 Helsinki time that queues reminders.
+  - The Resend key lives only in **Supabase Vault**, not in the website or app.
+  - Without the key emails wait (up to 2 days) instead of failing.
+  - **Admin overview → "Club emails"** shows whether sending works, how many were delivered, and the last failure.
+- 33 database checks, 20 browser checks. Set-up: `docs/RUNNING.md` §3aa.
+
 ## Unreleased – game details from Palloliitto (branch `phase2/match-details`, migration 0047, release 0.35.0)
 - **Every result opens its game:** on the home page each line under "Latest results" is a link, and the hero's latest result has a **Game details** button. The new page `/results/<game>` shows:
   - the score with both crests and the **half-time score**

@@ -1,3 +1,4 @@
+import { ReplyByForm } from '@/components/events/ReplyByForm';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -21,7 +22,7 @@ const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3
 type Match = {
   id: string; team_season_id: string; opponent: string; event_type: 'game' | 'friendly'; division: string | null; home_away: 'home' | 'away'; kickoff_at: string;
   status: string; live_state: LiveState; goals_for: number | null; goals_against: number | null; formation: string | null; squad_published: boolean; location_id: string | null;
-  meet_at: string | null; meeting_point: string | null; warmup_at: string | null; briefing_at: string | null;
+  meet_at: string | null; meeting_point: string | null; warmup_at: string | null; briefing_at: string | null; reply_by?: string | null;
   tactic_style: string | null; defensive_line: string | null; pressing: string | null; width: string | null; tempo: string | null; game_plan: string | null;
 };
 type RosterRow = { jersey_number: number | null; players: { id: string; first_name: string; last_name: string; position: string | null; secondary_position: string | null; photo_path: string | null } };
@@ -122,11 +123,13 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         <h1 className="mt-1 font-display text-2xl font-extrabold"><bdi>{team}</bdi> – <bdi>{m.opponent}</bdi></h1>
         <p className="mt-1 font-semibold">{longDay.format(new Date(m.kickoff_at))} · <span dir="ltr">{hmIn(m.kickoff_at)}</span></p>
         {place ? <p className="text-muted">{[place.name, place.address, place.city].filter(Boolean).join(', ')}</p> : null}
+        {m.status === 'scheduled' ? <ReplyByForm kind="game" id={m.id} replyBy={m.reply_by ?? null} back={`/coach/matches/${m.id}`} /> : null}
         <nav className="mt-4 flex flex-wrap gap-2 text-sm" aria-label={t('sections')}>
           {(['lineup', 'protocol', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
         </nav>
       </header>
       <ResultBanner ns="match" result={sp.result} />
+      <ResultBanner ns="coach" result={sp.result} />
 
       {started ? Live : null}
 

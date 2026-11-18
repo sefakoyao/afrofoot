@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 type Event = { id: string; event_type: 'practice' | 'game' | 'friendly' | 'event'; team_season_id: string | null; title: string; division: string | null; starts_at: string; ends_at: string; location_id: string | null; status: string;
-  meet_at: string | null; meeting_point: string | null; kind: string | null; description: string | null };
+  meet_at: string | null; meeting_point: string | null; kind: string | null; description: string | null; reply_by?: string | null };
 type Reply = { availability: 'pending' | 'yes' | 'no' | 'maybe'; note: string | null };
 type Place = { id: string; name: string; address: string | null; city: string | null; maps_url: string | null };
 
@@ -81,6 +81,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const info = new Map(((matchInfo as MatchInfo[] | null) ?? []).map((x) => [x.id, x]));
   const [tmatch, tev] = await Promise.all([getTranslations('match'), getTranslations('events')]);
   const nowIso = new Date().toISOString();
+  const dayTime = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const place = new Map(((places as Place[] | null) ?? []).map((p) => [p.id, p]));
   const teamName = new Map(((teams as unknown as { id: string; teams: { name: string } }[] | null) ?? []).map((x) => [x.id, x.teams.name]));
   const manyTeams = teamName.size > 1;
@@ -104,10 +105,17 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   };
   const REPLY_STYLE: Record<Reply['availability'], string> = { yes: 'bg-accent/20 text-pitch', no: 'bg-danger/10 text-danger', maybe: 'bg-line text-fg', pending: 'bg-line text-muted' };
   const ReplyBox = ({ e, r }: { e: Event; r: Reply }) => {
-    const open = e.status === 'scheduled' && e.starts_at > nowIso;
+    // replies close at the deadline (migration 0048), at the latest when the event starts
+    const closesAt = e.reply_by && e.reply_by < e.starts_at ? e.reply_by : e.starts_at;
+    const open = e.status === 'scheduled' && closesAt > nowIso;
+    const deadline = e.reply_by && e.status === 'scheduled' && e.starts_at > nowIso ? (
+      <p className={`text-xs font-semibold ${open ? 'text-muted' : 'text-danger'}`} data-reply-by={open ? 'open' : 'closed'}>
+        {open ? t('replyBy', { when: dayTime.format(new Date(e.reply_by)) }) : t('repliesClosed')}
+      </p>
+    ) : null;
     const label = <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${REPLY_STYLE[r.availability]}`} data-reply-state={r.availability}>{r.availability === 'pending' ? t('noReply') : tav(r.availability)}</span>;
-    if (!open) return r.availability === 'pending' ? null : <p className="text-sm">{t('yourReply')}: {label}{r.note ? <span className="ms-2 text-muted">“{r.note}”</span> : null}</p>;
-    return <ReplyForm eventId={e.id} kind={e.event_type} availability={r.availability} note={r.note} eventLabel={title(e)} />;
+    if (!open) return <>{deadline}{r.availability === 'pending' ? null : <p className="text-sm">{t('yourReply')}: {label}{r.note ? <span className="ms-2 text-muted">“{r.note}”</span> : null}</p>}</>;
+    return <>{deadline}<ReplyForm eventId={e.id} kind={e.event_type} availability={r.availability} note={r.note} eventLabel={title(e)} /></>;
   };
   const MatchDay = ({ e, open }: { e: Event; open: boolean }) => {
     const x = info.get(e.id);

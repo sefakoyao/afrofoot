@@ -1275,7 +1275,11 @@
     "result_bulkAlready": "{count} were already in the team.",
     "navSigninHelp": "Sign-in help",
     "signinHelp": "Sign-in help",
-    "navRequests": "Requests"
+    "navRequests": "Requests",
+    "mailTitle": "Club emails",
+    "mailReady": "Sending works: {delivered} emails delivered in the last 7 days, {queued} waiting.",
+    "mailSetup": "Emails are not being sent yet: the Resend key is missing in Supabase Vault (see the setup guide). Reminders, approval emails and request alerts wait up to 2 days.",
+    "mailFailed": "{count, plural, one {# email failed} other {# emails failed}} in the last 7 days."
   },
   "me": {
     "team": "Team",
@@ -1380,7 +1384,16 @@
     "teamGoalsNone": "The club has not written this season's goals yet.",
     "documentsTitle": "Signed documents",
     "tabProfile": "My profile",
-    "mailJs": "Email address shown when JavaScript is on"
+    "mailJs": "Email address shown when JavaScript is on",
+    "replyBy": "Reply by {when}",
+    "repliesClosed": "Replies are closed",
+    "remTitle": "Email reminders",
+    "remOn": "You get a reminder when you have not replied to a training or game: 3 days before the deadline and on the last day.",
+    "remOff": "Email reminders are off.",
+    "remWhat": "Only for trainings and games you have not answered yet. Announcements and other club emails are not affected.",
+    "remNoEmail": "Your account has no email address, so no reminders can be sent.",
+    "remTurnOff": "Turn reminders off",
+    "remTurnOn": "Turn reminders on"
   },
   "account": {
     "title": "My account",
@@ -1648,7 +1661,14 @@
     "groupOut": "Signed out",
     "groupNone": "No reply yet",
     "showNames": "Show names",
-    "hideNames": "Hide names"
+    "hideNames": "Hide names",
+    "replyByLabel": "Players reply by",
+    "change": "Change",
+    "time": "Time",
+    "save": "Save",
+    "replyByHint": "Set automatically: trainings the day before at 20:00, games two days before. Players who have not replied get an email 3 days before and on the last day.",
+    "r_replyBySaved": "Reply deadline saved.",
+    "r_replyByLate": "The deadline must be before the start."
   },
   "inv": {
     "title": "Invoices",

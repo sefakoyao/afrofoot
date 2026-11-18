@@ -14,8 +14,8 @@ const KEYS = {
     err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_lead', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason'],
   },
   coach: {
-    ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved'],
-    err: ['r_invalid', 'r_error', 'r_title', 'r_date', 'r_time', 'r_endAfterStart', 'r_repeat', 'r_notYourTeam', 'r_cancelled', 'r_tooEarly'],
+    ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved', 'r_replyBySaved'],
+    err: ['r_invalid', 'r_error', 'r_title', 'r_date', 'r_time', 'r_endAfterStart', 'r_repeat', 'r_notYourTeam', 'r_cancelled', 'r_tooEarly', 'r_replyByLate'],
   },
   match: {
     ok: ['r_matchCreated', 'r_protocolSaved', 'r_planSaved', 'r_styleApplied', 'r_lineupSaved', 'r_published', 'r_unpublished', 'r_evAdded', 'r_evVoided', 'r_kickoff', 'r_half_time', 'r_second_half', 'r_full_time'],

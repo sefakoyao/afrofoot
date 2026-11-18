@@ -1275,7 +1275,11 @@
     "result_bulkAlready": "{count} étaient déjà dans l’équipe.",
     "navSigninHelp": "Aide à la connexion",
     "signinHelp": "Aide à la connexion",
-    "navRequests": "Demandes"
+    "navRequests": "Demandes",
+    "mailTitle": "E-mails du club",
+    "mailReady": "L’envoi fonctionne : {delivered} e-mails remis ces 7 derniers jours, {queued} en attente.",
+    "mailSetup": "Les e-mails ne sont pas encore envoyés : la clé Resend manque dans le Vault de Supabase (voir le guide). Rappels, e-mails de validation et alertes attendent jusqu’à 2 jours.",
+    "mailFailed": "{count, plural, one {# e-mail a échoué} other {# e-mails ont échoué}} ces 7 derniers jours."
   },
   "me": {
     "team": "Équipe",
@@ -1380,7 +1384,16 @@
     "teamGoalsNone": "Le club n'a pas encore écrit les objectifs de cette saison.",
     "documentsTitle": "Documents signés",
     "tabProfile": "Mon profil",
-    "mailJs": "Adresse e-mail affichée lorsque JavaScript est activé"
+    "mailJs": "Adresse e-mail affichée lorsque JavaScript est activé",
+    "replyBy": "Répondre avant le {when}",
+    "repliesClosed": "Les réponses sont closes",
+    "remTitle": "Rappels par e-mail",
+    "remOn": "Tu reçois un rappel quand tu n’as pas répondu à un entraînement ou un match : 3 jours avant la date limite et le dernier jour.",
+    "remOff": "Les rappels par e-mail sont désactivés.",
+    "remWhat": "Seulement pour les entraînements et matchs sans réponse. Les autres e-mails du club ne changent pas.",
+    "remNoEmail": "Ton compte n’a pas d’adresse e-mail : aucun rappel ne peut être envoyé.",
+    "remTurnOff": "Désactiver les rappels",
+    "remTurnOn": "Activer les rappels"
   },
   "account": {
     "title": "Mon compte",
@@ -1648,7 +1661,14 @@
     "groupOut": "Absents",
     "groupNone": "Sans réponse",
     "showNames": "Voir les noms",
-    "hideNames": "Masquer les noms"
+    "hideNames": "Masquer les noms",
+    "replyByLabel": "Réponse des joueurs avant le",
+    "change": "Modifier",
+    "time": "Heure",
+    "save": "Enregistrer",
+    "replyByHint": "Réglé automatiquement : entraînements la veille à 20h, matchs deux jours avant. Les joueurs sans réponse reçoivent un e-mail 3 jours avant et le dernier jour.",
+    "r_replyBySaved": "Date limite enregistrée.",
+    "r_replyByLate": "La date limite doit être avant le début."
   },
   "inv": {
     "title": "Factures",

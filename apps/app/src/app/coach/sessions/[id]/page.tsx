@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { cancelSession, saveAttendance } from '@/app/actions/coach';
 import { Replies } from '@/components/events/Replies';
+import { ReplyByForm } from '@/components/events/ReplyByForm';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { ATTENDANCE } from '@/lib/coach';
@@ -34,7 +35,7 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
   if (!supabase) notFound();
   // RLS (sessions_read) only returns sessions of the coach's own teams.
   const { data: s } = await supabase.from('training_sessions')
-    .select('id, title, focus, starts_at, ends_at, status, team_season_id, locations(name), team_seasons!inner(teams!inner(name))').eq('id', id).maybeSingle();
+    .select('id, title, focus, starts_at, ends_at, status, team_season_id, reply_by, locations(name), team_seasons!inner(teams!inner(name))').eq('id', id).maybeSingle();
   if (!s) notFound();
   const teamName = (s.team_seasons as unknown as { teams: { name: string } }).teams.name;
   const place = (s.locations as unknown as { name: string } | null)?.name;
@@ -60,6 +61,7 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
         <p className="mt-1 font-semibold">{day.format(new Date(s.starts_at))} · <span dir="ltr">{hm.format(new Date(s.starts_at))}–{hm.format(new Date(s.ends_at))}</span></p>
         <p className="text-muted">{teamName}{place ? ` · ${place}` : ''}</p>
         {s.focus ? <p className="mt-2">{t('focus')}: {s.focus}</p> : null}
+        {s.status === 'scheduled' ? <ReplyByForm kind="training" id={s.id} replyBy={s.reply_by} back={`/coach/sessions/${s.id}`} /> : null}
         <p className="mt-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.status === 'cancelled' ? 'bg-danger/10 text-danger' : s.status === 'completed' ? 'bg-accent/20 text-pitch' : 'bg-line'}`}>{t(`ss_${s.status}` as 'ss_scheduled')}</span></p>
       </header>
       <ResultBanner ns="coach" result={sp.result} />
