@@ -1285,7 +1285,10 @@
     "mailReady": "L’envoi fonctionne : {delivered} e-mails remis ces 7 derniers jours, {queued} en attente.",
     "mailSetup": "Les e-mails ne sont pas encore envoyés : la clé Resend manque dans le Vault de Supabase (voir le guide). Rappels, e-mails de validation et alertes attendent jusqu’à 2 jours.",
     "mailFailed": "{count, plural, one {# e-mail a échoué} other {# e-mails ont échoué}} ces 7 derniers jours.",
-    "navQuiz": "Quiz"
+    "navQuiz": "Quiz",
+    "navGroupPeople": "Personnes",
+    "navGroupTeams": "Équipes et événements",
+    "navGroupClub": "Club"
   },
   "me": {
     "team": "Équipe",
