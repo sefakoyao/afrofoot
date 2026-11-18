@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
-import { NewsCard } from '@/components/NewsCard';
+import { NewsList } from '@/components/NewsList';
 import { Hero, Section } from '@/components/Page';
-import { getPosts } from '@/lib/news';
+import { getPostsPage } from '@/lib/news';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   return staticPageMeta((await params).locale, '/news', 'n_news', 'seo_news');
@@ -13,22 +13,18 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 // Rebuilt at most once a minute, so new articles show without a deploy.
 export const revalidate = 60;
 
+/** News, page 1: the 9 newest articles; the rest on /news/page/2, 3 … */
 export default async function NewsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('site');
   const l = (locale in LOCALE_LABELS ? locale : 'en') as Locale;
-  const date = new Intl.DateTimeFormat(LOCALE_LABELS[l].intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
-  const posts = await getPosts(100); // the whole archive, including the articles imported from the old website
+  const { posts, pages } = await getPostsPage(1);
   return (
     <>
       <Hero title={t('n_news')} />
       <Section>
-        {posts.length === 0 ? <p className="text-muted">{t('news_empty')}</p> : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((p, i) => <NewsCard key={p.id} post={p} index={i} locale={l} date={date.format(new Date(p.published_at))} readMore={t('readmore')} />)}
-          </div>
-        )}
+        {posts.length === 0 ? <p className="text-muted">{t('news_empty')}</p> : <NewsList posts={posts} page={1} pages={pages} locale={l} />}
       </Section>
     </>
   );

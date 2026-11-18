@@ -1178,7 +1178,12 @@
     "md_competition": "المسابقة",
     "md_source": "المصدر: خدمة نتائج Palloliitto.",
     "md_details": "تفاصيل المباراة",
-    "md_desc": "{competition}: {home} – {away}. النتيجة والأهداف والبطاقات."
+    "md_desc": "{competition}: {home} – {away}. النتيجة والأهداف والبطاقات.",
+    "news_pages": "صفحات الأخبار",
+    "news_prev": "السابق",
+    "news_next": "التالي",
+    "news_page": "الصفحة {n}",
+    "news_pageOf": "الصفحة {n} من {total}"
   },
   "admin": {
     "navOverview": "نظرة عامة",

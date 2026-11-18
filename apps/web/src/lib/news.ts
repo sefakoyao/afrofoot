@@ -28,6 +28,20 @@ export async function getPosts(limit: number): Promise<Post[]> {
   return (data ?? []) as Post[];
 }
 
+/** Articles per page on the News page. */
+export const NEWS_PER_PAGE = 9;
+
+/** One page of the archive, newest first, and how many pages there are (page 1 = /news, page n = /news/page/n). */
+export async function getPostsPage(page: number): Promise<{ posts: Post[]; total: number; pages: number }> {
+  const db = getPublicClient();
+  if (!db || !Number.isInteger(page) || page < 1) return { posts: [], total: 0, pages: 0 };
+  const from = (page - 1) * NEWS_PER_PAGE;
+  const { data, count } = await db.from('news_posts').select(POST_COLUMNS, { count: 'exact' }).eq('status', 'published')
+    .order('published_at', { ascending: false }).range(from, from + NEWS_PER_PAGE - 1);
+  const total = count ?? 0;
+  return { posts: (data ?? []) as Post[], total, pages: Math.max(1, Math.ceil(total / NEWS_PER_PAGE)) };
+}
+
 /** One published post; cached per request, so the page and its metadata share one query. */
 export const getPost = cache(async (slug: string): Promise<Post | null> => {
   const db = getPublicClient();

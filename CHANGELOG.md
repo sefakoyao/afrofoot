@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – news in pages of 9 (branch `phase2/news-pages`)
+- **News page:** 9 articles per page instead of the whole archive at once.
+  - Under the list: **‹ Previous · 1 2 3 … 5 · Next ›**, with the current page highlighted and "…" when there are many pages.
+  - Page 1 stays `/news`; later pages are `/news/page/2`, `/news/page/3` … Each page has its own title ("News – Page 2"), canonical link, "Page 2 of 5" under the heading, and the same one-minute refresh.
+  - A page past the end, or one that isn't a number, gives "not found"; `/news/page/1` goes to `/news`.
+  - Articles keep their addresses (`/news/<article>`).
+- Arabic: the arrows and order follow right-to-left. No database changes.
+
 ## Unreleased – reply deadlines, reminders and club emails (branch `phase2/email-reminders`, migration 0048, release 0.36.0)
 - **Reply deadline** on every training and game, set automatically: trainings the **day before at 20:00**, games **two days before at 20:00** (Helsinki time). Coaches change it on the training or game page ("Players reply by …"). Players see "Reply by Tue 25.11. 20:00"; after the deadline their replies close, while coaches can still record them.
 - **Email reminders** to players who **have not replied**: **3 days before the deadline** and **on the last day** (morning), each sent once.
