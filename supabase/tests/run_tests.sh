@@ -27,3 +27,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/A3_squad_palloliitto.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A4_top_scorers.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A5_signin_help.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A6_player_coach.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/A7_requests_inbox.sql

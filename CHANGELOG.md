@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – requests inbox (branch `phase2/requests-inbox`, migration 0046, release 0.34.0)
+- **Admin → Requests**, a new menu item with the number of new requests:
+  - It lists everything sent from the website forms: tryout requests, team enrolments, membership invoice requests and messages (sponsor enquiries are messages marked "Sponsorship").
+  - Until now these were only in the database (Supabase Table Editor) and nobody saw them in the app.
+- **List:** newest first, open ones by default ("Show handled ones too" for the rest), filters per kind. Each line gives the essentials, e.g. "Forward · 25 years · FC Example".
+- **Opening a request:** all its details, email and phone as tap links, the message, and:
+  - a **status** (tryouts and enrolments: new → in review → accepted / declined / archived; invoices: new → invoiced → paid / cancelled; messages: new → in review → archived)
+  - an internal note
+  - a **tryout date** (tryouts) or an **invoice number** (invoices)
+  - who handled it is recorded
+- Admins only; coaches and players can't see it.
+- **Database 0046:** changes to messages are now audited like the other requests, without copying the message text.
+- 8 database checks, 16 browser checks. Next step: an email alert for new requests.
+
 ## Unreleased – FIFA ID badge (branch `phase2/fifa-badge`)
 - The club's **FIFA ID 149PZFE** as an outline badge (design option A) under the logo in the website footer, and on the member app's sign-in page just before "Privacy policy".
 - One shared component (`packages/ui` `FifaBadge`, the ID set in one place). Label in four languages (fr "ID FIFA", ar "معرّف FIFA"); the ID always reads left to right.
