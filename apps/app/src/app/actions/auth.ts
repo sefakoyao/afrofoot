@@ -15,6 +15,7 @@ import { getSupabase } from '@/lib/supabase/server';
 import { supabaseEnvReport, supabaseTarget } from '@/lib/env';
 import { isFeeBlock } from '@/lib/supabase/middleware';
 import { isSocialProvider } from '@/lib/auth-providers';
+import { errorDetail, logSignin, type SigninOutcome } from '@/lib/signin-log';
 
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
 const fail = (error: string): AuthState => ({ status: 'error', error });
@@ -46,6 +47,15 @@ async function appOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
+/** The sign-in log's outcome for a failed password sign-in (same order as authError). */
+function outcomeOf(e: AuthError): SigninOutcome {
+  if (isFeeBlock(e)) return 'fee_blocked';
+  if (e.status === 429 || e.code === 'over_request_rate_limit' || e.code === 'over_email_send_rate_limit') return 'rate_limited';
+  if (e.code === 'email_not_confirmed') return 'not_confirmed';
+  if (e.code === 'invalid_credentials' || e.status === 400) return 'wrong_password';
+  return 'error';
+}
+
 export async function signIn(_: AuthState, fd: FormData): Promise<AuthState> {
   const r = await signInOnce(fd);
   const email = String(fd.get('email') ?? '').slice(0, 200);
@@ -59,14 +69,20 @@ async function signInOnce(fd: FormData): Promise<AuthState> {
   if (!supabase) return fail('unavailable');
 
   const { error } = await supabase.auth.signInWithPassword({ email: p.data.email, password: p.data.password });
-  if (error) return authError(error);
+  if (error) {
+    const outcome = outcomeOf(error);
+    await logSignin(mailer(), p.data.email, 'password', outcome, outcome === 'error' ? errorDetail(error) : null);
+    return authError(error);
+  }
 
   const member = await getMember();
-  if (!member) { await supabase.auth.signOut(); return fail('unavailable'); } // profile unreadable: logged in getMember
+  if (!member) { await supabase.auth.signOut(); await logSignin(mailer(), p.data.email, 'password', 'error', 'profile unreadable'); return fail('unavailable'); } // profile unreadable: logged in getMember
   if (member.status !== 'active') {
     await supabase.auth.signOut();
+    await logSignin(mailer(), p.data.email, 'password', member.status === 'suspended' ? 'suspended' : 'pending');
     return fail(member.status === 'suspended' ? 'suspended' : 'pending');
   }
+  await logSignin(supabase, null, 'password', 'ok');
   if (isLocale(member.locale)) (await cookies()).set(LOCALE_COOKIE, member.locale, LOCALE_COOKIE_OPTIONS);
   redirect(safeNext(p.data.next) ?? homeFor(member.role));
 }
@@ -109,7 +125,14 @@ export async function requestPasswordReset(_: AuthState, fd: FormData): Promise<
   const mail = mailer();
   if (!mail) return fail('unavailable');
   const { error } = await mail.auth.resetPasswordForEmail(p.data.email, { redirectTo: `${await appOrigin()}/auth/confirm?next=/reset-password` });
-  if (error && (error.status === 429 || error.code?.startsWith('over_'))) return { status: 'error', error: 'tooManyAttempts', email: p.data.email };
+  if (error && (error.status === 429 || error.code?.startsWith('over_'))) {
+    await logSignin(mail, p.data.email, 'reset', 'reset_rate_limited', errorDetail(error));
+    return { status: 'error', error: 'tooManyAttempts', email: p.data.email };
+  }
+  // Supabase could not send the email (e.g. its built-in mail server refuses addresses outside the project team when no
+  // custom SMTP is set): the member still sees "link sent" (no account probing), the admin sees it in the sign-in log.
+  if (error) console.error('[auth] reset email not sent', { status: error.status, code: error.code, message: error.message?.slice(0, 120), ...supabaseTarget() });
+  await logSignin(mail, p.data.email, 'reset', error ? 'reset_failed' : 'reset_sent', error ? `${errorDetail(error)} ${error.message ?? ''}`.trim() : null);
   return { status: 'ok', message: 'linkSent' };
 }
 
@@ -123,6 +146,7 @@ export async function adoptLinkSession(accessToken: string, refreshToken: string
   const supabase = await client();
   if (!supabase) return { ok: false };
   const { error } = await supabase.auth.setSession({ access_token: tokens.data.a, refresh_token: tokens.data.r });
+  if (!error) await logSignin(supabase, null, 'link', 'ok');
   return error ? { ok: false, blocked: isFeeBlock(error) } : { ok: true };
 }
 

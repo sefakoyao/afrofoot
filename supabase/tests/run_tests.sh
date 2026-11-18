@@ -32,3 +32,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/A8_match_details.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A9_email_reminders.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B1_football_quiz.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B2_quiz_more.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/B3_signin_log.sql

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { grantSigninExemption, sendSigninLink } from '@/app/actions/signin-help';
 import { ResultBanner } from '@/components/ResultBanner';
+import { LOG_FILTERS, MemberSigninLog, PERIODS, SigninLog } from '@/components/SigninLog';
 import { requireArea } from '@/lib/auth';
 import { dateFormats, isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
@@ -49,6 +50,8 @@ export default async function SigninHelpPage({ searchParams }: { searchParams: P
   const [t, fmt, supabase] = await Promise.all([getTranslations('signin'), dateFormats(), getSupabase()]);
   const q = cleanQuery(one(sp.q));
   const memberId = UUID.test(one(sp.member)) ? one(sp.member) : '';
+  const days = PERIODS.find((d) => String(d) === one(sp.days)) ?? 7;
+  const logFilter = LOG_FILTERS.find((f) => f === one(sp.log)) ?? 'all';
   const appUrl = (process.env.APP_URL || 'https://app.afrofoot.club').replace(/\/+$/, '');
 
   const [{ data: rows }, { data: picked }, statusAnswer] = supabase ? await Promise.all([
@@ -152,6 +155,8 @@ export default async function SigninHelpPage({ searchParams }: { searchParams: P
             </div>
           ) : null}
 
+          {supabase ? <MemberSigninLog db={supabase} profileId={m.id} /> : null}
+
           <div className="rounded-card bg-surface p-4 text-sm">
             <p className="font-semibold">{t('tellThem')}</p>
             <ul className="mt-1 list-disc ps-5">
@@ -163,6 +168,8 @@ export default async function SigninHelpPage({ searchParams }: { searchParams: P
           <p className="text-xs text-muted">{t('privacy')}</p>
         </section>
       ) : memberId ? <p className="rounded-card bg-danger/10 p-4 font-semibold text-danger">{t('notFound')}</p> : null}
+
+      {supabase ? <SigninLog db={supabase} days={days} filter={logFilter} q={q} /> : null}
     </div>
   );
 }

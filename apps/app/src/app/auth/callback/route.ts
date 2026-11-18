@@ -4,7 +4,9 @@ import { getMember, homeFor } from '@/lib/auth';
 import { LOCALE_COOKIE, LOCALE_COOKIE_OPTIONS } from '@/lib/locale';
 import { safeNext } from '@/lib/paths';
 import { getSupabase } from '@/lib/supabase/server';
+import { mailer } from '@/lib/supabase/mailer';
 import { isFeeBlock } from '@/lib/supabase/middleware';
+import { logSignin } from '@/lib/signin-log';
 
 /**
  * Return address after "Continue with Google / Facebook" (and any other PKCE sign-in): exchanges the one-time code for
@@ -37,11 +39,15 @@ export async function GET(request: NextRequest) {
   }
 
   const member = await getMember();
+  const { data: { user } } = await supabase.auth.getUser();
+  const provider = user?.app_metadata?.provider === 'facebook' ? 'facebook' : 'google';
   if (!member) { await supabase.auth.signOut(); return to('/login?reason=unavailable'); }
   if (member.status !== 'active') {
     await supabase.auth.signOut();
+    await logSignin(mailer(), user?.email ?? null, provider, member.status === 'suspended' ? 'suspended' : 'pending');
     return to(`/login?reason=${member.status === 'suspended' ? 'suspended' : 'pending'}`);
   }
+  await logSignin(supabase, null, provider, 'ok');
   const res = to(safeNext(q.get('next')) ?? homeFor(member.role));
   if (isLocale(member.locale)) res.cookies.set(LOCALE_COOKIE, member.locale, LOCALE_COOKIE_OPTIONS);
   return res;

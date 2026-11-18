@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { EmailOtpType } from '@supabase/supabase-js';
 import { getSupabase } from '@/lib/supabase/server';
 import { isFeeBlock } from '@/lib/supabase/middleware';
+import { logSignin } from '@/lib/signin-log';
 
 const OTP_TYPES: readonly EmailOtpType[] = ['recovery', 'signup', 'invite', 'magiclink', 'email_change', 'email'];
 const NEXT_ALLOWED = ['/reset-password', '/'] as const;
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
     ? await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
     : code ? await supabase.auth.exchangeCodeForSession(code) : { error: { message: 'missing token' } };
 
-  if (!error) return to(next);
+  if (!error) { await logSignin(supabase, null, 'link', 'ok'); return to(next); }
   if (isFeeBlock(error)) return to('/login?reason=blocked');
   return to(next === '/reset-password' ? '/reset-password?error=link' : '/login?reason=link');
 }

@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sign-in log (branch `phase2/signin-log`, migration 0051, release 0.39.0)
+- **Admin → Sign-in help → Sign-in log**, for today, 7, 30 or 90 days:
+  - tiles for successful sign-ins (and how many members), failed sign-ins, reset emails sent, and reset emails **not** sent
+  - **why sign-ins failed:** wrong email or password, email not confirmed, waiting for approval, suspended, overdue fees, too many attempts, technical error
+  - **having trouble:** members with 2+ failures, or a reset email that could not be sent, and no successful sign-in since, each with a **Help →** link
+  - **latest attempts**, filtered by all, failed, successful or password resets; a mistyped address shows as "No account with this email"
+  - a red warning with the fix when Supabase could not send password-reset emails (custom SMTP missing)
+- **Per member** in Sign-in help: their recent attempts and, where Supabase keeps it, the Supabase Auth log (sign-ins, reset emails requested, password changes).
+- Logged from the password sign-in, Google/Facebook, email links, the Forgot password page and the admin's "Send password link". Passwords are never logged. Only admins read the log; it is kept 90 days (nightly clean-up).
+- **Fix:** the Forgot password page no longer hides an error from Supabase when the email can't be sent; the error is logged and shown to admins. Members still see the same neutral answer.
+- Docs: Supabase Auth needs custom SMTP (Resend) for members to receive reset and confirmation emails.
+- 20 database checks, 24 browser checks.
+
 ## Unreleased – more quiz questions, quiz editor (branch `phase2/quiz-more`, migration 0050, release 0.38.0)
 - **Admin → Quiz** (new menu item): every quiz question, filtered by topic and shown/switched off.
   - **New question** and an editor per question: the question, 2–6 answers and the explanation in English, Finnish, French and Arabic (English required, players see English when a language is missing), the right answer, the source, and **Shown to players**.

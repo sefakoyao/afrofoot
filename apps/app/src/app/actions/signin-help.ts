@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
 import { mailer } from '@/lib/supabase/mailer';
 import { getSupabase } from '@/lib/supabase/server';
+import { errorDetail, logSignin } from '@/lib/signin-log';
 
 /**
  * Admin → Sign-in help (migration 0044). The admin never sees or sets a password and cannot sign in as the member:
@@ -37,8 +38,9 @@ export async function sendSigninLink(fd: FormData): Promise<void> {
   const { error } = kind.data === 'password'
     ? await mail.auth.resetPasswordForEmail(st.email, { redirectTo: `${origin}/auth/confirm?next=/reset-password` })
     : st.email_confirmed ? { error: null } : await mail.auth.resend({ type: 'signup', email: st.email, options: { emailRedirectTo: `${origin}/auth/confirm` } });
+  if (kind.data === 'password') await logSignin(mail, st.email, 'reset', error ? (error.status === 429 || error.code?.startsWith('over_') ? 'reset_rate_limited' : 'reset_failed') : 'reset_sent', `admin${error ? ` ${errorDetail(error)} ${error.message ?? ''}` : ''}`.trim());
   if (error) {
-    console.error('[signin-help] email refused', { kind: kind.data, status: error.status, code: error.code });
+    console.error('[signin-help] email refused', { kind: kind.data, status: error.status, code: error.code, message: error.message?.slice(0, 120) });
     return back(member, error.status === 429 || error.code?.startsWith('over_') ? 'r_tooMany' : 'r_error');
   }
   await supabase.rpc('log_signin_help', { p_profile: member, p_action: kind.data === 'password' ? 'password_link' : 'confirmation_link' });
