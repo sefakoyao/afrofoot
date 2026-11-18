@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { ROLES, assignableRoles, canManageMember, isRole } from '@afrofoot/db';
+import { assignableRoles, canManageMember, isPlayerRole, isRole, ROLES } from '@afrofoot/db';
 import { requireArea } from '@/lib/auth';
 import { autoContracts, autoParams } from '@/lib/auto-contracts';
 import { addToTeam, ensurePlayerRecord } from '@/lib/roster';
@@ -63,7 +63,7 @@ export async function updateMember(fd: FormData): Promise<void> {
   }
   // Approved with a group: player record from the profile, then into the team.
   if (a.op === 'approve' && a.team_season_id) {
-    if (target.role !== 'player') { revalidatePath('/admin', 'layout'); back(fd, 'approveNotPlayer'); }
+    if (!isPlayerRole(target.role)) { revalidatePath('/admin', 'layout'); back(fd, 'approveNotPlayer'); }
     const rec = await ensurePlayerRecord(supabase, a.id);
     if ('error' in rec) { revalidatePath('/admin', 'layout'); back(fd, rec.error === 'noName' ? 'approveNoName' : 'error'); }
     const r = await addToTeam(supabase, a.team_season_id, [rec.id]);
@@ -106,7 +106,7 @@ export async function bulkMembers(fd: FormData): Promise<void> {
       approved++; status = 'active';
     }
     if (action === 'approve') { if (m.status !== 'pending') skipped++; continue; }
-    if (m.role !== 'player' || status !== 'active') { skipped++; continue; }
+    if (!isPlayerRole(m.role) || status !== 'active') { skipped++; continue; }
     const rec = await ensurePlayerRecord(supabase, m.id);
     if ('error' in rec) { skipped++; continue; }
     toTeam.push(rec.id);

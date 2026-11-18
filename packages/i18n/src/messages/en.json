@@ -143,7 +143,8 @@
     "super_admin": "Super administrator",
     "club_admin": "Club administrator",
     "coach": "Coach",
-    "player": "Player"
+    "player": "Player",
+    "player_coach": "Player-coach"
   },
   "status": {
     "pending": "Pending",
@@ -240,7 +241,9 @@
     "guideDownload": "Download the guide in {language} (PDF)",
     "guideCopy": "Copy link",
     "guideCopied": "Link copied",
-    "guideCopyHint": "Copies the link to the guide in your language, to paste in WhatsApp or an email."
+    "guideCopyHint": "Copies the link to the guide in your language, to paste in WhatsApp or an email.",
+    "switchToPlayer": "My player page",
+    "switchToCoach": "Coaching"
   },
   "privacy": {
     "publicConsent": "Show me on the public player list"
@@ -1153,7 +1156,8 @@
     "ts_former": "former player",
     "ts_years": "{from}–{to}",
     "ft_crafted": "Crafted by {company}",
-    "ft_version": "Version"
+    "ft_version": "Version",
+    "mail_js": "Email address shown when JavaScript is on"
   },
   "admin": {
     "navOverview": "Overview",
@@ -1353,7 +1357,8 @@
     "teamGoalsTitle": "Team's goals",
     "teamGoalsNone": "The club has not written this season's goals yet.",
     "documentsTitle": "Signed documents",
-    "tabProfile": "My profile"
+    "tabProfile": "My profile",
+    "mailJs": "Email address shown when JavaScript is on"
   },
   "account": {
     "title": "My account",

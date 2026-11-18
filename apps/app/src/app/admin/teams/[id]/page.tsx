@@ -1,3 +1,4 @@
+import { COACH_ROLES, PLAYER_ROLES } from '@afrofoot/db';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -45,8 +46,8 @@ export default async function TeamPage({ params, searchParams }: { params: Promi
     supabase.from('team_players').select('id, jersey_number, captain, joined_on, left_on, players!inner(id, first_name, last_name, position, profile_id)').eq('team_season_id', id),
     supabase.from('team_staff').select('id, role_label, staff_members!inner(first_name, last_name, type, profile_id)').eq('team_season_id', id),
     supabase.from('players').select('id, first_name, last_name, profile_id').order('last_name'),
-    supabase.from('profiles').select('id, first_name, last_name, email, phone').eq('role', 'player').eq('status', 'active').order('last_name'),
-    supabase.from('profiles').select('id, first_name, last_name, email').eq('role', 'coach').eq('status', 'active').order('last_name'),
+    supabase.from('profiles').select('id, first_name, last_name, email, phone').in('role', [...PLAYER_ROLES]).eq('status', 'active').order('last_name'),
+    supabase.from('profiles').select('id, first_name, last_name, email').in('role', [...COACH_ROLES]).eq('status', 'active').order('last_name'),
   ]);
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []);
   const active = roster.filter((r) => !r.left_on).sort((a, b) => (a.jersey_number ?? 999) - (b.jersey_number ?? 999) || a.players.last_name.localeCompare(b.players.last_name));

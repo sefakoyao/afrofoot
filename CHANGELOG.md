@@ -3,6 +3,29 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – player-coach role (branch `phase2/player-coach`, migration 0045, release 0.33.0)
+- **New role "Player-coach"** (fi Pelaajavalmentaja, fr Joueur-entraîneur, ar لاعب ومدرب) for a coach who also plays. One account, two areas:
+  - It lands on the coach area, with a **"My player page"** button in the header and **"Coaching"** to go back.
+  - In the coach area: team rosters, attendance, match day and lineups, evaluations, places, the Palloliitto list.
+  - In the player area: calendar replies, fees, contract, profile, the website squad.
+- **Making someone a player-coach:** Admin → Members → set the role to **Player-coach**, then add them to the team as a player on the team page (they stay its coach).
+- **Safeguards:**
+  - A player-coach is never their own coach: they cannot evaluate themselves, set their own goals or read their own private data as coach.
+  - On their own player record they can only change what any player can (so no fee exemption for themselves).
+  - Their own calendar replies close when the event starts, like for any player. They can still correct their players' replies.
+  - They pay fees like a player: the overdue-fee sign-in block applies.
+  - Announcements to "players" and to "coaches" both reach them.
+- **Database (0045):**
+  - helpers `app.is_coach()` / `app.is_playing()`
+  - every policy and function that named the coach or player role now uses them; any other policy naming the role (e.g. the places policies, whichever version is installed) is rewritten in place
+  - the file runs in one transaction (Supabase SQL Editor)
+- 27 database checks (no policy left naming the role directly), 13 browser checks; all existing coach and player tests unchanged.
+
+## Unreleased – email address hidden from spam bots (branch `phase2/email-protect`)
+- **info@afrofoot.club** on the website (footer, contact page, women's and juniors' pages, privacy policy) and the club email on the member app's payment page are now **clickable mailto: links that spam bots can't read**. The page carries only an encoded form of the address (reversed, base64), and the browser builds the real link after loading (`packages/ui` `ProtectedEmail`). Harvesters that read the HTML without running scripts find no address. Without JavaScript, a short note is shown instead.
+- The address is no longer in the search engines' structured data (a common harvesting source); the phone number stays, and is now a tap-to-call link.
+- `packages/ui` declares React as a peer dependency. Texts in four languages.
+
 ## Unreleased – version and copyright in the footers (branch `phase2/footer-version`)
 - **Website footer:** "© 2026 Afro Foot Club ry · Crafted by Fazao Oy", then the privacy link and "Version v0.32.0 · d2f1d45" (release and deployed commit).
 - **Member app:** a new slim footer on every page with the same line.

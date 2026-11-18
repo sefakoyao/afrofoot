@@ -1,5 +1,6 @@
 'use server';
 
+import { isCoachRole, isPlayerRole } from '@afrofoot/db';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -132,7 +133,7 @@ export async function addPlayer(fd: FormData): Promise<void> {
   let playerId = id;
   if (kind === 'profile') {
     const { data: prof } = await supabase.from('profiles').select('id, first_name, last_name, role').eq('id', id).maybeSingle();
-    if (!prof || prof.role !== 'player') back(fd, 'r_invalid');
+    if (!prof || !isPlayerRole(prof.role)) back(fd, 'r_invalid');
     if (!prof.first_name || !prof.last_name) back(fd, 'r_noName');
     const { data: existing } = await supabase.from('players').select('id').eq('profile_id', id).maybeSingle();
     if (existing) playerId = existing.id;
@@ -220,7 +221,7 @@ export async function addCoach(fd: FormData): Promise<void> {
   if (!p.success) back(fd, p.error.issues[0]?.message ?? 'r_invalid');
   const supabase = await db(fd);
   const { data: prof } = await supabase.from('profiles').select('id, first_name, last_name, role, status').eq('id', p.data.profile_id).maybeSingle();
-  if (!prof || prof.role !== 'coach') back(fd, 'r_invalid');
+  if (!prof || !isCoachRole(prof.role)) back(fd, 'r_invalid');
   if (!prof.first_name || !prof.last_name) back(fd, 'r_noName');
   let { data: staff } = await supabase.from('staff_members').select('id').eq('profile_id', prof.id).maybeSingle();
   if (!staff) {

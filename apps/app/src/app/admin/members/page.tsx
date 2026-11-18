@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { ACCOUNT_STATUSES, ROLES, assignableRoles, canManageMember, isRole, type Role } from '@afrofoot/db';
+import { ACCOUNT_STATUSES, assignableRoles, canManageMember, isPlayerRole, isRole, PLAYER_ROLES, type Role, ROLES } from '@afrofoot/db';
 import { bulkMembers, updateMember } from '@/app/actions/members';
 import { BulkBar } from '@/components/admin/BulkBar';
 import { ContractsNote } from '@/components/admin/ContractsNote';
@@ -46,7 +46,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   // Code of Conduct filter: active players who have not agreed to the current version (migration 0028).
   const conduct = one(sp.conduct) === 'missing' ? 'missing' : '';
   if (query && supabase && conduct) {
-    const { data: activePlayers } = await supabase.from('profiles').select('id').eq('role', 'player').eq('status', 'active');
+    const { data: activePlayers } = await supabase.from('profiles').select('id').in('role', [...PLAYER_ROLES]).eq('status', 'active');
     const missing = [...(await missingConsent(supabase, (activePlayers ?? []).map((r) => r.id)))];
     query = query.in('id', missing.length ? missing : ['00000000-0000-0000-0000-000000000000']);
   }
@@ -61,7 +61,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   };
   const back = params({});
   const choices = assignableRoles(actor.role);
-  const noConduct = supabase ? await missingConsent(supabase, rows.filter((r) => r.role === 'player' && r.status === 'active').map((r) => r.id)) : new Set<string>();
+  const noConduct = supabase ? await missingConsent(supabase, rows.filter((r) => isPlayerRole(r.role) && r.status === 'active').map((r) => r.id)) : new Set<string>();
   const tc = await getTranslations('conduct');
   // Player records of the listed members, for the "Invoices" link (invoices belong to player records).
   const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
@@ -103,7 +103,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                   </div>
                   <form action={updateMember} className="flex flex-wrap items-end gap-2">
                     <input type="hidden" name="id" value={m.id} /><input type="hidden" name="back" value={back} /><input type="hidden" name="op" value="approve" />
-                    {m.role === 'player' && teams.length ? (
+                    {isPlayerRole(m.role) && teams.length ? (
                       <label className="grid gap-1 text-xs font-semibold">{t('assignGroup')}
                         <TeamSelect teams={teams} groupLabel={groupLabel} emptyLabel={t('noGroup')} className="min-w-[12rem]" /></label>
                     ) : null}

@@ -234,6 +234,11 @@ Every merge into `main` should build both Vercel projects (`afrofoot` for the we
 2. **Supabase → Authentication → URL Configuration → Redirect URLs** must allow `https://app.afrofoot.club/auth/confirm` (already needed, §3b). Nothing else to set: reset and confirmation links now work with the default email templates on any device.
 3. Use it: Admin → **Sign-in help**, search the member, follow "What stops them, and what to do".
 
+## 3x. Player-coach role (migration 0045, release 0.33.0)
+1. **Database:** paste `supabase/migrations/20260101000045_player_coach.sql` into Supabase → SQL Editor and run it once (after 0044). If Saved places (0039) is not installed yet, run 0039 first when you install it later, then run 0045 again (it is safe to run twice).
+2. **Make someone a player-coach:** Admin → Members → their row → role **Player-coach** → Save. Then Admin → Teams → the team → add them under Players (they stay the team's coach).
+3. They sign in to the coach area and switch with **My player page** / **Coaching** in the header.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.

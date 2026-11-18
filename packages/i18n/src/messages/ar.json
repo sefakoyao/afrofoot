@@ -143,7 +143,8 @@
     "super_admin": "مشرف عام",
     "club_admin": "مدير النادي",
     "coach": "مدرب",
-    "player": "لاعب"
+    "player": "لاعب",
+    "player_coach": "لاعب ومدرب"
   },
   "status": {
     "pending": "قيد الانتظار",
@@ -240,7 +241,9 @@
     "guideDownload": "تنزيل الدليل باللغة {language} (PDF)",
     "guideCopy": "نسخ الرابط",
     "guideCopied": "تم نسخ الرابط",
-    "guideCopyHint": "ينسخ رابط الدليل بلغتك لتلصقه في واتساب أو في بريد إلكتروني."
+    "guideCopyHint": "ينسخ رابط الدليل بلغتك لتلصقه في واتساب أو في بريد إلكتروني.",
+    "switchToPlayer": "صفحتي كلاعب",
+    "switchToCoach": "التدريب"
   },
   "privacy": {
     "publicConsent": "أوافق على ظهوري في قائمة اللاعبين العامة"
@@ -1153,7 +1156,8 @@
     "ts_former": "لاعب سابق",
     "ts_years": "{from}–{to}",
     "ft_crafted": "تصميم وتنفيذ {company}",
-    "ft_version": "الإصدار"
+    "ft_version": "الإصدار",
+    "mail_js": "يظهر البريد الإلكتروني عند تفعيل JavaScript"
   },
   "admin": {
     "navOverview": "نظرة عامة",
@@ -1353,7 +1357,8 @@
     "teamGoalsTitle": "أهداف الفريق",
     "teamGoalsNone": "لم يكتب النادي أهداف هذا الموسم بعد.",
     "documentsTitle": "المستندات الموقّعة",
-    "tabProfile": "ملفي"
+    "tabProfile": "ملفي",
+    "mailJs": "يظهر البريد الإلكتروني عند تفعيل JavaScript"
   },
   "account": {
     "title": "حسابي",
