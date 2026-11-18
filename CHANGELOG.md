@@ -10,6 +10,11 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
   - With no signatory set, the admin's own name is used, as before.
   - Signed contracts keep their signature when the setting changes later.
 - **Countersign box:** shows exactly how the club's signature will look, with a link to change the signatory.
+- **Contract PDF on two pages:**
+  - compact header: logo, club, title and a green rule
+  - a facts box with the player, term, length and contract number
+  - tighter spacing; the signatures are kept together on page 2
+  - the text size steps down from 10 to 8.5 pt only when needed to stay on two pages (a 30% longer text still fits); a much longer text keeps 8.5 pt and continues on page 3
 - **Contract PDF footer on every page:** the club's legal name, address, business ID, email, phone and website (from Admin → Invoices → Club billing details), plus the page number.
 - 10 database checks, 9 browser checks.
 
