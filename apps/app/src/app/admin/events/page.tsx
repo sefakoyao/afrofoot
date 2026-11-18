@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { EventForm, EventList, type EventRow } from '@/components/events/EventParts';
 import { PinIcon } from '@/components/events/LocationPicker';
+import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { mapsLinkFor } from '@/lib/locations';
@@ -39,6 +40,16 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
     ...((games ?? []) as unknown as { id: string; opponent: string; event_type: 'game' | 'friendly'; division: string | null; home_away: string; kickoff_at: string; status: string; team_season_id: string; locations: { name: string } | null }[])
       .map((x) => ({ id: x.id, kind: x.event_type, title: x.opponent, at: x.kickoff_at, status: x.status, team: x.team_season_id, place: x.locations?.name ?? null, extra: [x.division, tm(x.home_away === 'away' ? 'away' : 'home')].filter(Boolean).join(' · ') })),
   ].sort((a, b) => a.at.localeCompare(b.at)).slice(0, 30);
+  // Replies to the listed trainings and games, with names (admin_all on both tables and on players).
+  const trainingIds = sport.filter((x) => x.kind === 'training').map((x) => x.id), gameIds = sport.filter((x) => x.kind !== 'training').map((x) => x.id);
+  type Reply = { player_id: string; availability: string; note: string | null; session_id?: string; match_id?: string; players: { first_name: string; last_name: string } | null };
+  const [{ data: sessionReplies }, { data: gameReplies }] = supabase ? await Promise.all([
+    trainingIds.length ? supabase.from('session_attendance').select('session_id, player_id, availability, note, players(first_name, last_name)').in('session_id', trainingIds) : Promise.resolve({ data: [] }),
+    gameIds.length ? supabase.from('match_availability').select('match_id, player_id, availability, note, players(first_name, last_name)').in('match_id', gameIds) : Promise.resolve({ data: [] }),
+  ]) : [{ data: [] }, { data: [] }];
+  const repliesFor = (x: { id: string; kind: string }) => ((x.kind === 'training' ? sessionReplies : gameReplies) as unknown as Reply[] | null ?? [])
+    .filter((r) => (x.kind === 'training' ? r.session_id : r.match_id) === x.id)
+    .map((r) => ({ player_id: r.player_id, name: r.players ? `${r.players.first_name} ${r.players.last_name}` : '–', availability: r.availability, note: r.note }));
   const teams = ((teamRows ?? []) as unknown as { id: string; teams: { name: string } }[]).map((x) => ({ id: x.id, name: x.teams.name }));
   const teamName = new Map(teams.map((x) => [x.id, x.name]));
   const back = '/admin/events';
@@ -71,6 +82,7 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
                   {x.extra ? <span className="text-sm text-muted"> · {x.extra}</span> : null}
                 </span>
                 <span className="text-sm text-muted">{when.format(new Date(x.at))}{x.team ? ` · ${teamName.get(x.team) ?? ''}` : ''}{x.place ? ` · ${x.place}` : ''}</span>
+                {x.status === 'scheduled' ? <div className="basis-full"><Replies rows={repliesFor(x)} /></div> : null}
               </li>
             ))}
           </ul>

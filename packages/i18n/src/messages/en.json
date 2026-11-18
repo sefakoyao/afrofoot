@@ -1623,7 +1623,13 @@
     "ms_played": "Played",
     "ms_postponed": "Postponed",
     "ms_cancelled": "Cancelled",
-    "navMyTeams": "My teams"
+    "navMyTeams": "My teams",
+    "repliesInvited": "of {count} invited",
+    "groupIn": "Signed in",
+    "groupOut": "Signed out",
+    "groupNone": "No reply yet",
+    "showNames": "Show names",
+    "hideNames": "Hide names"
   },
   "inv": {
     "title": "Invoices",

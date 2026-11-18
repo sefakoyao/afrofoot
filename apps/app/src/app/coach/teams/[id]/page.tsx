@@ -7,6 +7,7 @@ import { createSessions } from '@/app/actions/coach';
 import { createMatch } from '@/app/actions/match';
 import { EventForm, EventList, MeetFields, PublicField, type EventRow } from '@/components/events/EventParts';
 import { LocationPicker } from '@/components/events/LocationPicker';
+import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
 type RosterRow = { jersey_number: number | null; captain: boolean; players: { id: string; first_name: string; last_name: string; position: string | null; profile_id: string | null; photo_path: string | null } };
-type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; session_attendance?: { availability: string }[] };
+type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; session_attendance?: { player_id: string; availability: string; note: string | null }[] };
 
 /** International phone → digits for wa.me links (WhatsApp wants the number without "+"). */
 const waDigits = (phone: string) => phone.replace(/[^\d]/g, '');
@@ -41,7 +42,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
 
   const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }] = await Promise.all([
     supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id, photo_path)').eq('team_season_id', id).is('left_on', null),
-    supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, session_attendance(availability)').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
+    supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, session_attendance(player_id, availability, note)').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
       .eq('training_sessions.team_season_id', id).lt('training_sessions.starts_at', now).neq('training_sessions.status', 'cancelled').not('attendance', 'is', null),
@@ -81,13 +82,15 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const hm = new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const te = await getTranslations('events');
 
+  const repliesOf = (rows: { player_id: string; availability: string; note: string | null }[] | undefined) =>
+    (rows ?? []).filter((r) => nameOf.has(r.player_id)).map((r) => ({ player_id: r.player_id, name: nameOf.get(r.player_id)!, availability: r.availability, note: r.note }));
   const SessionRow = ({ s }: { s: Session }) => (
-    <li>
+    <li className="py-1" data-session-row={s.id}>
       <Link href={`/coach/sessions/${s.id}`} data-session={s.id} className="flex min-h-12 flex-wrap items-center justify-between gap-2 py-2 hover:text-pitch">
         <span><span className="font-semibold">{when.format(new Date(s.starts_at))}</span> · {s.title}</span>
-        {s.session_attendance && s.status === 'scheduled' ? <span className="text-sm text-muted" data-session-replies>{t('repliesShort', { yes: s.session_attendance.filter((a) => a.availability === 'yes').length, no: s.session_attendance.filter((a) => a.availability === 'no').length })}</span> : null}
         <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.status === 'cancelled' ? 'bg-danger/10 text-danger' : s.status === 'completed' ? 'bg-accent/20 text-pitch' : 'bg-line'}`}>{t(`ss_${s.status}` as 'ss_scheduled')}</span>
       </Link>
+      {s.status === 'scheduled' ? <Replies rows={repliesOf(s.session_attendance)} /> : null}
     </li>
   );
 
@@ -142,7 +145,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
             {(matchRows ?? []).map((m) => {
               const rs = (matchReplies ?? []).filter((r) => r.match_id === m.id && nameOf.has(r.player_id));
               const who = (a: string) => rs.filter((r) => r.availability === a);
-              const none = rs.filter((r) => r.availability === 'pending' || r.availability === 'maybe');
+              const none = rs.filter((r) => r.availability !== 'yes' && r.availability !== 'no');
               return (
                 <li key={m.id} className="py-3" data-match={m.opponent} data-replies={`${who('yes').length}/${who('no').length}/${none.length}`}>
                   <p><Link href={`/coach/matches/${m.id}`} data-match-link={m.id} className="font-semibold text-pitch underline underline-offset-2">{when.format(new Date(m.kickoff_at))} · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi></Link>
@@ -150,16 +153,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
                     {m.squad_published ? <span className="ms-2 rounded-full bg-accent/20 px-2 py-0.5 text-xs font-bold text-pitch">{tm('published')}</span> : null}
                     {m.event_type === 'friendly' ? <span className="ms-2 rounded-full bg-line px-2 py-0.5 text-xs font-bold">{t('friendly')}</span> : null}
                     {m.status !== 'scheduled' ? <span className="ms-2 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">{t(`ms_${m.status}` as 'ms_cancelled')}</span> : null}</p>
-                  <details className="mt-1">
-                    <summary className="cursor-pointer text-sm">
-                      <span className="font-bold text-pitch">{t('repliesIn', { count: who('yes').length })}</span> · <span className="font-bold text-danger">{t('repliesOut', { count: who('no').length })}</span> · {t('repliesNone', { count: none.length })}
-                    </summary>
-                    <ul className="mt-2 grid gap-1 text-sm">
-                      {[...who('yes'), ...who('no'), ...none].map((r) => (
-                        <li key={r.player_id}><bdi className="font-semibold">{nameOf.get(r.player_id)}</bdi>: {r.availability === 'yes' ? t('replyIn') : r.availability === 'no' ? t('replyOut') : t('replyNone')}{r.note ? <span className="text-muted"> · “<bdi>{r.note}</bdi>”</span> : null}</li>
-                      ))}
-                    </ul>
-                  </details>
+                  {m.status === 'scheduled' ? <Replies rows={rs.map((r) => ({ player_id: r.player_id, name: nameOf.get(r.player_id)!, availability: r.availability, note: r.note }))} /> : null}
                 </li>
               );
             })}

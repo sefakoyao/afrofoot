@@ -1623,7 +1623,13 @@
     "ms_played": "لُعبت",
     "ms_postponed": "مؤجلة",
     "ms_cancelled": "ملغاة",
-    "navMyTeams": "فرقي"
+    "navMyTeams": "فرقي",
+    "repliesInvited": "من أصل {count} مدعوًا",
+    "groupIn": "سجّلوا حضورهم",
+    "groupOut": "اعتذروا",
+    "groupNone": "لم يردّوا بعد",
+    "showNames": "عرض الأسماء",
+    "hideNames": "إخفاء الأسماء"
   },
   "inv": {
     "title": "الفواتير",

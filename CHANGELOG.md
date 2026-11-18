@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – who signed in, with names (branch `phase2/attendance-names`)
+- **Trainings and games, for coaches and admins:** every reply summary reads "1 in · 1 out · 12 no reply · of 14 invited". **Show names** opens three groups: *Signed in*, *Signed out* (with the player's note, e.g. "Work shift") and *No reply yet*.
+- **Where:**
+  - coach → team page (schedule and games)
+  - coach → training page (open straight away)
+  - **Admin → Events** (trainings and games, which had no replies before)
+- One shared component (`components/events/Replies.tsx`). Texts in four languages. No database changes.
+
 ## Unreleased – cancelled events hidden from players (branch `phase2/hide-cancelled`)
 - **Website → Calendar** and the **player's list in the member app** no longer show cancelled trainings, games, friendlies or club events. Until now they were shown crossed out.
 - **Postponed** games and events still show, marked "Postponed", until they get a new date.
