@@ -16,7 +16,7 @@ export interface Billing {
   email: string; phone: string; website: string; payment_terms_days: number; late_interest: string;
 }
 export interface InvoiceData {
-  number: string; reference: string; issuedOn: string; dueOn: string | null; amountCents: number; status: string; paidAt: string | null;
+  number: string; reference: string; issuedOn: string; dueOn: string | null; amountCents: number; /** 0056: received so far */ paidCents: number; status: string; paidAt: string | null;
   lines: { description: string; date: string | null; quantity: number; unit: string; unitPriceCents: number; vatPercent: number }[];
   payer: { name: string; street?: string | null; postalCity?: string | null };
   playerUrl: string;
@@ -83,7 +83,17 @@ export async function renderInvoicePdf(billing: Billing, inv: InvoiceData): Prom
   text('Total excl. VAT', 418, tTop, 8, bold); text(eur(netCents), 566, tTop, 8, bold, { align: 'right' });
   text(vatLabel, 418, tTop + 12, 8, bold); text(eur(vatCents), 566, tTop + 12, 8, bold, { align: 'right' });
   line(415, tTop + 25, 570, tTop + 25);
-  text('Total amount due', 418, tTop + 30, 10, bold); text(eur(inv.amountCents), 566, tTop + 30, 10, bold, { align: 'right' });
+  // 0056: after a part payment the invoice shows what was received and what is still due; the slip and barcode use the rest
+  const dueCents = inv.status === 'paid' ? 0 : inv.amountCents - inv.paidCents;
+  const partly = inv.status !== 'paid' && inv.paidCents > 0;
+  if (partly) {
+    text('Invoice total', 418, tTop + 30, 9, bold); text(eur(inv.amountCents), 566, tTop + 30, 9, bold, { align: 'right' });
+    text('Paid so far', 418, tTop + 43, 9, regular, { color: GREEN }); text(`− ${eur(inv.paidCents)}`, 566, tTop + 43, 9, regular, { align: 'right', color: GREEN });
+    line(415, tTop + 56, 570, tTop + 56);
+    text('Amount still due', 418, tTop + 61, 10, bold); text(eur(dueCents), 566, tTop + 61, 10, bold, { align: 'right' });
+  } else {
+    text('Total amount due', 418, tTop + 30, 10, bold); text(eur(inv.amountCents), 566, tTop + 30, 10, bold, { align: 'right' });
+  }
 
   // ---------- bank transfer slip ----------
   line(29, 499, 570, 499);
@@ -123,10 +133,10 @@ export async function renderInvoicePdf(billing: Billing, inv: InvoiceData): Prom
   line(29, 749, 570, 749);
   label('From account\nno.', 752);
   text('Due Date', 349, 752, 6.5); line(389, 749, 389, 773); text(fi(inv.dueOn), 393, 757, 9);
-  line(472, 749, 472, 773); text('Total', 475, 752, 6.5); text(eur(inv.amountCents), 566, 757, 9, regular, { align: 'right' });
+  line(472, 749, 472, 773); text('Total', 475, 752, 6.5); text(eur(partly ? dueCents : inv.amountCents), 566, 757, 9, regular, { align: 'right' });
   line(29, 773, 570, 773);
   // bank barcode (only for Finnish IBANs and amounts below one million euros)
-  const code = finnishBarcode(billing.iban, inv.amountCents, inv.reference, inv.dueOn);
+  const code = finnishBarcode(billing.iban, partly ? dueCents : inv.amountCents, inv.reference, inv.dueOn);
   if (code) {
     text(code, 194, 776, 7.5, regular, { align: 'center' });
     // all digits, even length: the encoder picks code set C, as the bank barcode standard requires

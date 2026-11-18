@@ -130,16 +130,45 @@ export async function setAutoRenew(fd: FormData): Promise<void> {
 
 // ---------- invoices ----------
 
-/** Record that an invoice was paid (for example after checking the bank account). */
+/** "Mark paid": records everything still owed on the invoice as paid today (public.record_invoice_payment, 0056). */
 export async function markPaid(fd: FormData): Promise<void> {
   const id = uuid.safeParse(fd.get('payment_id'));
   if (!id.success) back(fd, 'r_invalid');
-  const { member, supabase } = await admin(fd);
-  const { data, error } = await supabase.from('payments').update({ status: 'paid', paid_at: new Date().toISOString(), recorded_by: member.id })
-    .eq('id', id.data).in('status', ['pending', 'failed']).select('id');
-  if (error) fail(fd, 'mark paid', error);
-  if (!data?.length) back(fd, 'r_invalid');
+  const { supabase } = await admin(fd);
+  const { error } = await supabase.rpc('record_invoice_payment', { p_payment: id.data });
+  if (error) { if (error.code === '23514') back(fd, 'r_pastDuePaid'); fail(fd, 'mark paid', error); }
   done(fd, 'r_markedPaid');
+}
+
+const receiptSchema = z.object({
+  payment_id: uuid,
+  amount: z.string().trim().regex(/^\d{1,5}([.,]\d{1,2})?$/, 'r_partAmount').transform((v) => Math.round(Number(v.replace(',', '.')) * 100)).pipe(z.number().int().min(1, 'r_partAmount')),
+  paid_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_date'),
+  note: z.string().trim().max(200, 'r_invalid'),
+});
+
+/** A part payment: what the player actually paid (e.g. EUR 10 of 20) and when. The rest stays owed. */
+export async function recordPartPayment(fd: FormData): Promise<void> {
+  const p = receiptSchema.safeParse({ payment_id: fd.get('payment_id'), amount: String(fd.get('amount') ?? ''), paid_on: String(fd.get('paid_on') ?? ''), note: String(fd.get('note') ?? '') });
+  if (!p.success) back(fd, p.error.issues[0]?.message?.startsWith('r_') ? p.error.issues[0].message : 'r_invalid');
+  const { supabase } = await admin(fd);
+  const { data, error } = await supabase.rpc('record_invoice_payment', { p_payment: p.data.payment_id, p_amount: p.data.amount, p_paid_on: p.data.paid_on, p_note: p.data.note || null });
+  if (error) {
+    if (error.code === '23514') back(fd, 'r_pastDuePaid');
+    if (error.code === '22023') back(fd, error.message.includes('date') ? 'r_partDate' : 'r_partAmount');
+    fail(fd, 'part payment', error);
+  }
+  done(fd, (data as { paid?: boolean } | null)?.paid ? 'r_markedPaid' : 'r_partRecorded');
+}
+
+/** Deletes a payment recorded by mistake; a paid invoice opens again. */
+export async function deleteReceipt(fd: FormData): Promise<void> {
+  const id = uuid.safeParse(fd.get('receipt_id'));
+  if (!id.success) back(fd, 'r_invalid');
+  const { supabase } = await admin(fd);
+  const { error } = await supabase.rpc('delete_invoice_receipt', { p_receipt: id.data });
+  if (error) fail(fd, 'delete receipt', error);
+  done(fd, 'r_receiptDeleted');
 }
 
 /** Same as the nightly job, on demand (public.run_invoice_generation checks the admin role again). */

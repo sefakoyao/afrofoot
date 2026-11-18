@@ -1410,7 +1410,10 @@
     "balanceDue": "Due",
     "balanceAmount": "Amount",
     "balanceTotal": "Total balance",
-    "balanceFees": "Membership fees"
+    "balanceFees": "Membership fees",
+    "partOf": "{paid} of {total} paid",
+    "partPaid": "{paid} paid · {left} still to pay",
+    "received": "Received {amount} on {date}"
   },
   "account": {
     "title": "My account",
@@ -1827,7 +1830,21 @@
     "balCreate": "Create invoices",
     "r_balanceCreated": "Balance invoices created. They are listed below and on the player's Membership tab.",
     "r_balancePlayer": "Choose a player.",
-    "r_balanceEmpty": "Fill in at least one row with a description and an amount."
+    "r_balanceEmpty": "Fill in at least one row with a description and an amount.",
+    "partPaidOf": "{paid} paid · {left} left",
+    "st_partial": "Partly paid",
+    "markPaidRest": "Mark paid ({amount})",
+    "payments": "{count, plural, =0 {Payment} one {Payments (#)} other {Payments (#)}}",
+    "partLead": "Record what the player paid. Still owed: {left}.",
+    "partAmount": "Amount paid (EUR)",
+    "partDate": "Paid on",
+    "partNote": "Note (optional)",
+    "partNoteEg": "e.g. Cash at training",
+    "partSave": "Record payment",
+    "r_partRecorded": "Payment recorded. The rest is still owed.",
+    "r_receiptDeleted": "Payment deleted. The invoice is open again if it was paid.",
+    "r_partAmount": "Enter an amount between 0.01 and what is still owed, e.g. 10 or 10,50.",
+    "r_partDate": "The payment date cannot be in the future."
   },
   "conduct": {
     "title": "Code of Conduct",
