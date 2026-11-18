@@ -1178,7 +1178,12 @@
     "md_competition": "Competition",
     "md_source": "From the Palloliitto results service.",
     "md_details": "Game details",
-    "md_desc": "{competition}: {home} – {away}. Score, goals and cards."
+    "md_desc": "{competition}: {home} – {away}. Score, goals and cards.",
+    "news_pages": "News pages",
+    "news_prev": "Previous",
+    "news_next": "Next",
+    "news_page": "Page {n}",
+    "news_pageOf": "Page {n} of {total}"
   },
   "admin": {
     "navOverview": "Overview",

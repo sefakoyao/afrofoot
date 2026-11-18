@@ -1178,7 +1178,12 @@
     "md_competition": "Sarja",
     "md_source": "Lähde: Palloliiton tulospalvelu.",
     "md_details": "Ottelun tiedot",
-    "md_desc": "{competition}: {home} – {away}. Tulos, maalit ja kortit."
+    "md_desc": "{competition}: {home} – {away}. Tulos, maalit ja kortit.",
+    "news_pages": "Uutissivut",
+    "news_prev": "Edellinen",
+    "news_next": "Seuraava",
+    "news_page": "Sivu {n}",
+    "news_pageOf": "Sivu {n}/{total}"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

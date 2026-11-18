@@ -1178,7 +1178,12 @@
     "md_competition": "Compétition",
     "md_source": "Source : service de résultats de Palloliitto.",
     "md_details": "Détails du match",
-    "md_desc": "{competition} : {home} – {away}. Score, buts et cartons."
+    "md_desc": "{competition} : {home} – {away}. Score, buts et cartons.",
+    "news_pages": "Pages d’actualités",
+    "news_prev": "Précédent",
+    "news_next": "Suivant",
+    "news_page": "Page {n}",
+    "news_pageOf": "Page {n} sur {total}"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",
