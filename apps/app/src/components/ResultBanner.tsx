@@ -42,6 +42,10 @@ const KEYS = {
     ok: ['r_passwordSent', 'r_confirmationSent', 'r_alreadyConfirmed', 'r_exempted'],
     err: ['r_invalid', 'r_error', 'r_noEmail', 'r_tooMany', 'r_dates'],
   },
+  fin: {
+    ok: ['r_budgetSaved', 'r_expenseAdded', 'r_expenseDeleted'],
+    err: ['r_invalid', 'r_error', 'r_amount', 'r_date', 'r_text'],
+  },
   quizAdmin: {
     ok: ['r_added', 'r_saved', 'r_deleted'],
     err: ['r_invalid', 'r_error', 'r_gone', 'r_questionEn', 'r_optionEn', 'r_options', 'r_answer', 'r_explainEn'],

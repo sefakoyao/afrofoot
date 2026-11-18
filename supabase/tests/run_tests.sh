@@ -35,3 +35,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/B2_quiz_more.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B3_signin_log.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B4_contract_signatory.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B5_past_due.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/B6_finance.sql

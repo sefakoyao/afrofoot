@@ -14,7 +14,7 @@ const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: '
 const HOME: Record<Area, string> = { admin: '/admin', coach: '/coach', me: '/me' };
 
 /** A menu entry. Entries that share a `group` are shown together under that heading (e.g. the coach's "My teams"). */
-export interface NavItem { href: string; label: string; badge?: number; group?: string }
+export interface NavItem { href: string; label: string; badge?: number; group?: string; /** only this exact address marks it current (a section's overview) */ exact?: boolean }
 
 /** Shared frame for the signed-in areas: black bar with logo, area name, account (name, role), languages and sign-out; optional area navigation; faint pitch lines behind the page. */
 export async function AppShell({ area, member, nav, children }: { area: Area; member: Member; nav?: NavItem[]; children: ReactNode }) {

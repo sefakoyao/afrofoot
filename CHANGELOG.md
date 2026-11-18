@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Finance (branch `phase2/finance`, migration 0054, release 0.43.0)
+- **Admin menu → Finance group:** Overview, Player balances, Invoices (moved here) and Expenses.
+- **Finance → Overview, per season** (season picker):
+  - **Income from player invoices:** projected total, collected (with a progress bar), outstanding (of which overdue), and still to invoice. The last one means the invoices the automatic invoicing will issue for active memberships before the season ends.
+  - A month-by-month table.
+  - **Costs:** a budget and the actual spending per category (team fees, field booking, kits, league fees, licences, other), with how much is left and a used bar. Over budget is shown in red with the words "Over budget".
+  - **Result:** expected for the season (projected income − the budget, or the spending if higher) and so far (collected − spent).
+- **Finance → Player balances:**
+  - For each player of the season: invoiced, paid, open, overdue, the balance unpaid from any season, and the oldest unpaid due date.
+  - Owing players first, with totals and a link to the player's invoices.
+- **Finance → Expenses:** record what the club spends (date, category, amount, description), filtered by category, with delete.
+- 22 database checks, 26 browser checks.
+
 ## Unreleased – past-due amounts on invoices (branch `phase2/past-due`, migration 0053, release 0.42.0)
 - **Admin → Invoices → "+ Past due"** on every unpaid invoice: add an amount still owed from an earlier season, typed in by hand (e.g. 60 or 60,50; EUR 0.01–5000), with its own description.
   - The description defaults to "Unpaid balance from season <previous season>".

@@ -12,7 +12,8 @@ import { usePendingHref } from './usePendingHref';
 export function AreaNav({ items }: { items: NavItem[] }) {
   const path = usePathname();
   const { pending, onNavigate } = usePendingHref();
-  const onPage = (href: string) => (href === items[0]?.href ? path === href : path === href || path.startsWith(`${href}/`));
+  const exact = new Set(items.filter((i) => i.exact).map((i) => i.href));
+  const onPage = (href: string) => (href === items[0]?.href || exact.has(href) ? path === href : path === href || path.startsWith(`${href}/`));
   const current = (href: string) => (pending ? pending === href : onPage(href));
   const link = (i: NavItem) => (
     <Link href={i.href} onClick={onNavigate(i.href)} aria-current={onPage(i.href) ? 'page' : undefined} aria-busy={pending === i.href || undefined} data-pending={pending === i.href || undefined}
