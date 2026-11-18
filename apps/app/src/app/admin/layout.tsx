@@ -21,6 +21,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/palloliitto', label: tf('nav') },
     { href: '/admin/invoices', label: t('navInvoices') },
     { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign },
+    { href: '/admin/quiz', label: t('navQuiz') },
     { href: '/admin/audit', label: t('navAudit') },
   ];
   return <AppShell area="admin" member={member} nav={nav}>{children}</AppShell>;
