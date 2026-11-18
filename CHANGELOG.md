@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – more quiz questions, quiz editor (branch `phase2/quiz-more`, migration 0050, release 0.38.0)
+- **Admin → Quiz** (new menu item): every quiz question, filtered by topic and shown/switched off.
+  - **New question** and an editor per question: the question, 2–6 answers and the explanation in English, Finnish, French and Arabic (English required, players see English when a language is missing), the right answer, the source, and **Shown to players**.
+  - A yellow badge shows which languages are still missing. **Delete** removes a question (kept in the audit log).
+  - Checked on the server and in the database: lengths (question 300, answer 150, explanation 600 characters), only the four languages, English on every answer, the right answer among the filled ones.
+- **21 more Laws of the Game questions** (33 in all): throw-ins and goal kicks into a goal, penalty mark, goal size, ball size, free-kick distance, indirect free kicks, advantage, handball denying a goal, penalty taker touching twice, back-pass, offside (level, own half), corners, dropped ball, spitting, added time, shirt celebrations, leaving the field, match length.
+- **4 more club questions from live data:** biggest win of the last two seasons (opponent), current league position, first season in the Palloliitto results, number of Finnish Cup seasons. Each round still takes 2 club questions at random from those the data allows.
+- 12 database checks.
+
 ## Unreleased – football quiz for players (branch `phase2/quiz`, migration 0049, release 0.37.0)
 - **Player area:** a **Football quiz** card right after signing in (highlighted in green when nothing is on that day) and a new **Quiz** tab.
 - **Each round, 5 questions,** one at a time. The right answer is shown with a short explanation and the Law it comes from, then the score ("Well played!") and **Play again** (a new random round).

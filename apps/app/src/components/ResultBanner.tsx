@@ -42,6 +42,10 @@ const KEYS = {
     ok: ['r_passwordSent', 'r_confirmationSent', 'r_alreadyConfirmed', 'r_exempted'],
     err: ['r_invalid', 'r_error', 'r_noEmail', 'r_tooMany', 'r_dates'],
   },
+  quizAdmin: {
+    ok: ['r_added', 'r_saved', 'r_deleted'],
+    err: ['r_invalid', 'r_error', 'r_gone', 'r_questionEn', 'r_optionEn', 'r_options', 'r_answer', 'r_explainEn'],
+  },
 } as const;
 
 export async function ResultBanner({ ns, result }: { ns: keyof typeof KEYS; result: unknown }) {
