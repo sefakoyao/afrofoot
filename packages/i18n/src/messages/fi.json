@@ -1788,7 +1788,21 @@
     "holdDue": "eräpäivä {date}",
     "holdMissing_conduct": "Toimintaohjeita ei hyväksytty",
     "holdMissing_contract": "Ei allekirjoitettua sopimusta",
-    "holdOpenContracts": "Sopimukset"
+    "holdOpenContracts": "Sopimukset",
+    "pastDue": "+ Erääntynyt",
+    "pastDueLead": "Lisää aiemmalta kaudelta maksamatta jäänyt summa. Se tulee omaksi rivikseen tähän laskuun ja lisätään loppusummaan.",
+    "pastDueText": "Kuvaus laskulla",
+    "pastDueAmount": "Summa (EUR)",
+    "pastDueAdd": "Lisää laskuun",
+    "pastDueRemove": "Poista",
+    "pastDueDefault": "Unpaid balance from season {season}",
+    "pastDueDefaultNoSeason": "Unpaid balance from the previous season",
+    "pastDueIncl": "sis. {amount} erääntynyttä",
+    "r_pastDueAdded": "Erääntynyt summa lisätty laskuun.",
+    "r_pastDueRemoved": "Erääntynyt summa poistettu laskulta.",
+    "r_pastDueAmount": "Anna summa väliltä 0,01–5000 euroa, esim. 60 tai 60,50.",
+    "r_pastDueText": "Kuvauksessa on oltava 3–200 merkkiä.",
+    "r_pastDuePaid": "Lasku on jo maksettu, eikä sitä voi enää muuttaa."
   },
   "conduct": {
     "title": "Toimintaohjeet",

@@ -1788,7 +1788,21 @@
     "holdDue": "échéance {date}",
     "holdMissing_conduct": "Code de conduite non accepté",
     "holdMissing_contract": "Pas de contrat signé",
-    "holdOpenContracts": "Contrats"
+    "holdOpenContracts": "Contrats",
+    "pastDue": "+ Impayé",
+    "pastDueLead": "Ajoutez un montant encore dû d’une saison précédente. Il devient une ligne de cette facture et s’ajoute au total.",
+    "pastDueText": "Libellé sur la facture",
+    "pastDueAmount": "Montant (EUR)",
+    "pastDueAdd": "Ajouter à la facture",
+    "pastDueRemove": "Retirer",
+    "pastDueDefault": "Unpaid balance from season {season}",
+    "pastDueDefaultNoSeason": "Unpaid balance from the previous season",
+    "pastDueIncl": "dont {amount} d’impayés",
+    "r_pastDueAdded": "Montant impayé ajouté à la facture.",
+    "r_pastDueRemoved": "Montant impayé retiré de la facture.",
+    "r_pastDueAmount": "Saisissez un montant entre 0,01 et 5000 euros, p. ex. 60 ou 60,50.",
+    "r_pastDueText": "Le libellé doit compter de 3 à 200 caractères.",
+    "r_pastDuePaid": "Cette facture est déjà payée et ne peut plus changer."
   },
   "conduct": {
     "title": "Code de conduite",

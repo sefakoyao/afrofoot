@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
-import { addMembership, createPlan, markPaid, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
+import { addMembership, addPastDue, createPlan, markPaid, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
@@ -43,6 +43,20 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
     supabase.from('players').select('id, first_name, last_name').order('last_name'),
     supabase.from('seasons').select('name').eq('is_current', true).maybeSingle(),
   ]);
+  // 0053: past-due lines of the invoices on this page, and the previous season's name for the default description
+  const ids = list.rows.map((r) => r.id);
+  const [{ data: pastRows }, { data: seasonRows }] = await Promise.all([
+    ids.length ? supabase.from('payment_lines').select('id, payment_id, description, unit_price_cents').eq('kind', 'past_due').in('payment_id', ids).order('position') : Promise.resolve({ data: [] }),
+    supabase.from('seasons').select('name, starts_on, is_current').order('starts_on', { ascending: false }).limit(20),
+  ]);
+  const pastDue = new Map<string, { id: string; description: string; cents: number }[]>();
+  for (const l of (pastRows ?? []) as { id: string; payment_id: string; description: string; unit_price_cents: number }[]) {
+    pastDue.set(l.payment_id, [...(pastDue.get(l.payment_id) ?? []), { id: l.id, description: l.description, cents: l.unit_price_cents }]);
+  }
+  const seasonList = (seasonRows ?? []) as { name: string; starts_on: string; is_current: boolean }[];
+  const cur = seasonList.findIndex((x) => x.is_current);
+  const previousSeason = cur >= 0 ? seasonList[cur + 1]?.name : undefined;
+  const pastDueDefault = previousSeason ? t('pastDueDefault', { season: previousSeason }) : t('pastDueDefaultNoSeason');
   const ready = ibanValid(billing.iban) && !!billing.legal_name;
   // 0036: due memberships waiting for the player's contract signature or Code of Conduct consent
   const { data: holdRows } = await supabase.rpc('invoice_holds');
@@ -133,12 +147,36 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                       <td className="px-2 py-2 font-semibold" dir="ltr">{r.invoiceNumber}</td>
                       <td className="px-2 py-2"><a href={listUrl({ player: r.playerId }) + '#list-h'} className="underline-offset-2 hover:underline"><bdi>{r.playerName}</bdi></a></td>
                       <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(r.issuedAt))}</td>
-                      <td className="whitespace-nowrap px-2 py-2">{eur(r.amountCents)}</td>
+                      <td className="whitespace-nowrap px-2 py-2">{eur(r.amountCents)}
+                        {pastDue.get(r.id)?.length ? <span className="block text-xs text-muted" data-past-due-total>{t('pastDueIncl', { amount: eur(pastDue.get(r.id)!.reduce((a, l) => a + l.cents, 0)) })}</span> : null}</td>
                       <td className="whitespace-nowrap px-2 py-2">{day(r.dueOn)}</td>
                       <td className="px-2 py-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{t(`st_${st === 'open' ? 'pending' : st}` as 'st_paid')}</span></td>
                       <td className="px-2 py-2">
                         <div className="flex flex-wrap justify-end gap-2">
                           <a href={`/invoices/${r.id}`} target="_blank" rel="noopener" className="inline-flex min-h-9 items-center rounded-full border border-line px-3 font-semibold hover:border-accent">PDF</a>
+                          {r.status === 'pending' || r.status === 'failed' ? (
+                            <details className="group relative" data-past-due={r.invoiceNumber}>
+                              <summary className="inline-flex min-h-9 cursor-pointer list-none items-center rounded-full border border-line px-3 font-semibold hover:border-accent">{t('pastDue')}</summary>
+                              <div className="mt-2 grid w-72 max-w-[80vw] gap-3 rounded-card border border-line bg-raised p-3 text-start shadow-sm">
+                                <p className="text-xs text-muted">{t('pastDueLead')}</p>
+                                {pastDue.get(r.id)?.map((l) => (
+                                  <form key={l.id} action={removePastDue} className="flex items-center gap-2 rounded-control bg-surface p-2" data-past-due-line>
+                                    <input type="hidden" name="line_id" value={l.id} /><input type="hidden" name="back" value={back} />
+                                    <span className="min-w-0 flex-1"><bdi>{l.description}</bdi> · <span className="font-semibold">{eur(l.cents)}</span></span>
+                                    <button className="min-h-8 rounded-full border border-danger px-3 text-xs font-bold text-danger hover:bg-danger/10" data-remove-past-due>{t('pastDueRemove')}</button>
+                                  </form>
+                                ))}
+                                <form action={addPastDue} className="grid gap-2" data-past-due-form>
+                                  <input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value={back} />
+                                  <label className="grid gap-1 text-xs font-semibold">{t('pastDueText')}
+                                    <input name="description" required minLength={3} maxLength={200} defaultValue={pastDueDefault} lang="en" dir="ltr" className={input} /></label>
+                                  <label className="grid gap-1 text-xs font-semibold">{t('pastDueAmount')}
+                                    <input name="amount" required inputMode="decimal" pattern="\d{1,4}([.,]\d{1,2})?" placeholder="60,00" className={input} data-past-due-amount /></label>
+                                  <button className={btn}>{t('pastDueAdd')}</button>
+                                </form>
+                              </div>
+                            </details>
+                          ) : null}
                           {r.status === 'pending' || r.status === 'failed' ? (
                             <form action={markPaid}><input type="hidden" name="payment_id" value={r.id} /><input type="hidden" name="back" value={back} />
                               <button className="min-h-9 rounded-full bg-accent px-3 font-bold text-on-accent hover:brightness-110">{t('markPaid')}</button></form>

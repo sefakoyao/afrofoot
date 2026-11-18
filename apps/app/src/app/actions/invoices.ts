@@ -151,3 +151,34 @@ export async function runInvoicingNow(fd: FormData): Promise<void> {
   url.searchParams.set('result', 'r_ran'); url.searchParams.set('n', String(Number(data) || 0));
   redirect(url.pathname + url.search);
 }
+
+// ---------- past-due amounts (migration 0053) ----------
+
+/** "60", "60.5", "60,50" → cents; EUR 0.01–5000 like the database function. */
+const euros = z.string().trim().regex(/^\d{1,4}([.,]\d{1,2})?$/, 'r_pastDueAmount')
+  .transform((v) => Math.round(Number(v.replace(',', '.')) * 100)).pipe(z.number().int().min(1, 'r_pastDueAmount').max(500000, 'r_pastDueAmount'));
+const pastDueSchema = z.object({
+  payment_id: uuid,
+  description: z.string().trim().min(3, 'r_pastDueText').max(200, 'r_pastDueText'),
+  amount: euros,
+});
+
+/** Adds an amount still owed from an earlier season to an unpaid invoice, as its own line (public.add_past_due). */
+export async function addPastDue(fd: FormData): Promise<void> {
+  const p = pastDueSchema.safeParse({ payment_id: fd.get('payment_id'), description: fd.get('description') ?? '', amount: fd.get('amount') ?? '' });
+  if (!p.success) back(fd, p.error.issues[0]?.message?.startsWith('r_') ? p.error.issues[0].message : 'r_invalid');
+  const { supabase } = await admin(fd);
+  const { error } = await supabase.rpc('add_past_due', { p_payment: p.data.payment_id, p_description: p.data.description, p_amount_cents: p.data.amount });
+  if (error) { if (error.code === '23514') back(fd, 'r_pastDuePaid'); fail(fd, 'add past due', error); }
+  done(fd, 'r_pastDueAdded');
+}
+
+/** Removes a past-due line again while the invoice is unpaid (public.remove_past_due). */
+export async function removePastDue(fd: FormData): Promise<void> {
+  const id = uuid.safeParse(fd.get('line_id'));
+  if (!id.success) back(fd, 'r_invalid');
+  const { supabase } = await admin(fd);
+  const { error } = await supabase.rpc('remove_past_due', { p_line: id.data });
+  if (error) { if (error.code === '23514') back(fd, 'r_pastDuePaid'); fail(fd, 'remove past due', error); }
+  done(fd, 'r_pastDueRemoved');
+}
