@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – past-due amounts on invoices (branch `phase2/past-due`, migration 0053, release 0.42.0)
+- **Admin → Invoices → "+ Past due"** on every unpaid invoice: add an amount still owed from an earlier season, typed in by hand (e.g. 60 or 60,50; EUR 0.01–5000), with its own description.
+  - The description defaults to "Unpaid balance from season <previous season>".
+  - It becomes a separate line on the invoice. The total, the PDF, the bank barcode and the player's Membership tab all follow.
+  - The list shows "incl. €60.50 past due" under the amount.
+  - **Remove** takes the line off again while the invoice is unpaid. Paid invoices can't change.
+  - Both changes go through database functions, so the line and the total always change together, and both are in the audit log.
+- 19 database checks, 12 browser checks.
+
 ## Unreleased – club signatory and contract footer (branch `phase2/contract-signatory`, migration 0052, release 0.41.0)
 - **Admin → Contracts → settings → Who signs for the club:** the signatory's name and title (e.g. "General Manager").
   - When an admin countersigns, the club's signature uses that name and title: drawn, printed and with its signature ID, on the page and in the PDF.

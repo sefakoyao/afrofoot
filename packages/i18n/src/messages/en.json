@@ -1788,7 +1788,21 @@
     "holdDue": "due {date}",
     "holdMissing_conduct": "Code of Conduct not agreed",
     "holdMissing_contract": "No signed contract",
-    "holdOpenContracts": "Contracts"
+    "holdOpenContracts": "Contracts",
+    "pastDue": "+ Past due",
+    "pastDueLead": "Add an amount still owed from an earlier season. It becomes its own line on this invoice and is added to the total.",
+    "pastDueText": "Description on the invoice",
+    "pastDueAmount": "Amount (EUR)",
+    "pastDueAdd": "Add to invoice",
+    "pastDueRemove": "Remove",
+    "pastDueDefault": "Unpaid balance from season {season}",
+    "pastDueDefaultNoSeason": "Unpaid balance from the previous season",
+    "pastDueIncl": "incl. {amount} past due",
+    "r_pastDueAdded": "Past-due amount added to the invoice.",
+    "r_pastDueRemoved": "Past-due amount removed from the invoice.",
+    "r_pastDueAmount": "Enter an amount between 0.01 and 5000 euros, e.g. 60 or 60,50.",
+    "r_pastDueText": "The description needs 3 to 200 characters.",
+    "r_pastDuePaid": "This invoice is already paid and can no longer change."
   },
   "conduct": {
     "title": "Code of Conduct",

@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -2841,6 +2841,60 @@ create trigger guard_signatory before insert or update on player_contracts for e
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.41.0','feature','Club signatory and contract footer',
   'Admin → Contracts → settings: the name and title of the person who signs contracts for the club, used when an admin countersigns. Contract PDFs have a footer with the club''s details on every page.','2026-11-18')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000053_past_due_lines.sql =====
+-- 0053 Past-due amounts on invoices (release 0.42.0).
+-- Admin → Invoices: on an unpaid invoice an admin adds a line for an amount still owed from an earlier season (typed in
+-- by hand, e.g. "Unpaid balance, season 2025 – EUR 60"). The invoice total grows by that amount; the line can be removed
+-- again while the invoice is unpaid. Both go through security-definer functions so the line and the total always change
+-- together, and both are in the audit log (payments and payment_lines are audited).
+
+alter table payment_lines add column kind text not null default 'fee' check (kind in ('fee', 'past_due'));
+
+create function public.add_past_due(p_payment uuid, p_description text, p_amount_cents int) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare p payments; v_desc text := trim(p_description); v_pos int; v_line uuid;
+begin
+  if not app.is_admin() then raise exception 'admin only' using errcode = '42501'; end if;
+  if p_amount_cents is null or p_amount_cents < 1 or p_amount_cents > 500000 then raise exception 'amount between EUR 0.01 and 5000' using errcode = '22023'; end if;
+  if char_length(v_desc) not between 3 and 200 then raise exception 'description 3–200 characters' using errcode = '22023'; end if;
+  select * into p from payments where id = p_payment for update;
+  if p.id is null or p.invoice_number is null then raise exception 'not an invoice' using errcode = '22023'; end if;
+  if p.status not in ('pending', 'failed') then raise exception 'only unpaid invoices can change' using errcode = 'check_violation'; end if;
+  -- an invoice from before invoice lines existed gets its original amount as a first line, so the PDF keeps showing it
+  if not exists (select 1 from payment_lines where payment_id = p.id) then
+    insert into payment_lines (payment_id, position, description, line_date, unit_price_cents) values (p.id, 1, 'Membership fees', p.due_on, p.amount_cents);
+  end if;
+  select coalesce(max(position), 0) + 1 into v_pos from payment_lines where payment_id = p.id;
+  if v_pos > 100 then raise exception 'too many lines' using errcode = 'check_violation'; end if;
+  insert into payment_lines (payment_id, position, description, line_date, unit_price_cents, kind)
+  values (p.id, v_pos, v_desc, null, p_amount_cents, 'past_due') returning id into v_line;
+  update payments set amount_cents = amount_cents + p_amount_cents, updated_at = now() where id = p.id;
+  return v_line;
+end $$;
+revoke all on function public.add_past_due(uuid, text, int) from public, anon;
+grant execute on function public.add_past_due(uuid, text, int) to authenticated;
+
+create function public.remove_past_due(p_line uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare l payment_lines; p payments;
+begin
+  if not app.is_admin() then raise exception 'admin only' using errcode = '42501'; end if;
+  select * into l from payment_lines where id = p_line;
+  if l.id is null or l.kind <> 'past_due' then raise exception 'not a past-due line' using errcode = '22023'; end if;
+  select * into p from payments where id = l.payment_id for update;
+  if p.status not in ('pending', 'failed') then raise exception 'only unpaid invoices can change' using errcode = 'check_violation'; end if;
+  delete from payment_lines where id = l.id;
+  update payments set amount_cents = amount_cents - l.unit_price_cents, updated_at = now() where id = p.id;
+end $$;
+revoke all on function public.remove_past_due(uuid) from public, anon;
+grant execute on function public.remove_past_due(uuid) to authenticated;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.42.0','feature','Past-due amounts on invoices',
+  'Admin → Invoices: add an amount still owed from an earlier season to an unpaid invoice, as its own line with your own description. The total, the PDF and the bank barcode follow; the line can be removed while the invoice is unpaid.','2026-11-18')
 on conflict (version) do nothing;
 
 

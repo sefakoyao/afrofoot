@@ -1788,7 +1788,21 @@
     "holdDue": "الاستحقاق {date}",
     "holdMissing_conduct": "لم تتم الموافقة على مدونة السلوك",
     "holdMissing_contract": "لا يوجد عقد موقّع",
-    "holdOpenContracts": "العقود"
+    "holdOpenContracts": "العقود",
+    "pastDue": "+ مستحقات سابقة",
+    "pastDueLead": "أضف مبلغًا لا يزال مستحقًا من موسم سابق. يصبح سطرًا مستقلًا في هذه الفاتورة ويُضاف إلى المجموع.",
+    "pastDueText": "الوصف في الفاتورة",
+    "pastDueAmount": "المبلغ (يورو)",
+    "pastDueAdd": "أضف إلى الفاتورة",
+    "pastDueRemove": "إزالة",
+    "pastDueDefault": "Unpaid balance from season {season}",
+    "pastDueDefaultNoSeason": "Unpaid balance from the previous season",
+    "pastDueIncl": "منها {amount} مستحقات سابقة",
+    "r_pastDueAdded": "أُضيف المبلغ المستحق إلى الفاتورة.",
+    "r_pastDueRemoved": "أُزيل المبلغ المستحق من الفاتورة.",
+    "r_pastDueAmount": "أدخل مبلغًا بين 0.01 و5000 يورو، مثل 60 أو 60,50.",
+    "r_pastDueText": "يجب أن يتكون الوصف من 3 إلى 200 حرف.",
+    "r_pastDuePaid": "هذه الفاتورة مدفوعة بالفعل ولا يمكن تغييرها."
   },
   "conduct": {
     "title": "مدونة السلوك",
