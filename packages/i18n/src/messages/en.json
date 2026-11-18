@@ -1400,7 +1400,14 @@
     "remNoEmail": "Your account has no email address, so no reminders can be sent.",
     "remTurnOff": "Turn reminders off",
     "remTurnOn": "Turn reminders on",
-    "tabQuiz": "Quiz"
+    "tabQuiz": "Quiz",
+    "balanceTitle": "What makes up your balance",
+    "balanceWhat": "What",
+    "balanceSeason": "Season",
+    "balanceDue": "Due",
+    "balanceAmount": "Amount",
+    "balanceTotal": "Total balance",
+    "balanceFees": "Membership fees"
   },
   "account": {
     "title": "My account",
@@ -1802,7 +1809,22 @@
     "r_pastDueRemoved": "Past-due amount removed from the invoice.",
     "r_pastDueAmount": "Enter an amount between 0.01 and 5000 euros, e.g. 60 or 60,50.",
     "r_pastDueText": "The description needs 3 to 200 characters.",
-    "r_pastDuePaid": "This invoice is already paid and can no longer change."
+    "r_pastDuePaid": "This invoice is already paid and can no longer change.",
+    "balTitle": "New balance invoices",
+    "balLead": "Bill one player for amounts typed in by hand, e.g. an unpaid balance from an earlier season or a player licence. Each row becomes its own invoice with its own number, reference and PDF.",
+    "balPlayer": "Player",
+    "balDue": "Due date",
+    "balItems": "Invoices (one per row)",
+    "balSeason": "Season",
+    "balDescription": "Description on the invoice",
+    "balNoSeason": "No season",
+    "balEg1": "e.g. Balance 2024",
+    "balEg2": "e.g. Player licence 2026",
+    "balHint": "Fill in only the rows you need. Amounts in euros, e.g. 60 or 60,50 (up to 5000). The season tells the Finance pages which season the amount belongs to.",
+    "balCreate": "Create invoices",
+    "r_balanceCreated": "Balance invoices created. They are listed below and on the player's Membership tab.",
+    "r_balancePlayer": "Choose a player.",
+    "r_balanceEmpty": "Fill in at least one row with a description and an amount."
   },
   "conduct": {
     "title": "Code of Conduct",
@@ -2837,6 +2859,7 @@
     "r_error": "Could not save. Please try again.",
     "r_amount": "Enter an amount in euros, e.g. 1200 or 1200,50 (up to 100 000).",
     "r_date": "Enter a valid date.",
-    "r_text": "The description can have up to 200 characters."
+    "r_text": "The description can have up to 200 characters.",
+    "b_newInvoice": "+ Invoice"
   }
 }

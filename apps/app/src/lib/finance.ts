@@ -4,6 +4,9 @@ import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
 
 /** Admin → Finance (migration 0054): cost categories, seasons, money formatting. */
 export const COST_CATEGORIES = ['team_fees', 'field_booking', 'kits', 'league_fees', 'licences', 'other'] as const;
+/** Rows of the "New balance invoices" form (migration 0055: up to 10 per call). */
+export const BALANCE_ROWS = 6;
+
 export type CostCategory = (typeof COST_CATEGORIES)[number];
 
 export type Season = { id: string; name: string; starts_on: string; ends_on: string; is_current: boolean };

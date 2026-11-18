@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
-import { addMembership, addPastDue, createPlan, markPaid, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
+import { addMembership, addPastDue, createBalanceInvoices, createPlan, markPaid, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
 import { formatIban, ibanValid } from '@/lib/invoice/barcode';
+import { BALANCE_ROWS } from '@/lib/finance';
 import { loadBilling } from '@/lib/invoice/data';
 import { INVOICE_STATUSES, effectiveStatus, listInvoices, parseFilters } from '@/lib/invoice/list';
 import { getSupabase } from '@/lib/supabase/server';
@@ -35,6 +36,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const today = helsinkiToday();
 
   const filters = parseFilters(sp);
+  const balanceFor = typeof sp.for === 'string' && /^[0-9a-f-]{36}$/.test(sp.for) ? sp.for : '';
   const [billing, list, { data: memberships }, { data: plans }, { data: players }, { data: season }] = await Promise.all([
     loadBilling(supabase),
     listInvoices(supabase, filters, today),
@@ -46,14 +48,16 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   // 0053: past-due lines of the invoices on this page, and the previous season's name for the default description
   const ids = list.rows.map((r) => r.id);
   const [{ data: pastRows }, { data: seasonRows }] = await Promise.all([
-    ids.length ? supabase.from('payment_lines').select('id, payment_id, description, unit_price_cents').eq('kind', 'past_due').in('payment_id', ids).order('position') : Promise.resolve({ data: [] }),
-    supabase.from('seasons').select('name, starts_on, is_current').order('starts_on', { ascending: false }).limit(20),
+    ids.length ? supabase.from('payment_lines').select('id, payment_id, description, unit_price_cents, kind').in('kind', ['past_due', 'balance']).in('payment_id', ids).order('position') : Promise.resolve({ data: [] }),
+    supabase.from('seasons').select('id, name, starts_on, is_current').order('starts_on', { ascending: false }).limit(20),
   ]);
   const pastDue = new Map<string, { id: string; description: string; cents: number }[]>();
-  for (const l of (pastRows ?? []) as { id: string; payment_id: string; description: string; unit_price_cents: number }[]) {
+  const balanceTitle = new Map<string, string>();
+  for (const l of (pastRows ?? []) as { id: string; payment_id: string; description: string; unit_price_cents: number; kind: string }[]) {
+    if (l.kind === 'balance') { if (!balanceTitle.has(l.payment_id)) balanceTitle.set(l.payment_id, l.description); continue; }
     pastDue.set(l.payment_id, [...(pastDue.get(l.payment_id) ?? []), { id: l.id, description: l.description, cents: l.unit_price_cents }]);
   }
-  const seasonList = (seasonRows ?? []) as { name: string; starts_on: string; is_current: boolean }[];
+  const seasonList = (seasonRows ?? []) as { id: string; name: string; starts_on: string; is_current: boolean }[];
   const cur = seasonList.findIndex((x) => x.is_current);
   const previousSeason = cur >= 0 ? seasonList[cur + 1]?.name : undefined;
   const pastDueDefault = previousSeason ? t('pastDueDefault', { season: previousSeason }) : t('pastDueDefaultNoSeason');
@@ -110,6 +114,46 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       </section>
 
       {/* 2. invoices: search, filters, totals, paging */}
+      {/* 0055: balance invoices typed in by hand, one invoice per row */}
+      <section id="balance" className="scroll-mt-4 rounded-card border border-line bg-raised p-6" aria-labelledby="bal-h" data-balance-invoices>
+        <details open={!!balanceFor || undefined}>
+          <summary className="cursor-pointer list-none">
+            <h2 id="bal-h" className="inline font-display text-xl font-extrabold">+ {t('balTitle')}</h2>
+            <p className="mt-1 text-sm text-muted">{t('balLead')}</p>
+          </summary>
+          <form action={createBalanceInvoices} className="mt-4 grid gap-4" data-balance-form>
+            <input type="hidden" name="back" value="/admin/invoices#balance" />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm font-semibold">{t('balPlayer')}
+                <select name="player_id" required defaultValue={balanceFor} className={input} data-balance-player>
+                  <option value="" disabled>{t('choose')}</option>
+                  {(players ?? []).map((p) => <option key={p.id} value={p.id}>{p.last_name} {p.first_name}</option>)}
+                </select></label>
+              <label className="grid gap-1 text-sm font-semibold">{t('balDue')}
+                <input type="date" name="due_on" required defaultValue={addDays(today, billing.payment_terms_days || 14)} className={input} /></label>
+            </div>
+            <fieldset className="grid gap-2">
+              <legend className="mb-1 text-sm font-semibold">{t('balItems')}</legend>
+              <div className="hidden grid-cols-[10rem_minmax(0,1fr)_8rem] gap-2 text-xs font-bold uppercase tracking-wide text-muted sm:grid" aria-hidden>
+                <span>{t('balSeason')}</span><span>{t('balDescription')}</span><span className="text-end">{t('pastDueAmount')}</span>
+              </div>
+              {Array.from({ length: BALANCE_ROWS }, (_, i) => (
+                <div key={i} className="grid gap-2 rounded-control bg-surface p-2 sm:grid-cols-[10rem_minmax(0,1fr)_8rem] sm:bg-transparent sm:p-0" data-balance-row={i}>
+                  <label className="grid gap-1 text-xs font-semibold sm:block"><span className="sm:sr-only">{t('balSeason')} {i + 1}</span>
+                    <select name={`season_${i}`} defaultValue="" className={input}><option value="">{t('balNoSeason')}</option>{seasonList.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+                  <label className="grid gap-1 text-xs font-semibold sm:block"><span className="sm:sr-only">{t('balDescription')} {i + 1}</span>
+                    <input name={`description_${i}`} maxLength={200} lang="en" dir="ltr" placeholder={i === 0 ? t('balEg1') : i === 1 ? t('balEg2') : ''} className={input} /></label>
+                  <label className="grid gap-1 text-xs font-semibold sm:block"><span className="sm:sr-only">{t('pastDueAmount')} {i + 1}</span>
+                    <input name={`amount_${i}`} inputMode="decimal" placeholder="0,00" className={`${input} text-end`} /></label>
+                </div>
+              ))}
+            </fieldset>
+            <p className="text-xs text-muted">{t('balHint')}</p>
+            <button className={`${btn} justify-self-start`}>{t('balCreate')}</button>
+          </form>
+        </details>
+      </section>
+
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="list-h">
         <h2 id="list-h" className="scroll-mt-4 font-display text-xl font-extrabold">{playerName ? t('invoicesOf', { name: `${playerName.first_name} ${playerName.last_name}` }) : t('invoices')}</h2>
         <form role="search" action="/admin/invoices#list-h" className="mt-3 grid gap-3 rounded-card bg-surface p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
@@ -145,7 +189,8 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                   return (
                     <tr key={r.id} data-invoice={r.invoiceNumber}>
                       <td className="px-2 py-2 font-semibold" dir="ltr">{r.invoiceNumber}</td>
-                      <td className="px-2 py-2"><a href={listUrl({ player: r.playerId }) + '#list-h'} className="underline-offset-2 hover:underline"><bdi>{r.playerName}</bdi></a></td>
+                      <td className="px-2 py-2"><a href={listUrl({ player: r.playerId }) + '#list-h'} className="underline-offset-2 hover:underline"><bdi>{r.playerName}</bdi></a>
+                        {balanceTitle.get(r.id) ? <span className="block text-xs text-muted" data-balance-title><bdi>{balanceTitle.get(r.id)}</bdi></span> : null}</td>
                       <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(r.issuedAt))}</td>
                       <td className="whitespace-nowrap px-2 py-2">{eur(r.amountCents)}
                         {pastDue.get(r.id)?.length ? <span className="block text-xs text-muted" data-past-due-total>{t('pastDueIncl', { amount: eur(pastDue.get(r.id)!.reduce((a, l) => a + l.cents, 0)) })}</span> : null}</td>

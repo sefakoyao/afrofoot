@@ -10,8 +10,8 @@ const KEYS = {
     err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_noName', 'r_playersAddedSome', 'r_pickNone'],
   },
   inv: {
-    ok: ['r_billingSaved', 'r_planCreated', 'r_saved', 'r_membershipAdded', 'r_autoOn', 'r_autoOff', 'r_markedPaid', 'r_pastDueAdded', 'r_pastDueRemoved'],
-    err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_lead', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason', 'r_pastDueAmount', 'r_pastDueText', 'r_pastDuePaid'],
+    ok: ['r_billingSaved', 'r_planCreated', 'r_saved', 'r_membershipAdded', 'r_autoOn', 'r_autoOff', 'r_markedPaid', 'r_pastDueAdded', 'r_pastDueRemoved', 'r_balanceCreated'],
+    err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_lead', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason', 'r_pastDueAmount', 'r_pastDueText', 'r_pastDuePaid', 'r_balancePlayer', 'r_balanceEmpty'],
   },
   coach: {
     ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved', 'r_replyBySaved'],

@@ -19,7 +19,7 @@ type Summary = {
   team_name: string | null; paid_cents: number; owed_cents: number; overdue_cents: number; next_due_on: string | null;
   sign_in_blocked_from: string | null; exempt_until: string | null; grace_days: number | null; policy_enabled: boolean | null;
 };
-type Payment = { id: string; amount_cents: number; currency: string; due_on: string | null; paid_at: string | null; reference: string | null; invoice_number: string | null; checkout_url: string | null; display_status: string };
+type Payment = { id: string; amount_cents: number; currency: string; due_on: string | null; paid_at: string | null; reference: string | null; invoice_number: string | null; checkout_url: string | null; display_status: string; title?: string | null; season_name?: string | null };
 
 const BADGE: Record<string, string> = { paid: 'bg-accent/20 text-pitch', overdue: 'bg-danger/15 text-danger', pending: 'bg-line text-fg', failed: 'bg-danger/15 text-danger', refunded: 'bg-line text-muted' };
 const day = (iso: string) => new Date(`${iso}T12:00:00Z`); // a date without time, shown in Helsinki time
@@ -56,6 +56,9 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
   const monthYear = new Intl.DateTimeFormat(LOCALE_LABELS[isLocale(rawLocale) ? rawLocale : 'en'].intl, { month: 'short', year: 'numeric', timeZone: 'UTC' });
   const period = (id: string) => { const x = span.get(id); if (!x) return null; const a = monthYear.format(day(x.from)), b = monthYear.format(day(x.to)); return a === b ? a : `${a} – ${b}`; };
   const payments = (paymentRows as Payment[] | null) ?? [];
+  // unpaid items, oldest due first, each named by its title (balance invoices), its months, or "Membership fees"
+  const owing = payments.filter((p) => ['pending', 'overdue', 'failed'].includes(p.display_status)).sort((a, b) => (a.due_on ?? '').localeCompare(b.due_on ?? ''));
+  const label = (p: Payment) => p.title || period(p.id) || t('balanceFees');
   const today = new Date().toISOString().slice(0, 10);
   const exempt = s?.exempt_until && s.exempt_until >= today ? s.exempt_until : null;
   const blockDate = s?.policy_enabled && !exempt && s.sign_in_blocked_from ? s.sign_in_blocked_from : null;
@@ -102,6 +105,31 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
           {exempt ? <p className="text-sm text-muted">{t('exempt', { date: fmt.date.format(day(exempt)) })}</p> : null}
         </div>
 
+        {/* 0055: what makes up the balance, one row per unpaid invoice */}
+        {owing.length ? (
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm" data-my-balance>
+              <caption className="mb-2 text-start font-display font-bold">{t('balanceTitle')}</caption>
+              <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
+                <tr><th scope="col" className="px-2 py-2 text-start">{t('balanceWhat')}</th><th scope="col" className="px-2 py-2 text-start">{t('balanceSeason')}</th><th scope="col" className="px-2 py-2 text-start">{t('balanceDue')}</th><th scope="col" className="px-2 py-2 text-end">{t('balanceAmount')}</th></tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {owing.map((p) => (
+                  <tr key={p.id} data-balance-item={p.invoice_number ?? p.id} data-overdue={p.display_status === 'overdue' || undefined}>
+                    <th scope="row" className="px-2 py-2 text-start font-semibold"><bdi>{label(p)}</bdi>{p.invoice_number ? <span className="block text-xs font-normal text-muted" dir="ltr" style={{ textAlign: 'start' }}>{t('invoiceNo')} {p.invoice_number}</span> : null}</th>
+                    <td className="px-2 py-2">{p.season_name ?? '–'}</td>
+                    <td className={`whitespace-nowrap px-2 py-2 ${p.display_status === 'overdue' ? 'font-bold text-danger' : ''}`}>{p.due_on ? fmt.date.format(day(p.due_on)) : '–'}{p.display_status === 'overdue' ? ` · ${t('st_overdue')}` : ''}</td>
+                    <td className="px-2 py-2 text-end font-semibold tabular-nums">{eur(p.amount_cents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="border-t-2 border-line font-bold">
+                <tr data-my-balance-total><th scope="row" colSpan={3} className="px-2 py-2 text-start">{t('balanceTotal')}</th><td className="px-2 py-2 text-end tabular-nums">{eur(owing.reduce((a, p) => a + p.amount_cents, 0))}</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        ) : null}
+
         {(s?.owed_cents ?? 0) > 0 ? (
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <a href="#how-to-pay" className="inline-flex min-h-11 items-center rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">
@@ -132,7 +160,7 @@ export default async function MembershipTab({ searchParams }: { searchParams: Pr
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
                       <p className="text-sm text-muted">{t('invoiceNo')} <span dir="ltr" className="font-semibold text-fg">{p.invoice_number}</span></p>
-                      {per ? <p className="font-semibold">{per}</p> : null}
+                      {p.title ? <p className="font-semibold" data-invoice-title><bdi>{p.title}</bdi>{p.season_name ? <span className="font-normal text-muted"> · {p.season_name}</span> : null}</p> : per ? <p className="font-semibold">{per}</p> : null}
                     </div>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${BADGE[st === 'open' ? 'pending' : st] ?? ''}`}>{st === 'overdue' ? t('st_overdue') : st === 'paid' ? ts('paid') : t('st_open')}</span>
                   </div>

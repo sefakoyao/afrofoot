@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – balance invoices (branch `phase2/balance-invoices`, migration 0055, release 0.44.0)
+- **Admin → Finance → Invoices → New balance invoices:** choose a player and a due date, then fill in up to 6 rows. Each row has a **season**, a **description** (e.g. "Balance 2024", "Player licence 2026") and an **amount** typed in by hand.
+  - Each row becomes **its own invoice** with its own number, reference, PDF and bank barcode.
+  - The invoice list names them (e.g. "Balance 2024" under the player).
+  - **Finance → Player balances** has a "+ Invoice" link per player that opens the form with the player already chosen.
+- **The invoice's season** (new `payments.season_id`) decides which season it counts in on the Finance pages, before the membership and the due date.
+- **Player → Membership:**
+  - "What makes up your balance": each unpaid item with its season, due date and amount, and the **total balance**.
+  - Invoice cards show their title and season.
+  - "How to pay" lists every open invoice separately.
+- 20 database checks, 13 browser checks.
+
 ## Unreleased – Finance (branch `phase2/finance`, migration 0054, release 0.43.0)
 - **Admin menu → Finance group:** Overview, Player balances, Invoices (moved here) and Expenses.
 - **Finance → Overview, per season** (season picker):

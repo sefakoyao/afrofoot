@@ -1400,7 +1400,14 @@
     "remNoEmail": "Tililläsi ei ole sähköpostiosoitetta, joten muistutuksia ei voi lähettää.",
     "remTurnOff": "Poista muistutukset",
     "remTurnOn": "Ota muistutukset käyttöön",
-    "tabQuiz": "Visa"
+    "tabQuiz": "Visa",
+    "balanceTitle": "Mistä saldosi koostuu",
+    "balanceWhat": "Mitä",
+    "balanceSeason": "Kausi",
+    "balanceDue": "Eräpäivä",
+    "balanceAmount": "Summa",
+    "balanceTotal": "Saldo yhteensä",
+    "balanceFees": "Jäsenmaksut"
   },
   "account": {
     "title": "Oma tili",
@@ -1802,7 +1809,22 @@
     "r_pastDueRemoved": "Erääntynyt summa poistettu laskulta.",
     "r_pastDueAmount": "Anna summa väliltä 0,01–5000 euroa, esim. 60 tai 60,50.",
     "r_pastDueText": "Kuvauksessa on oltava 3–200 merkkiä.",
-    "r_pastDuePaid": "Lasku on jo maksettu, eikä sitä voi enää muuttaa."
+    "r_pastDuePaid": "Lasku on jo maksettu, eikä sitä voi enää muuttaa.",
+    "balTitle": "Uudet saldolaskut",
+    "balLead": "Laskuta yhtä pelaajaa käsin syötetyistä summista, esim. aiemman kauden maksamattomasta saldosta tai pelaajalisenssistä. Jokaisesta rivistä tulee oma lasku omalla numerolla, viitteellä ja PDF:llä.",
+    "balPlayer": "Pelaaja",
+    "balDue": "Eräpäivä",
+    "balItems": "Laskut (yksi riviä kohden)",
+    "balSeason": "Kausi",
+    "balDescription": "Kuvaus laskulla",
+    "balNoSeason": "Ei kautta",
+    "balEg1": "esim. Balance 2024",
+    "balEg2": "esim. Player licence 2026",
+    "balHint": "Täytä vain tarvitsemasi rivit. Summat euroina, esim. 60 tai 60,50 (enintään 5000). Kausi kertoo Talous-sivuille, mihin kauteen summa kuuluu.",
+    "balCreate": "Luo laskut",
+    "r_balanceCreated": "Saldolaskut luotu. Ne näkyvät alla ja pelaajan Jäsenyys-välilehdellä.",
+    "r_balancePlayer": "Valitse pelaaja.",
+    "r_balanceEmpty": "Täytä vähintään yksi rivi kuvauksella ja summalla."
   },
   "conduct": {
     "title": "Toimintaohjeet",
@@ -2837,6 +2859,7 @@
     "r_error": "Tallennus ei onnistunut. Yritä uudelleen.",
     "r_amount": "Anna summa euroina, esim. 1200 tai 1200,50 (enintään 100 000).",
     "r_date": "Anna kelvollinen päivämäärä.",
-    "r_text": "Kuvauksessa voi olla enintään 200 merkkiä."
+    "r_text": "Kuvauksessa voi olla enintään 200 merkkiä.",
+    "b_newInvoice": "+ Lasku"
   }
 }

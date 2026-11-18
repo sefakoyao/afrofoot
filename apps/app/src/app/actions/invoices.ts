@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireArea } from '@/lib/auth';
+import { BALANCE_ROWS } from '@/lib/finance';
 import { ibanValid } from '@/lib/invoice/barcode';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -181,4 +182,37 @@ export async function removePastDue(fd: FormData): Promise<void> {
   const { error } = await supabase.rpc('remove_past_due', { p_line: id.data });
   if (error) { if (error.code === '23514') back(fd, 'r_pastDuePaid'); fail(fd, 'remove past due', error); }
   done(fd, 'r_pastDueRemoved');
+}
+
+// ---------- balance invoices (migration 0055) ----------
+
+const balanceItem = z.object({ season_id: z.union([z.literal(''), uuid]), description: z.string().trim(), amount: z.string().trim() });
+
+/**
+ * One invoice per filled row for one player (public.create_balance_invoices): e.g. "Balance 2024" and "Player licence 2026"
+ * become two invoices with their own number, reference and PDF. Rows with neither text nor amount are skipped.
+ */
+export async function createBalanceInvoices(fd: FormData): Promise<void> {
+  const player = uuid.safeParse(fd.get('player_id'));
+  const due = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).safeParse(fd.get('due_on'));
+  if (!player.success) back(fd, 'r_balancePlayer');
+  if (!due.success) back(fd, 'r_date');
+  const items: { season_id: string | null; description: string; amount_cents: number }[] = [];
+  for (let i = 0; i < BALANCE_ROWS; i++) {
+    const r = balanceItem.safeParse({ season_id: String(fd.get(`season_${i}`) ?? ''), description: String(fd.get(`description_${i}`) ?? ''), amount: String(fd.get(`amount_${i}`) ?? '') });
+    if (!r.success) back(fd, 'r_invalid');
+    if (!r.data.description && !r.data.amount) continue;
+    if (r.data.description.length < 3 || r.data.description.length > 200) back(fd, 'r_pastDueText');
+    const cents = euros.safeParse(r.data.amount);
+    if (!cents.success) back(fd, 'r_pastDueAmount');
+    items.push({ season_id: r.data.season_id || null, description: r.data.description, amount_cents: cents.data });
+  }
+  if (!items.length) back(fd, 'r_balanceEmpty');
+  const { supabase } = await admin(fd);
+  const { data, error } = await supabase.rpc('create_balance_invoices', { p_player: player.data, p_due: due.data, p_items: items });
+  if (error) { if (error.code === '22023') back(fd, 'r_invalid'); fail(fd, 'balance invoices', error); }
+  revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout');
+  const url = new URL('/admin/invoices', 'http://x');
+  url.searchParams.set('player', player.data); url.searchParams.set('result', 'r_balanceCreated'); url.searchParams.set('n', String((data as string[] | null)?.length ?? items.length));
+  redirect(url.pathname + url.search + '#list-h');
 }
