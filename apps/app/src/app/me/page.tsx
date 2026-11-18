@@ -39,7 +39,8 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
 
   // Two rounds of parallel reads (each Supabase call is a network round trip; in a row they made the tab feel slow).
   const [{ data: monthData }, { data: nextData }, { data: me }] = supabase ? await Promise.all([
-    supabase.from('team_schedule').select('*').gte('starts_at', from).lt('starts_at', to).order('starts_at'),
+    // cancelled events are left out of the player's list; postponed ones stay, marked, until they get a new date
+    supabase.from('team_schedule').select('*').gte('starts_at', from).lt('starts_at', to).neq('status', 'cancelled').order('starts_at'),
     supabase.from('team_schedule').select('*').gte('starts_at', new Date().toISOString()).not('status', 'in', '(cancelled,postponed)').order('starts_at').limit(1),
     // My replies (sign in / out): RLS returns only the player's own rows (migration 0008); rows exist for roster players.
     supabase.from('players').select('id').eq('profile_id', member.id).maybeSingle(),

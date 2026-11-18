@@ -31,7 +31,8 @@ export default async function CalendarPage({ params }: { params: Promise<{ local
   const hm = new Intl.DateTimeFormat(intl, { hour: '2-digit', minute: '2-digit', timeZone: tz });
   const db = getPublicClient();
   const since = new Date(); since.setHours(since.getHours() - 3);
-  const { data } = db ? await db.from('public_schedule').select('*').gte('ends_at', since.toISOString()).order('starts_at').limit(200) : { data: [] };
+  // Cancelled trainings, games and club events are left out; postponed ones stay, marked, until they get a new date.
+  const { data } = db ? await db.from('public_schedule').select('*').gte('ends_at', since.toISOString()).neq('status', 'cancelled').order('starts_at').limit(200) : { data: [] };
   const items: CalItem[] = ((data ?? []) as Row[]).map((r) => {
     const group = r.event_type === 'friendly' ? 'game' : r.event_type;
     const multiDay = dayKey.format(new Date(r.starts_at)) !== dayKey.format(new Date(r.ends_at));
