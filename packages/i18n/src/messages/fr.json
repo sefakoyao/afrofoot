@@ -1623,7 +1623,13 @@
     "ms_played": "Joué",
     "ms_postponed": "Reporté",
     "ms_cancelled": "Annulé",
-    "navMyTeams": "Mes équipes"
+    "navMyTeams": "Mes équipes",
+    "repliesInvited": "sur {count} invités",
+    "groupIn": "Inscrits",
+    "groupOut": "Absents",
+    "groupNone": "Sans réponse",
+    "showNames": "Voir les noms",
+    "hideNames": "Masquer les noms"
   },
   "inv": {
     "title": "Factures",

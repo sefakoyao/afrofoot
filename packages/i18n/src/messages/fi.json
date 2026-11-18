@@ -1623,7 +1623,13 @@
     "ms_played": "Pelattu",
     "ms_postponed": "Siirretty",
     "ms_cancelled": "Peruttu",
-    "navMyTeams": "Omat joukkueet"
+    "navMyTeams": "Omat joukkueet",
+    "repliesInvited": "/ {count} kutsuttua",
+    "groupIn": "Ilmoittautuneet",
+    "groupOut": "Poissa",
+    "groupNone": "Ei vastannut",
+    "showNames": "Näytä nimet",
+    "hideNames": "Piilota nimet"
   },
   "inv": {
     "title": "Laskut",

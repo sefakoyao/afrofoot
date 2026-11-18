@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { cancelSession, saveAttendance } from '@/app/actions/coach';
+import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { ATTENDANCE } from '@/lib/coach';
@@ -50,8 +51,6 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
   const markable = s.status !== 'cancelled' && helsinkiToday(new Date(s.starts_at)) <= helsinkiToday();
   const marked = roster.filter((r) => byPlayer.get(r.players.id)?.attendance).length;
   const back = `/coach/sessions/${id}`;
-  // Players' own sign in / out (Calendar tab, migration 0029).
-  const count = (a: string) => roster.filter((r) => (byPlayer.get(r.players.id)?.availability ?? 'pending') === a).length;
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
@@ -70,11 +69,10 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
           <h2 id="att-h" className="font-display text-xl font-extrabold">{t('attendance')}</h2>
           <span className="text-sm text-muted" data-marked>{t('markedCount', { marked, total: roster.length })}</span>
         </div>
-        <p className="mt-2 flex flex-wrap gap-2 text-sm" data-replies={`${count('yes')}/${count('no')}/${count('pending') + count('maybe')}`}>
-          <span className="rounded-full bg-accent/20 px-3 py-1 font-bold text-pitch">{t('repliesIn', { count: count('yes') })}</span>
-          <span className="rounded-full bg-danger/10 px-3 py-1 font-bold text-danger">{t('repliesOut', { count: count('no') })}</span>
-          <span className="rounded-full bg-line px-3 py-1 font-bold">{t('repliesNone', { count: count('pending') + count('maybe') })}</span>
-        </p>
+        {/* who signed in / out from the Calendar tab (migration 0029), with names */}
+        <div className="mt-2" data-session-replies>
+          <Replies open rows={roster.map((r) => { const row = byPlayer.get(r.players.id); return { player_id: r.players.id, name: `${r.players.first_name} ${r.players.last_name}`, availability: row?.availability ?? 'pending', note: row?.note ?? null }; })} />
+        </div>
         {s.status === 'cancelled' ? <p className="mt-2 text-muted">{t('r_cancelled')}</p> : !markable ? <p className="mt-2 text-muted">{t('notYet')}</p> : null}
         {roster.length === 0 ? <p className="mt-2 text-muted">{t('noPlayers')}</p> : (
           <form action={saveAttendance} className="mt-3">
