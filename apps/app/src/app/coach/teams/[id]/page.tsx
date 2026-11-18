@@ -9,6 +9,9 @@ import { EventForm, EventList, MeetFields, PublicField, type EventRow } from '@/
 import { LocationPicker } from '@/components/events/LocationPicker';
 import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
+import { ShirtGrid } from '@/components/ShirtGrid';
+import { ShirtRequests } from '@/components/ShirtRequests';
+import { openShirtRequests, ranges, shirtNumbers } from '@/lib/shirts';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
 import { getSupabase } from '@/lib/supabase/server';
@@ -36,6 +39,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const [t, tpos, rawLocale, supabase] = await Promise.all([getTranslations('coach'), getTranslations('position'), getLocale(), getSupabase()]);
   if (!supabase || !(await coachesTeam(supabase, member.id, id))) notFound(); // not this coach's team
   const team = (await myTeams(supabase, member.id)).find((x) => x.id === id)!;
+  const [tsh, shirtReqs, shirtGrid] = await Promise.all([getTranslations('shirt'), openShirtRequests(supabase, [id]), shirtNumbers(supabase, id)]);
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
   const when = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const now = new Date().toISOString();
@@ -202,6 +206,17 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
         <details className="mt-4 rounded-card bg-surface p-4">
           <summary className="cursor-pointer font-semibold">{te('addEvent')}</summary>
           <EventForm back={back} places={locations ?? []} fixedTeam={id} />
+        </details>
+      </section>
+
+      {/* 0057: shirt number requests of this team and the numbers still free */}
+      <section id="shirts" className="scroll-mt-4 rounded-card border border-line bg-raised p-6" aria-labelledby="shirts-h" data-coach-shirts>
+        <h2 id="shirts-h" className="font-display text-xl font-extrabold">{tsh('teamTitle')}{shirtReqs.length ? <span className="ms-2 rounded-full bg-gold px-2 py-0.5 align-middle text-xs font-bold text-black">{shirtReqs.length}</span> : null}</h2>
+        <div className="mt-3"><ResultBanner ns="shirt" result={sp.result} /></div>
+        <div className="mt-3"><ShirtRequests requests={shirtReqs} back={`/coach/teams/${id}`} /></div>
+        <p className="mt-3 text-sm" data-free-numbers><span className="font-semibold">{tsh('freeList', { count: shirtGrid.filter((n) => n.free).length })}</span> <span className="text-muted" dir="ltr">{ranges(shirtGrid.filter((n) => n.free).map((n) => n.number))}</span></p>
+        <details className="mt-2"><summary className="cursor-pointer text-sm font-semibold text-pitch">{tsh('showGrid')}</summary>
+          <div className="mt-3"><ShirtGrid numbers={shirtGrid} labels={{ free: tsh('free'), taken: (name: string) => tsh('takenBy', { name }), yours: tsh('yours'), requested: (n: number) => tsh('requestedN', { count: n }), legendFree: tsh('legendFree'), legendTaken: tsh('legendTaken'), legendRequested: tsh('legendRequested') }} /></div>
         </details>
       </section>
 

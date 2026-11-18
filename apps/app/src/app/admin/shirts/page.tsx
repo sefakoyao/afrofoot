@@ -1,0 +1,75 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { ResultBanner } from '@/components/ResultBanner';
+import { SeasonPicker } from '@/components/admin/SeasonPicker';
+import { ShirtGrid } from '@/components/ShirtGrid';
+import { ShirtRequests } from '@/components/ShirtRequests';
+import { requireArea } from '@/lib/auth';
+import { pickSeason } from '@/lib/finance';
+import { openShirtRequests, ranges, shirtNumbers } from '@/lib/shirts';
+import { getSupabase } from '@/lib/supabase/server';
+
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: (await getTranslations('shirt'))('adminTitle') };
+}
+
+const one = (v: string | string[] | undefined) => (typeof v === 'string' ? v : '');
+
+/**
+ * Admin → Teams & events → Shirt numbers (migration 0057): for a season, every team's open requests (approve or
+ * decline), the free numbers, and who wears which number.
+ */
+export default async function ShirtsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  await requireArea('admin');
+  const sp = await searchParams;
+  const [t, supabase] = await Promise.all([getTranslations('shirt'), getSupabase()]);
+  if (!supabase) return null;
+  const { seasons, season } = await pickSeason(supabase, one(sp.season));
+  if (!season) return <p className="rounded-card bg-raised p-6 text-muted">{t('noSeason')}</p>;
+  const { data: tsRows } = await supabase.from('team_seasons').select('id, division, teams!inner(name)').eq('season_id', season.id).order('created_at');
+  const teams = (tsRows ?? []) as unknown as { id: string; division: string | null; teams: { name: string } }[];
+  const [requests, grids] = await Promise.all([openShirtRequests(supabase, teams.map((x) => x.id)), Promise.all(teams.map((x) => shirtNumbers(supabase, x.id)))]);
+  const nameOf = (id: string) => teams.find((x) => x.id === id)?.teams.name ?? '';
+  const back = `/admin/shirts?season=${season.id}`;
+  const labels = { free: t('free'), taken: (name: string) => t('takenBy', { name }), yours: t('yours'), requested: (n: number) => t('requestedN', { count: n }), legendFree: t('legendFree'), legendTaken: t('legendTaken'), legendRequested: t('legendRequested') };
+
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-extrabold">{t('adminTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-muted">{t('adminLead')}</p>
+        </div>
+        <SeasonPicker seasons={seasons} current={season.id} label={t('season')} action="/admin/shirts" />
+      </header>
+
+      <section id="shirts" className="scroll-mt-4 rounded-card border-2 border-accent bg-raised p-6" aria-labelledby="req-h">
+        <h2 id="req-h" className="font-display text-xl font-extrabold">{t('openTitle', { count: requests.length })}</h2>
+        <div className="mt-3"><ResultBanner ns="shirt" result={sp.result} /></div>
+        <div className="mt-3"><ShirtRequests requests={requests} back={back} teamName={nameOf} /></div>
+      </section>
+
+      {teams.length ? teams.map((team, i) => {
+        const g = grids[i]!;
+        const free = g.filter((n) => n.free), taken = g.filter((n) => !n.free);
+        return (
+          <section key={team.id} className="rounded-card border border-line bg-raised p-6" aria-labelledby={`team-${team.id}`} data-shirt-team={team.teams.name}>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 id={`team-${team.id}`} className="font-display text-xl font-extrabold"><bdi>{team.teams.name}</bdi>{team.division ? <span className="ms-2 text-sm font-normal text-muted">{team.division}</span> : null}</h2>
+              <p className="text-sm text-muted" data-counts>{t('counts', { free: free.length, taken: taken.length })}</p>
+            </div>
+            <p className="mt-3 text-sm" data-free-numbers><span className="font-semibold">{t('freeList', { count: free.length })}</span> <span className="text-muted" dir="ltr">{ranges(free.map((n) => n.number))}</span></p>
+            {taken.length ? (
+              <ul className="mt-3 flex flex-wrap gap-2 text-sm" data-taken-list>
+                {taken.map((n) => <li key={n.number} className="rounded-full bg-surface px-3 py-1"><span className="font-bold tabular-nums">{n.number}</span> <bdi>{n.player_name}</bdi></li>)}
+              </ul>
+            ) : null}
+            <details className="mt-3"><summary className="cursor-pointer text-sm font-semibold text-pitch">{t('showGrid')}</summary>
+              <div className="mt-3"><ShirtGrid numbers={g} labels={labels} /></div>
+            </details>
+          </section>
+        );
+      }) : <p className="rounded-card border border-line bg-raised p-6 text-muted">{t('noTeams')}</p>}
+    </div>
+  );
+}

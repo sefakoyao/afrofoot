@@ -7,17 +7,18 @@ import { getSupabase } from '@/lib/supabase/server';
 import { PhotoForm } from './PhotoForm';
 import { PlayerProfileForm } from './PlayerProfileForm';
 import { setReminderEmails, setWebsiteListing } from '@/app/actions/player';
+import { MyShirtNumber } from '@/components/MyShirtNumber';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('me'))('tabProfile') };
 }
 
-export default async function PlayerProfilePage({ searchParams }: { searchParams: Promise<{ website?: string; reminders?: string }> }) {
+export default async function PlayerProfilePage({ searchParams }: { searchParams: Promise<{ website?: string; reminders?: string; result?: string }> }) {
   const member = await requireArea('me');
   const [t, tpos, trel, supabase] = await Promise.all([getTranslations('pp'), getTranslations('position'), getTranslations('relation'), getSupabase()]);
   const sport = supabase ? await loadPlayerSport(supabase, member.id) : null;
   // own photo (storage, own folder): a short-lived signed address
-  const { data: me } = supabase ? await supabase.from('players').select('photo_path, website_hidden').eq('profile_id', member.id).maybeSingle() : { data: null };
+  const { data: me } = supabase ? await supabase.from('players').select('id, photo_path, website_hidden').eq('profile_id', member.id).maybeSingle() : { data: null };
   const sp = await searchParams;
   const saved = sp.website === 'saved';
   const { data: prof } = supabase ? await supabase.from('profiles').select('reminder_emails, email').eq('id', member.id).maybeSingle() : { data: null };
@@ -46,6 +47,7 @@ export default async function PlayerProfilePage({ searchParams }: { searchParams
             </dl>
             <p className="mt-3 text-xs text-muted">{t('clubSetNote')}</p>
           </section>
+          {supabase && me?.id ? <MyShirtNumber db={supabase} playerId={me.id} result={sp.result} /> : null}
           <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="photo-h">
             <h2 id="photo-h" className="mb-3 font-display text-lg font-extrabold">{t('photoTitle')}</h2>
             <PhotoForm current={signed?.data?.signedUrl ?? null} name={`${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || ''} />
