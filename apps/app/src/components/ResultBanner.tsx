@@ -42,6 +42,10 @@ const KEYS = {
     ok: ['r_passwordSent', 'r_confirmationSent', 'r_alreadyConfirmed', 'r_exempted'],
     err: ['r_invalid', 'r_error', 'r_noEmail', 'r_tooMany', 'r_dates'],
   },
+  shirt: {
+    ok: ['r_requested', 'r_withdrawn', 'r_approved', 'r_declined'],
+    err: ['r_pick', 'r_taken', 'r_notAllowed', 'r_error', 'r_gone'],
+  },
   fin: {
     ok: ['r_budgetSaved', 'r_expenseAdded', 'r_expenseDeleted'],
     err: ['r_invalid', 'r_error', 'r_amount', 'r_date', 'r_text'],

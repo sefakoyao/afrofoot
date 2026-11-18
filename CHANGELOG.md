@@ -3,6 +3,19 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – shirt number requests (branch `phase2/shirt-numbers`, migration 0057, release 0.47.0)
+- **Player → My profile → Shirt number** (each team of the current season):
+  - the number they wear
+  - a grid of 1–99 with free, taken (with the teammate's name) and already requested (dot)
+  - pick a free number, add an optional message, send. One open request per team; a new one replaces it, and it can be withdrawn.
+  - the decision is shown afterwards
+- **Coach → team page → Shirt numbers:** open requests with **Approve / Decline** (optional note), the free numbers as ranges, and the full grid.
+- **Admin → Teams & events → Shirt numbers** (menu badge = open requests):
+  - per season, all open requests (approve/decline)
+  - for every team: the free numbers ("2–7, 9–22, 24–99"), who wears which number, and the grid
+- **Approving** sets the player's squad number, so it's no longer free. A previous number becomes free again, and other requests for the same number are declined. Nobody can approve their own request (a player-coach).
+- 27 database checks, 17 browser checks.
+
 ## Unreleased – part payments (branch `phase2/partial-payments`, migration 0056, release 0.46.0)
 - **Admin → Finance → Invoices → Payments** on every unpaid invoice: record what the player actually paid (amount, date, optional note), e.g. €10 of a €20 invoice.
   - The rest stays owed. The row shows **Partly paid** and "€10.00 paid · €10.00 left".
