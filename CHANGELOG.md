@@ -3,6 +3,16 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – club signatory and contract footer (branch `phase2/contract-signatory`, migration 0052, release 0.41.0)
+- **Admin → Contracts → settings → Who signs for the club:** the signatory's name and title (e.g. "General Manager").
+  - When an admin countersigns, the club's signature uses that name and title: drawn, printed and with its signature ID, on the page and in the PDF.
+  - The admin who clicked is still recorded (`club_signed_by`, audit log).
+  - With no signatory set, the admin's own name is used, as before.
+  - Signed contracts keep their signature when the setting changes later.
+- **Countersign box:** shows exactly how the club's signature will look, with a link to change the signatory.
+- **Contract PDF footer on every page:** the club's legal name, address, business ID, email, phone and website (from Admin → Invoices → Club billing details), plus the page number.
+- 10 database checks, 9 browser checks.
+
 ## Unreleased – e-signature look on contracts (branch `phase2/esign-look`, release 0.40.0, no database change)
 - **Signatures drawn from the typed names** of both parties in a handwriting font (Great Vibes, SIL Open Font License, Latin letters incl. Finnish and French accents), on the contract page and in the PDF. Arabic-script names use the normal bold font.
 - **Live preview while signing:** "Your signature will look like this" under the name field on the player's contract page; admins see their own club signature above **Countersign**.

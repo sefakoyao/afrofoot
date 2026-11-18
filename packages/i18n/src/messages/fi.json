@@ -1972,7 +1972,16 @@
     "esignNote": "Kumpikin osapuoli allekirjoitti sovelluksessa omalla tilillään kirjoittamalla nimensä ja vahvistamalla. Kirjoitettu nimi näytetään käsialatyylillä; allekirjoitustunnus viittaa allekirjoituksen tallenteeseen.",
     "sigPreview": "Allekirjoituksesi näyttää tältä",
     "sigPreviewEmpty": "Kirjoita nimesi yllä nähdäksesi allekirjoituksesi",
-    "sigPreviewClub": "Allekirjoituksesi seuran puolesta"
+    "sigPreviewClub": "Allekirjoituksesi seuran puolesta",
+    "signatoryTitle": "Kuka allekirjoittaa seuran puolesta",
+    "signatoryName": "Allekirjoittajan nimi",
+    "signatoryNameEg": "Etu- ja sukunimi",
+    "signatoryRole": "Tehtävänimike",
+    "signatoryRoleEg": "esim. toiminnanjohtaja",
+    "signatoryHint": "Tulostetaan ja piirretään seuran allekirjoitukseksi, kun ylläpitäjä vahvistaa sopimuksen. Painikkeen painanut ylläpitäjä kirjataan edelleen muutoslokiin. Jätä nimi tyhjäksi, niin käytetään vahvistavan ylläpitäjän omaa nimeä. Jo vahvistetut sopimukset säilyttävät allekirjoituksensa.",
+    "signatoryFromSettings": "Seuran allekirjoituksessa käytetään sopimusasetusten allekirjoittajaa; sinut kirjataan vahvistaneeksi ylläpitäjäksi.",
+    "signatoryYou": "Seuran allekirjoituksessa käytetään omaa nimeäsi (sopimusasetuksissa ei ole allekirjoittajaa).",
+    "signatoryChange": "Muuta"
   },
   "match": {
     "title": "Ottelupäivä",

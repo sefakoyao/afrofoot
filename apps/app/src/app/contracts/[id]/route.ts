@@ -19,7 +19,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!data) return new NextResponse('Not found', { status: 404 });
   const c = data as unknown as Contract & { players: { first_name: string; last_name: string } };
   const billing = await loadBilling(supabase);
-  const pdf = await renderContractPdf(c, `${c.players.first_name} ${c.players.last_name}`, billing.legal_name || 'Afro Foot Club');
+  const footer = [billing.legal_name || 'Afro Foot Club', [billing.street, billing.postal_city].filter(Boolean).join(', '),
+    billing.business_id ? `Business ID ${billing.business_id}` : '', billing.email, billing.phone, billing.website];
+  const pdf = await renderContractPdf(c, `${c.players.first_name} ${c.players.last_name}`, billing.legal_name || 'Afro Foot Club', footer);
   return new NextResponse(Buffer.from(pdf), {
     headers: {
       'Content-Type': 'application/pdf',

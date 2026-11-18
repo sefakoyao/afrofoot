@@ -153,6 +153,15 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
           <label className="grid gap-1 text-sm font-semibold">{t('autoNotIncluded')}
             <textarea name="not_included" rows={6} maxLength={1000} defaultValue={settings.not_included} lang="en" dir="ltr" className="rounded-control border border-line bg-raised p-3 font-normal" data-not-included /></label>
           <p className="text-xs text-muted sm:col-span-2">{t('autoListHint')}</p>
+          <fieldset className="grid gap-3 rounded-card bg-surface p-4 sm:col-span-2 sm:grid-cols-2" data-signatory>
+            <legend className="sr-only">{t('signatoryTitle')}</legend>
+            <p className="font-display font-bold sm:col-span-2">{t('signatoryTitle')}</p>
+            <label className="grid gap-1 text-sm font-semibold">{t('signatoryName')}
+              <input name="signatory_name" minLength={2} maxLength={120} defaultValue={settings.signatory_name} placeholder={t('signatoryNameEg')} autoComplete="off" className={input} data-signatory-name /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('signatoryRole')}
+              <input name="signatory_title" maxLength={80} defaultValue={settings.signatory_title} placeholder={t('signatoryRoleEg')} lang="en" dir="ltr" className={input} data-signatory-title /></label>
+            <p className="text-xs text-muted sm:col-span-2">{t('signatoryHint')}</p>
+          </fieldset>
           <p className="text-xs text-muted sm:col-span-2">{t('autoFieldsNote')}</p>
           <button className="min-h-11 justify-self-start rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110">{t('autoSave')}</button>
         </form>

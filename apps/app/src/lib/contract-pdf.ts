@@ -17,7 +17,8 @@ const INK = rgb(0.08, 0.08, 0.08), MUTED = rgb(0.38, 0.38, 0.38), GREEN = rgb(0.
 const when = (iso: string | null) => (iso ? `${new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Helsinki' })} (Helsinki)` : '');
 const day = (iso: string) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-export async function renderContractPdf(c: Contract, player: string, club: string): Promise<Uint8Array> {
+/** `footer`: the club's details printed at the bottom of every page (name, address, business ID, contacts). */
+export async function renderContractPdf(c: Contract, player: string, club: string, footer: string[] = []): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   doc.setTitle(`${c.title} – ${player}`); doc.setAuthor(club); doc.setCreator('Afro Foot member app');
@@ -74,7 +75,7 @@ export async function renderContractPdf(c: Contract, player: string, club: strin
   page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.8, color: INK }); y -= 18;
   para('Electronic signatures', { font: bold, size: 12.5, gap: 4 });
   const colW = (W - 2 * M - 28) / 2;
-  const col = (x: number, who: string, party: 'player' | 'club', name: string | null, at: string | null, top: number) => {
+  const col = (x: number, who: string, party: 'player' | 'club', name: string | null, title: string | null, at: string | null, top: number) => {
     page.drawText(who, { x, y: top, size: 8.5, font: bold, color: MUTED });
     const lineY = top - 56;
     if (name && at) {
@@ -82,19 +83,21 @@ export async function renderContractPdf(c: Contract, player: string, club: strin
       const font = scriptable(name) ? script : bold;
       let size = font === script ? 30 : 16;
       while (size > 12 && font.widthOfTextAtSize(name, size) > colW) size -= 1;
-      page.drawText(name, { x: x + 4, y: lineY + 8, size, font, color: rgb(0.05, 0.12, 0.35) });
+      page.drawText(name, { x: x + 4, y: lineY + (font === script ? 12 : 8), size, font, color: rgb(0.05, 0.12, 0.35) });
     }
     page.drawLine({ start: { x, y: lineY }, end: { x: x + colW, y: lineY }, thickness: 0.6, color: MUTED });
-    page.drawText(name ?? 'Not signed yet', { x, y: lineY - 14, size: 10.5, font: bold, color: name ? INK : MUTED });
+    page.drawText(name ?? 'Not signed yet', { x, y: lineY - 17, size: 10.5, font: bold, color: name ? INK : MUTED });
+    let ly = lineY - 17;
+    if (name && title) { ly -= 13; page.drawText(title, { x, y: ly, size: 9.5, font: regular, color: INK }); }
     if (at) {
-      page.drawText(`Signed electronically ${when(at)}`, { x, y: lineY - 27, size: 8, font: regular, color: MUTED });
+      page.drawText(`Signed electronically ${when(at)}`, { x, y: ly - 13, size: 8, font: regular, color: MUTED });
       const ref = signatureId(c, party);
-      if (ref) page.drawText(`Signature ID ${ref}`, { x, y: lineY - 38, size: 8, font: regular, color: MUTED });
+      if (ref) page.drawText(`Signature ID ${ref}`, { x, y: ly - 24, size: 8, font: regular, color: MUTED });
     }
   };
-  col(M, 'PLAYER', 'player', c.player_signed_name, c.player_signed_at, y - 6);
-  col(M + colW + 28, `FOR ${club}`.toUpperCase(), 'club', c.club_signed_name, c.club_signed_at, y - 6);
-  y -= 112;
+  col(M, 'PLAYER', 'player', c.player_signed_name, null, c.player_signed_at, y - 6);
+  col(M + colW + 28, `FOR ${club}`.toUpperCase(), 'club', c.club_signed_name, c.club_signed_title ?? null, c.club_signed_at, y - 6);
+  y -= 124;
   if (c.status === 'declined') para(`Declined by the player on ${when(c.declined_at)}${c.decline_reason ? `: ${c.decline_reason}` : ''}`, { color: rgb(0.7, 0.1, 0.1) });
   if (c.status === 'cancelled') para(`Cancelled by the club on ${when(c.cancelled_at)}.`, { color: MUTED });
   if (c.terminated_on) para(`Terminated on ${day(c.terminated_on)}${c.termination_reason ? `: ${c.termination_reason}` : ''}`, { color: MUTED });
@@ -102,7 +105,12 @@ export async function renderContractPdf(c: Contract, player: string, club: strin
   if (c.body_sha256) para(`SHA-256 fingerprint of the contract text: ${c.body_sha256}`, { size: 7.5, color: MUTED });
   if (c.status === 'active' || c.status === 'terminated') para('Signed by both parties.', { font: bold, size: 9, color: GREEN });
 
-  // page numbers
-  pages.forEach((p, i) => p.drawText(`${i + 1}/${pages.length}`, { x: W - M - 20, y: 30, size: 8, font: regular, color: MUTED }));
+  // footer on every page: the club's details (wrapped to two lines when long) and the page number
+  const foot = wrap(footer.filter(Boolean).join('  ·  '), regular, 7.5, W - 2 * M - 40).slice(0, 2);
+  pages.forEach((p, i) => {
+    p.drawLine({ start: { x: M, y: 46 }, end: { x: W - M, y: 46 }, thickness: 0.4, color: MUTED });
+    foot.forEach((l, j) => p.drawText(l, { x: M, y: 34 - j * 10, size: 7.5, font: regular, color: MUTED }));
+    p.drawText(`${i + 1}/${pages.length}`, { x: W - M - 20, y: 34, size: 8, font: regular, color: MUTED });
+  });
   return doc.save();
 }

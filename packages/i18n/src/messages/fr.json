@@ -1972,7 +1972,16 @@
     "esignNote": "Chaque partie a signé dans l’application avec son propre compte en tapant son nom et en confirmant. Le nom tapé est affiché en style manuscrit ; l’ID de signature renvoie à l’enregistrement de la signature.",
     "sigPreview": "Votre signature ressemblera à ceci",
     "sigPreviewEmpty": "Tapez votre nom ci-dessus pour voir votre signature",
-    "sigPreviewClub": "Votre signature pour le club"
+    "sigPreviewClub": "Votre signature pour le club",
+    "signatoryTitle": "Qui signe pour le club",
+    "signatoryName": "Nom du signataire",
+    "signatoryNameEg": "Prénom et nom",
+    "signatoryRole": "Fonction",
+    "signatoryRoleEg": "p. ex. directeur général",
+    "signatoryHint": "Imprimé et dessiné comme signature du club quand un admin contresigne. L’admin qui clique reste enregistré dans le journal d’audit. Laissez le nom vide pour utiliser le nom de l’admin qui contresigne. Les contrats déjà contresignés gardent leur signature.",
+    "signatoryFromSettings": "La signature du club utilise le signataire des paramètres des contrats ; vous êtes enregistré comme l’admin qui a contresigné.",
+    "signatoryYou": "La signature du club utilise votre nom (aucun signataire dans les paramètres des contrats).",
+    "signatoryChange": "Modifier"
   },
   "match": {
     "title": "Jour de match",
