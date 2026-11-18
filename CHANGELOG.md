@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – game details from Palloliitto (branch `phase2/match-details`, migration 0047, release 0.35.0)
+- **Every result opens its game:** on the home page each line under "Latest results" is a link, and the hero's latest result has a **Game details** button. The new page `/results/<game>` shows:
+  - the score with both crests and the **half-time score**
+  - **Goals and cards**, in time order with the minute and player. Each goal shows the running score, e.g. "28' ⚽ Name 2–1". The club's lines are highlighted.
+  - date and kick-off, venue with a map link, **attendance**, competition
+- **Sync:** each update also reads played club games in detail (`getMatch`). Missing ones come first, and games from the last 7 days are read again for late corrections. At most 40 games per run; a game the service can't answer is skipped.
+- **Kept:** goals, cards, half-time score and attendance. **Not kept:** referees and officials, line-ups, birth years, the raw answer.
+- **Privacy:** a club player who removed themselves from the website or was hidden by an admin appears as "Afro Foot Club player". Other teams' scorers are shown as Palloliitto publishes them.
+- **Database 0047:** `federation_match_events` (admins write, coaches read, no public access), new columns on `federation_matches`, public views `public_league_fixtures` (extended) and `public_league_match_events`.
+- **Fix:** the half-time score reads home–away in Arabic too.
+- 13 database checks, 2 new sync tests, 13 browser checks.
+
 ## Unreleased – who signed in, with names (branch `phase2/attendance-names`)
 - **Trainings and games, for coaches and admins:** every reply summary reads "1 in · 1 out · 12 no reply · of 14 invited". **Show names** opens three groups: *Signed in*, *Signed out* (with the player's note, e.g. "Work shift") and *No reply yet*.
 - **Where:**

@@ -44,6 +44,21 @@ export function supabaseStore(db: Db): Store {
     async upsertPlayerStats(rows) {
       if (rows.length) await must(db.from('federation_player_stats').upsert(rows.map((r) => ({ ...r, synced_at: now() })), { onConflict: 'player_external_id,competition_external_id' }), 'player stats');
     },
+    async matchesNeedingDetails(ids) {
+      if (!ids.length) return [];
+      const recent = new Date(Date.now() - 7 * 86400000).toISOString();
+      const { data, error } = await db.from('federation_matches').select('external_id, kickoff_at, details_synced_at').in('external_id', ids);
+      if (error) throw new Error(`matches (details): ${error.message}`);
+      const rows = (data ?? []) as { external_id: string; kickoff_at: string | null; details_synced_at: string | null }[];
+      return rows.filter((r) => !r.details_synced_at || (r.kickoff_at ?? '') >= recent)
+        .sort((a, b) => Number(!!a.details_synced_at) - Number(!!b.details_synced_at) || (b.kickoff_at ?? '').localeCompare(a.kickoff_at ?? ''))
+        .map((r) => r.external_id);
+    },
+    async replaceMatchDetails(d) {
+      await must(db.from('federation_match_events').delete().eq('match_external_id', d.external_id), 'match events (clear)');
+      if (d.events.length) await must(db.from('federation_match_events').insert(d.events.map((e) => ({ ...e, synced_at: now() }))), 'match events');
+      await must(db.from('federation_matches').update({ ht_home: d.ht_home, ht_away: d.ht_away, attendance: d.attendance, details_synced_at: now() }).eq('external_id', d.external_id), 'match details');
+    },
     async upsertMatches(rows) {
       for (let i = 0; i < rows.length; i += 200) {
         await must(db.from('federation_matches').upsert(rows.slice(i, i + 200).map((r) => ({ ...r, synced_at: now() })), { onConflict: 'external_id' }), 'matches');

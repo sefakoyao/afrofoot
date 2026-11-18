@@ -243,6 +243,11 @@ Every merge into `main` should build both Vercel projects (`afrofoot` for the we
 1. **Database:** paste `supabase/migrations/20260101000046_requests_inbox.sql` into Supabase → SQL Editor and run it once.
 2. Admin → **Requests**: website tryout requests, team enrolments, invoice requests and messages, with a count of new ones in the menu.
 
+## 3z. Game details (migration 0047, release 0.35.0)
+1. **Database:** paste `supabase/migrations/20260101000047_match_details.sql` into Supabase → SQL Editor and run it once.
+2. Admin → **Update the league table now**: reads up to 40 played games in detail per run (run it two or three times the first time, or let the nightly update fill the rest).
+3. On www.afrofoot.club, each result under "Latest results" opens its game page.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
