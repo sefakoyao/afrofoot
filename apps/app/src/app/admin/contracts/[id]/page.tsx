@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { contractStep, saveContract } from '@/app/actions/contracts';
 import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
+import { SignatureMark } from '@/components/SignatureMark';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { CONTRACT_COLUMNS, STATUS_BADGE, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
@@ -21,7 +22,7 @@ const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3
 
 /** One contract: edit the draft, send, countersign after the player, cancel, terminate; PDF once sent. */
 export default async function ContractPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  await requireArea('admin');
+  const me = await requireArea('admin');
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!UUID.test(id)) notFound();
   const [t, fmt, supabase] = await Promise.all([getTranslations('contract'), dateFormats(), getSupabase()]);
@@ -103,7 +104,17 @@ export default async function ContractPage({ params, searchParams }: { params: P
 
       {c.status !== 'draft' ? <ContractSignatures c={c} /> : null}
 
-      {c.status === 'player_signed' ? <Step op="countersign" label={t('countersign')} confirm={t('countersignNote')} /> : null}
+      {c.status === 'player_signed' ? (
+        <section className="grid gap-3 rounded-card border-2 border-accent bg-raised p-6" data-countersign-preview>
+          <h2 className="font-display text-xl font-extrabold">{t('countersign')}</h2>
+          <div className="rounded-card bg-surface p-4 sm:max-w-md">
+            <p className="text-xs font-bold uppercase tracking-widest text-muted">{t('sigPreviewClub')}</p>
+            <SignatureMark name={`${me.firstName} ${me.lastName}`.trim() || null} placeholder="–" />
+            <p className="mt-2 font-display font-extrabold"><bdi>{`${me.firstName} ${me.lastName}`.trim()}</bdi></p>
+          </div>
+          <Step op="countersign" label={t('countersign')} confirm={t('countersignNote')} />
+        </section>
+      ) : null}
       {c.status === 'sent' || c.status === 'player_signed' ? <Step op="cancel" label={t('cancel')} tone="danger" /> : null}
       {c.status === 'active' ? (
         <details className="rounded-card border border-line bg-raised p-6">

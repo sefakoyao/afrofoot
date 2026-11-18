@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense, type ReactNode } from 'react';
 import { Figtree, Cairo } from 'next/font/google';
+import localFont from 'next/font/local';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { dirOf, isLocale, DEFAULT_LOCALE } from '@afrofoot/i18n';
@@ -10,6 +11,8 @@ import './globals.css';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', display: 'swap' });
+// handwriting font for typed-name signatures on contracts (Great Vibes, OFL, Latin subset; see src/fonts)
+const signature = localFont({ src: '../fonts/GreatVibes-Latin.woff2', variable: '--font-signature', display: 'swap', preload: false });
 
 export const metadata: Metadata = {
   title: { default: 'Afro Foot Club', template: '%s · Afro Foot Club' },
@@ -30,7 +33,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     site: Object.fromEntries(CLIENT_SITE_KEYS.map((k) => [k, all.site?.[k] ?? ''])),
   };
   return (
-    <html lang={locale} dir={dirOf(locale)} className={`${figtree.variable} ${cairo.variable}`}>
+    <html lang={locale} dir={dirOf(locale)} className={`${figtree.variable} ${cairo.variable} ${signature.variable}`}>
       <body className="flex min-h-screen flex-col font-sans">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Suspense fallback={null}><NavProgress /></Suspense>

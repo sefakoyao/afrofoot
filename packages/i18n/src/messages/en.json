@@ -1967,7 +1967,12 @@
     "fix_text": "A blank in the contract text",
     "fixGo_objectives": "Write them on the team's page →",
     "fixGo_fees": "Fill them in under Automatic contracts →",
-    "blanksThenRefill": "Then come back and click \"Fill in again from the template\". A blank typed into the text is completed in the text below."
+    "blanksThenRefill": "Then come back and click \"Fill in again from the template\". A blank typed into the text is completed in the text below.",
+    "signatureId": "Signature ID",
+    "esignNote": "Each party signed in the app with their own account by typing their name and confirming. The typed name is shown in a handwriting style; the signature ID refers to the record of the signing.",
+    "sigPreview": "Your signature will look like this",
+    "sigPreviewEmpty": "Type your name above to see your signature",
+    "sigPreviewClub": "Your signature for the club"
   },
   "match": {
     "title": "Match day",

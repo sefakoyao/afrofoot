@@ -11,3 +11,6 @@ html { scroll-padding-bottom: 6rem; }
 #main { transition: opacity 0.15s ease 0s; }
 html[data-navigating] #main { opacity: 0.55; transition-delay: 0.15s; }
 @media (prefers-reduced-motion: reduce) { html[data-navigating] #main { transition: none; } }
+
+/* Typed-name signatures on contracts (components/SignatureMark.tsx). */
+.font-signature { font-family: var(--font-signature), cursive; font-weight: 400; letter-spacing: 0; }

@@ -1967,7 +1967,12 @@
     "fix_text": "Täyttämätön kohta sopimustekstissä",
     "fixGo_objectives": "Kirjoita ne joukkueen sivulle →",
     "fixGo_fees": "Täytä ne kohdassa Automaattiset sopimukset →",
-    "blanksThenRefill": "Palaa sitten tänne ja valitse \"Täytä uudelleen pohjasta\". Tekstiin kirjoitettu kohta täydennetään alla olevaan tekstiin."
+    "blanksThenRefill": "Palaa sitten tänne ja valitse \"Täytä uudelleen pohjasta\". Tekstiin kirjoitettu kohta täydennetään alla olevaan tekstiin.",
+    "signatureId": "Allekirjoitustunnus",
+    "esignNote": "Kumpikin osapuoli allekirjoitti sovelluksessa omalla tilillään kirjoittamalla nimensä ja vahvistamalla. Kirjoitettu nimi näytetään käsialatyylillä; allekirjoitustunnus viittaa allekirjoituksen tallenteeseen.",
+    "sigPreview": "Allekirjoituksesi näyttää tältä",
+    "sigPreviewEmpty": "Kirjoita nimesi yllä nähdäksesi allekirjoituksesi",
+    "sigPreviewClub": "Allekirjoituksesi seuran puolesta"
   },
   "match": {
     "title": "Ottelupäivä",
