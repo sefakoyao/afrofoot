@@ -88,7 +88,12 @@ export default async function BalancesPage({ searchParams }: { searchParams: Pro
                     <td className={`px-2 py-2 text-end tabular-nums ${r.overdue_cents ? 'font-bold text-danger' : ''}`}>{r.overdue_cents ? eur(r.overdue_cents) : '–'}</td>
                     <td className="px-2 py-2 text-end font-bold tabular-nums" data-balance>{eur(r.balance_cents)}</td>
                     <td className="whitespace-nowrap px-2 py-2">{day(r.oldest_due)}</td>
-                    <td className="px-2 py-2 text-end"><a href={`/admin/invoices?player=${r.player_id}#list-h`} className="whitespace-nowrap font-semibold text-pitch underline underline-offset-2">{t('b_invoices', { count: r.invoices })}</a></td>
+                    <td className="px-2 py-2 text-end">
+                      <span className="flex flex-wrap justify-end gap-x-3 gap-y-1">
+                        <a href={`/admin/invoices?player=${r.player_id}#list-h`} className="whitespace-nowrap font-semibold text-pitch underline underline-offset-2">{t('b_invoices', { count: r.invoices })}</a>
+                        <a href={`/admin/invoices?for=${r.player_id}#balance`} className="whitespace-nowrap font-semibold text-pitch underline underline-offset-2" data-new-balance>{t('b_newInvoice')}</a>
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1400,7 +1400,14 @@
     "remNoEmail": "Ton compte n’a pas d’adresse e-mail : aucun rappel ne peut être envoyé.",
     "remTurnOff": "Désactiver les rappels",
     "remTurnOn": "Activer les rappels",
-    "tabQuiz": "Quiz"
+    "tabQuiz": "Quiz",
+    "balanceTitle": "Ce qui compose votre solde",
+    "balanceWhat": "Quoi",
+    "balanceSeason": "Saison",
+    "balanceDue": "Échéance",
+    "balanceAmount": "Montant",
+    "balanceTotal": "Solde total",
+    "balanceFees": "Cotisations"
   },
   "account": {
     "title": "Mon compte",
@@ -1802,7 +1809,22 @@
     "r_pastDueRemoved": "Montant impayé retiré de la facture.",
     "r_pastDueAmount": "Saisissez un montant entre 0,01 et 5000 euros, p. ex. 60 ou 60,50.",
     "r_pastDueText": "Le libellé doit compter de 3 à 200 caractères.",
-    "r_pastDuePaid": "Cette facture est déjà payée et ne peut plus changer."
+    "r_pastDuePaid": "Cette facture est déjà payée et ne peut plus changer.",
+    "balTitle": "Nouvelles factures de solde",
+    "balLead": "Facturez un joueur pour des montants saisis à la main, p. ex. un solde impayé d’une saison précédente ou une licence. Chaque ligne devient une facture distincte avec son numéro, sa référence et son PDF.",
+    "balPlayer": "Joueur",
+    "balDue": "Échéance",
+    "balItems": "Factures (une par ligne)",
+    "balSeason": "Saison",
+    "balDescription": "Libellé sur la facture",
+    "balNoSeason": "Sans saison",
+    "balEg1": "p. ex. Balance 2024",
+    "balEg2": "p. ex. Player licence 2026",
+    "balHint": "Ne remplissez que les lignes utiles. Montants en euros, p. ex. 60 ou 60,50 (jusqu’à 5000). La saison indique aux pages Finances à quelle saison le montant appartient.",
+    "balCreate": "Créer les factures",
+    "r_balanceCreated": "Factures de solde créées. Elles figurent ci-dessous et dans l’onglet Adhésion du joueur.",
+    "r_balancePlayer": "Choisissez un joueur.",
+    "r_balanceEmpty": "Remplissez au moins une ligne avec un libellé et un montant."
   },
   "conduct": {
     "title": "Code de conduite",
@@ -2837,6 +2859,7 @@
     "r_error": "Enregistrement impossible. Réessayez.",
     "r_amount": "Saisissez un montant en euros, p. ex. 1200 ou 1200,50 (jusqu’à 100 000).",
     "r_date": "Saisissez une date valide.",
-    "r_text": "La description peut compter 200 caractères au plus."
+    "r_text": "La description peut compter 200 caractères au plus.",
+    "b_newInvoice": "+ Facture"
   }
 }

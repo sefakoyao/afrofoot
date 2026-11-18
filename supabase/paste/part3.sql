@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -3018,6 +3018,69 @@ grant execute on function public.finance_projection(uuid) to authenticated;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.43.0','feature','Finance',
   'Admin → Finance: an overview per season (income projected from player invoices, budget and actual costs for team fees, field booking, kits, league fees, licences and other, the expected result), each player''s balance, the invoices and the expenses, grouped in one menu.','2026-11-18')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000055_balance_invoices.sql =====
+-- 0055 Balance invoices (release 0.44.0).
+-- Admin → Finance → Invoices → "New balance invoices": an admin bills one player for amounts typed in by hand, one row
+-- per item with its season (e.g. "Balance 2024", "Player licence 2026"). Each row becomes its own invoice (own number,
+-- reference and PDF), so the player sees them as separate invoices and pays them separately; the Membership tab shows
+-- what makes up their total balance. An invoice can now carry its season (payments.season_id), which the Finance pages
+-- use before the membership and the due date.
+
+alter table payments add column season_id uuid references seasons(id) on delete set null;
+create index on payments (season_id);
+alter table payment_lines drop constraint if exists payment_lines_kind_check;
+alter table payment_lines add constraint payment_lines_kind_check check (kind in ('fee', 'past_due', 'balance'));
+
+-- An invoice belongs to its own season when it has one, else to its membership's, else to the season of its due date.
+create or replace function app.payment_in_season(p payments, s seasons) returns boolean language sql stable as $$
+  select case when p.season_id is not null then p.season_id = s.id
+              when p.membership_id is not null then exists (select 1 from memberships m where m.id = p.membership_id and m.season_id = s.id)
+              else coalesce(p.due_on, p.created_at::date) between s.starts_on and s.ends_on end
+$$;
+
+-- p_items: [{"season_id": uuid|null, "description": text, "amount_cents": int}, …], 1–10 items. Returns the new invoice ids.
+create function public.create_balance_invoices(p_player uuid, p_due date, p_items jsonb) returns uuid[]
+language plpgsql security definer set search_path = public as $$
+declare it jsonb; v_desc text; v_amount int; v_season uuid; v_pay uuid; v_ids uuid[] := '{}'; v_today date := (now() at time zone 'Europe/Helsinki')::date;
+begin
+  if not app.is_admin() then raise exception 'admin only' using errcode = '42501'; end if;
+  if not exists (select 1 from players where id = p_player) then raise exception 'unknown player' using errcode = '22023'; end if;
+  if p_due is null or p_due < v_today - 365 or p_due > v_today + 365 then raise exception 'due date within a year' using errcode = '22023'; end if;
+  if jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) not between 1 and 10 then raise exception '1 to 10 items' using errcode = '22023'; end if;
+  for it in select * from jsonb_array_elements(p_items) loop
+    v_desc := trim(it ->> 'description');
+    v_amount := (it ->> 'amount_cents')::int;
+    v_season := nullif(it ->> 'season_id', '')::uuid;
+    if char_length(coalesce(v_desc, '')) not between 3 and 200 then raise exception 'description 3–200 characters' using errcode = '22023'; end if;
+    if v_amount is null or v_amount < 1 or v_amount > 500000 then raise exception 'amount between EUR 0.01 and 5000' using errcode = '22023'; end if;
+    if v_season is not null and not exists (select 1 from seasons where id = v_season) then raise exception 'unknown season' using errcode = '22023'; end if;
+    insert into payments (player_id, amount_cents, method, status, due_on, invoice_sent_at, notes, season_id, recorded_by)
+    values (p_player, v_amount, 'invoice', 'pending', p_due, now(), 'balance invoice', v_season, auth.uid()) returning id into v_pay;
+    insert into payment_lines (payment_id, position, description, line_date, unit_price_cents, kind) values (v_pay, 1, v_desc, null, v_amount, 'balance');
+    v_ids := v_ids || v_pay;
+  end loop;
+  return v_ids;
+end $$;
+revoke all on function public.create_balance_invoices(uuid, date, jsonb) from public, anon;
+grant execute on function public.create_balance_invoices(uuid, date, jsonb) to authenticated;
+
+-- The player's own payments, now with the invoice's title (the first line that is not a membership fee) and season.
+create or replace view my_payments as
+  select p.id, p.amount_cents, p.currency, p.status, p.method, p.due_on, p.paid_at, p.reference, p.invoice_number, p.checkout_url,
+         case when p.status = 'paid' then 'paid'
+              when p.status in ('pending','failed') and p.due_on is not null and p.due_on < current_date then 'overdue'
+              else p.status::text end as display_status,
+         (select l.description from payment_lines l where l.payment_id = p.id and l.kind = 'balance' order by l.position limit 1) as title,
+         (select s.name from seasons s where s.id = p.season_id) as season_name
+  from payments p where p.player_id = app.my_player_id();
+grant select on my_payments to authenticated;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.44.0','feature','Balance invoices',
+  'Admin → Finance → Invoices → New balance invoices: bill a player for amounts typed in by hand, each with its season (e.g. Balance 2024, Player licence 2026). Each becomes its own invoice; players see them separately with a breakdown of their total balance.','2026-11-18')
 on conflict (version) do nothing;
 
 
