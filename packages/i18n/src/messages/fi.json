@@ -1398,7 +1398,8 @@
     "remWhat": "Vain harjoituksista ja otteluista, joihin et ole vielä vastannut. Muut seuran viestit eivät muutu.",
     "remNoEmail": "Tililläsi ei ole sähköpostiosoitetta, joten muistutuksia ei voi lähettää.",
     "remTurnOff": "Poista muistutukset",
-    "remTurnOn": "Ota muistutukset käyttöön"
+    "remTurnOn": "Ota muistutukset käyttöön",
+    "tabQuiz": "Visa"
   },
   "account": {
     "title": "Oma tili",
@@ -2570,5 +2571,33 @@
     "r_invalid": "Lomakkeessa on virheellinen tieto.",
     "r_error": "Ei onnistunut. Yritä hetken päästä uudelleen.",
     "r_gone": "Pyyntöä ei enää ole."
+  },
+  "quiz": {
+    "title": "Jalkapallovisa",
+    "lead": "Viisi nopeaa kysymystä: pelisäännöt ja oma seura. Joka kerta uusi kierros.",
+    "empty": "Ei vielä kysymyksiä.",
+    "cardTitle": "Jalkapallovisa",
+    "cardLead": "Viisi nopeaa kysymystä säännöistä ja seurasta. Montako osaat?",
+    "play": "Pelaa",
+    "of": "Kysymys {n}/{total}",
+    "next": "Seuraava kysymys",
+    "finish": "Näytä pisteet",
+    "right": "Oikein!",
+    "wrong": "Ei aivan.",
+    "again": "Pelaa uudelleen",
+    "score": "Sait {score}/{total} oikein.",
+    "perfect": "Täydet pisteet!",
+    "good": "Hyvin pelattu!",
+    "keep": "Harjoitus tekee mestarin, yritä uudelleen!",
+    "source": "Lähde",
+    "club": "Seura",
+    "rules": "Pelisäännöt",
+    "q_top": "Kuka teki seuralle eniten sarja- ja cupmaaleja kausina {from}–{to}?",
+    "a_top": "{name} teki {goals} maalia kausina {from}–{to}.",
+    "q_level": "Mikä on korkein sarja, jossa seura on pelannut?",
+    "a_level": "{league}. Pelatut sarjat tähän mennessä: {all}.",
+    "q_founded": "Minä vuonna Afro Foot Club perustettiin?",
+    "a_founded": "Afro Foot Club perustettiin vuonna {year}.",
+    "src_palloliitto": "Palloliiton tulospalvelu"
   }
 }

@@ -30,3 +30,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/A6_player_coach.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A7_requests_inbox.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A8_match_details.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A9_email_reminders.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/B1_football_quiz.sql
