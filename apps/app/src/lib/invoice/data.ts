@@ -5,14 +5,15 @@ import type { Billing, InvoiceData } from './pdf';
 const BILLING_DEFAULTS: Billing = { legal_name: '', street: '', postal_city: '', business_id: '', iban: '', bic: '', bank: '', email: '', phone: '', website: '', payment_terms_days: 14, late_interest: '8.00' };
 
 /** The club's invoice details (site_settings 'billing', migration 0027; filled in under Admin → Invoices). */
-export async function loadBilling(db: SupabaseClient): Promise<Billing & { lead_days: number; contact_person: string; require_consents: boolean }> {
+export async function loadBilling(db: SupabaseClient): Promise<Billing & { invoice_day: number; due_day: number; contact_person: string; require_consents: boolean }> {
   const { data } = await db.from('site_settings').select('value').eq('key', 'billing').maybeSingle();
   const v = (data?.value ?? {}) as Record<string, unknown>;
   const str = (k: string) => (typeof v[k] === 'string' ? (v[k] as string) : '');
   const num = (k: string, d: number) => (typeof v[k] === 'number' ? (v[k] as number) : Number(v[k]) || d);
+  const day = (k: string, d: number) => Math.min(28, Math.max(1, Math.trunc(num(k, d)))); // 0060: as app.invoice_days()
   return { ...BILLING_DEFAULTS, legal_name: str('legal_name'), street: str('street'), postal_city: str('postal_city'), business_id: str('business_id'),
     iban: str('iban'), bic: str('bic'), bank: str('bank'), email: str('email'), phone: str('phone'), website: str('website'), contact_person: str('contact_person'),
-    payment_terms_days: num('payment_terms_days', 14), lead_days: num('lead_days', 14), late_interest: str('late_interest') || '8.00',
+    payment_terms_days: num('payment_terms_days', 14), invoice_day: day('invoice_day', 1), due_day: day('due_day', 10), late_interest: str('late_interest') || '8.00',
     require_consents: v.require_consents !== false }; // 0036: on unless switched off
 }
 

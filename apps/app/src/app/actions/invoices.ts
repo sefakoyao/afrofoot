@@ -15,10 +15,11 @@ import { getSupabase } from '@/lib/supabase/server';
 
 const uuid = z.string().uuid();
 
-function back(fd: FormData, result: string): never {
+function back(fd: FormData, result: string, extra: Record<string, string> = {}): never {
   const raw = String(fd.get('back') ?? '');
   const url = new URL(raw.startsWith('/admin/invoices') ? raw : '/admin/invoices', 'http://x');
   url.searchParams.set('result', result);
+  for (const [k, v] of Object.entries(extra)) url.searchParams.set(k, v);
   redirect(url.pathname + url.search + (raw.includes('#') ? raw.slice(raw.indexOf('#')) : ''));
 }
 
@@ -34,7 +35,7 @@ function fail(fd: FormData, where: string, error: { code?: string; message?: str
   back(fd, error.code === '23505' ? 'r_duplicate' : error.code === '42501' ? 'r_notAllowed' : 'r_error');
 }
 
-const done = (fd: FormData, result: string): never => { revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout'); back(fd, result); };
+const done = (fd: FormData, result: string, extra?: Record<string, string>): never => { revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout'); back(fd, result, extra); };
 
 // ---------- billing details ----------
 
@@ -52,7 +53,9 @@ const billingSchema = z.object({
   website: text(120, 'r_billing'),
   contact_person: text(120, 'r_billing'),
   payment_terms_days: z.coerce.number().int().min(0, 'r_terms').max(120, 'r_terms'),
-  lead_days: z.coerce.number().int().min(0, 'r_lead').max(60, 'r_lead'),
+  // 0060: automatic invoices are dated invoice_day and due on due_day of the month (the DB clamps to 1–28 as well)
+  invoice_day: z.coerce.number().int().min(1, 'r_days').max(28, 'r_days'),
+  due_day: z.coerce.number().int().min(1, 'r_days').max(28, 'r_days'),
   late_interest: z.string().trim().refine((v) => /^\d{1,2}(\.\d{1,2})?$/.test(v) && Number(v) <= 30, 'r_interest').transform((v) => Number(v).toFixed(2)),
   // 0036: invoice a player only once the contract is signed and the Code of Conduct agreed (checkbox: absent = off)
   require_consents: z.literal('on').optional().transform((v) => v === 'on'),
@@ -95,13 +98,16 @@ export async function setPlanActive(fd: FormData): Promise<void> {
 
 // ---------- memberships ----------
 
+/** A month picker's value (YYYY-MM) as the first of that month. */
+const month = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'r_month').transform((v) => `${v}-01`);
+
 const membershipSchema = z.object({
   player_id: uuid, plan_id: uuid,
-  first_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'r_date'),
+  first_month: month,
   auto: z.literal('on').optional(),
 });
 
-/** Puts a player on a plan for the current season. With automatic invoices on, the nightly job invoices from `first_on`. */
+/** Puts a player on a plan for the current season. With automatic invoices on, the nightly job invoices from `first_month` (0060). */
 export async function addMembership(fd: FormData): Promise<void> {
   const p = membershipSchema.safeParse(Object.fromEntries(fd));
   if (!p.success) back(fd, p.error.issues[0]?.message ?? 'r_invalid');
@@ -112,10 +118,27 @@ export async function addMembership(fd: FormData): Promise<void> {
   if (!plan?.active) back(fd, 'r_invalid');
   const { error } = await supabase.from('memberships').insert({
     player_id: p.data.player_id, plan_id: p.data.plan_id, season_id: season.id, status: 'active',
-    starts_on: p.data.first_on, auto_renew: !!p.data.auto, next_due_on: p.data.first_on,
+    starts_on: p.data.first_month, auto_renew: !!p.data.auto, next_due_on: p.data.first_month,
   });
   if (error) fail(fd, 'add membership', error);
   done(fd, 'r_membershipAdded');
+}
+
+/**
+ * 0060: from which month memberships are invoiced. With `membership_id`: that one; without: every membership of the
+ * current season with automatic invoices and no invoice yet. `from` = 'contracts': each player's contract start month.
+ */
+export async function setInvoiceStart(fd: FormData): Promise<void> {
+  const p = z.object({ membership_id: uuid.optional(), from: z.enum(['month', 'contracts']).default('month'), month: month.optional() })
+    .safeParse(Object.fromEntries([...fd].filter(([, v]) => v !== '')));
+  if (!p.success || (p.data.from === 'month' && !p.data.month)) back(fd, p.success ? 'r_month' : (p.error.issues[0]?.message ?? 'r_invalid'));
+  const { supabase } = await admin(fd);
+  const { data, error } = p.data.from === 'contracts'
+    ? await supabase.rpc('set_invoice_start_from_contracts')
+    : await supabase.rpc('set_invoice_start', { p_month: p.data.month, p_membership: p.data.membership_id ?? null });
+  if (error?.code === '22023') back(fd, 'r_month');
+  if (error) fail(fd, 'invoice start', error);
+  done(fd, 'r_startSet', { n: String(data ?? 0) });
 }
 
 /** Stop or resume automatic invoices for one membership. */
