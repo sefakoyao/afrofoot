@@ -7,6 +7,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { publishLineup, saveProtocol, voidMatchEvent } from '@/app/actions/match';
 import { LineupBoard, type BoardPlayer } from '@/components/match/LineupBoard';
 import { LiveConsole } from '@/components/match/LiveConsole';
+import { EventTasks } from '@/components/events/EventTasks';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam } from '@/lib/coach';
@@ -125,7 +126,7 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
         {place ? <p className="text-muted">{[place.name, place.address, place.city].filter(Boolean).join(', ')}</p> : null}
         {m.status === 'scheduled' ? <ReplyByForm kind="game" id={m.id} replyBy={m.reply_by ?? null} back={`/coach/matches/${m.id}`} /> : null}
         <nav className="mt-4 flex flex-wrap gap-2 text-sm" aria-label={t('sections')}>
-          {(['lineup', 'protocol', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
+          {(['lineup', 'tasks', 'protocol', 'live', 'timeline'] as const).map((s) => <a key={s} href={`#${s}`} className="rounded-full border border-line px-3 py-1.5 font-semibold hover:border-accent">{t(`nav_${s}`)}</a>)}
         </nav>
       </header>
       <ResultBanner ns="match" result={sp.result} />
@@ -156,6 +157,8 @@ export default async function MatchDayPage({ params, searchParams }: { params: P
             captain: (squad ?? []).find((s) => s.captain)?.player_id ?? null, rotation: plannedSubs,
             plan: { style, line: m.defensive_line ?? PRESETS[style].line, press: m.pressing ?? PRESETS[style].press, width: m.width ?? PRESETS[style].width, tempo: m.tempo ?? PRESETS[style].tempo, text: m.game_plan ?? '' } }} />
       </section>
+
+      <EventTasks db={supabase} kind="match" eventId={id} teamSeasonId={m.team_season_id} back={back} result={sp.result} />
 
       <section id="protocol" aria-labelledby="protocol-h" className="rounded-card border border-line bg-raised p-6">
         <h2 id="protocol-h" className="font-display text-xl font-extrabold">{t('protocolTitle')}</h2>

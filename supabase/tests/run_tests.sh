@@ -43,3 +43,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/C1_contact_robot_nonce.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C2_shirt_set.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C3_invoice_schedule.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C4_opponents.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/C5_event_tasks.sql

@@ -6,6 +6,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { cancelSession, saveAttendance } from '@/app/actions/coach';
 import { Replies } from '@/components/events/Replies';
 import { ReplyByForm } from '@/components/events/ReplyByForm';
+import { EventTasks } from '@/components/events/EventTasks';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { ATTENDANCE } from '@/lib/coach';
@@ -65,6 +66,8 @@ export default async function SessionPage({ params, searchParams }: { params: Pr
         <p className="mt-2"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${s.status === 'cancelled' ? 'bg-danger/10 text-danger' : s.status === 'completed' ? 'bg-accent/20 text-pitch' : 'bg-line'}`}>{t(`ss_${s.status}` as 'ss_scheduled')}</span></p>
       </header>
       <ResultBanner ns="coach" result={sp.result} />
+
+      <EventTasks db={supabase} kind="session" eventId={s.id} teamSeasonId={s.team_season_id} back={back} result={sp.result} />
 
       <section className="rounded-card border border-line bg-raised p-4 sm:p-6" aria-labelledby="att-h">
         <div className="flex flex-wrap items-center justify-between gap-2">

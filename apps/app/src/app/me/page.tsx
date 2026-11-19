@@ -3,6 +3,10 @@ import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { ReplyForm } from '@/components/ReplyForm';
+import { ResultBanner } from '@/components/ResultBanner';
+import { TaskIcon } from '@/components/TaskIcon';
+import { claimTask, releaseTask } from '@/app/actions/tasks';
+import { loadEventTasks, loadTaskTypes, taskName } from '@/lib/tasks';
 import { LineupView, type LineupSlot } from '@/components/match/LineupView';
 import { requireArea } from '@/lib/auth';
 import { mapsLinkFor } from '@/lib/locations';
@@ -79,7 +83,15 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const shirtOf = new Map(rosterRows.map((r) => [r.player_id, r.jersey_number]));
   const slotsOf = new Map(((formations ?? []) as { code: string; slots: LineupSlot[] }[]).map((f) => [f.code, f.slots]));
   const info = new Map(((matchInfo as MatchInfo[] | null) ?? []).map((x) => [x.id, x]));
-  const [tmatch, tev] = await Promise.all([getTranslations('match'), getTranslations('events')]);
+  const [tmatch, tev, tt] = await Promise.all([getTranslations('match'), getTranslations('events'), getTranslations('tasks')]);
+  // 0062: game-day and training tasks of these events (RLS: the team's own), the task types and who does each
+  const [taskRows, taskTypes] = supabase ? await Promise.all([loadEventTasks(supabase, matchIds, practiceIds), loadTaskTypes(supabase, true)]) : [[], []];
+  const taskType = new Map(taskTypes.map((x) => [x.id, x]));
+  const doers = [...new Set(taskRows.map((k) => k.player_id).filter((x): x is string => !!x && x !== me?.id))];
+  const { data: doerRows } = supabase && doers.length && teamIds.length ? await supabase.from('team_roster').select('player_id, display_name').in('team_season_id', teamIds).in('player_id', doers) : { data: [] };
+  const doerName = new Map(((doerRows ?? []) as { player_id: string; display_name: string }[]).map((r) => [r.player_id, r.display_name]));
+  const tasksOf = new Map<string, typeof taskRows>();
+  for (const k of taskRows) { const ev = (k.match_id ?? k.session_id)!; tasksOf.set(ev, [...(tasksOf.get(ev) ?? []), k]); }
   const nowIso = new Date().toISOString();
   const dayTime = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const place = new Map(((places as Place[] | null) ?? []).map((p) => [p.id, p]));
@@ -163,6 +175,38 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
       </div>
     );
   };
+  const Tasks = ({ e, anchor }: { e: Event; anchor?: boolean }) => {
+    const list = tasksOf.get(e.id);
+    if (!list?.length || CANCELLED.has(e.status)) return null;
+    const canAct = e.starts_at > nowIso && !!me;
+    const hidden = <><input type="hidden" name="back" value={`/me?m=${wanted}`} />{anchor ? <input type="hidden" name="anchor" value={`ev-${e.id}`} /> : null}</>;
+    return (
+      <div className="mt-1 grid gap-2" data-player-tasks>
+        <p className="text-xs font-bold uppercase tracking-widest text-muted">{tt(e.event_type === 'practice' ? 'trainingTitle' : 'gameTitle')}</p>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {list.map((k) => {
+            const type = taskType.get(k.task_type_id), mine = !!me && k.player_id === me.id;
+            return (
+              <li key={k.id} className={`flex items-center gap-3 rounded-card p-2.5 ${mine ? 'bg-gold text-ink-950' : k.player_id ? 'bg-surface' : 'border-2 border-dashed border-accent/60'}`} data-task={taskName(tt, type)} data-task-state={mine ? 'mine' : k.player_id ? 'taken' : 'open'}>
+                <span className={`grid size-10 shrink-0 place-items-center rounded-full ${mine ? 'bg-ink-950 text-gold' : 'bg-accent text-on-accent'}`}><TaskIcon name={type?.icon ?? 'star'} className="size-[22px]" /></span>
+                <span className="grid min-w-0 flex-1 leading-tight">
+                  <span className="truncate text-sm font-bold">{taskName(tt, type)}</span>
+                  <span className={`truncate text-xs ${mine ? 'font-semibold' : 'text-muted'}`}>{mine ? tt('you') : k.player_id ? <bdi>{doerName.get(k.player_id) ?? tt('teammate')}</bdi> : tt('openLabel')}</span>
+                </span>
+                {canAct && !k.player_id ? (
+                  <form action={claimTask}>{hidden}<input type="hidden" name="task_id" value={k.id} />
+                    <button className="min-h-9 whitespace-nowrap rounded-full bg-accent px-3 text-sm font-bold text-on-accent hover:brightness-110" data-claim>{tt('claim')}</button></form>
+                ) : canAct && mine ? (
+                  <form action={releaseTask}>{hidden}<input type="hidden" name="task_id" value={k.id} />
+                    <button className="min-h-9 whitespace-nowrap rounded-full border-2 border-ink-950 px-3 text-sm font-bold" data-release>{tt('release')}</button></form>
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  };
   const Item = ({ e, anchor }: { e: Event; anchor?: boolean }) => {
     const off = CANCELLED.has(e.status);
     const r = reply.get(e.id);
@@ -180,6 +224,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
         ) : null}
         {e.event_type === 'event' && e.description ? <p className="whitespace-pre-line text-sm text-muted">{e.description}</p> : null}
         {e.event_type === 'game' || e.event_type === 'friendly' ? <MatchDay e={e} open={!anchor} /> : null}
+        <Tasks e={e} anchor={anchor} />
         {r ? <ReplyBox e={e} r={r} /> : null}
       </li>
     );
@@ -187,6 +232,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
+      <div className="empty:hidden"><ResultBanner ns="tasks" result={sp.result} /></div>
       {next ? (
         <section aria-labelledby="next-h" className="rounded-card border-2 border-accent bg-raised p-5" data-next>
           <h2 id="next-h" className="text-xs font-bold uppercase tracking-widest text-muted">{t('nextUp')}</h2>

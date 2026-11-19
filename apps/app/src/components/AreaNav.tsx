@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useRef, useState } from 'react';
 import type { NavItem } from './AppShell';
+import { NavIcon } from './NavIcon';
 import { usePendingHref } from './usePendingHref';
 
 /**
@@ -43,7 +44,7 @@ export function AreaNav({ items }: { items: NavItem[] }) {
   const link = (i: NavItem) => (
     <Link href={i.href} onClick={onNavigate(i.href)} aria-current={onPage(i.href) ? 'page' : undefined} aria-busy={pending === i.href || undefined} data-pending={pending === i.href || undefined}
       className={`flex min-h-10 items-center justify-between gap-3 whitespace-nowrap rounded-full px-4 text-sm font-semibold transition duration-100 active:scale-[.97] md:rounded-control ${current(i.href) ? 'bg-accent text-on-accent' : 'bg-raised text-fg hover:bg-accent/10'}`}>
-      {i.label}
+      <span className="flex items-center gap-2.5">{i.icon ? <NavIcon name={i.icon} /> : null}{i.label}</span>
       {pending === i.href ? <Spinner /> : null}
       {i.badge ? <span className="rounded-full bg-ink-950 px-2 text-xs font-bold text-white">{i.badge}</span> : null}
     </Link>
@@ -61,7 +62,7 @@ export function AreaNav({ items }: { items: NavItem[] }) {
             <li key={`g${n}`} className="flex items-center gap-2 md:mt-1 md:flex-col md:items-stretch md:gap-1" data-nav-group={sec.group} data-open={isOpen || undefined}>
               <button type="button" aria-expanded={isOpen} aria-controls={listId} onClick={() => setOpen(isOpen ? null : sec.group!)} data-nav-toggle={sec.group}
                 className={`flex min-h-10 items-center justify-between gap-2 whitespace-nowrap rounded-full border-2 px-4 text-sm font-bold transition-colors md:rounded-control md:border-0 md:px-4 ${isOpen ? 'border-transparent bg-surface md:bg-transparent' : 'border-line bg-raised hover:border-accent md:bg-transparent md:hover:bg-accent/10'} ${holdsPage ? 'text-pitch' : 'text-fg'}`}>
-                <span className="md:text-xs md:uppercase md:tracking-widest">{sec.group}</span>
+                <span className="flex items-center gap-2">{sec.items[0]?.groupIcon ? <NavIcon name={sec.items[0].groupIcon} className="size-4 md:hidden" /> : null}<span className="md:text-xs md:uppercase md:tracking-widest">{sec.group}</span></span>
                 <span className="flex items-center gap-2">
                   {!isOpen && badges ? <span className="rounded-full bg-ink-950 px-2 text-xs font-bold text-white" data-group-badge>{badges}</span> : null}
                   <Chevron open={isOpen} />

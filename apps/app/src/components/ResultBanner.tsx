@@ -46,6 +46,10 @@ const KEYS = {
     ok: ['r_added', 'r_renamed', 'r_hidden', 'r_shown'],
     err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_name'],
   },
+  tasks: {
+    ok: ['t_added', 't_assigned', 't_opened', 't_removed', 't_typeAdded', 't_typeHidden', 't_typeShown', 't_saved', 't_claimed', 't_released'],
+    err: ['t_invalid', 't_error', 't_notAllowed', 't_taken', 't_notInTeam', 't_started', 't_name', 't_icon', 't_typeExists'],
+  },
   shirt: {
     ok: ['r_requested', 'r_withdrawn', 'r_approved', 'r_declined', 'r_released', 'r_setSaved'],
     err: ['r_pick', 'r_taken', 'r_notAllowed', 'r_error', 'r_gone', 'r_notInSet', 'r_setInvalid'],
