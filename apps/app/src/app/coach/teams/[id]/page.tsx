@@ -6,6 +6,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { createSessions } from '@/app/actions/coach';
 import { createMatch } from '@/app/actions/match';
 import { EventForm, EventList, MeetFields, PublicField, type EventRow } from '@/components/events/EventParts';
+import { OpponentPicker } from '@/components/events/OpponentPicker';
 import { LocationPicker } from '@/components/events/LocationPicker';
 import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
@@ -14,6 +15,7 @@ import { ShirtRequests } from '@/components/ShirtRequests';
 import { openShirtRequests, ranges, shirtNumbers } from '@/lib/shirts';
 import { requireArea } from '@/lib/auth';
 import { coachesTeam, myTeams } from '@/lib/coach';
+import { loadOpponents } from '@/lib/opponents';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
 import { STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
@@ -44,13 +46,14 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
   const when = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const now = new Date().toISOString();
 
-  const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }] = await Promise.all([
+  const [{ data: rosterData }, { data: upcoming }, { data: past }, { data: att }, { data: locations }, opponents] = await Promise.all([
     supabase.from('team_players').select('jersey_number, captain, players!inner(id, first_name, last_name, position, profile_id, photo_path)').eq('team_season_id', id).is('left_on', null),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status, session_attendance(player_id, availability, note)').eq('team_season_id', id).gte('starts_at', now).order('starts_at').limit(12),
     supabase.from('training_sessions').select('id, title, starts_at, ends_at, status').eq('team_season_id', id).lt('starts_at', now).order('starts_at', { ascending: false }).limit(10),
     supabase.from('session_attendance').select('player_id, attendance, training_sessions!inner(team_season_id, starts_at, status)')
       .eq('training_sessions.team_season_id', id).lt('training_sessions.starts_at', now).neq('training_sessions.status', 'cancelled').not('attendance', 'is', null),
     supabase.from('locations').select('id, name, city').eq('active', true).order('name'),
+    loadOpponents(supabase), // 0061
   ]);
   const roster = ((rosterData as unknown as RosterRow[] | null) ?? []).sort((a, b) => (a.jersey_number ?? 999) - (b.jersey_number ?? 999) || a.players.last_name.localeCompare(b.players.last_name));
   const { data: contacts } = roster.length
@@ -184,7 +187,7 @@ export default async function CoachTeamPage({ params, searchParams }: { params: 
                 <label key={k} className="relative"><input type="radio" name="kind" value={k} defaultChecked={k === 'game'} className="peer sr-only" />
                   <span className="flex min-h-11 cursor-pointer items-center rounded-full border-2 border-line px-4 font-bold peer-checked:border-accent peer-checked:bg-accent peer-checked:text-on-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent">{tm(k)}</span></label>))}</div>
             </fieldset>
-            <label className="grid gap-1 text-sm font-semibold">{tm('opponent')}<input name="opponent" required maxLength={120} className={input} /></label>
+            <OpponentPicker opponents={opponents} name="opponent" />
             <label className="grid gap-1 text-sm font-semibold">{tm('division')}<input name="division" maxLength={60} defaultValue={team.division ?? ''} placeholder="M4 Group A" className={input} />
               <span className="text-xs font-normal text-muted">{tm('divisionHint')}</span></label>
             <label className="grid gap-1 text-sm font-semibold">{t('date')}<input name="date" type="date" required min={helsinkiToday()} defaultValue={helsinkiToday()} className={input} /></label>

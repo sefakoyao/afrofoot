@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – opponents list (branch `phase2/opponents`, migration 0061, release 0.52.0)
+- **Booking a game or friendly** (Admin → Events, and the coach's team page): the opponent is picked from the club's list (A–Z), or **+ Add a new opponent** opens a name field. A new name joins the list when the game is saved, so it can be picked next time.
+- **Admin → Teams & events → Opponents:** add, correct (rename), hide or show again; search; how many games were booked against each. Games already booked keep the name they were booked with.
+- Loaded with the club's 84 opponents, plus every opponent already booked. Names are unique whatever the letter case.
+- Security: coaches and admins read the list; only admins change it (coaches add names only by booking a game). Changes are audited.
+- 15 database checks, 18 browser checks.
+
 ## Unreleased – monthly invoice schedule (branch `phase2/invoice-schedule`, migration 0060, release 0.51.0)
 - **Automatic invoices are dated the 1st of the month and due on the 10th.** Both days are set in Admin → Invoices → Club billing details ("Invoice date" and "Due date", 1–28). They replace "Send invoice … days before the period".
   - Invoices are made on the invoice date itself (the nightly job), no longer 14 days early.

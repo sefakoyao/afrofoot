@@ -1315,7 +1315,8 @@
     "navGroupPeople": "Personnes",
     "navGroupTeams": "Équipes et événements",
     "navGroupClub": "Club",
-    "navShirts": "Numéros de maillot"
+    "navShirts": "Numéros de maillot",
+    "navOpponents": "Adversaires"
   },
   "me": {
     "team": "Équipe",
@@ -2495,7 +2496,11 @@
     "e_matchCreated": "Match ajouté. L’équipe le voit dans son calendrier ; l’entraîneur fait la composition sur la page du match.",
     "sportTitle": "Entraînements et matchs",
     "sportLead": "Les prochains entraînements et matchs de toutes les équipes. Les entraîneurs gèrent présences et compositions sur leurs pages d’équipe.",
-    "noSport": "Aucun entraînement ni match prévu pour l’instant."
+    "noSport": "Aucun entraînement ni match prévu pour l’instant.",
+    "opponentChoose": "Choisissez l'adversaire…",
+    "opponentNew": "+ Ajouter un nouvel adversaire",
+    "opponentNewName": "Nom du nouvel adversaire",
+    "opponentNewHint": "Il est ajouté à la liste du club quand le match est enregistré."
   },
   "relation": {
     "mother": "Mère",
@@ -2992,5 +2997,33 @@
     "r_setSaved": "Les numéros du club sont enregistrés.",
     "r_setInvalid": "Écrivez des numéros de 1 à 99 en plages ou seuls, p. ex. 1-39.",
     "r_notInSet": "Ce numéro ne fait pas partie des numéros du club."
+  },
+  "opp": {
+    "title": "Adversaires",
+    "lead": "Les équipes parmi lesquelles entraîneurs et administrateurs choisissent en programmant un match ou un match amical. Un nouveau nom saisi à ce moment est ajouté ici automatiquement. Corrigez un nom ou masquez-en un inutile : les matchs déjà programmés gardent leur nom.",
+    "addTitle": "Ajouter un adversaire",
+    "name": "Nom",
+    "nameEg": "ex. FC Kallio",
+    "add": "Ajouter",
+    "listTitle": "Les adversaires du club",
+    "count": "{shown} dans la liste, {hidden} masqué(s)",
+    "search": "Rechercher",
+    "searchBtn": "Rechercher",
+    "none": "Aucun adversaire trouvé.",
+    "save": "Enregistrer",
+    "games": "{count, plural, one {# match} other {# matchs}}",
+    "noGames": "pas encore de match",
+    "hiddenTag": "Masqué",
+    "hide": "Masquer",
+    "show": "Afficher à nouveau",
+    "r_added": "Adversaire ajouté.",
+    "r_renamed": "Nom enregistré.",
+    "r_hidden": "Masqué : il n'est plus proposé lors de la programmation.",
+    "r_shown": "De nouveau dans la liste.",
+    "r_invalid": "Il manque quelque chose. Vérifiez et réessayez.",
+    "r_error": "Une erreur s'est produite. Veuillez réessayer.",
+    "r_duplicate": "Cet adversaire est déjà dans la liste.",
+    "r_notAllowed": "Seuls les administrateurs peuvent modifier la liste.",
+    "r_name": "Saisissez un nom de 1 à 120 caractères."
   }
 }

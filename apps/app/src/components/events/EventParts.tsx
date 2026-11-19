@@ -35,7 +35,7 @@ export async function PublicField({ className = '' }: { className?: string }) {
  * Add an event: for one team (coach: own teams) or, for admins, the whole club. With `sport` (Admin → Events) the type list
  * also offers Training, Game and Friendly game; fields that do not apply to the chosen type hide themselves (CSS :has).
  */
-export async function EventForm({ back, places, teams, fixedTeam, sport = false }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string; sport?: boolean }) {
+export async function EventForm({ back, places, teams, fixedTeam, sport = false, opponents }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string; sport?: boolean; opponents?: string[] }) {
   const t = await getTranslations('events');
   return (
     <form action={createEvent} className="mt-3 grid gap-3 sm:grid-cols-2" data-event-form>
@@ -47,7 +47,7 @@ export async function EventForm({ back, places, teams, fixedTeam, sport = false 
             {(teams ?? []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select></label>
       )}
-      <KindFields kinds={EVENT_KINDS} sport={sport} defaultKind="meeting" />
+      <KindFields kinds={EVENT_KINDS} sport={sport} defaultKind="meeting" opponents={opponents} />
       <label className="grid gap-1 text-sm font-semibold">{t('date')}<input name="date" type="date" required min={helsinkiToday()} defaultValue={helsinkiToday()} className={input} /></label>
       <div className="grid grid-cols-2 gap-3">
         <label className="grid gap-1 text-sm font-semibold">{t('start')}<input name="start" type="time" required defaultValue="18:00" className={input} /></label>

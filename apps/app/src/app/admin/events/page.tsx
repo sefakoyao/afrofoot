@@ -7,6 +7,7 @@ import { Replies } from '@/components/events/Replies';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { mapsLinkFor } from '@/lib/locations';
+import { loadOpponents } from '@/lib/opponents';
 import { getSupabase } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -66,7 +67,7 @@ export default async function AdminEventsPage({ searchParams }: { searchParams: 
         <EventList events={(events ?? []) as unknown as EventRow[]} back={back} canChange={() => true} fmt={{ when, hm }} teamName={(id) => (id ? teamName.get(id) ?? null : null)} />
         <details className="mt-4 rounded-card bg-surface p-4" open={(events ?? []).length === 0}>
           <summary className="cursor-pointer font-semibold">{t('addEvent')}</summary>
-          <EventForm back={back} places={(places ?? []).map((p) => ({ id: p.id, name: p.name, city: p.city }))} teams={teams} sport />
+          <EventForm back={back} places={(places ?? []).map((p) => ({ id: p.id, name: p.name, city: p.city }))} teams={teams} sport opponents={supabase ? await loadOpponents(supabase) : []} />
         </details>
       </section>
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="sp-h" data-sport-list>

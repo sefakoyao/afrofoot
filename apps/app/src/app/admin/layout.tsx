@@ -24,6 +24,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/events', label: t('navEvents'), group: teamsGroup },
     { href: '/admin/palloliitto', label: tf('nav'), group: teamsGroup },
     { href: '/admin/shirts', label: t('navShirts'), badge: shirtRequests, group: teamsGroup },
+    { href: '/admin/opponents', label: t('navOpponents'), group: teamsGroup },
     { href: '/admin/finance', label: tm('navOverview'), group: finance, exact: true },
     { href: '/admin/finance/balances', label: tm('navBalances'), group: finance },
     { href: '/admin/invoices', label: t('navInvoices'), group: finance },

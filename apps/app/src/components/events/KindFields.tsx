@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { OpponentPicker } from './OpponentPicker';
 
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
 
 /**
  * Event type and title. With `sport` (Admin → Events), the list starts with Training, Game (league) and Friendly game:
- * for a game the title becomes the opponent, with home / away and, for a league game, the division (required).
+ * for a game the title becomes the opponent (picked from the club's list or added: OpponentPicker, 0061), with home / away
+ * and, for a league game, the division (required).
  */
-export function KindFields({ kinds, sport, defaultKind }: { kinds: readonly string[]; sport: boolean; defaultKind: string }) {
+export function KindFields({ kinds, sport, defaultKind, opponents = [] }: { kinds: readonly string[]; sport: boolean; defaultKind: string; opponents?: string[] }) {
   const t = useTranslations('events');
   const tm = useTranslations('match');
   const [kind, setKind] = useState(defaultKind);
@@ -28,9 +30,11 @@ export function KindFields({ kinds, sport, defaultKind }: { kinds: readonly stri
         </select>
         {sport && (game || kind === 'training') ? <span className="text-xs font-normal text-muted" data-sport-hint>{t('sportTeamHint')}</span> : null}
       </label>
-      <label className="grid gap-1 text-sm font-semibold">{game ? tm('opponent') : t('title')}
-        <input name="title" required minLength={game ? 1 : 2} maxLength={120} key={game ? 'opp' : 'title'}
-          placeholder={game ? t('opponentEg') : kind === 'training' ? t('trainingTitleEg') : t('titleEg')} className={input} /></label>
+      {game ? <OpponentPicker opponents={opponents} name="title" /> : (
+        <label className="grid gap-1 text-sm font-semibold">{t('title')}
+          <input name="title" required minLength={2} maxLength={120} key="title"
+            placeholder={kind === 'training' ? t('trainingTitleEg') : t('titleEg')} className={input} /></label>
+      )}
       {game ? (
         <>
           <label className="grid gap-1 text-sm font-semibold">{tm('homeAway')}
