@@ -17,7 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** ?reason= comes from the middleware, area guards and email links; only known values are shown. */
 const REASONS: Record<string, string> = {
   blocked: 'blocked', pending: 'pending', suspended: 'suspended', link: 'linkProblem', unavailable: 'unavailable',
-  oauthCancelled: 'oauthCancelled', oauthFailed: 'oauthFailed', oauthNoEmail: 'oauthNoEmail',
+  oauthCancelled: 'oauthCancelled', oauthFailed: 'oauthFailed', oauthNoEmail: 'oauthNoEmail', idle: 'idleSignedOut',
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

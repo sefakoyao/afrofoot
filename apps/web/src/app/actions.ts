@@ -4,6 +4,7 @@ import type { ZodTypeAny, z } from 'zod';
 import type { FormState } from '@/lib/formState';
 import { getPublicClient } from '@/lib/supabase';
 import { planId } from '@/lib/plans';
+import { verify } from '@/lib/robot';
 import { contactSchema, enrolmentSchema, invoiceSchema, tryoutSchema } from '@/lib/schemas';
 
 
@@ -27,10 +28,25 @@ async function insert(table: string, row: Record<string, unknown>, failKey: stri
   return { status: 'ok' };
 }
 
+/**
+ * Robot check of the contact and sponsor forms (lib/robot.ts). Returns an error key, or the challenge's nonce, which is
+ * stored with the message: contact_messages.robot_nonce is unique (migration 0058), so one solved check sends one
+ * message; a replay is answered like a success and dropped.
+ */
+function robot(fd: FormData): { error: string } | { nonce: string } {
+  const { result, nonce } = verify(fd);
+  if (result === 'ok' && nonce) return { nonce };
+  if (result === 'tooFast') return { error: 'rc_fast' };
+  if (result === 'expired') return { error: 'rc_expired' };
+  return { error: fd.get('robot_answer') ? 'rc_wrong' : 'rc_missing' };
+}
+
 export async function submitContact(_: FormState, fd: FormData): Promise<FormState> {
   const p = parse(contactSchema, text(fd));
   if ('state' in p) return p.state;
-  return insert('contact_messages', p.data, 'ct_err');
+  const r = robot(fd);
+  if ('error' in r) return bad(r.error);
+  return insert('contact_messages', { ...p.data, robot_nonce: r.nonce }, 'ct_err');
 }
 
 export async function submitTryout(_: FormState, fd: FormData): Promise<FormState> {
@@ -64,5 +80,7 @@ export async function submitSponsor(_: FormState, fd: FormData): Promise<FormSta
   const raw = text(fd);
   const p = parse(contactSchema, { ...raw, topic: 'partnership', message: `${raw.package ? `[${raw.package}] ` : ''}${raw.message ?? ''}` });
   if ('state' in p) return p.state;
-  return insert('contact_messages', p.data, 'sp_err');
+  const r = robot(fd);
+  if ('error' in r) return bad(r.error);
+  return insert('contact_messages', { ...p.data, robot_nonce: r.nonce }, 'sp_err');
 }

@@ -3,11 +3,12 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { isPublicPath } from '@/lib/paths';
 
 /**
- * Keeps the Supabase session fresh and sends signed-out visitors to /login. Roles are checked in the area layouts
+ * Keeps the Supabase session fresh, signs out sessions left unused for too long (lib/idle.ts) and sends signed-out
+ * visitors to /login. Roles are checked in the area layouts
  * (they need the profile from the database); RLS is the final authority on data.
  */
 export async function middleware(request: NextRequest) {
-  const { response, user, blocked } = await updateSession(request);
+  const { response, user, blocked, idle } = await updateSession(request);
   const { pathname, search } = request.nextUrl;
   if (user || isPublicPath(pathname)) return response;
 
@@ -15,6 +16,7 @@ export async function middleware(request: NextRequest) {
   url.pathname = '/login';
   url.search = '';
   if (blocked) url.searchParams.set('reason', 'blocked');
+  else if (idle) { url.searchParams.set('reason', 'idle'); if (pathname !== '/' && !pathname.startsWith('/api/')) url.searchParams.set('next', pathname + search); }
   else if (pathname !== '/') url.searchParams.set('next', pathname + search);
   const redirect = NextResponse.redirect(url);
   for (const c of response.cookies.getAll()) redirect.cookies.set(c); // keep cookie changes from the refresh (e.g. a cleared session)

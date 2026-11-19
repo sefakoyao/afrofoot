@@ -3,6 +3,22 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – robot check on the contact form, sign-out after inactivity (branch `phase2/idle-signout`, migration 0058, release 0.48.0)
+- **Website contact and sponsor forms:** the football robot check from sign-up ("Tap the whistle").
+  - A fresh set of pictures is fetched when the form appears and after every failed send.
+  - Answers that come too fast (scripts) or too late are refused.
+  - A solved check sends **one** message: its one-time nonce is stored, and a replay is dropped.
+  - The hidden honeypot field stays.
+  - What was typed is kept when a send fails (e.g. a wrong picture).
+  - Needs `ROBOT_CHECK_SECRET` on the website's Vercel project.
+- **Member app: sign-out after 60 minutes without activity** (tapping, typing, scrolling; any tab counts; background refreshes such as the live match console don't).
+  - Two minutes before, a dialog offers "Stay signed in" or "Sign out now".
+  - The server checks it too: a session whose last activity is older than the limit is signed out on its next request. A laptop left open or a closed tab is covered.
+  - After signing in again the person returns to the page they were on, and the login page explains why.
+  - Adjustable with `NEXT_PUBLIC_SESSION_IDLE_MINUTES`.
+- The robot check now lives in `@afrofoot/ui` (shared by the app and the website).
+- 4 database checks, 19 browser checks.
+
 ## Unreleased – shirt number requests (branch `phase2/shirt-numbers`, migration 0057, release 0.47.0)
 - **Player → My profile → Shirt number** (each team of the current season):
   - the number they wear
