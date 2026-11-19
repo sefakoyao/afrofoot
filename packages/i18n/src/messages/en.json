@@ -141,7 +141,8 @@
     "fifaId": "FIFA ID",
     "idleSignedOut": "You were signed out because the app was not used for a while. Please sign in again.",
     "robotNew": "New pictures",
-    "robotLead": "This keeps spam robots out. No cookies, no tracking."
+    "robotLead": "This keeps spam robots out. No cookies, no tracking.",
+    "signUpCreated": "Account created! The club now checks and approves it. After that you can sign in with your email and password."
   },
   "role": {
     "super_admin": "Super administrator",

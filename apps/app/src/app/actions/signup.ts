@@ -23,6 +23,8 @@ export type SignUpState =
   | { status: 'idle'; challenge?: Challenge | null }
   | { status: 'error'; error: string; challenge?: Challenge | null; values?: Record<string, string> }
   | { status: 'sent' }
+  /** the project does not ask for email confirmation: the account exists and waits for the club's approval */
+  | { status: 'created' }
   | { status: 'code'; phone: string; mode: Mode; error?: string }
   | { status: 'done'; message: string }
   | { status: 'blocked' };
@@ -80,7 +82,9 @@ export async function signUpWithEmail(_: SignUpState, fd: FormData): Promise<Sig
     options: { emailRedirectTo: `${await appOrigin()}/auth/confirm`, data: { first_name: p.data.first_name, last_name: p.data.last_name } },
   });
   if (error && error.code !== 'user_already_exists' && error.code !== 'email_exists') return retry(authFailure(error, 'email sign-up refused'), fd);
-  if (data?.session) await supabase.auth.signOut(); // projects without email confirmation: still pending, no session
+  // Supabase "Confirm email" off: the account is created at once (with a session, signed out here: it is still
+  // pending) and no email is sent, so the page must not say "check your email".
+  if (data?.session) { await supabase.auth.signOut(); return { status: 'created' }; }
   return { status: 'sent' };
 }
 

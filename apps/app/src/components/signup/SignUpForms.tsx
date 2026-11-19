@@ -36,6 +36,7 @@ export function EmailSignUpForm({ challenge, privacyHref }: { challenge: Challen
   const t = useTranslations('auth');
   const [state, action] = useActionState<SignUpState, FormData>(signUpWithEmail, { status: 'idle', challenge });
   if (state.status === 'sent') return <Alert tone="ok"><span data-signup-sent>{t('signUpSent')}</span></Alert>;
+  if (state.status === 'created') return <Alert tone="ok"><span data-signup-created>{t('signUpCreated')}</span></Alert>;
   const ch = (state.status === 'error' || state.status === 'idle') && state.challenge ? state.challenge : challenge;
   const error = state.status === 'error' ? state.error : null;
   const values = state.status === 'error' ? state.values : undefined;

@@ -141,7 +141,8 @@
     "fifaId": "FIFA ID",
     "idleSignedOut": "Sinut kirjattiin ulos, koska sovellusta ei käytetty hetkeen. Kirjaudu uudelleen.",
     "robotNew": "Uudet kuvat",
-    "robotLead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa."
+    "robotLead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa.",
+    "signUpCreated": "Tili luotu! Seura tarkistaa ja hyväksyy sen. Sen jälkeen voit kirjautua sähköpostillasi ja salasanallasi."
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
