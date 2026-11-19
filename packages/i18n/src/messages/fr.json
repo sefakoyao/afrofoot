@@ -121,7 +121,7 @@
     "codeAgain": "Mauvais numéro ou pas de code ? Recommencer",
     "accountCreated": "Votre compte est créé. Le club le valide, en général sous quelques jours ; connectez-vous ensuite avec votre numéro.",
     "smsUnavailable": "Impossible d’envoyer des SMS pour le moment. Utilisez l’e-mail ou réessayez plus tard.",
-    "robotTitle": "Vérification anti-robot ⚽",
+    "robotTitle": "Vérification rapide",
     "robotAsk": "Touchez :",
     "robotWrong": "Pas tout à fait : touchez l’image demandée (une nouvelle série est affichée).",
     "robotMissing": "Faites la vérification : touchez l’image demandée.",
@@ -139,7 +139,9 @@
     "signUpUnavailable": "Impossible de créer un compte pour le moment. Réessayez plus tard.",
     "linkOpening": "Ouverture du lien…",
     "fifaId": "ID FIFA",
-    "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous."
+    "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous.",
+    "robotNew": "Autres images",
+    "robotLead": "Cela bloque les robots de spam. Pas de cookies, pas de suivi."
   },
   "role": {
     "super_admin": "Super administrateur",
