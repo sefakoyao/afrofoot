@@ -11,7 +11,7 @@ const KEYS = {
   },
   inv: {
     ok: ['r_billingSaved', 'r_planCreated', 'r_saved', 'r_membershipAdded', 'r_autoOn', 'r_autoOff', 'r_markedPaid', 'r_pastDueAdded', 'r_pastDueRemoved', 'r_balanceCreated', 'r_partRecorded', 'r_receiptDeleted'],
-    err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_lead', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason', 'r_pastDueAmount', 'r_pastDueText', 'r_pastDuePaid', 'r_balancePlayer', 'r_balanceEmpty', 'r_partAmount', 'r_partDate'],
+    err: ['r_invalid', 'r_error', 'r_duplicate', 'r_notAllowed', 'r_billing', 'r_businessId', 'r_iban', 'r_bic', 'r_email', 'r_terms', 'r_days', 'r_month', 'r_interest', 'r_planName', 'r_price', 'r_date', 'r_noSeason', 'r_pastDueAmount', 'r_pastDueText', 'r_pastDuePaid', 'r_balancePlayer', 'r_balanceEmpty', 'r_partAmount', 'r_partDate'],
   },
   coach: {
     ok: ['r_sessionCreated', 'r_sessionsCreated', 'r_sessionCancelled', 'r_attendanceSaved', 'r_replyBySaved'],

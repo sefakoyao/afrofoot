@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – monthly invoice schedule (branch `phase2/invoice-schedule`, migration 0060, release 0.51.0)
+- **Automatic invoices are dated the 1st of the month and due on the 10th.** Both days are set in Admin → Invoices → Club billing details ("Invoice date" and "Due date", 1–28). They replace "Send invoice … days before the period".
+  - Invoices are made on the invoice date itself (the nightly job), no longer 14 days early.
+  - An invoice that can only be made later in the month (e.g. the contract was signed on the 15th) is dated that day and due 7 days later, never in the past.
+  - "Payment terms (days)" now only applies to invoices made by hand.
+- **When invoices start** (Admin → Invoices → Memberships):
+  - **From each player's contract:** every membership without invoices starts in the month the player's contract starts (e.g. January 2027).
+  - **From one month for everyone:** the same start month for every membership of the season without invoices.
+  - **Per player:** a month picker and **Change** on each membership row.
+  - Each row shows the next invoice ("January 2027 · dated 1 Jan 2027, due 10 Jan 2027") and the contract status: before the contract, not signed yet, or no contract.
+  - New memberships take a first invoiced **month** instead of a date.
+- Unchanged: nothing is invoiced before the player has signed their contract and agreed to the Code of Conduct (0036).
+- 18 database checks (new `C3_invoice_schedule.sql`; `20_invoices.sql` updated to the new dates), 12 browser checks; the earlier invoice, finance and payment suites pass.
+
 ## Unreleased – sign-up message when email confirmation is off (branch `phase2/signup-no-confirm`, release 0.50.2)
 - With Supabase "Confirm email" turned off, email sign-up now says "**Account created!** The club now checks and approves it…" instead of asking the person to open an email link that is never sent. With it on, nothing changes.
 - Background: sign-ups timed out (504) because Supabase could not send the confirmation email; "Confirm email" was turned off as a workaround until the SMTP settings work. Accounts still wait for an admin's approval.

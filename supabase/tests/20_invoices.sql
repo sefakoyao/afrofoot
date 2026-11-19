@@ -46,11 +46,11 @@ select t.check('skipped: not renewing, pending, not yet due, ended, one-off', (s
   ('74000000-0000-0000-0000-00000000000e','74000000-0000-0000-0000-00000000000f','74000000-0000-0000-0000-000000000010','74000000-0000-0000-0000-000000000011','74000000-0000-0000-0000-000000000012')) = 0);
 select t.check('invoice: method, status, number, reference, issued', (select bool_and(method = 'invoice' and status = 'pending' and invoice_number is not null and reference ~ '^[0-9]+$' and invoice_sent_at is not null)
   from payments where membership_id::text like '74000000%'));
-select t.check('monthly: 1 line, €20, due on the period start', (select count(*) = 1 and sum(l.unit_price_cents) = 2000 from payment_lines l join payments p on p.id = l.payment_id where p.membership_id = '74000000-0000-0000-0000-00000000000a')
-  and (select due_on = '2026-01-15' from payments where membership_id = '74000000-0000-0000-0000-00000000000a'));
+select t.check('monthly: 1 line, €20, due on the 10th of the month (0060)', (select count(*) = 1 and sum(l.unit_price_cents) = 2000 from payment_lines l join payments p on p.id = l.payment_id where p.membership_id = '74000000-0000-0000-0000-00000000000a')
+  and (select due_on = '2026-01-10' from payments where membership_id = '74000000-0000-0000-0000-00000000000a'));
 select t.check('yearly: 12 monthly lines adding up to €240, first of each month', (select count(*) = 12 and sum(l.unit_price_cents) = 24000 and min(line_date) = '2026-01-01' and max(line_date) = '2026-12-01'
   from payment_lines l join payments p on p.id = l.payment_id where p.membership_id = '74000000-0000-0000-0000-00000000000b'));
-select t.check('yearly: due date = invoice date + terms when the period already started', (select due_on = '2026-01-15' from payments where membership_id = '74000000-0000-0000-0000-00000000000b'));
+select t.check('yearly: dated the 1st, due the 10th (0060)', (select due_on = '2026-01-10' and (invoice_sent_at at time zone 'Europe/Helsinki')::date = '2026-01-01' from payments where membership_id = '74000000-0000-0000-0000-00000000000b'));
 select t.check('quarterly €60.01: lines 20.00 + 20.00 + 20.01 add up exactly', (select array_agg(l.unit_price_cents order by l.position) = array[2000,2000,2001]
   from payment_lines l join payments p on p.id = l.payment_id where p.membership_id = '74000000-0000-0000-0000-00000000000c'));
 select t.check('season: one line, no further invoices', (select count(*) from payment_lines l join payments p on p.id = l.payment_id where p.membership_id = '74000000-0000-0000-0000-00000000000d') = 1

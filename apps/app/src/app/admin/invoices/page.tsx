@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { CURRENCY, LOCALE_LABELS, isLocale } from '@afrofoot/i18n';
-import { addMembership, addPastDue, createBalanceInvoices, createPlan, deleteReceipt, markPaid, recordPartPayment, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setPlanActive } from '@/app/actions/invoices';
+import { addMembership, addPastDue, createBalanceInvoices, createPlan, deleteReceipt, markPaid, recordPartPayment, removePastDue, runInvoicingNow, saveBilling, setAutoRenew, setInvoiceStart, setPlanActive } from '@/app/actions/invoices';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { dateFormats } from '@/lib/format';
@@ -21,7 +21,14 @@ const input = 'min-h-10 w-full rounded-control border border-line bg-raised px-3
 const btn = 'min-h-10 rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110';
 const BADGE: Record<string, string> = { paid: 'bg-accent/20 text-pitch', pending: 'bg-line', failed: 'bg-danger/10 text-danger', refunded: 'bg-line text-muted', overdue: 'bg-danger/10 text-danger' };
 
-type MembershipRow = { id: string; status: string; auto_renew: boolean; next_due_on: string | null; players: { first_name: string; last_name: string }; membership_plans: { name: string; amount_cents: number; period: string } };
+type MembershipRow = { id: string; player_id: string; status: string; auto_renew: boolean; next_due_on: string | null; players: { first_name: string; last_name: string }; membership_plans: { name: string; amount_cents: number; period: string } };
+
+/** 0060, as app.invoice_dates(): the invoice date and due date of the period starting in the month of `period`. */
+function invoiceDates(period: string, invoiceDay: number, dueDay: number): { issue: string; due: string } {
+  const [y, m] = period.split('-').map(Number) as [number, number];
+  const iso = (yy: number, mm: number, dd: number) => new Date(Date.UTC(yy, mm - 1, dd)).toISOString().slice(0, 10);
+  return { issue: iso(y, m, invoiceDay), due: dueDay >= invoiceDay ? iso(y, m, dueDay) : iso(y, m + 1, dueDay) };
+}
 
 /** Admin → Invoices. The nightly job (pg_cron, migration 0027) issues the invoices; this page sets it up and follows it. */
 export default async function InvoicesPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -40,7 +47,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   const [billing, list, { data: memberships }, { data: plans }, { data: players }, { data: season }] = await Promise.all([
     loadBilling(supabase),
     listInvoices(supabase, filters, today),
-    supabase.from('memberships').select('id, status, auto_renew, next_due_on, players!inner(first_name, last_name), membership_plans!inner(name, amount_cents, period), seasons!inner(is_current)').eq('seasons.is_current', true).order('next_due_on', { nullsFirst: false }),
+    supabase.from('memberships').select('id, player_id, status, auto_renew, next_due_on, players!inner(first_name, last_name), membership_plans!inner(name, amount_cents, period), seasons!inner(is_current)').eq('seasons.is_current', true).order('next_due_on', { nullsFirst: false }),
     supabase.from('membership_plans').select('id, name, amount_cents, period, active').order('active', { ascending: false }).order('name'),
     supabase.from('players').select('id, first_name, last_name').order('last_name'),
     supabase.from('seasons').select('name').eq('is_current', true).maybeSingle(),
@@ -71,7 +78,27 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
   // 0036: due memberships waiting for the player's contract signature or Code of Conduct consent
   const { data: holdRows } = await supabase.rpc('invoice_holds');
   const holds = (holdRows ?? []) as { membership_id: string; player_id: string; player_name: string; next_due_on: string; missing: ('conduct' | 'contract')[] }[];
+  // 0060: when each player's contract starts (sent, signed or running, not ended) and which memberships already have invoices
+  const msRows = (memberships ?? []) as unknown as MembershipRow[];
+  const [{ data: contractRows }, { data: invoicedRows }] = await Promise.all([
+    supabase.from('player_contracts').select('player_id, starts_on, status').in('status', ['sent', 'player_signed', 'active']).gte('ends_on', today).order('starts_on'),
+    msRows.length ? supabase.from('payments').select('membership_id').in('membership_id', msRows.map((m) => m.id)) : Promise.resolve({ data: [] }),
+  ]);
+  const contractMonth = new Map<string, string>(), contractSigned = new Set<string>();
+  for (const c of (contractRows ?? []) as { player_id: string; starts_on: string; status: string }[]) {
+    if (!contractMonth.has(c.player_id)) contractMonth.set(c.player_id, `${c.starts_on.slice(0, 7)}-01`);
+    if (c.status !== 'sent') contractSigned.add(c.player_id);
+  }
+  const invoiced = new Set(((invoicedRows ?? []) as { membership_id: string }[]).map((r) => r.membership_id));
+  const notStarted = msRows.filter((m) => m.auto_renew && m.status === 'active' && !invoiced.has(m.id));
+  const fromContracts = notStarted.filter((m) => contractMonth.has(m.player_id) && contractMonth.get(m.player_id) !== m.next_due_on).length;
+  const monthName = new Intl.DateTimeFormat(tag, { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const monthOf = (iso: string) => monthName.format(new Date(`${iso.slice(0, 7)}-01T12:00:00Z`));
+  const example = invoiceDates(today, billing.invoice_day, billing.due_day);
   const firstOfNextMonth = (() => { const [y, m] = today.split('-').map(Number) as [number, number]; return new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); })();
+  // the bulk tool suggests the month most upcoming contracts start in (e.g. January 2027), else next month
+  const upcoming = [...contractMonth.values()].filter((m) => m >= today.slice(0, 7) + '-01');
+  const suggested = upcoming.sort((a, b) => upcoming.filter((x) => x === b).length - upcoming.filter((x) => x === a).length)[0] ?? firstOfNextMonth;
   const result = typeof sp.result === 'string' ? sp.result : '';
   const playerName = filters.player ? (players ?? []).find((p) => p.id === filters.player) : null;
   /** Address of the list with the current filters, changed by `over` (page resets unless given). */
@@ -89,12 +116,12 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         <h1 className="font-display text-2xl font-extrabold">{t('title')}</h1>
         <p className="mt-1 text-muted">{t('lead')}</p>
       </header>
-      {result === 'r_ran' ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{t('r_ran', { count: Number(sp.n) || 0 })}</p> : <ResultBanner ns="inv" result={sp.result} />}
+      {result === 'r_ran' || result === 'r_startSet' ? <p role="status" className="rounded-card bg-accent/15 p-3 font-semibold text-pitch">{t(result, { count: Number(sp.n) || 0 })}</p> : <ResultBanner ns="inv" result={sp.result} />}
 
       {/* 1. status */}
       <section className={`rounded-card border-2 p-6 ${ready ? 'border-line bg-raised' : 'border-danger/40 bg-danger/5'}`} aria-labelledby="auto-h">
         <h2 id="auto-h" className="font-display text-xl font-extrabold">{t('autoTitle')}</h2>
-        {ready ? <p className="mt-1">{t('autoReady', { lead: billing.lead_days, terms: billing.payment_terms_days })}</p>
+        {ready ? <p className="mt-1">{t('autoReady', { invoiceDay: billing.invoice_day, dueDay: billing.due_day, issue: day(example.issue), due: day(example.due) })}</p>
           : <p role="alert" className="mt-1 font-semibold text-danger">{t('autoNotReady')}</p>}
         <form action={runInvoicingNow} className="mt-3">
           <button className={btn} disabled={!ready}>{t('runNow')}</button>
@@ -286,18 +313,56 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
       <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="mem-h">
         <h2 id="mem-h" className="font-display text-xl font-extrabold">{t('memberships', { season: season?.name ?? '–' })}</h2>
         <p className="mt-1 text-sm text-muted">{t('membershipsLead')}</p>
+        {/* 0060: from which month invoices start */}
+        <div className="mt-4 rounded-card border-2 border-accent/40 bg-accent/5 p-4" data-invoice-start>
+          <h3 className="font-display font-extrabold">{t('startTitle')}</h3>
+          <p className="mt-1 text-sm">{t('startLead', { invoiceDay: billing.invoice_day, dueDay: billing.due_day })}</p>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            <form action={setInvoiceStart} className="grid content-between gap-2 rounded-card bg-raised p-3">
+              <input type="hidden" name="back" value="/admin/invoices" /><input type="hidden" name="from" value="contracts" />
+              <p className="text-sm"><span className="font-semibold">{t('startFromContracts')}</span><span className="block text-muted">{fromContracts ? t('startFromContractsHint', { count: fromContracts }) : t('startFromContractsDone')}</span></p>
+              <button className={`${btn} justify-self-start disabled:cursor-not-allowed disabled:opacity-40`} disabled={!fromContracts} data-start-contracts>{t('startFromContractsBtn')}</button>
+            </form>
+            <form action={setInvoiceStart} className="grid content-between gap-2 rounded-card bg-raised p-3">
+              <input type="hidden" name="back" value="/admin/invoices" /><input type="hidden" name="from" value="month" />
+              <label className="grid gap-1 text-sm"><span className="font-semibold">{t('startFromMonth')}</span><span className="text-muted">{t('startFromMonthHint', { count: notStarted.length })}</span>
+                <input type="month" name="month" required defaultValue={suggested.slice(0, 7)} min={addDays(today, -365).slice(0, 7)} className={`${input} max-w-56`} data-start-month /></label>
+              <button className={`${btn} justify-self-start disabled:cursor-not-allowed disabled:opacity-40`} disabled={!notStarted.length} data-start-all>{t('startFromMonthBtn')}</button>
+            </form>
+          </div>
+        </div>
         {(memberships ?? []).length === 0 ? <p className="mt-2 text-muted">{t('noMemberships')}</p> : (
           <ul className="mt-3 divide-y divide-line">
-            {(memberships as unknown as MembershipRow[]).map((m) => (
+            {msRows.map((m) => {
+              const k = contractMonth.get(m.player_id);
+              const d = m.next_due_on ? invoiceDates(m.next_due_on, billing.invoice_day, billing.due_day) : null;
+              return (
               <li key={m.id} className="flex flex-wrap items-center justify-between gap-2 py-2" data-membership={`${m.players.first_name} ${m.players.last_name}`}>
                 <span><bdi className="font-semibold">{m.players.first_name} {m.players.last_name}</bdi> · {m.membership_plans.name} ({eur(m.membership_plans.amount_cents)} / {t(`per_${m.membership_plans.period}` as 'per_month')})
-                  <span className="block text-sm text-muted">{m.auto_renew ? t('nextInvoice', { date: day(m.next_due_on) }) : t('autoOffLabel')}</span></span>
+                  <span className="block text-sm text-muted" data-next-invoice>{m.auto_renew && m.next_due_on && d ? t('nextInvoice', { month: monthOf(m.next_due_on), issue: day(d.issue), due: day(d.due) }) : t('autoOffLabel')}</span>
+                  {m.auto_renew && m.next_due_on ? (
+                    !k ? <span className="mt-1 inline-block rounded-full bg-line px-2 py-0.5 text-xs font-bold" data-no-contract>{t('msNoContract')}</span>
+                    : m.next_due_on < k && !invoiced.has(m.id) ? <span className="mt-1 inline-block rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger" data-before-contract>{t('msBeforeContract', { month: monthOf(k) })}</span>
+                    : !contractSigned.has(m.player_id) ? <span className="mt-1 inline-block rounded-full bg-line px-2 py-0.5 text-xs font-bold" data-unsigned>{t('msContractUnsigned', { month: monthOf(k) })}</span>
+                    : <span className="mt-1 inline-block rounded-full bg-accent/15 px-2 py-0.5 text-xs font-bold text-pitch" data-contract-ok>{t('msContractFrom', { month: monthOf(k) })}</span>
+                  ) : null}</span>
+                <span className="flex flex-wrap items-center gap-2">
+                {m.auto_renew && m.next_due_on ? (
+                  <form action={setInvoiceStart} className="flex items-center gap-2" data-row-start>
+                    <input type="hidden" name="back" value="/admin/invoices" /><input type="hidden" name="membership_id" value={m.id} />
+                    <label className="sr-only" htmlFor={`start-${m.id}`}>{t('startRowLabel')}</label>
+                    <input id={`start-${m.id}`} type="month" name="month" required defaultValue={m.next_due_on.slice(0, 7)} className="min-h-9 rounded-control border border-line bg-surface px-2 text-sm" />
+                    <button className="min-h-9 rounded-full border border-line px-3 font-semibold hover:border-accent">{t('startRowBtn')}</button>
+                  </form>
+                ) : null}
                 <form action={setAutoRenew}>
                   <input type="hidden" name="membership_id" value={m.id} /><input type="hidden" name="auto" value={m.auto_renew ? 'false' : 'true'} /><input type="hidden" name="back" value="/admin/invoices" />
                   <button className={m.auto_renew ? 'min-h-9 rounded-full border border-danger px-3 font-bold text-danger hover:bg-danger/10' : 'min-h-9 rounded-full border-2 border-fg px-3 font-bold'}>{m.auto_renew ? t('stopAuto') : t('startAuto')}</button>
                 </form>
+                </span>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
         <form action={addMembership} className="mt-4 grid gap-3 rounded-card bg-surface p-4 sm:grid-cols-2 lg:grid-cols-[2fr_2fr_1fr_auto] lg:items-end">
@@ -307,7 +372,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           <label className="grid gap-1 text-sm font-semibold">{t('plan')}
             <select name="plan_id" required defaultValue="" className={input}><option value="" disabled>{t('choose')}</option>
               {(plans ?? []).filter((p) => p.active).map((p) => <option key={p.id} value={p.id}>{p.name} · {eur(p.amount_cents)} / {t(`per_${p.period}` as 'per_month')}</option>)}</select></label>
-          <label className="grid gap-1 text-sm font-semibold">{t('firstInvoice')}<input name="first_on" type="date" required defaultValue={firstOfNextMonth} min={addDays(today, -366)} className={input} /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('firstInvoice')}<input name="first_month" type="month" required defaultValue={firstOfNextMonth.slice(0, 7)} min={addDays(today, -365).slice(0, 7)} className={input} /></label>
           <button className={btn}>{t('add')}</button>
           <label className="flex items-center gap-2 text-sm sm:col-span-2 lg:col-span-4"><input type="checkbox" name="auto" defaultChecked className="size-4 accent-[rgb(var(--accent))]" />{t('autoCheckbox')}</label>
         </form>
@@ -348,7 +413,9 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
                 defaultValue={k === 'iban' && billing.iban ? formatIban(billing.iban) : String(billing[k as keyof typeof billing] ?? '')} className={input} /></label>
           ))}
           <label className="grid gap-1 text-sm font-semibold">{t('b_payment_terms_days')}<input name="payment_terms_days" type="number" min={0} max={120} required defaultValue={billing.payment_terms_days} className={input} /></label>
-          <label className="grid gap-1 text-sm font-semibold">{t('b_lead_days')}<input name="lead_days" type="number" min={0} max={60} required defaultValue={billing.lead_days} className={input} /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('b_invoice_day')}<input name="invoice_day" type="number" min={1} max={28} required defaultValue={billing.invoice_day} className={input} data-invoice-day /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('b_due_day')}<input name="due_day" type="number" min={1} max={28} required defaultValue={billing.due_day} className={input} data-due-day /></label>
+          <p className="text-xs text-muted sm:col-span-2">{t('b_days_hint')}</p>
           <label className="grid gap-1 text-sm font-semibold">{t('b_late_interest')}<input name="late_interest" inputMode="decimal" required defaultValue={billing.late_interest} className={input} /></label>
           <label className="flex items-start gap-3 rounded-card bg-surface p-3 text-sm sm:col-span-2">
             <input type="checkbox" name="require_consents" defaultChecked={billing.require_consents} className="mt-0.5 size-5 accent-accent" data-require-consents />
