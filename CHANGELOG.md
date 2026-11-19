@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – new robot check design (branch `phase2/robot-design`, release 0.49.0, no database change)
+- **The robot check is a card,** on the website's contact and sponsor forms **and on the app's sign-up page** (shared component `@afrofoot/ui/robot-check-card`):
+  - a shield badge and "**Quick check** · Tap the [whistle]" (the request shown as a pill)
+  - white rounded tiles with a soft shadow (6 in a row, 3 × 2 on phones, mirrored in Arabic)
+  - the picked tile gets a green ring and a ✓; a wrong answer shows a red ring and a new set
+  - a **New pictures** button and a one-line note "This keeps spam robots out. No cookies, no tracking."
+- **Clearer whistle icon** (the old one looked like sunglasses).
+- Same security as before: signed challenge, time window, one message per solved check on the website, honeypot.
+
 ## Unreleased – robot check on the contact form, sign-out after inactivity (branch `phase2/idle-signout`, migration 0058, release 0.48.0)
 - **Website contact and sponsor forms:** the football robot check from sign-up ("Tap the whistle").
   - A fresh set of pictures is fetched when the form appears and after every failed send.

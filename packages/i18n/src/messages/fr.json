@@ -121,7 +121,7 @@
     "codeAgain": "Mauvais numéro ou pas de code ? Recommencer",
     "accountCreated": "Votre compte est créé. Le club le valide, en général sous quelques jours ; connectez-vous ensuite avec votre numéro.",
     "smsUnavailable": "Impossible d’envoyer des SMS pour le moment. Utilisez l’e-mail ou réessayez plus tard.",
-    "robotTitle": "Vérification anti-robot ⚽",
+    "robotTitle": "Vérification rapide",
     "robotAsk": "Touchez :",
     "robotWrong": "Pas tout à fait : touchez l’image demandée (une nouvelle série est affichée).",
     "robotMissing": "Faites la vérification : touchez l’image demandée.",
@@ -139,7 +139,9 @@
     "signUpUnavailable": "Impossible de créer un compte pour le moment. Réessayez plus tard.",
     "linkOpening": "Ouverture du lien…",
     "fifaId": "ID FIFA",
-    "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous."
+    "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous.",
+    "robotNew": "Autres images",
+    "robotLead": "Cela bloque les robots de spam. Pas de cookies, pas de suivi."
   },
   "role": {
     "super_admin": "Super administrateur",
@@ -1189,7 +1191,7 @@
     "news_next": "Suivant",
     "news_page": "Page {n}",
     "news_pageOf": "Page {n} sur {total}",
-    "rc_title": "Vérification anti-robot ⚽",
+    "rc_title": "Vérification rapide",
     "rc_ask": "Touchez :",
     "rc_wrong": "Pas tout à fait : touchez l’image demandée (une nouvelle série est affichée).",
     "rc_missing": "Faites la vérification : touchez l’image demandée.",
@@ -1204,7 +1206,9 @@
     "rc_item_shirt": "maillot",
     "rc_item_trophy": "trophée",
     "rc_item_flag": "drapeau de corner",
-    "rc_item_gloves": "gant de gardien"
+    "rc_item_gloves": "gant de gardien",
+    "rc_new": "Autres images",
+    "rc_lead": "Cela bloque les robots de spam. Pas de cookies, pas de suivi."
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

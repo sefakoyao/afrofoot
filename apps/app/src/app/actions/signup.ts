@@ -135,3 +135,8 @@ export async function verifyPhoneCode(prev: SignUpState, fd: FormData): Promise<
   if (isLocale(member.locale)) (await cookies()).set(LOCALE_COOKIE, member.locale, LOCALE_COOKIE_OPTIONS);
   redirect(safeNext(fd.get('next')) ?? homeFor(member.role));
 }
+
+/** "New pictures" on the robot check: a fresh signed challenge (no form data, nothing stored). */
+export async function freshRobotChallenge(): Promise<Challenge | null> {
+  return newChallenge();
+}

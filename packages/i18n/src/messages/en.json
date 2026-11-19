@@ -121,7 +121,7 @@
     "codeAgain": "Wrong number, or no code? Start again",
     "accountCreated": "Your account is created. The club approves it, usually within a few days; then sign in with your phone number.",
     "smsUnavailable": "Text messages cannot be sent right now. Please use email, or try again later.",
-    "robotTitle": "Robot check ⚽",
+    "robotTitle": "Quick check",
     "robotAsk": "Tap the",
     "robotWrong": "Not quite: tap the picture we ask for (a new set is shown).",
     "robotMissing": "Please do the robot check: tap the picture we ask for.",
@@ -139,7 +139,9 @@
     "signUpUnavailable": "Creating an account is not possible right now. Please try again later.",
     "linkOpening": "Opening your link…",
     "fifaId": "FIFA ID",
-    "idleSignedOut": "You were signed out because the app was not used for a while. Please sign in again."
+    "idleSignedOut": "You were signed out because the app was not used for a while. Please sign in again.",
+    "robotNew": "New pictures",
+    "robotLead": "This keeps spam robots out. No cookies, no tracking."
   },
   "role": {
     "super_admin": "Super administrator",
@@ -1189,7 +1191,7 @@
     "news_next": "Next",
     "news_page": "Page {n}",
     "news_pageOf": "Page {n} of {total}",
-    "rc_title": "Robot check ⚽",
+    "rc_title": "Quick check",
     "rc_ask": "Tap the",
     "rc_wrong": "Not quite: tap the picture we ask for (a new set is shown).",
     "rc_missing": "Please do the robot check: tap the picture we ask for.",
@@ -1204,7 +1206,9 @@
     "rc_item_shirt": "shirt",
     "rc_item_trophy": "trophy",
     "rc_item_flag": "corner flag",
-    "rc_item_gloves": "goalkeeper glove"
+    "rc_item_gloves": "goalkeeper glove",
+    "rc_new": "New pictures",
+    "rc_lead": "This keeps spam robots out. No cookies, no tracking."
   },
   "admin": {
     "navOverview": "Overview",

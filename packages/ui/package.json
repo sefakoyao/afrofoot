@@ -14,7 +14,8 @@
     "./tailwind-preset": "./src/tailwind-preset.ts",
     "./styles.css": "./src/styles.css",
     "./football-icons": "./src/FootballIcons.tsx",
-    "./robot-check": "./src/robot-check.ts"
+    "./robot-check": "./src/robot-check.ts",
+    "./robot-check-card": "./src/RobotCheckCard.tsx"
   },
   "peerDependencies": {
     "react": "^19.0.0",

@@ -6,7 +6,7 @@ export type RobotItem = 'ball' | 'boot' | 'whistle' | 'goal' | 'cone' | 'shirt' 
 const ICONS: Record<RobotItem, ReactNode> = {
   ball: <><circle cx="24" cy="24" r="17" /><path d="M24 15l7 5-2.7 8h-8.6L17 20z" fill="currentColor" stroke="none" /><path d="M24 15V7M31 20l7-3M28.3 28l5 6.5M19.7 28l-5 6.5M17 20l-7-3" /></>,
   boot: <><path d="M8 14h13c1 5 4 8 10 10l8 2.5c2 .6 3 2 3 3.5v3H8z" /><path d="M8 33h34" /><path d="M12 33v4M20 33v4M30 33v4M38 33v4" strokeLinecap="round" /><path d="M17 18l4 1M18 22l5 1" /></>,
-  whistle: <><path d="M10 20h22a8 8 0 1 1-8 8H18a8 8 0 0 1-8-8z" /><path d="M32 20h8v6h-4" /><circle cx="22" cy="28" r="3" /><path d="M10 20l-3-4h9" /></>,
+  whistle: <><circle cx="29" cy="28" r="11" /><path d="M20 19.5H6.5a1.5 1.5 0 0 0-1.5 1.5v4a1.5 1.5 0 0 0 1.5 1.5H18" /><path d="M24 17.5h-4v6" /><circle cx="29" cy="28" r="3.5" fill="currentColor" stroke="none" /><circle cx="38" cy="14" r="3.5" /><path d="M35.5 16.5l-2.5 2.5" /></>,
   goal: <><path d="M6 36V12h36v24" strokeWidth="3" /><path d="M6 12l5 5h26l5-5M11 17v19M37 17v19M17 17v19M24 17v19M31 17v19M11 24h26M11 30h26" strokeWidth="1.3" /></>,
   cone: <><path d="M24 7l11 30H13z" /><path d="M8 37h32v4H8z" fill="currentColor" stroke="none" /><path d="M17.5 25h13M20 18h8" strokeWidth="3" /></>,
   shirt: <><path d="M17 8l-9 6 4 7 4-2v21h16V19l4 2 4-7-9-6c-1 3-3.5 5-7 5s-6-2-7-5z" /><text x="24" y="32" textAnchor="middle" fontSize="10" fontWeight="900" fill="currentColor" stroke="none">10</text></>,

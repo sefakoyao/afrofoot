@@ -121,7 +121,7 @@
     "codeAgain": "Väärä numero tai ei koodia? Aloita alusta",
     "accountCreated": "Tilisi on luotu. Seura hyväksyy sen yleensä muutamassa päivässä; kirjaudu sen jälkeen puhelinnumerollasi.",
     "smsUnavailable": "Tekstiviestejä ei voi lähettää juuri nyt. Käytä sähköpostia tai yritä myöhemmin.",
-    "robotTitle": "Robottitarkistus ⚽",
+    "robotTitle": "Pikatarkistus",
     "robotAsk": "Napauta kuvaa:",
     "robotWrong": "Ei aivan: napauta pyydettyä kuvaa (uudet kuvat näkyvät).",
     "robotMissing": "Tee robottitarkistus: napauta pyydettyä kuvaa.",
@@ -139,7 +139,9 @@
     "signUpUnavailable": "Tilin luominen ei onnistu juuri nyt. Yritä myöhemmin uudelleen.",
     "linkOpening": "Avataan linkkiä…",
     "fifaId": "FIFA ID",
-    "idleSignedOut": "Sinut kirjattiin ulos, koska sovellusta ei käytetty hetkeen. Kirjaudu uudelleen."
+    "idleSignedOut": "Sinut kirjattiin ulos, koska sovellusta ei käytetty hetkeen. Kirjaudu uudelleen.",
+    "robotNew": "Uudet kuvat",
+    "robotLead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa."
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
@@ -1189,7 +1191,7 @@
     "news_next": "Seuraava",
     "news_page": "Sivu {n}",
     "news_pageOf": "Sivu {n}/{total}",
-    "rc_title": "Robottitarkistus ⚽",
+    "rc_title": "Pikatarkistus",
     "rc_ask": "Napauta kuvaa:",
     "rc_wrong": "Ei aivan: napauta pyydettyä kuvaa (uudet kuvat näkyvät).",
     "rc_missing": "Tee robottitarkistus: napauta pyydettyä kuvaa.",
@@ -1204,7 +1206,9 @@
     "rc_item_shirt": "pelipaita",
     "rc_item_trophy": "pokaali",
     "rc_item_flag": "kulmalippu",
-    "rc_item_gloves": "maalivahdin hanska"
+    "rc_item_gloves": "maalivahdin hanska",
+    "rc_new": "Uudet kuvat",
+    "rc_lead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa."
   },
   "admin": {
     "navOverview": "Yleiskatsaus",
