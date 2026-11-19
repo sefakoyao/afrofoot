@@ -38,7 +38,8 @@ async function db(fd: FormData): Promise<SupabaseClient> {
 
 function fail(fd: FormData, where: string, error: { code?: string; message?: string }): never {
   console.error(`[teams] ${where} refused`, { code: error.code, message: error.message });
-  back(fd, error.code === '23505' ? 'r_duplicate' : error.code === '42501' ? 'r_notAllowed' : error.code === '23514' ? 'r_invalid' : 'r_error');
+  back(fd, error.code === '23505' ? 'r_duplicate' : error.code === '42501' ? 'r_notAllowed'
+    : error.code === '23514' ? (error.message?.includes("club's numbers") ? 'r_shirtNotInSet' : 'r_invalid') : 'r_error');
 }
 
 const done = (fd: FormData, result: string): never => { revalidatePath('/admin', 'layout'); revalidatePath('/me', 'layout'); back(fd, result); };

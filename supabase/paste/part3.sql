@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -3448,6 +3448,88 @@ create unique index contact_messages_robot_nonce on contact_messages (robot_nonc
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.48.0','feature','Robot check on the contact form, sign-out after inactivity',
   'The website''s contact and sponsor forms carry the football robot check; a solved check sends one message. The member app signs people out after a period without activity (default 60 minutes), with a warning two minutes before.','2026-11-19')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000059_shirt_set.sql =====
+-- 0059 The club's shirt numbers and releasing a number (release 0.50.0).
+-- The club only has shirts with some numbers (e.g. 1–39). Admin → Shirt numbers keeps that list in site_settings
+-- 'shirts' {numbers: [...]}; without it every number 1–99 counts. Players can only ask for, and staff only give,
+-- numbers from the list (also on the admin team page: a trigger on team_players). A number already worn outside the
+-- list stays until it is released, and shows as "not in the club's numbers".
+-- release_shirt_number(): an admin, or the team's coach (never for themselves), takes a number back from a player.
+
+create function app.shirt_set() returns int[] language sql stable security definer set search_path = public as $$
+  select coalesce(
+    (select array_agg(distinct n order by n) from site_settings s, jsonb_array_elements_text(s.value -> 'numbers') e(v), lateral (select e.v::int as n) x
+      where s.key = 'shirts' and x.n between 1 and 99),
+    array(select generate_series(1, 99)))
+$$;
+
+-- squad numbers outside the club's list are refused when they are given or changed (an existing one may stay)
+create function app.shirt_in_set() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.jersey_number is not null and (tg_op = 'INSERT' or new.jersey_number is distinct from old.jersey_number)
+     and not (new.jersey_number = any (app.shirt_set())) then
+    raise exception 'shirt number % is not one of the club''s numbers', new.jersey_number using errcode = 'check_violation';
+  end if;
+  return new;
+end $$;
+create trigger shirt_in_set before insert or update of jersey_number on team_players for each row execute function app.shirt_in_set();
+
+-- The grid: the club's numbers, plus any number worn outside them (in_set false), so it can be released.
+drop function public.shirt_numbers(uuid);
+create function public.shirt_numbers(p_ts uuid) returns table (number int, player_id uuid, player_name text, requests int, mine_requested boolean, free boolean, in_set boolean)
+language plpgsql stable security definer set search_path = public as $$
+#variable_conflict use_column
+declare v_set int[] := app.shirt_set();
+begin
+  if not (app.is_admin() or app.coaches_ts(p_ts) or exists (select 1 from team_players where team_season_id = p_ts and player_id = app.my_player_id() and left_on is null)) then
+    raise exception 'not your team' using errcode = '42501';
+  end if;
+  return query
+  select n, tp.player_id, case when tp.player_id is null then null else p.first_name || ' ' || p.last_name end,
+         (select count(*)::int from jersey_requests r where r.team_season_id = p_ts and r.number = n and r.status = 'pending'),
+         exists (select 1 from jersey_requests r where r.team_season_id = p_ts and r.number = n and r.status = 'pending' and r.player_id = app.my_player_id()),
+         tp.player_id is null and n = any (v_set),
+         n = any (v_set)
+  from (select unnest(v_set) as n
+        union select jersey_number from team_players where team_season_id = p_ts and left_on is null and jersey_number is not null) nums
+  left join team_players tp on tp.team_season_id = p_ts and tp.jersey_number = nums.n and tp.left_on is null
+  left join players p on p.id = tp.player_id
+  order by n;
+end $$;
+revoke all on function public.shirt_numbers(uuid) from public, anon;
+grant execute on function public.shirt_numbers(uuid) to authenticated;
+
+-- Asking for a number outside the club's list is refused (the rest as in 0057).
+create or replace function public.request_shirt_number(p_ts uuid, p_number int, p_note text default null) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare v_player uuid := app.my_player_id(); v_id uuid;
+begin
+  if v_player is null or not app.is_active() then raise exception 'members only' using errcode = '42501'; end if;
+  if not exists (select 1 from team_players where team_season_id = p_ts and player_id = v_player and left_on is null) then raise exception 'not your team' using errcode = '42501'; end if;
+  if p_number is null or not (p_number = any (app.shirt_set())) then raise exception 'not one of the club''s numbers' using errcode = '22023'; end if;
+  if exists (select 1 from team_players where team_season_id = p_ts and jersey_number = p_number and left_on is null) then raise exception 'number taken' using errcode = '23505'; end if;
+  update jersey_requests set status = 'withdrawn', decided_at = now() where team_season_id = p_ts and player_id = v_player and status = 'pending';
+  insert into jersey_requests (team_season_id, player_id, number, note) values (p_ts, v_player, p_number, nullif(trim(p_note), '')) returning id into v_id;
+  return v_id;
+end $$;
+
+-- Takes a number back from a player (it becomes free if it is one of the club's numbers).
+create function public.release_shirt_number(p_ts uuid, p_player uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not app.can_decide_jersey(p_ts, p_player) then raise exception 'not allowed' using errcode = '42501'; end if;
+  update team_players set jersey_number = null, updated_at = now() where team_season_id = p_ts and player_id = p_player and left_on is null and jersey_number is not null;
+  if not found then raise exception 'no number to release' using errcode = '22023'; end if;
+end $$;
+revoke all on function public.release_shirt_number(uuid, uuid) from public, anon;
+grant execute on function public.release_shirt_number(uuid, uuid) to authenticated;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.50.0','feature','The club''s shirt numbers, releasing a number',
+  'Admin → Shirt numbers: set the numbers the club has shirts for (e.g. 1–39); players only see and ask for those. Admins and coaches can release a number from a player.','2026-11-19')
 on conflict (version) do nothing;
 
 

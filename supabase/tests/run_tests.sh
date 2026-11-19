@@ -40,3 +40,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/B7_balance_invoices.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B8_partial_payments.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/B9_shirt_numbers.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C1_contact_robot_nonce.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/C2_shirt_set.sql

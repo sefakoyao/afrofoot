@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – the club's shirt numbers, releasing numbers (branch `phase2/shirt-set`, migration 0059, release 0.50.0)
+- **Admin → Shirt numbers → The club's numbers:** set the numbers the club has shirts for, as ranges and single numbers (e.g. `1-39` or `1-25, 30, 99`). Until set, every number 1–99 counts.
+  - Players only see and ask for these numbers.
+  - Coaches and admins can only give these (approving a request, or on the admin team page, where a clear message is shown).
+  - A number already worn outside the list stays until released, and is flagged "not in the club's numbers".
+- **Release:** every number given out has a **Release** button. The player has no number afterwards, and it's free again if it's one of the club's numbers. Admins, or the team's coach (never for themselves). Audited.
+- 17 database checks, 9 browser checks.
+
 ## Unreleased – new robot check design (branch `phase2/robot-design`, release 0.49.0, no database change)
 - **The robot check is a card,** on the website's contact and sponsor forms **and on the app's sign-up page** (shared component `@afrofoot/ui/robot-check-card`):
   - a shield badge and "**Quick check** · Tap the [whistle]" (the request shown as a pill)

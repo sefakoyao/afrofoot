@@ -1620,7 +1620,8 @@
     "r_objectivesSaved": "Kausi ja tavoitteet tallennettu.",
     "editTeam": "Nimeä uudelleen tai muokkaa joukkuetta",
     "editTeamNote": "Uusi nimi näkyy heti kaikkialla: valmentajien valikoissa, kalentereissa, verkkosivuilla ja uusissa sopimuksissa. Jo lähetetyissä sopimuksissa säilyy niiden allekirjoitushetken nimi.",
-    "r_teamUpdated": "Joukkue tallennettu."
+    "r_teamUpdated": "Joukkue tallennettu.",
+    "r_shirtNotInSet": "Pelinumero ei kuulu seuran numeroihin (Ylläpito → Pelinumerot)."
   },
   "coach": {
     "navHome": "Yleiskatsaus",
@@ -2957,6 +2958,19 @@
     "r_notAllowed": "Et voi tehdä tätä (omaa pyyntöä ei voi hyväksyä).",
     "r_error": "Jokin meni pieleen. Yritä uudelleen.",
     "r_gone": "Pyyntö ei ole enää avoin.",
-    "givenOther": "Se annettiin toiselle pelaajalle."
+    "givenOther": "Se annettiin toiselle pelaajalle.",
+    "setTitle": "Seuran numerot",
+    "setNow": "{count} numeroa: {list}",
+    "setNone": "Ei vielä asetettu: kaikki numerot 1–99 käyvät.",
+    "setLabel": "Numerot, joille seuralla on paidat",
+    "setSave": "Tallenna numerot",
+    "setHint": "Välit ja yksittäiset numerot, esim. 1-39 tai 1-25, 30, 99. Pelaajat näkevät ja voivat pyytää vain näitä. Listan ulkopuolella jo käytössä olevat numerot säilyvät, kunnes vapautat ne.",
+    "notInSet": "ei seuran numeroissa",
+    "release": "Vapauta",
+    "releaseAria": "Vapauta numero {number} pelaajalta {name}",
+    "r_released": "Numero vapautettu. Se on taas vapaana, jos se kuuluu seuran numeroihin.",
+    "r_setSaved": "Seuran numerot tallennettu.",
+    "r_setInvalid": "Kirjoita numerot 1–99 väleinä tai yksittäin, esim. 1-39.",
+    "r_notInSet": "Numero ei kuulu seuran numeroihin."
   }
 }
