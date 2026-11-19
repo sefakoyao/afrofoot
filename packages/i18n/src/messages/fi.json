@@ -1189,7 +1189,7 @@
     "news_next": "Seuraava",
     "news_page": "Sivu {n}",
     "news_pageOf": "Sivu {n}/{total}",
-    "rc_title": "Robottitarkistus ⚽",
+    "rc_title": "Pikatarkistus",
     "rc_ask": "Napauta kuvaa:",
     "rc_wrong": "Ei aivan: napauta pyydettyä kuvaa (uudet kuvat näkyvät).",
     "rc_missing": "Tee robottitarkistus: napauta pyydettyä kuvaa.",
@@ -1204,7 +1204,9 @@
     "rc_item_shirt": "pelipaita",
     "rc_item_trophy": "pokaali",
     "rc_item_flag": "kulmalippu",
-    "rc_item_gloves": "maalivahdin hanska"
+    "rc_item_gloves": "maalivahdin hanska",
+    "rc_new": "Uudet kuvat",
+    "rc_lead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa."
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

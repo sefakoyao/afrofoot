@@ -1189,7 +1189,7 @@
     "news_next": "Suivant",
     "news_page": "Page {n}",
     "news_pageOf": "Page {n} sur {total}",
-    "rc_title": "Vérification anti-robot ⚽",
+    "rc_title": "Vérification rapide",
     "rc_ask": "Touchez :",
     "rc_wrong": "Pas tout à fait : touchez l’image demandée (une nouvelle série est affichée).",
     "rc_missing": "Faites la vérification : touchez l’image demandée.",
@@ -1204,7 +1204,9 @@
     "rc_item_shirt": "maillot",
     "rc_item_trophy": "trophée",
     "rc_item_flag": "drapeau de corner",
-    "rc_item_gloves": "gant de gardien"
+    "rc_item_gloves": "gant de gardien",
+    "rc_new": "Autres images",
+    "rc_lead": "Cela bloque les robots de spam. Pas de cookies, pas de suivi."
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

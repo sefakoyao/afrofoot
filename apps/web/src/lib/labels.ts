@@ -9,7 +9,7 @@ export const FORM_KEYS = [
   'tr_e_g', 'tr_e_c', 'ph_hint', 'ph_err', 'ph_zero', 'dp_open', 'dp_today', 'dp_clear', 'dp_prev', 'dp_next', 'dp_month', 'dp_year', 'dp_close',
   'en_s1', 'en_s2', 'en_s3', 'en_s4', 'en_nat', 'en_addr', 'en_city', 'en_plan', 'en_terms', 'en_priv', 'priv_read', 'en_photo', 'en_pub', 'en_next', 'en_back',
   'en_submit', 'en_done_h', 'en_done', 'en_sum', 'en_e_plan', 'en_e_terms', 'en_step', 'per_m', 'per_q', 'per_y', 'm_mp', 'm_wire', 'm_inv', 'pay_method',
-  'rc_title', 'rc_ask', 'rc_wrong', 'rc_missing', 'rc_expired', 'rc_fast', 'rc_unavailable',
+  'rc_title', 'rc_ask', 'rc_new', 'rc_lead', 'rc_wrong', 'rc_missing', 'rc_expired', 'rc_fast', 'rc_unavailable',
   'rc_item_ball', 'rc_item_boot', 'rc_item_whistle', 'rc_item_goal', 'rc_item_cone', 'rc_item_shirt', 'rc_item_trophy', 'rc_item_flag', 'rc_item_gloves',
   'ct_name', 'ct_topic', 'ct_t_g', 'ct_t_j', 'ct_t_p', 'ct_t_m', 'ct_send', 'ct_ok', 'ct_err',
   'inv_plan', 'inv_o_m', 'inv_o_q', 'inv_o_y', 'inv_phone', 'inv_player', 'inv_addr', 'inv_zip', 'inv_city', 'inv_ref', 'inv_consent', 'inv_send', 'inv_ok', 'inv_err',
