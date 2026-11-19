@@ -1,11 +1,11 @@
--- 0059 The club's shirt numbers and releasing a number (release 0.50.0).
+-- 0059 The club's shirt numbers and releasing a number (release 0.50.0). Safe to run again (repair version).
 -- The club only has shirts with some numbers (e.g. 1–39). Admin → Shirt numbers keeps that list in site_settings
 -- 'shirts' {numbers: [...]}; without it every number 1–99 counts. Players can only ask for, and staff only give,
 -- numbers from the list (also on the admin team page: a trigger on team_players). A number already worn outside the
 -- list stays until it is released, and shows as "not in the club's numbers".
 -- release_shirt_number(): an admin, or the team's coach (never for themselves), takes a number back from a player.
 
-create function app.shirt_set() returns int[] language sql stable security definer set search_path = public as $$
+create or replace function app.shirt_set() returns int[] language sql stable security definer set search_path = public as $$
   select coalesce(
     (select array_agg(distinct n order by n) from site_settings s, jsonb_array_elements_text(s.value -> 'numbers') e(v), lateral (select e.v::int as n) x
       where s.key = 'shirts' and x.n between 1 and 99),
@@ -13,7 +13,7 @@ create function app.shirt_set() returns int[] language sql stable security defin
 $$;
 
 -- squad numbers outside the club's list are refused when they are given or changed (an existing one may stay)
-create function app.shirt_in_set() returns trigger language plpgsql security definer set search_path = public as $$
+create or replace function app.shirt_in_set() returns trigger language plpgsql security definer set search_path = public as $$
 begin
   if new.jersey_number is not null and (tg_op = 'INSERT' or new.jersey_number is distinct from old.jersey_number)
      and not (new.jersey_number = any (app.shirt_set())) then
@@ -21,10 +21,11 @@ begin
   end if;
   return new;
 end $$;
+drop trigger if exists shirt_in_set on team_players;
 create trigger shirt_in_set before insert or update of jersey_number on team_players for each row execute function app.shirt_in_set();
 
 -- The grid: the club's numbers, plus any number worn outside them (in_set false), so it can be released.
-drop function public.shirt_numbers(uuid);
+drop function if exists public.shirt_numbers(uuid);
 create function public.shirt_numbers(p_ts uuid) returns table (number int, player_id uuid, player_name text, requests int, mine_requested boolean, free boolean, in_set boolean)
 language plpgsql stable security definer set search_path = public as $$
 #variable_conflict use_column
@@ -63,7 +64,7 @@ begin
 end $$;
 
 -- Takes a number back from a player (it becomes free if it is one of the club's numbers).
-create function public.release_shirt_number(p_ts uuid, p_player uuid) returns void
+create or replace function public.release_shirt_number(p_ts uuid, p_player uuid) returns void
 language plpgsql security definer set search_path = public as $$
 begin
   if not app.can_decide_jersey(p_ts, p_player) then raise exception 'not allowed' using errcode = '42501'; end if;
