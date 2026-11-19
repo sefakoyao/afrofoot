@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sign-up message when email confirmation is off (branch `phase2/signup-no-confirm`, release 0.50.2)
+- With Supabase "Confirm email" turned off, email sign-up now says "**Account created!** The club now checks and approves it…" instead of asking the person to open an email link that is never sent. With it on, nothing changes.
+- Background: sign-ups timed out (504) because Supabase could not send the confirmation email; "Confirm email" was turned off as a workaround until the SMTP settings work. Accounts still wait for an admin's approval.
+
 ## Unreleased – shirt number errors in the logs (branch `phase2/release-errors`, release 0.50.1)
 - When the database refuses a shirt-number action (request, withdraw, approve/decline, **release**), the reason (error code and message, no personal data) is written to the server logs (Vercel → Logs, search `[shirts]`), so "Something went wrong" can be traced.
 
