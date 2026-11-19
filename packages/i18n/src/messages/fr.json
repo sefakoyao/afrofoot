@@ -1620,7 +1620,8 @@
     "r_objectivesSaved": "Saison et objectifs enregistrés.",
     "editTeam": "Renommer ou modifier l'équipe",
     "editTeamNote": "Le nouveau nom apparaît partout aussitôt : menus des entraîneurs, calendriers, site et nouveaux contrats. Les contrats déjà envoyés gardent le nom signé.",
-    "r_teamUpdated": "Équipe enregistrée."
+    "r_teamUpdated": "Équipe enregistrée.",
+    "r_shirtNotInSet": "Ce numéro ne fait pas partie des numéros du club (Admin → Numéros de maillot)."
   },
   "coach": {
     "navHome": "Vue d’ensemble",
@@ -2957,6 +2958,19 @@
     "r_notAllowed": "Action impossible (on ne peut pas accepter sa propre demande).",
     "r_error": "Une erreur est survenue. Réessayez.",
     "r_gone": "Cette demande n’est plus en attente.",
-    "givenOther": "Il a été attribué à un autre joueur."
+    "givenOther": "Il a été attribué à un autre joueur.",
+    "setTitle": "Les numéros du club",
+    "setNow": "{count} numéros : {list}",
+    "setNone": "Pas encore défini : tous les numéros de 1 à 99 comptent.",
+    "setLabel": "Numéros pour lesquels le club a des maillots",
+    "setSave": "Enregistrer les numéros",
+    "setHint": "Plages et numéros seuls, p. ex. 1-39 ou 1-25, 30, 99. Les joueurs ne voient et ne demandent que ceux-ci. Les numéros déjà portés hors de la liste restent jusqu’à ce que vous les libériez.",
+    "notInSet": "hors des numéros du club",
+    "release": "Libérer",
+    "releaseAria": "Libérer le numéro {number} de {name}",
+    "r_released": "Numéro libéré. Il est de nouveau libre s’il fait partie des numéros du club.",
+    "r_setSaved": "Les numéros du club sont enregistrés.",
+    "r_setInvalid": "Écrivez des numéros de 1 à 99 en plages ou seuls, p. ex. 1-39.",
+    "r_notInSet": "Ce numéro ne fait pas partie des numéros du club."
   }
 }

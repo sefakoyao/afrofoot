@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { getMember } from '@/lib/auth';
+import { getMember, requireArea } from '@/lib/auth';
+import { parseRanges } from '@/lib/shirts';
 import { getSupabase } from '@/lib/supabase/server';
 
 /**
@@ -32,7 +33,7 @@ export async function requestShirt(fd: FormData): Promise<void> {
   if (!p.success) back(fd, 'r_pick');
   const supabase = await db(fd);
   const { error } = await supabase.rpc('request_shirt_number', { p_ts: p.data.team_season_id, p_number: p.data.number, p_note: p.data.note || null });
-  if (error) back(fd, error.code === '23505' ? 'r_taken' : error.code === '42501' ? 'r_notAllowed' : 'r_error');
+  if (error) back(fd, error.code === '23505' ? 'r_taken' : error.code === '42501' ? 'r_notAllowed' : error.code === '22023' ? 'r_notInSet' : 'r_error');
   refresh(); back(fd, 'r_requested');
 }
 
@@ -50,6 +51,27 @@ export async function decideShirt(fd: FormData): Promise<void> {
   if (!p.success) back(fd, 'r_error');
   const supabase = await db(fd);
   const { error } = await supabase.rpc('decide_shirt_request', { p_request: p.data.request_id, p_approve: p.data.decision === 'approve', p_note: p.data.note || null });
-  if (error) back(fd, error.code === '23505' ? 'r_taken' : error.code === '42501' ? 'r_notAllowed' : error.code === '22023' ? 'r_gone' : 'r_error');
+  if (error) back(fd, error.code === '23505' ? 'r_taken' : error.code === '42501' ? 'r_notAllowed' : error.code === '22023' ? 'r_gone' : error.code === '23514' ? 'r_notInSet' : 'r_error');
   refresh(); back(fd, p.data.decision === 'approve' ? 'r_approved' : 'r_declined');
+}
+
+/** Takes a number back from a player (release_shirt_number, migration 0059: admins, or the team's coach). */
+export async function releaseShirt(fd: FormData): Promise<void> {
+  const p = z.object({ team_season_id: uuid, player_id: uuid }).safeParse({ team_season_id: fd.get('team_season_id'), player_id: fd.get('player_id') });
+  if (!p.success) back(fd, 'r_error');
+  const supabase = await db(fd);
+  const { error } = await supabase.rpc('release_shirt_number', { p_ts: p.data.team_season_id, p_player: p.data.player_id });
+  if (error) back(fd, error.code === '42501' ? 'r_notAllowed' : error.code === '22023' ? 'r_gone' : 'r_error');
+  refresh(); back(fd, 'r_released');
+}
+
+/** The numbers the club has shirts for, e.g. "1-39" (site_settings 'shirts', admins only; 1–99). */
+export async function saveShirtSet(fd: FormData): Promise<void> {
+  await requireArea('admin');
+  const numbers = parseRanges(String(fd.get('numbers') ?? '').slice(0, 300));
+  if (!numbers) back(fd, 'r_setInvalid');
+  const supabase = await db(fd);
+  const { error } = await supabase.from('site_settings').upsert({ key: 'shirts', value: { numbers }, is_public: false });
+  if (error) { console.error('[shirts] set refused', { code: error.code }); back(fd, 'r_error'); }
+  refresh(); back(fd, 'r_setSaved');
 }

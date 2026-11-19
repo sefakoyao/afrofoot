@@ -7,7 +7,7 @@ import { getTranslations } from 'next-intl/server';
 const KEYS = {
   teams: {
     ok: ['r_seasonCreated', 'r_currentSet', 'r_teamCreated', 'r_playerAdded', 'r_playersAdded', 'r_objectivesSaved', 'r_teamUpdated', 'r_saved', 'r_playerRemoved', 'r_coachAdded', 'r_coachRemoved'],
-    err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_noName', 'r_playersAddedSome', 'r_pickNone'],
+    err: ['r_invalid', 'r_name', 'r_dates', 'r_duplicate', 'r_notAllowed', 'r_error', 'r_shirt', 'r_shirtTaken', 'r_shirtNotInSet', 'r_noName', 'r_playersAddedSome', 'r_pickNone'],
   },
   inv: {
     ok: ['r_billingSaved', 'r_planCreated', 'r_saved', 'r_membershipAdded', 'r_autoOn', 'r_autoOff', 'r_markedPaid', 'r_pastDueAdded', 'r_pastDueRemoved', 'r_balanceCreated', 'r_partRecorded', 'r_receiptDeleted'],
@@ -43,8 +43,8 @@ const KEYS = {
     err: ['r_invalid', 'r_error', 'r_noEmail', 'r_tooMany', 'r_dates'],
   },
   shirt: {
-    ok: ['r_requested', 'r_withdrawn', 'r_approved', 'r_declined'],
-    err: ['r_pick', 'r_taken', 'r_notAllowed', 'r_error', 'r_gone'],
+    ok: ['r_requested', 'r_withdrawn', 'r_approved', 'r_declined', 'r_released', 'r_setSaved'],
+    err: ['r_pick', 'r_taken', 'r_notAllowed', 'r_error', 'r_gone', 'r_notInSet', 'r_setInvalid'],
   },
   fin: {
     ok: ['r_budgetSaved', 'r_expenseAdded', 'r_expenseDeleted'],

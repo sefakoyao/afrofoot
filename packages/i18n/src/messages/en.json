@@ -1620,7 +1620,8 @@
     "r_objectivesSaved": "Season and objectives saved.",
     "editTeam": "Rename or edit the team",
     "editTeamNote": "The new name shows everywhere at once: coaches' menus, calendars, the website and new contracts. Contracts already sent keep the name they were signed with.",
-    "r_teamUpdated": "Team saved."
+    "r_teamUpdated": "Team saved.",
+    "r_shirtNotInSet": "That shirt number is not one of the club's numbers (Admin → Shirt numbers)."
   },
   "coach": {
     "navHome": "Overview",
@@ -2957,6 +2958,19 @@
     "r_notAllowed": "You cannot do this (you cannot approve your own request).",
     "r_error": "Something went wrong. Please try again.",
     "r_gone": "This request is no longer open.",
-    "givenOther": "It went to another player."
+    "givenOther": "It went to another player.",
+    "setTitle": "The club's numbers",
+    "setNow": "{count} numbers: {list}",
+    "setNone": "Not set yet: every number from 1 to 99 counts.",
+    "setLabel": "Numbers the club has shirts for",
+    "setSave": "Save numbers",
+    "setHint": "Ranges and single numbers, e.g. 1-39 or 1-25, 30, 99. Players only see and ask for these. Numbers already worn outside the list stay until you release them.",
+    "notInSet": "not in the club's numbers",
+    "release": "Release",
+    "releaseAria": "Release number {number} from {name}",
+    "r_released": "Number released. It is free again if it is one of the club's numbers.",
+    "r_setSaved": "The club's numbers are saved.",
+    "r_setInvalid": "Write numbers 1–99 as ranges or single numbers, e.g. 1-39.",
+    "r_notInSet": "That number is not one of the club's numbers."
   }
 }

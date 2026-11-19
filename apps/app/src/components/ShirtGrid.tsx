@@ -6,14 +6,14 @@ import type { ShirtNumber } from '@/lib/shirts';
  */
 export function ShirtGrid({ numbers, pick, mine, labels }: {
   numbers: ShirtNumber[]; pick?: string; mine?: number | null;
-  labels: { free: string; taken: (name: string) => string; yours: string; requested: (n: number) => string; legendFree: string; legendTaken: string; legendRequested: string };
+  labels: { free: string; taken: (name: string) => string; yours: string; requested: (n: number) => string; legendFree: string; legendTaken: string; legendRequested: string; notInSet?: string };
 }) {
   return (
     <div className="grid gap-2">
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(2.75rem,1fr))] gap-1.5" data-shirt-grid>
         {numbers.map((n) => {
           const yours = mine === n.number;
-          const title = yours ? labels.yours : n.free ? `${labels.free}${n.requests ? ` · ${labels.requested(n.requests)}` : ''}` : labels.taken(n.player_name ?? '');
+          const title = `${yours ? labels.yours : n.free ? `${labels.free}${n.requests ? ` · ${labels.requested(n.requests)}` : ''}` : labels.taken(n.player_name ?? '')}${n.in_set === false && labels.notInSet ? ` · ${labels.notInSet}` : ''}`;
           const base = 'relative flex aspect-square min-h-11 items-center justify-center rounded-control text-sm font-bold tabular-nums';
           return (
             <li key={n.number} data-shirt={n.number} data-state={yours ? 'yours' : n.free ? 'free' : 'taken'}>
@@ -24,7 +24,7 @@ export function ShirtGrid({ numbers, pick, mine, labels }: {
                   {n.requests ? <span aria-hidden className="absolute end-1 top-1 size-1.5 rounded-full bg-ink-950" /> : null}
                 </label>
               ) : (
-                <span className={`${base} ${yours ? 'bg-accent text-on-accent' : n.free ? 'border-2 border-line bg-raised' : 'bg-line text-muted line-through decoration-2'}`} title={title}>
+                <span className={`${base} ${yours ? 'bg-accent text-on-accent' : n.free ? 'border-2 border-line bg-raised' : 'bg-line text-muted line-through decoration-2'} ${n.in_set === false ? 'outline-dashed outline-2 outline-offset-1 outline-danger' : ''}`} title={title} data-out-of-set={n.in_set === false || undefined}>
                   <span aria-hidden>{n.number}</span><span className="sr-only">{n.number}, {title}</span>
                   {n.free && n.requests ? <span aria-hidden className="absolute end-1 top-1 size-1.5 rounded-full bg-ink-950" /> : null}
                 </span>
