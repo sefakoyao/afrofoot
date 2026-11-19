@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – shirt number errors in the logs (branch `phase2/release-errors`, release 0.50.1)
+- When the database refuses a shirt-number action (request, withdraw, approve/decline, **release**), the reason (error code and message, no personal data) is written to the server logs (Vercel → Logs, search `[shirts]`), so "Something went wrong" can be traced.
+
 ## Unreleased – the club's shirt numbers, releasing numbers (branch `phase2/shirt-set`, migration 0059, release 0.50.0)
 - **Admin → Shirt numbers → The club's numbers:** set the numbers the club has shirts for, as ranges and single numbers (e.g. `1-39` or `1-25, 30, 99`). Until set, every number 1–99 counts.
   - Players only see and ask for these numbers.
