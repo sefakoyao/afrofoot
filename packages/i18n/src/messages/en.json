@@ -1315,7 +1315,8 @@
     "navGroupPeople": "People",
     "navGroupTeams": "Teams & events",
     "navGroupClub": "Club",
-    "navShirts": "Shirt numbers"
+    "navShirts": "Shirt numbers",
+    "navOpponents": "Opponents"
   },
   "me": {
     "team": "Team",
@@ -2495,7 +2496,11 @@
     "e_matchCreated": "Game added. The team sees it in their calendar; the coach sets the line-up on the game page.",
     "sportTitle": "Trainings and games",
     "sportLead": "The next trainings and games of all teams. Coaches take attendance and set line-ups on their team pages.",
-    "noSport": "No trainings or games planned yet."
+    "noSport": "No trainings or games planned yet.",
+    "opponentChoose": "Choose the opponent…",
+    "opponentNew": "+ Add a new opponent",
+    "opponentNewName": "New opponent's name",
+    "opponentNewHint": "It is added to the club's list when the game is saved."
   },
   "relation": {
     "mother": "Mother",
@@ -2992,5 +2997,33 @@
     "r_setSaved": "The club's numbers are saved.",
     "r_setInvalid": "Write numbers 1–99 as ranges or single numbers, e.g. 1-39.",
     "r_notInSet": "That number is not one of the club's numbers."
+  },
+  "opp": {
+    "title": "Opponents",
+    "lead": "The teams coaches and admins pick from when booking a game or friendly. A new name typed when booking is added here automatically. Correct a name or hide one you no longer need: games already booked keep their name.",
+    "addTitle": "Add an opponent",
+    "name": "Name",
+    "nameEg": "e.g. FC Kallio",
+    "add": "Add",
+    "listTitle": "The club's opponents",
+    "count": "{shown} in the list, {hidden} hidden",
+    "search": "Search",
+    "searchBtn": "Search",
+    "none": "No opponents found.",
+    "save": "Save",
+    "games": "{count, plural, one {# game} other {# games}}",
+    "noGames": "no games yet",
+    "hiddenTag": "Hidden",
+    "hide": "Hide",
+    "show": "Show again",
+    "r_added": "Opponent added.",
+    "r_renamed": "Name saved.",
+    "r_hidden": "Hidden: it is no longer offered when booking.",
+    "r_shown": "Shown again in the list.",
+    "r_invalid": "Something is missing. Please check and try again.",
+    "r_error": "Something went wrong. Please try again.",
+    "r_duplicate": "That opponent is already in the list.",
+    "r_notAllowed": "Only admins can change the list.",
+    "r_name": "Write a name of 1 to 120 characters."
   }
 }

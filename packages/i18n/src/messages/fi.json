@@ -1315,7 +1315,8 @@
     "navGroupPeople": "Ihmiset",
     "navGroupTeams": "Joukkueet ja tapahtumat",
     "navGroupClub": "Seura",
-    "navShirts": "Pelinumerot"
+    "navShirts": "Pelinumerot",
+    "navOpponents": "Vastustajat"
   },
   "me": {
     "team": "Joukkue",
@@ -2495,7 +2496,11 @@
     "e_matchCreated": "Ottelu lisätty. Joukkue näkee sen kalenterissaan; valmentaja tekee kokoonpanon ottelusivulla.",
     "sportTitle": "Harjoitukset ja ottelut",
     "sportLead": "Kaikkien joukkueiden seuraavat harjoitukset ja ottelut. Valmentajat merkitsevät läsnäolot ja kokoonpanot joukkuesivuillaan.",
-    "noSport": "Ei vielä suunniteltuja harjoituksia tai otteluita."
+    "noSport": "Ei vielä suunniteltuja harjoituksia tai otteluita.",
+    "opponentChoose": "Valitse vastustaja…",
+    "opponentNew": "+ Lisää uusi vastustaja",
+    "opponentNewName": "Uuden vastustajan nimi",
+    "opponentNewHint": "Se lisätään seuran listaan, kun ottelu tallennetaan."
   },
   "relation": {
     "mother": "Äiti",
@@ -2992,5 +2997,33 @@
     "r_setSaved": "Seuran numerot tallennettu.",
     "r_setInvalid": "Kirjoita numerot 1–99 väleinä tai yksittäin, esim. 1-39.",
     "r_notInSet": "Numero ei kuulu seuran numeroihin."
+  },
+  "opp": {
+    "title": "Vastustajat",
+    "lead": "Joukkueet, joista valmentajat ja ylläpitäjät valitsevat ottelua tai harjoitusottelua varatessaan. Varatessa kirjoitettu uusi nimi lisätään tänne automaattisesti. Korjaa nimi tai piilota tarpeeton: jo varatut ottelut säilyttävät nimensä.",
+    "addTitle": "Lisää vastustaja",
+    "name": "Nimi",
+    "nameEg": "esim. FC Kallio",
+    "add": "Lisää",
+    "listTitle": "Seuran vastustajat",
+    "count": "{shown} listassa, {hidden} piilotettu",
+    "search": "Hae",
+    "searchBtn": "Hae",
+    "none": "Vastustajia ei löytynyt.",
+    "save": "Tallenna",
+    "games": "{count, plural, one {# ottelu} other {# ottelua}}",
+    "noGames": "ei vielä otteluita",
+    "hiddenTag": "Piilotettu",
+    "hide": "Piilota",
+    "show": "Näytä taas",
+    "r_added": "Vastustaja lisätty.",
+    "r_renamed": "Nimi tallennettu.",
+    "r_hidden": "Piilotettu: sitä ei enää tarjota varatessa.",
+    "r_shown": "Näkyy taas listassa.",
+    "r_invalid": "Jotain puuttuu. Tarkista ja yritä uudelleen.",
+    "r_error": "Jokin meni vikaan. Yritä uudelleen.",
+    "r_duplicate": "Vastustaja on jo listassa.",
+    "r_notAllowed": "Vain ylläpitäjät voivat muuttaa listaa.",
+    "r_name": "Kirjoita 1–120 merkin nimi."
   }
 }
