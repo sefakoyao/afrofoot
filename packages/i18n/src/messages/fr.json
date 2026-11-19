@@ -138,7 +138,8 @@
     "item_gloves": "gant de gardien",
     "signUpUnavailable": "Impossible de créer un compte pour le moment. Réessayez plus tard.",
     "linkOpening": "Ouverture du lien…",
-    "fifaId": "ID FIFA"
+    "fifaId": "ID FIFA",
+    "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous."
   },
   "role": {
     "super_admin": "Super administrateur",
@@ -244,7 +245,11 @@
     "guideCopied": "Lien copié",
     "guideCopyHint": "Copie le lien du guide dans votre langue, à coller dans WhatsApp ou un e-mail.",
     "switchToPlayer": "Ma page joueur",
-    "switchToCoach": "Entraînement"
+    "switchToCoach": "Entraînement",
+    "idleTitle": "Toujours là ?",
+    "idleText": "Pour votre sécurité, vous serez déconnecté dans {time} car l’application n’est pas utilisée.",
+    "idleStay": "Rester connecté",
+    "idleOut": "Se déconnecter maintenant"
   },
   "privacy": {
     "publicConsent": "M'afficher dans la liste publique des joueurs"
@@ -1183,7 +1188,23 @@
     "news_prev": "Précédent",
     "news_next": "Suivant",
     "news_page": "Page {n}",
-    "news_pageOf": "Page {n} sur {total}"
+    "news_pageOf": "Page {n} sur {total}",
+    "rc_title": "Vérification anti-robot ⚽",
+    "rc_ask": "Touchez :",
+    "rc_wrong": "Pas tout à fait : touchez l’image demandée (une nouvelle série est affichée).",
+    "rc_missing": "Faites la vérification : touchez l’image demandée.",
+    "rc_expired": "La vérification a expiré. Recommencez.",
+    "rc_fast": "C’était très rapide ! Vérifiez le formulaire et renvoyez-le.",
+    "rc_unavailable": "Le formulaire ne peut pas être envoyé pour le moment. Utilisez l’adresse e-mail de cette page.",
+    "rc_item_ball": "ballon",
+    "rc_item_boot": "chaussure à crampons",
+    "rc_item_whistle": "sifflet",
+    "rc_item_goal": "but",
+    "rc_item_cone": "plot d’entraînement",
+    "rc_item_shirt": "maillot",
+    "rc_item_trophy": "trophée",
+    "rc_item_flag": "drapeau de corner",
+    "rc_item_gloves": "gant de gardien"
   },
   "admin": {
     "navOverview": "Vue d’ensemble",

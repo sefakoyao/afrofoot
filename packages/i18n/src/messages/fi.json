@@ -138,7 +138,8 @@
     "item_gloves": "maalivahdin hanska",
     "signUpUnavailable": "Tilin luominen ei onnistu juuri nyt. Yritä myöhemmin uudelleen.",
     "linkOpening": "Avataan linkkiä…",
-    "fifaId": "FIFA ID"
+    "fifaId": "FIFA ID",
+    "idleSignedOut": "Sinut kirjattiin ulos, koska sovellusta ei käytetty hetkeen. Kirjaudu uudelleen."
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
@@ -244,7 +245,11 @@
     "guideCopied": "Linkki kopioitu",
     "guideCopyHint": "Kopioi linkin oppaaseen omalla kielelläsi, liitettäväksi WhatsAppiin tai sähköpostiin.",
     "switchToPlayer": "Oma pelaajasivu",
-    "switchToCoach": "Valmennus"
+    "switchToCoach": "Valmennus",
+    "idleTitle": "Oletko vielä paikalla?",
+    "idleText": "Turvallisuutesi vuoksi sinut kirjataan ulos {time} kuluttua, koska sovellusta ei ole käytetty.",
+    "idleStay": "Pysy kirjautuneena",
+    "idleOut": "Kirjaudu ulos nyt"
   },
   "privacy": {
     "publicConsent": "Näytä minut julkisella pelaajalistalla"
@@ -1183,7 +1188,23 @@
     "news_prev": "Edellinen",
     "news_next": "Seuraava",
     "news_page": "Sivu {n}",
-    "news_pageOf": "Sivu {n}/{total}"
+    "news_pageOf": "Sivu {n}/{total}",
+    "rc_title": "Robottitarkistus ⚽",
+    "rc_ask": "Napauta kuvaa:",
+    "rc_wrong": "Ei aivan: napauta pyydettyä kuvaa (uudet kuvat näkyvät).",
+    "rc_missing": "Tee robottitarkistus: napauta pyydettyä kuvaa.",
+    "rc_expired": "Robottitarkistus vanheni. Tee se uudelleen.",
+    "rc_fast": "Olipa nopeaa! Tarkista lomake ja lähetä uudelleen.",
+    "rc_unavailable": "Lomaketta ei voi juuri nyt lähettää. Käytä tämän sivun sähköpostiosoitetta.",
+    "rc_item_ball": "jalkapallo",
+    "rc_item_boot": "jalkapallokenkä",
+    "rc_item_whistle": "pilli",
+    "rc_item_goal": "maali",
+    "rc_item_cone": "harjoituskartio",
+    "rc_item_shirt": "pelipaita",
+    "rc_item_trophy": "pokaali",
+    "rc_item_flag": "kulmalippu",
+    "rc_item_gloves": "maalivahdin hanska"
   },
   "admin": {
     "navOverview": "Yleiskatsaus",

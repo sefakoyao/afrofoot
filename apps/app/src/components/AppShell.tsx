@@ -7,6 +7,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { Logo } from './Logo';
 import { AreaNav } from './AreaNav';
 import { PitchWatermark } from './PitchWatermark';
+import { IdleGuard } from './IdleGuard';
+import { idleMinutes } from '@/lib/idle';
 
 const SURFACE: Record<Area, 'admin' | 'coach' | 'player'> = { admin: 'admin', coach: 'coach', me: 'player' };
 const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: 'areaAdmin', coach: 'areaCoach', me: 'areaPlayer' };
@@ -23,6 +25,7 @@ export async function AppShell({ area, member, nav, children }: { area: Area; me
   return (
     <div data-surface={SURFACE[area]} className="relative isolate flex min-h-screen flex-col">
       <PitchWatermark />
+      <IdleGuard minutes={idleMinutes()} />
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-full focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent">{t('skipToContent')}</a>
       <header className="bg-ink-950 text-white">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">

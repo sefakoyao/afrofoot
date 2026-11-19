@@ -138,7 +138,8 @@
     "item_gloves": "goalkeeper glove",
     "signUpUnavailable": "Creating an account is not possible right now. Please try again later.",
     "linkOpening": "Opening your link…",
-    "fifaId": "FIFA ID"
+    "fifaId": "FIFA ID",
+    "idleSignedOut": "You were signed out because the app was not used for a while. Please sign in again."
   },
   "role": {
     "super_admin": "Super administrator",
@@ -244,7 +245,11 @@
     "guideCopied": "Link copied",
     "guideCopyHint": "Copies the link to the guide in your language, to paste in WhatsApp or an email.",
     "switchToPlayer": "My player page",
-    "switchToCoach": "Coaching"
+    "switchToCoach": "Coaching",
+    "idleTitle": "Still there?",
+    "idleText": "For your security you will be signed out in {time} because the app has not been used.",
+    "idleStay": "Stay signed in",
+    "idleOut": "Sign out now"
   },
   "privacy": {
     "publicConsent": "Show me on the public player list"
@@ -1183,7 +1188,23 @@
     "news_prev": "Previous",
     "news_next": "Next",
     "news_page": "Page {n}",
-    "news_pageOf": "Page {n} of {total}"
+    "news_pageOf": "Page {n} of {total}",
+    "rc_title": "Robot check ⚽",
+    "rc_ask": "Tap the",
+    "rc_wrong": "Not quite: tap the picture we ask for (a new set is shown).",
+    "rc_missing": "Please do the robot check: tap the picture we ask for.",
+    "rc_expired": "The robot check took too long. Please do it again.",
+    "rc_fast": "That was very fast! Please check the form and send it again.",
+    "rc_unavailable": "The form can't be sent right now. Please use the email address on this page.",
+    "rc_item_ball": "football",
+    "rc_item_boot": "football boot",
+    "rc_item_whistle": "whistle",
+    "rc_item_goal": "goal",
+    "rc_item_cone": "training cone",
+    "rc_item_shirt": "shirt",
+    "rc_item_trophy": "trophy",
+    "rc_item_flag": "corner flag",
+    "rc_item_gloves": "goalkeeper glove"
   },
   "admin": {
     "navOverview": "Overview",

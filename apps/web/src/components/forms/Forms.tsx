@@ -1,16 +1,33 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { startTransition, useActionState, useEffect, useRef, useState, type FormEvent } from 'react';
 import { submitContact, submitEnrolment, submitInvoice, submitSponsor, submitTryout } from '@/app/actions';
 import { Link } from '@/i18n/routing';
 import { IDLE, type FormState } from '@/lib/formState';
 import { ageOn } from '@/lib/schemas';
+import { RobotCheck } from './RobotCheck';
 import { Check, DatePicker, Field, Honeypot, type Labels, PhoneInput, Result, Select, SubmitRow, TextArea, TextInput } from './fields';
 
 interface Common { labels: Labels; locale: string; intl: string }
 type Action = (s: FormState, fd: FormData) => Promise<FormState>;
 const grid = 'grid gap-3 sm:grid-cols-2';
 const useForm = (a: Action) => useActionState(a, IDLE);
+
+/**
+ * Forms with the robot check keep what was typed when a send fails (e.g. a wrong picture): React resets a form after an
+ * `action` submission, so these submit through onSubmit instead and are cleared only after a successful send.
+ */
+function useKeptForm(a: Action) {
+  const [state, run, pending] = useActionState(a, IDLE);
+  const ref = useRef<HTMLFormElement>(null);
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    startTransition(() => run(fd));
+  };
+  useEffect(() => { if (state.status === 'ok') ref.current?.reset(); }, [state]);
+  return { state, pending, ref, onSubmit };
+}
 
 const POSITIONS = [['goalkeeper', 'position_gk'], ['defender', 'position_df'], ['midfielder', 'position_mf'], ['forward', 'position_fw']] as const;
 const PositionSelect = ({ labels }: { labels: Labels }) => (
@@ -21,9 +38,9 @@ const PositionSelect = ({ labels }: { labels: Labels }) => (
 );
 
 export function ContactForm({ labels, locale }: Common) {
-  const [state, action, pending] = useForm(submitContact);
+  const { state, pending, ref, onSubmit } = useKeptForm(submitContact);
   return (
-    <form action={action} className="relative">
+    <form ref={ref} onSubmit={onSubmit} className="relative">
       <input type="hidden" name="locale" value={locale} /><Honeypot />
       <div className={grid}>
         <Field label={labels.ct_name} required><TextInput name="name" autoComplete="name" maxLength={120} required /></Field>
@@ -36,6 +53,7 @@ export function ContactForm({ labels, locale }: Common) {
         </Field>
         <Field label={labels.tr_msg} required wide><TextArea name="message" rows={5} maxLength={4000} required /></Field>
       </div>
+      <RobotCheck labels={labels} round={state} error={state.status === 'error' && state.error.startsWith('rc_')} />
       <Result state={state} labels={labels} okKey="ct_ok" />
       <SubmitRow pending={pending} label={labels.ct_send} />
     </form>
@@ -43,9 +61,9 @@ export function ContactForm({ labels, locale }: Common) {
 }
 
 export function SponsorForm({ labels, locale, packages }: Common & { packages: string[] }) {
-  const [state, action, pending] = useForm(submitSponsor);
+  const { state, pending, ref, onSubmit } = useKeptForm(submitSponsor);
   return (
-    <form action={action} className="relative">
+    <form ref={ref} onSubmit={onSubmit} className="relative">
       <input type="hidden" name="locale" value={locale} /><Honeypot />
       <div className={grid}>
         <Field label={labels.sp_company} required><TextInput name="company" maxLength={120} required /></Field>
@@ -54,6 +72,7 @@ export function SponsorForm({ labels, locale, packages }: Common & { packages: s
         <Field label={labels.sp_pkg}><Select name="package">{packages.map((p) => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={labels.tr_msg} wide><TextArea name="message" rows={4} maxLength={3900} /></Field>
       </div>
+      <RobotCheck labels={labels} round={state} error={state.status === 'error' && state.error.startsWith('rc_')} />
       <Result state={state} labels={labels} okKey="sp_ok" />
       <SubmitRow pending={pending} label={labels.sp_send} />
     </form>

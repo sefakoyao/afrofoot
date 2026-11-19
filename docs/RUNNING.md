@@ -133,6 +133,10 @@ Every form has an optional meeting time and meeting point and a place. A new pla
 ## 3k. Create an account in the app, by email or phone (migration 0035, release 0.23.0)
 **Database:** paste `supabase/migrations/20260101000035_phone_sign_up.sql` into Supabase → SQL Editor and run it once. Accounts made with a phone number have no email address; every profile still has an email or a phone.
 
+**Website robot check (contact and sponsor forms, release 0.48.0):** in Vercel → the `afrofoot` (website) project → Settings → Environment Variables, add `ROBOT_CHECK_SECRET` with a long random value (it may be the same value as the app's `SIGNUP_CHECK_SECRET`), then redeploy. Until it is set, those two forms say they cannot be sent and point to the email address on the page.
+
+**Sign-out after inactivity (release 0.48.0):** the member app signs people out after 60 minutes without activity (warning 2 minutes before). To change it, set `NEXT_PUBLIC_SESSION_IDLE_MINUTES` (5–720) on the `app` project and redeploy. Optional, on paid Supabase plans: Authentication → Sessions → "Inactivity timeout" adds the same limit inside Supabase Auth.
+
 **Robot check secret (required):** in Vercel → the `app` project → Settings → Environment Variables, add `SIGNUP_CHECK_SECRET` with a long random value (for example the output of `openssl rand -base64 32`), then redeploy. It signs the football robot check. Until it is set, the sign-up page says sign-up is not open yet.
 
 **Email sign-up:** works with the email settings you already have. Recommended: Authentication → Email templates → *Confirm signup*, set the link to

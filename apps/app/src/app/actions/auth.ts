@@ -15,6 +15,7 @@ import { getSupabase } from '@/lib/supabase/server';
 import { supabaseEnvReport, supabaseTarget } from '@/lib/env';
 import { isFeeBlock } from '@/lib/supabase/middleware';
 import { isSocialProvider } from '@/lib/auth-providers';
+import { IDLE_COOKIE } from '@/lib/idle';
 import { errorDetail, logSignin, type SigninOutcome } from '@/lib/signin-log';
 
 const fields = (fd: FormData) => Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
@@ -109,6 +110,14 @@ export async function signInWithProvider(fd: FormData): Promise<void> {
     redirect('/login?reason=oauthFailed');
   }
   redirect(data.url);
+}
+
+/** Called by components/IdleGuard when nobody used the app for the inactivity limit (lib/idle.ts). */
+export async function signOutForInactivity(): Promise<void> {
+  const supabase = await getSupabase();
+  await supabase?.auth.signOut({ scope: 'local' });
+  (await cookies()).delete(IDLE_COOKIE);
+  redirect('/login?reason=idle');
 }
 
 export async function signOut(): Promise<void> {
