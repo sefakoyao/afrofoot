@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Spinner } from './AreaNav';
+import { NavIcon, type NavIconName } from './NavIcon';
 import { usePendingHref } from './usePendingHref';
 
 /**
@@ -25,11 +26,11 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
     if (left < 0) nav.scrollLeft += left - 16; else if (right > nav.clientWidth) nav.scrollLeft += right - nav.clientWidth + 16;
   }, [path]);
   const tabs = [
-    { href: '/me', label: t('tabCalendar'), active: path === '/me' },
-    { href: '/me/membership', label: t('tabMembership'), active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
-    { href: '/me/season', label: t('tabSeason'), active: path.startsWith('/me/season') },
-    { href: '/me/profile', label: t('tabProfile'), active: path.startsWith('/me/profile') },
-    { href: '/me/quiz', label: t('tabQuiz'), active: path.startsWith('/me/quiz') },
+    { href: '/me', label: t('tabCalendar'), icon: 'calendar' as NavIconName, active: path === '/me' },
+    { href: '/me/membership', label: t('tabMembership'), icon: 'card' as NavIconName, active: path.startsWith('/me/membership') || path.startsWith('/me/conduct') || path.startsWith('/me/contract') },
+    { href: '/me/season', label: t('tabSeason'), icon: 'trophy' as NavIconName, active: path.startsWith('/me/season') },
+    { href: '/me/profile', label: t('tabProfile'), icon: 'user' as NavIconName, active: path.startsWith('/me/profile') },
+    { href: '/me/quiz', label: t('tabQuiz'), icon: 'quiz' as NavIconName, active: path.startsWith('/me/quiz') },
   ];
   return (
     <div className="grid gap-3">
@@ -51,7 +52,7 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
             <li key={x.href}>
               <Link href={x.href} onClick={onNavigate(x.href)} aria-current={x.active ? 'page' : undefined} aria-busy={pending === x.href || undefined} data-pending={pending === x.href || undefined}
                 className={`-mb-px inline-flex min-h-12 items-center gap-2 whitespace-nowrap rounded-t-lg border-b-4 px-2.5 font-display text-sm font-extrabold sm:px-4 sm:text-base transition duration-100 active:scale-[.97] active:bg-accent/10 ${(pending ? pending === x.href : x.active) ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'}`}>
-                {x.label}
+                <NavIcon name={x.icon} className="size-[18px] sm:size-5" />{x.label}
                 {pending === x.href ? <Spinner /> : null}
               </Link>
             </li>

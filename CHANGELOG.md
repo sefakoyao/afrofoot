@@ -3,6 +3,17 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – game-day and training tasks, menu icons (branch `phase2/event-tasks`, migration 0062, release 0.53.0)
+- **Tasks on games and training** (the coach's game and training pages, new "Tasks" section):
+  - Tap a task to add it: 10 built in, each with an icon (balls, water, first-aid kit, wash the kit, bibs, cones, driving/carpool, referee, photos, fruit and snacks). The same task can be added twice (two drivers).
+  - Give each task to a player (saved as soon as a name is chosen) or leave it **open**; remove with ×.
+  - **+ New task:** a name and one of 16 icons. It joins the club's list for every coach.
+- **Players** see their events' tasks in the calendar: their own in yellow ("You"), others with the teammate's name, open ones with **I'll do it**; **I can't do it** gives a task back. Nothing changes once the event has started.
+- **Admin → Teams & events → Tasks:** the club's task list, how often each is used, add / rename / change icon / hide.
+- **Menu icons** in the Admin, Coach and Player menus (and the Player tabs).
+- Security: a team's tasks are seen by its players, coaches and admins; changed by its coaches and admins; players only take open tasks and give back their own (database functions). Audited.
+- 25 database checks, 18 browser checks; the menu and coach suites pass.
+
 ## Unreleased – opponents list (branch `phase2/opponents`, migration 0061, release 0.52.0)
 - **Booking a game or friendly** (Admin → Events, and the coach's team page): the opponent is picked from the club's list (A–Z), or **+ Add a new opponent** opens a name field. A new name joins the list when the game is saved, so it can be picked next time.
 - **Admin → Teams & events → Opponents:** add, correct (rename), hide or show again; search; how many games were booked against each. Games already booked keep the name they were booked with.

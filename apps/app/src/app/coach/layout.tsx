@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { AppShell } from '@/components/AppShell';
+import { AppShell, type NavItem } from '@/components/AppShell';
 import { requireArea } from '@/lib/auth';
 import { myTeams } from '@/lib/coach';
 import { getSupabase } from '@/lib/supabase/server';
@@ -12,10 +12,10 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const teams = supabase ? await myTeams(supabase, member.id) : [];
   const tc = await getTranslations('conduct');
   // Overview, then the coach's teams grouped under "My teams", then the Code of Conduct
-  const nav = [
-    { href: '/coach', label: t('navHome') },
-    ...teams.map((x) => ({ href: `/coach/teams/${x.id}`, label: x.name, group: t('navMyTeams') })),
-    { href: '/coach/conduct', label: tc('title') },
+  const nav: NavItem[] = [
+    { href: '/coach', label: t('navHome'), icon: 'home' },
+    ...teams.map((x): NavItem => ({ href: `/coach/teams/${x.id}`, label: x.name, group: t('navMyTeams'), icon: 'team', groupIcon: 'users' })),
+    { href: '/coach/conduct', label: tc('title'), icon: 'handshake' },
   ];
   return <AppShell area="coach" member={member} nav={nav}>{children}</AppShell>;
 }
