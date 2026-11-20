@@ -58,6 +58,10 @@ const KEYS = {
     ok: ['r_budgetSaved', 'r_expenseAdded', 'r_expenseDeleted'],
     err: ['r_invalid', 'r_error', 'r_amount', 'r_date', 'r_text'],
   },
+  merge: {
+    ok: ['m_merged'],
+    err: ['m_invalid', 'm_confirm', 'm_notShared', 'm_notAllowed', 'm_adminOnlySuper', 'm_self', 'm_gone', 'm_error'],
+  },
   quizAdmin: {
     ok: ['r_added', 'r_saved', 'r_deleted'],
     err: ['r_invalid', 'r_error', 'r_gone', 'r_questionEn', 'r_optionEn', 'r_options', 'r_answer', 'r_explainEn'],

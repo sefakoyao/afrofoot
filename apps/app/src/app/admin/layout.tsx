@@ -12,14 +12,18 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const toCountersign = supabase ? (await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed')).count ?? 0 : 0;
   const requests = supabase ? await newRequestCount(supabase) : 0;
   const newSuggestions = supabase ? (await supabase.from('article_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'new')).count ?? 0 : 0;
+  // pairs of accounts sharing an email or phone (migration 0065: Merge accounts)
+  const duplicates = supabase ? ((await supabase.rpc('duplicate_accounts')).data as unknown[] | null)?.length ?? 0 : 0;
+  const tg = await getTranslations('merge');
   const shirtRequests = supabase ? (await supabase.from('jersey_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')).count ?? 0 : 0;
   // grouped sections that open and close (components/AreaNav): only the section holding the current page is open
   const people = t('navGroupPeople'), teamsGroup = t('navGroupTeams'), club = t('navGroupClub'), finance = tm('navGroup');
   const nav: NavItem[] = [
     { href: '/admin', label: t('navOverview'), icon: 'home' },
     { href: '/admin/requests', label: t('navRequests'), badge: requests, group: people, icon: 'inbox', groupIcon: 'users' },
-    { href: '/admin/members', label: t('navMembers'), badge: pending, group: people, icon: 'users' },
+    { href: '/admin/members', label: t('navMembers'), badge: pending, group: people, exact: true, icon: 'users' },
     { href: '/admin/signin-help', label: t('navSigninHelp'), group: people, icon: 'key' },
+    { href: '/admin/members/merge', label: tg('navMerge'), badge: duplicates, group: people, icon: 'merge' },
     { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign, group: people, icon: 'contract' },
     { href: '/admin/teams', label: t('navTeams'), group: teamsGroup, icon: 'team', groupIcon: 'ball' },
     { href: '/admin/events', label: t('navEvents'), group: teamsGroup, icon: 'calendar' },

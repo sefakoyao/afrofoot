@@ -46,3 +46,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/C4_opponents.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C5_event_tasks.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C6_season_invoices.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C7_content_assistant.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/C8_merge_accounts.sql
