@@ -3322,6 +3322,14 @@
     "k_sponsor": "Sponsor logo",
     "k_player": "Player photo",
     "sampleGame": "Sample game (preview only)",
-    "sampleNote": "Sample game: invented players, nothing saved and nobody else sees it. The poster carries a \"SAMPLE\" tag. Choose a real game to make the poster for posting."
+    "sampleNote": "Sample game: invented players, nothing saved and nobody else sees it. The poster carries a \"SAMPLE\" tag. Choose a real game to make the poster for posting.",
+    "effect": "Effect",
+    "fx_wave": "Football wave",
+    "fx_ribbons": "Ribbons",
+    "fx_stripes": "Kit stripes",
+    "fx_dots": "Kit dots",
+    "fx_none": "None",
+    "strength": "Effect strength",
+    "loading": "Making the poster…"
   }
 }

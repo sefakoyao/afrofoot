@@ -4,6 +4,8 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
+import { PosterPreview } from '@/components/admin/PosterPreview';
+import { DEFAULT_STRENGTH, EFFECTS, effect } from '@/lib/poster-art';
 import { POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_KINDS, posterGames, type PosterFormat, type PosterLayout, type UploadKind } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -64,7 +66,9 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
   const bg = backgrounds.some((b) => b.key === one(sp.bg)) ? one(sp.bg) : 'night';
   const sponsor = uploads.sponsor.some((p) => `media:${p}` === one(sp.sponsor)) ? one(sp.sponsor) : '';
   const photo = uploads.player.some((p) => `media:${p}` === one(sp.photo)) ? one(sp.photo) : '';
-  const q = new URLSearchParams({ match, layout, format, bg, title, ...(sponsor ? { sponsor } : {}), ...(photo ? { photo } : {}) });
+  const fx = (EFFECTS as readonly string[]).includes(one(sp.fx)) ? one(sp.fx) : 'wave';
+  const strength = sp.strength !== undefined ? String(Math.max(0, Math.min(100, Math.round(Number(one(sp.strength)) || 0)))) : String(DEFAULT_STRENGTH);
+  const q = new URLSearchParams({ match, layout, format, title, fx, strength, bg, ...(sponsor ? { sponsor } : {}), ...(photo ? { photo } : {}) });
   const result = one(sp.result);
   const SW: Record<string, string> = { night: 'linear-gradient(160deg,#1a1a1a,#0b0b0b 55%,#0d2409)', pitch: 'linear-gradient(165deg,#2c8a20,#1b5e14 55%,#0e3a0a)' };
   const ok = result === 'p_uploaded' || result === 'p_removed';
@@ -84,7 +88,7 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
       {games.length === 0 ? <p className="rounded-card border border-line bg-raised p-4 text-sm text-muted" data-no-games>{t('noGames')}</p> : null}
       {(
         <div className="grid gap-5 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start">
-          <form method="get" className="grid min-w-0 gap-4 rounded-card border border-line bg-raised p-5" data-poster-form>
+          <form id="poster-form" method="get" className="grid min-w-0 gap-4 rounded-card border border-line bg-raised p-5" data-poster-form>
             <label className="grid gap-1 text-sm font-semibold">{t('game')}
               <select name="match" defaultValue={match} className="min-h-11 w-full min-w-0 rounded-control border border-line bg-raised px-3 font-normal" data-poster-match>
                 {games.map((g) => <option key={g.id} value={g.id}>{when.format(new Date(g.kickoff))} · {g.team} – {g.opponent}</option>)}
@@ -103,6 +107,15 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
 
             <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('heading')}</legend>
               <div className="flex flex-wrap gap-2">{POSTER_TITLES.map((x, i) => pick('title', String(i), String(i) === title, <span className={chip}>{x}</span>))}</div>
+            </fieldset>
+
+            <fieldset className="grid gap-2" data-pick-effect><legend className="text-sm font-semibold">{t('effect')}</legend>
+              <div className="grid grid-cols-5 gap-1.5">{EFFECTS.map((e) => { const art = effect(e, 160, 200, 100, 0.55); return pick('fx', e, e === fx,
+                <span className={`${tile} aspect-[4/5] flex-col items-stretch justify-end bg-ink-950 bg-cover`} style={art ? { backgroundImage: `url(${art})` } : undefined}>
+                  <span className="bg-black/70 px-0.5 py-0.5 text-center text-[10px] font-bold leading-tight text-white">{t(`fx_${e}`)}</span></span>); })}</div>
+              <label className="grid gap-1 text-sm font-semibold">{t('strength')}
+                <span className="flex items-center gap-3"><input type="range" name="strength" min={0} max={100} step={5} defaultValue={strength} className="w-full accent-accent" data-strength />
+                  <output className="w-12 text-end font-mono text-xs text-muted">{strength}%</output></span></label>
             </fieldset>
 
             <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('background')}</legend>
@@ -128,13 +141,11 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
               {uploads.sponsor.length === 0 ? <span className="text-xs text-muted">{t('sponsorHint')}</span> : null}
             </fieldset>
 
-            <button className={`${btn} justify-self-start`} data-poster-update>{t('update')}</button>
+            <noscript><button className={`${btn} justify-self-start`} data-poster-update>{t('update')}</button></noscript>
           </form>
 
           <section className="grid justify-items-center gap-3 rounded-card border border-line bg-raised p-5" aria-label={t('preview')}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/api/content/xi?${q}`} alt={t('previewAlt')} className={`w-full rounded-card shadow-lg ${format === 'story' ? 'max-w-sm' : 'max-w-xl'}`} data-poster-img />
-            <a href={`/api/content/xi?${q}&download=1`} className={btn} data-poster-download>{t('download')}</a>
+            <PosterPreview formId="poster-form" initial={q.toString()} alt={t('previewAlt')} download={t('download')} loading={t('loading')} story={format === 'story'} />
             {match === SAMPLE_MATCH ? <p className="max-w-xl rounded-card bg-gold p-2 text-center text-xs font-semibold text-ink-950" data-sample-note>{t('sampleNote')}</p> : null}
             <p className="max-w-xl text-center text-xs text-muted">{t('namesNote')}</p>
           </section>

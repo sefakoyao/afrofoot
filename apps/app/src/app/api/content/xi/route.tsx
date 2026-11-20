@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { isAdminRole } from '@afrofoot/db';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
-import { CREST_RATIO, ballWave, photoEdge, pitchLines, shield, starsBand } from '@/lib/poster-art';
+import { CREST_RATIO, DEFAULT_STRENGTH, EFFECTS, effect, photoEdge, pitchLines, starsBand, type Effect } from '@/lib/poster-art';
 import { POSTER_BACKGROUNDS, POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_PATH, loadPoster, samplePoster, type PosterFormat, type PosterLayout, type PosterPlayer } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -18,6 +18,21 @@ import { getSupabase } from '@/lib/supabase/server';
  * Names only of players shown publicly; the others by shirt number and position.
  */
 export const dynamic = 'force-dynamic';
+
+// Images used on posters, kept in memory as data URLs once fetched (the team photo, the crest, uploads: uploads have
+// unique names and never change), so each preview does not download them again. At most 40, oldest dropped first.
+const images = new Map<string, Promise<string | null>>();
+function cachedImage(url: string | null): Promise<string | null> {
+  if (!url) return Promise.resolve(null);
+  let hit = images.get(url);
+  if (!hit) {
+    hit = fetch(url).then(async (r) => (r.ok ? `data:${r.headers.get('content-type') ?? 'image/png'};base64,${Buffer.from(await r.arrayBuffer()).toString('base64')}` : null)).catch(() => null);
+    hit.then((v) => { if (!v) images.delete(url); });
+    images.set(url, hit);
+    if (images.size > 40) images.delete(images.keys().next().value!);
+  }
+  return hit;
+}
 const GREEN = '#3DAF2C', GOLD = '#EDF70F', INK = '#0b0b0b';
 const FONTS = [
   { name: 'Figtree', weight: 700 as const, style: 'normal' as const, data: Buffer.from(FONT_BOLD, 'base64') },
@@ -37,6 +52,8 @@ export async function GET(req: NextRequest) {
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';
   const layout: PosterLayout = (POSTER_LAYOUTS as readonly string[]).includes(q.get('layout') ?? '') ? (q.get('layout') as PosterLayout) : 'list';
   const title = POSTER_TITLES[Number(q.get('title')) || 0] ?? POSTER_TITLES[0];
+  const fx: Effect = (EFFECTS as readonly string[]).includes(q.get('fx') ?? '') ? (q.get('fx') as Effect) : 'wave';
+  const strength = q.has('strength') ? Math.max(0, Math.min(100, Math.round(Number(q.get('strength')) || 0))) : DEFAULT_STRENGTH;
   const supabase = await getSupabase();
   const d = isSample ? samplePoster() : supabase ? await loadPoster(supabase, id) : null;
   if (!d) return new Response('Game not found', { status: 404 });
@@ -50,10 +67,12 @@ export async function GET(req: NextRequest) {
     return UPLOAD_PATH.test(path) && base ? `${base}/storage/v1/object/public/public-media/${path}` : null;
   };
   const bgRaw = q.get('bg') ?? 'night';
-  const photoBg = bgRaw === 'team' ? `${origin}/posters/team.jpg` : media(bgRaw);
+  const [photoBg, sponsor, featuredRaw, crestSrc] = await Promise.all([
+    cachedImage(bgRaw === 'team' ? `${origin}/posters/team.jpg` : media(bgRaw)), cachedImage(media(q.get('sponsor'))),
+    cachedImage(layout === 'list' ? media(q.get('photo')) : null), cachedImage(`${origin}/afc-logo.png`),
+  ]);
   const plain = !photoBg && (POSTER_BACKGROUNDS as readonly string[]).includes(bgRaw) ? bgRaw : 'night';
-  const sponsor = media(q.get('sponsor'));
-  const featured = layout === 'list' ? media(q.get('photo')) : null;
+  const featured = featuredRaw;
 
   const when = new Date(d.kickoff);
   const tz = { timeZone: 'Europe/Helsinki' } as const;
@@ -67,14 +86,21 @@ export async function GET(req: NextRequest) {
   // goalkeeper first, then defence, midfield, attack (the formation's slots)
   const starters = [...d.starters].sort((a, b) => (bySlot.get(b.slot ?? 0)?.y ?? 0) - (bySlot.get(a.slot ?? 0)?.y ?? 0) || (bySlot.get(a.slot ?? 0)?.x ?? 0) - (bySlot.get(b.slot ?? 0)?.x ?? 0));
 
-  /** The crest-shaped shirt-number shield with the number on it. */
-  const badge = (n: number | null, size: number, gk: boolean, captain = false) => (
-    <div style={{ position: 'relative', display: 'flex', width: size, height: size * 1.18, alignItems: 'center', justifyContent: 'center' }}>
-      <img src={shield(size, gk)} alt="" width={size} height={size * 1.18} style={{ position: 'absolute', left: 0, top: 0 }} />
-      <span style={{ display: 'flex', marginTop: size * 0.12, fontSize: size * 0.46, fontWeight: 900, color: gk ? INK : '#fff' }}>{n ?? '–'}</span>
-      {captain ? <span style={{ position: 'absolute', right: -size * 0.22, top: -size * 0.08, display: 'flex', alignItems: 'center', justifyContent: 'center', width: size * 0.42, height: size * 0.42, borderRadius: 999, background: GOLD, color: INK, fontSize: size * 0.24, fontWeight: 900 }}>C</span> : null}
-    </div>
-  );
+  /** The crest-shaped shirt-number shield with the number on it: flat top, rounded point, white edge, colour band. */
+  const badge = (n: number | null, size: number, gk: boolean, captain = false) => {
+    const h = Math.round(size * 1.18), r = Math.round(size * 0.12);
+    return (
+      <div style={{ position: 'relative', display: 'flex', width: size, height: h }}>
+        <div style={{ position: 'absolute', left: 0, top: 0, width: size, height: h, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
+          background: gk ? GOLD : INK, border: `${Math.max(2, Math.round(size * 0.05))}px solid #fff`,
+          borderTopLeftRadius: r, borderTopRightRadius: r, borderBottomLeftRadius: size * 0.55, borderBottomRightRadius: size * 0.55 }}>
+          <div style={{ position: 'absolute', left: 0, top: 0, width: size, height: Math.round(h * 0.16), display: 'flex', backgroundImage: `linear-gradient(90deg, ${GREEN}, ${GOLD})` }} />
+          <span style={{ display: 'flex', marginTop: size * 0.1, fontSize: size * 0.46, fontWeight: 900, color: gk ? INK : '#fff' }}>{n ?? '–'}</span>
+        </div>
+        {captain ? <span style={{ position: 'absolute', right: -size * 0.22, top: -size * 0.08, display: 'flex', alignItems: 'center', justifyContent: 'center', width: size * 0.42, height: size * 0.42, borderRadius: 999, background: GOLD, color: INK, fontSize: size * 0.24, fontWeight: 900 }}>C</span> : null}
+      </div>
+    );
+  };
 
   // ---------- the three layouts (each fills the body area: x pad…W-pad, y P.top…P.top+bodyH) ----------
   function listLayout(): ReactNode {
@@ -86,7 +112,7 @@ export async function GET(req: NextRequest) {
         {starters.map((p, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 22, height: rowH }}>
             {badge(p.shirt, size, p.role === 'GK', p.captain)}
-            <span style={{ display: 'flex', fontSize: rowH * 0.5, fontWeight: 900, letterSpacing: 1, color: p.name ? '#fff' : 'rgba(255,255,255,.7)', textShadow: '0 2px 10px rgba(0,0,0,.95)' }}>{nameOf(p).slice(0, 14)}</span>
+            <span style={{ display: 'flex', fontSize: rowH * 0.5, fontWeight: 900, letterSpacing: 1, color: p.name ? '#fff' : 'rgba(255,255,255,.7)' }}>{nameOf(p).slice(0, 14)}</span>
           </div>
         ))}
       </div>
@@ -132,7 +158,7 @@ export async function GET(req: NextRequest) {
           return (
             <div key={s.slot} style={{ position: 'absolute', left: x - 100, top: y, width: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               {badge(p.shirt, size, s.role === 'GK', p.captain)}
-              {surname(p) ? <span style={{ display: 'flex', background: INK, borderRadius: 8, padding: '2px 10px', fontSize: size * 0.36, fontWeight: 900, letterSpacing: 1 }}>{surname(p).slice(0, 13)}</span> : null}
+              {surname(p) ? <span style={{ display: 'flex', background: INK, borderRadius: 8, padding: '2px 8px', fontSize: size * (surname(p).length > 8 ? 0.29 : 0.36), fontWeight: 900, letterSpacing: surname(p).length > 8 ? 0 : 1 }}>{surname(p).slice(0, 13)}</span> : null}
             </div>
           );
         })}
@@ -149,8 +175,8 @@ export async function GET(req: NextRequest) {
         {/* background photo (cropped to fill), darkened so the wave and text stand out */}
         {photoBg ? <img src={photoBg} alt="" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, objectFit: 'cover' }} /> : null}
         {photoBg ? <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, display: 'flex', backgroundImage: 'linear-gradient(180deg, rgba(11,11,11,.78), rgba(11,11,11,.9) 60%, rgba(11,11,11,.97))' }} /> : null}
-        {/* the football wave */}
-        <img src={ballWave(W, H, format === 'square' ? 0.66 : 0.6)} alt="" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0 }} />
+        {/* the background effect the admin chose (football wave, ribbons, kit stripes, kit dots or none) at their strength */}
+        {(() => { const art = effect(fx, W, H, strength, format === 'square' ? 0.66 : 0.6); return art ? <img src={art} alt="" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0 }} /> : null; })()}
         {/* featured player photo, cropped to fill its frame, blended in with a wave edge */}
         {featured ? (() => {
           const fw = Math.round(W * 0.5), fy = P.top - 60, fh = H - fy - P.footer + 30;
@@ -179,8 +205,9 @@ export async function GET(req: NextRequest) {
             <span style={{ display: 'flex', fontSize: format === 'square' ? 34 : 40, fontWeight: 900 }}>{d.opponent.toUpperCase().slice(0, 24)}</span>
           </div>
         </div>
-        <img src={`${origin}/afc-logo.png`} alt="" width={crestW} height={crestH} style={{ position: 'absolute', right: pad, top: 84, width: crestW, height: crestH, objectFit: 'contain' }} />
+        <img src={crestSrc ?? `${origin}/afc-logo.png`} alt="" width={crestW} height={crestH} style={{ position: 'absolute', right: pad, top: 84, width: crestW, height: crestH, objectFit: 'contain' }} />
 
+        {layout === 'list' ? <div style={{ position: 'absolute', left: 0, top: P.top - 30, width: W * 0.62, height: bodyH + 60, display: 'flex', backgroundImage: 'linear-gradient(90deg, rgba(11,11,11,.82) 0%, rgba(11,11,11,.55) 55%, rgba(11,11,11,0) 100%)' }} /> : null}
         {layout === 'list' ? listLayout() : layout === 'cards' ? cardsLayout() : pitchLayout()}
         {isSample ? <div style={{ position: 'absolute', right: pad, top: 84 + crestH + 14, display: 'flex', background: '#fff', color: INK, fontSize: 22, fontWeight: 900, letterSpacing: 4, padding: '4px 12px', borderRadius: 6 }}>SAMPLE</div> : null}
 
@@ -208,6 +235,6 @@ export async function GET(req: NextRequest) {
         </div>
       </div>
     ),
-    { width: W, height: H, fonts: FONTS, headers: q.get('download') === '1' ? { 'Content-Disposition': `attachment; filename="starting-xi-${d.opponent.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}-${layout}-${format}.png"` } : { 'Cache-Control': 'no-store' } },
+    { width: W, height: H, fonts: FONTS, headers: q.get('download') === '1' ? { 'Content-Disposition': `attachment; filename="starting-xi-${d.opponent.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)}-${layout}-${format}.png"`, 'Cache-Control': 'no-store' } : { 'Cache-Control': isSample ? 'private, max-age=600' : 'private, max-age=60' } },
   );
 }
