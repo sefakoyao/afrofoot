@@ -3281,7 +3281,7 @@
   "poster": {
     "title": "Affiche de match",
     "lead": "Le onze de départ d'un match en image pour Instagram, Facebook et TikTok, aux couleurs du club. Choisissez le match, le format et le fond, puis téléchargez.",
-    "noGames": "Pas encore de match avec une composition. L'affiche apparaît quand un entraîneur a placé les titulaires sur le tableau de composition.",
+    "noGames": "Pas encore de match avec une composition : le match exemple est affiché. Les vrais matchs apparaissent ici quand un entraîneur a placé les titulaires sur le tableau de composition.",
     "game": "Match",
     "format": "Format",
     "f_portrait": "Portrait",
@@ -3320,6 +3320,8 @@
     "uploadKind": "Utiliser comme",
     "k_bg": "Fond",
     "k_sponsor": "Logo du sponsor",
-    "k_player": "Photo de joueur"
+    "k_player": "Photo de joueur",
+    "sampleGame": "Match exemple (aperçu seulement)",
+    "sampleNote": "Match exemple : joueurs inventés, rien n'est enregistré et personne d'autre ne le voit. L'affiche porte la mention « SAMPLE ». Choisissez un vrai match pour l'affiche à publier."
   }
 }

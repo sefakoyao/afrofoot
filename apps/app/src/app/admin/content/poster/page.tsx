@@ -4,7 +4,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
-import { POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, UPLOAD_KINDS, posterGames, type PosterFormat, type PosterLayout, type UploadKind } from '@/lib/poster';
+import { POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_KINDS, posterGames, type PosterFormat, type PosterLayout, type UploadKind } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> { return { title: (await getTranslations('poster'))('title') }; }
@@ -44,7 +44,8 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
   const tag = isLocale(locale) ? LOCALE_LABELS[locale].intl : 'en-GB';
   const when = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
   const games = await posterGames(supabase);
-  const match = games.some((g) => g.id === one(sp.match)) ? one(sp.match) : (games.find((g) => g.kickoff > new Date().toISOString()) ?? games.at(-1))?.id ?? '';
+  // a real game when one has a lineup, else the sample (preview only, nothing stored, players never see it)
+  const match = one(sp.match) === SAMPLE_MATCH || games.some((g) => g.id === one(sp.match)) ? one(sp.match) : (games.find((g) => g.kickoff > new Date().toISOString()) ?? games.at(-1))?.id ?? SAMPLE_MATCH;
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(one(sp.format) as PosterFormat) ? (one(sp.format) as PosterFormat) : 'portrait';
   const layout: PosterLayout = (POSTER_LAYOUTS as readonly string[]).includes(one(sp.layout)) ? (one(sp.layout) as PosterLayout) : 'list';
   const title = String(Math.min(POSTER_TITLES.length - 1, Math.max(0, Number(one(sp.title)) || 0)));
@@ -80,12 +81,14 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
       </header>
       {result ? <p role={ok ? 'status' : 'alert'} className={`rounded-card p-3 font-semibold ${ok ? 'bg-accent/15 text-pitch' : 'bg-danger/10 text-danger'}`}>{t(result as 'p_uploaded')}</p> : null}
 
-      {games.length === 0 ? <p className="rounded-card border border-line bg-raised p-6 text-muted" data-no-games>{t('noGames')}</p> : (
+      {games.length === 0 ? <p className="rounded-card border border-line bg-raised p-4 text-sm text-muted" data-no-games>{t('noGames')}</p> : null}
+      {(
         <div className="grid gap-5 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start">
           <form method="get" className="grid min-w-0 gap-4 rounded-card border border-line bg-raised p-5" data-poster-form>
             <label className="grid gap-1 text-sm font-semibold">{t('game')}
               <select name="match" defaultValue={match} className="min-h-11 w-full min-w-0 rounded-control border border-line bg-raised px-3 font-normal" data-poster-match>
                 {games.map((g) => <option key={g.id} value={g.id}>{when.format(new Date(g.kickoff))} · {g.team} – {g.opponent}</option>)}
+                <option value={SAMPLE_MATCH}>{t('sampleGame')}</option>
               </select></label>
 
             <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('layout')}</legend>
@@ -132,6 +135,7 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/api/content/xi?${q}`} alt={t('previewAlt')} className={`w-full rounded-card shadow-lg ${format === 'story' ? 'max-w-sm' : 'max-w-xl'}`} data-poster-img />
             <a href={`/api/content/xi?${q}&download=1`} className={btn} data-poster-download>{t('download')}</a>
+            {match === SAMPLE_MATCH ? <p className="max-w-xl rounded-card bg-gold p-2 text-center text-xs font-semibold text-ink-950" data-sample-note>{t('sampleNote')}</p> : null}
             <p className="max-w-xl text-center text-xs text-muted">{t('namesNote')}</p>
           </section>
         </div>

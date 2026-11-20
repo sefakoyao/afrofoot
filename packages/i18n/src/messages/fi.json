@@ -3281,7 +3281,7 @@
   "poster": {
     "title": "Ottelujuliste",
     "lead": "Ottelun avauskokoonpano kuvana Instagramiin, Facebookiin ja TikTokiin seuran väreissä. Valitse ottelu, koko ja tausta ja lataa.",
-    "noGames": "Ei vielä otteluita, joilla on kokoonpano. Juliste tulee, kun valmentaja on asettanut avauksen kokoonpanotaululle.",
+    "noGames": "Ei vielä otteluita, joilla on kokoonpano: näytetään esimerkkiottelu. Oikeat ottelut tulevat tähän, kun valmentaja on asettanut avauksen kokoonpanotaululle.",
     "game": "Ottelu",
     "format": "Koko",
     "f_portrait": "Pysty",
@@ -3320,6 +3320,8 @@
     "uploadKind": "Käyttö",
     "k_bg": "Tausta",
     "k_sponsor": "Sponsorin logo",
-    "k_player": "Pelaajakuva"
+    "k_player": "Pelaajakuva",
+    "sampleGame": "Esimerkkiottelu (vain esikatselu)",
+    "sampleNote": "Esimerkkiottelu: keksityt pelaajat, mitään ei tallenneta eikä kukaan muu näe sitä. Julisteessa on SAMPLE-merkintä. Valitse oikea ottelu tehdäksesi julkaistavan julisteen."
   }
 }

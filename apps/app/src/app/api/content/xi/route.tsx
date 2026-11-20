@@ -5,7 +5,7 @@ import { isAdminRole } from '@afrofoot/db';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, ballWave, photoEdge, pitchLines, shield, starsBand } from '@/lib/poster-art';
-import { POSTER_BACKGROUNDS, POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, UPLOAD_PATH, loadPoster, type PosterFormat, type PosterLayout, type PosterPlayer } from '@/lib/poster';
+import { POSTER_BACKGROUNDS, POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_PATH, loadPoster, samplePoster, type PosterFormat, type PosterLayout, type PosterPlayer } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
 /**
@@ -32,12 +32,13 @@ export async function GET(req: NextRequest) {
   if (!member || member.status !== 'active' || !isAdminRole(member.role)) return new Response('Not allowed', { status: 403 });
   const q = req.nextUrl.searchParams;
   const id = q.get('match') ?? '';
-  if (!/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a game', { status: 400 });
+  const isSample = id === SAMPLE_MATCH;
+  if (!isSample && !/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a game', { status: 400 });
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';
   const layout: PosterLayout = (POSTER_LAYOUTS as readonly string[]).includes(q.get('layout') ?? '') ? (q.get('layout') as PosterLayout) : 'list';
   const title = POSTER_TITLES[Number(q.get('title')) || 0] ?? POSTER_TITLES[0];
   const supabase = await getSupabase();
-  const d = supabase ? await loadPoster(supabase, id) : null;
+  const d = isSample ? samplePoster() : supabase ? await loadPoster(supabase, id) : null;
   if (!d) return new Response('Game not found', { status: 404 });
   const { w: W, h: H } = POSTER_FORMATS[format];
   const P = PLAN[format], pad = format === 'square' ? 56 : 64;
@@ -181,6 +182,7 @@ export async function GET(req: NextRequest) {
         <img src={`${origin}/afc-logo.png`} alt="" width={crestW} height={crestH} style={{ position: 'absolute', right: pad, top: 84, width: crestW, height: crestH, objectFit: 'contain' }} />
 
         {layout === 'list' ? listLayout() : layout === 'cards' ? cardsLayout() : pitchLayout()}
+        {isSample ? <div style={{ position: 'absolute', right: pad, top: 84 + crestH + 14, display: 'flex', background: '#fff', color: INK, fontSize: 22, fontWeight: 900, letterSpacing: 4, padding: '4px 12px', borderRadius: 6 }}>SAMPLE</div> : null}
 
         {/* footer: bench, "presented by", venue */}
         <div style={{ position: 'absolute', left: pad, right: pad, bottom: 34, display: 'flex', flexDirection: 'column', gap: 14 }}>

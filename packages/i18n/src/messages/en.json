@@ -3281,7 +3281,7 @@
   "poster": {
     "title": "Matchday poster",
     "lead": "The Starting XI of a game as a picture for Instagram, Facebook and TikTok, in the club's colours. Choose the game, the size and the background, then download.",
-    "noGames": "No game with a lineup yet. The poster appears once a coach has put the starters on the lineup board.",
+    "noGames": "No game with a lineup yet: showing the sample game. Real games appear here once a coach has put the starters on the lineup board.",
     "game": "Game",
     "format": "Size",
     "f_portrait": "Portrait",
@@ -3320,6 +3320,8 @@
     "uploadKind": "Use as",
     "k_bg": "Background",
     "k_sponsor": "Sponsor logo",
-    "k_player": "Player photo"
+    "k_player": "Player photo",
+    "sampleGame": "Sample game (preview only)",
+    "sampleNote": "Sample game: invented players, nothing saved and nobody else sees it. The poster carries a \"SAMPLE\" tag. Choose a real game to make the poster for posting."
   }
 }
