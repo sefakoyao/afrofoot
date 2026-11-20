@@ -13,7 +13,7 @@ import { getSupabase } from '@/lib/supabase/server';
  * may do what (RLS and the functions); these actions validate the form and say what happened.
  */
 const uuid = z.string().uuid();
-const BACK = /^\/(coach\/(matches|sessions)\/[0-9a-f-]{36}|me|admin\/tasks)(\?[\w=&%-]*)?$/;
+const BACK = /^\/(coach\/(matches|sessions)\/[0-9a-f-]{36}|me|admin\/tasks|coach\/tasks)(\?[\w=&%-]*)?$/;
 
 function back(fd: FormData, result: string): never {
   const raw = String(fd.get('back') ?? '');

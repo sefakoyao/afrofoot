@@ -2503,7 +2503,8 @@
     "opponentChoose": "Choose the opponent…",
     "opponentNew": "+ Add a new opponent",
     "opponentNewName": "New opponent's name",
-    "opponentNewHint": "It is added to the club's list when the game is saved."
+    "opponentNewHint": "It is added to the club's list when the game is saved.",
+    "coachLead": "Events for the teams you coach, and the club's own. Add a meeting, social event, training or game for one of your teams; the players' replies show under each training and game."
   },
   "relation": {
     "mother": "Mother",
@@ -2562,7 +2563,10 @@
     "removedSelf": "removed themselves",
     "offRoster": "not on the current roster",
     "r_hidden": "Hidden from the website.",
-    "r_shown": "Shown on the website again."
+    "r_shown": "Shown on the website again.",
+    "coachLead": "The players registered with Palloliitto: shirt number, position, league and cup goals, and whether they show on the website. Linking players and hiding them is done by the club administrators.",
+    "linkedTo": "In the app:",
+    "linkedOther": "a player in another team"
   },
   "signin": {
     "title": "Sign-in help",
@@ -3000,7 +3004,8 @@
     "r_released": "Number released. It is free again if it is one of the club's numbers.",
     "r_setSaved": "The club's numbers are saved.",
     "r_setInvalid": "Write numbers 1–99 as ranges or single numbers, e.g. 1-39.",
-    "r_notInSet": "That number is not one of the club's numbers."
+    "r_notInSet": "That number is not one of the club's numbers.",
+    "coachLead": "Shirt numbers of the teams you coach this season: approve or decline the players' requests, free a number, and see who wears which."
   },
   "opp": {
     "title": "Opponents",
@@ -3028,7 +3033,9 @@
     "r_error": "Something went wrong. Please try again.",
     "r_duplicate": "That opponent is already in the list.",
     "r_notAllowed": "Only admins can change the list.",
-    "r_name": "Write a name of 1 to 120 characters."
+    "r_name": "Write a name of 1 to 120 characters.",
+    "coachLead": "The opponent names you pick from when booking a game or friendly. A name missing or misspelt? Ask a club administrator to add or correct it.",
+    "countCoach": "{count, plural, one {# name} other {# names}}"
   },
   "tasks": {
     "gameTitle": "Game-day tasks",
@@ -3090,7 +3097,14 @@
     "t_started": "The event has started: tasks can no longer change.",
     "t_name": "Write a name of 2 to 60 characters.",
     "t_icon": "Choose an icon.",
-    "t_typeExists": "A task with that name already exists."
+    "t_typeExists": "A task with that name already exists.",
+    "pageCoachLead": "Who does what at your teams' next games and trainings, and the jobs you can give. Add or change a game's tasks on the game or training page.",
+    "comingTitle": "Next two weeks",
+    "comingLead": "Open tasks are highlighted: no player has taken them yet.",
+    "comingNone": "No games or trainings in the next two weeks.",
+    "open": "open",
+    "openCount": "{open} of {count} open",
+    "noTasksYet": "no tasks yet"
   },
   "past": {
     "title": "Past seasons",
@@ -3332,6 +3346,22 @@
     "strength": "Effect strength (the effect only)",
     "loading": "Making the poster…",
     "shade": "Background darkness",
-    "shadeHint": "How dark the layer over the background photo is. Only the picture; the effect has its own strength above."
+    "shadeHint": "How dark the layer over the background photo is. Only the picture; the effect has its own strength above.",
+    "coachUploadNote": "Photos and sponsor logos are uploaded by the club administrators (Admin → Website → Matchday poster). Pick from the ones already there."
+  },
+  "lineups": {
+    "nav": "Line-ups",
+    "title": "Line-ups",
+    "lead": "Your teams' games, from last week to two months ahead: how far each line-up is and whether players can see it. Open a game to build the line-up on the pitch; once the starters are set, make the Matchday poster.",
+    "upcoming": "Coming games",
+    "recent": "Last week",
+    "noUpcoming": "No games booked in the next two months.",
+    "counts": "{starters} of 11 starters · {subs, plural, one {# substitute} other {# substitutes}} · {yes} said yes",
+    "state_none": "No line-up yet",
+    "state_draft": "Draft – players can't see it",
+    "state_published": "Shown to players",
+    "edit": "Open line-up",
+    "make": "Make line-up",
+    "poster": "Poster"
   }
 }

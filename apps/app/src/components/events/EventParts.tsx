@@ -35,15 +35,15 @@ export async function PublicField({ className = '' }: { className?: string }) {
  * Add an event: for one team (coach: own teams) or, for admins, the whole club. With `sport` (Admin → Events) the type list
  * also offers Training, Game and Friendly game; fields that do not apply to the chosen type hide themselves (CSS :has).
  */
-export async function EventForm({ back, places, teams, fixedTeam, sport = false, opponents }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string; sport?: boolean; opponents?: string[] }) {
+export async function EventForm({ back, places, teams, fixedTeam, sport = false, opponents, clubWide = true }: { back: string; places: PlaceOption[]; teams?: { id: string; name: string }[]; fixedTeam?: string; sport?: boolean; opponents?: string[]; /** false for coaches: one of their teams, no whole-club option */ clubWide?: boolean }) {
   const t = await getTranslations('events');
   return (
     <form action={createEvent} className="mt-3 grid gap-3 sm:grid-cols-2" data-event-form>
       <input type="hidden" name="back" value={back} />
       {fixedTeam ? <input type="hidden" name="team_season_id" value={fixedTeam} /> : (
         <label className="grid gap-1 text-sm font-semibold sm:col-span-2">{t('forTeam')}
-          <select name="team_season_id" defaultValue="" className={input}>
-            <option value="">{t('wholeClub')}</option>
+          <select name="team_season_id" defaultValue={clubWide ? '' : teams?.[0]?.id ?? ''} required={!clubWide} className={input}>
+            {clubWide ? <option value="">{t('wholeClub')}</option> : null}
             {(teams ?? []).map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
           </select></label>
       )}

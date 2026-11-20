@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coach menus (branch `phase2/coach-menus`, release 0.58.0, no database change)
+- The Coach area menu gains two sections, each for the teams the coach is assigned to this season:
+  - **Teams & events**:
+    - **Events**: club events and the coach's teams' events, trainings and games with the players' replies. Coaches can add any of these for one of their teams (no whole-club option).
+    - **Line-ups** (new page): games from last week to two months ahead, with starters, substitutes, "yes" replies and whether players can see the line-up. Links to the line-up builder and to the poster.
+    - **Tasks**: who does what at the next two weeks' games and trainings (open tasks highlighted), the club's task types, and adding a new type. Renaming and hiding types stays with admins.
+    - **Shirt numbers**: approve or decline requests, free numbers, and who wears which number. The club's set of numbers stays with admins.
+    - **Opponents**: the names in use, read only.
+    - **Palloliitto players**: numbers, goals, website status and linked player, read only.
+  - **Website → Matchday poster**: the poster for the coach's own teams' games. Coaches pick from the uploaded photos and logos; uploading stays with admins. The image route refuses other teams' games.
+- Admin and coach pages share one view each (`components/staff/*`); the admin pages are unchanged.
+- The "add a training or game" form on Events now also works for coaches, for their own teams. The database already allowed it (RLS sessions_write / matches_write).
+- New menu icons: line-up and picture (the admin Matchday poster also uses the picture icon).
+
 ## Unreleased – lighter poster, separate background darkness (branch `phase2/poster-brightness`, release 0.57.1, no database change)
 - **Effect strength** now says what it does: it changes only the effect (wave, ribbons, stripes, dots), never the photo or the background.
 - New **Background darkness** slider (0–90 %, default 35 %): the dark layer over the background photo, the fade behind the player list and the footer. It was fixed at about 85 % before, which made the whole poster too dark.

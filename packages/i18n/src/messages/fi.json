@@ -2503,7 +2503,8 @@
     "opponentChoose": "Valitse vastustaja…",
     "opponentNew": "+ Lisää uusi vastustaja",
     "opponentNewName": "Uuden vastustajan nimi",
-    "opponentNewHint": "Se lisätään seuran listaan, kun ottelu tallennetaan."
+    "opponentNewHint": "Se lisätään seuran listaan, kun ottelu tallennetaan.",
+    "coachLead": "Valmentamiesi joukkueiden ja koko seuran tapahtumat. Lisää joukkueellesi palaveri, tapahtuma, harjoitus tai peli; pelaajien vastaukset näkyvät kunkin harjoituksen ja pelin alla."
   },
   "relation": {
     "mother": "Äiti",
@@ -2562,7 +2563,10 @@
     "removedSelf": "poistanut itsensä",
     "offRoster": "ei nykyisessä kokoonpanossa",
     "r_hidden": "Piilotettu verkkosivuilta.",
-    "r_shown": "Näkyy taas verkkosivuilla."
+    "r_shown": "Näkyy taas verkkosivuilla.",
+    "coachLead": "Palloliittoon rekisteröidyt pelaajat: pelinumero, pelipaikka, sarja- ja cup-maalit ja näkyykö pelaaja verkkosivuilla. Pelaajien yhdistämisestä ja piilottamisesta huolehtivat seuran ylläpitäjät.",
+    "linkedTo": "Sovelluksessa:",
+    "linkedOther": "toisen joukkueen pelaaja"
   },
   "signin": {
     "title": "Kirjautumisapu",
@@ -3000,7 +3004,8 @@
     "r_released": "Numero vapautettu. Se on taas vapaana, jos se kuuluu seuran numeroihin.",
     "r_setSaved": "Seuran numerot tallennettu.",
     "r_setInvalid": "Kirjoita numerot 1–99 väleinä tai yksittäin, esim. 1-39.",
-    "r_notInSet": "Numero ei kuulu seuran numeroihin."
+    "r_notInSet": "Numero ei kuulu seuran numeroihin.",
+    "coachLead": "Valmentamiesi joukkueiden pelinumerot tällä kaudella: hyväksy tai hylkää pelaajien pyynnöt, vapauta numero ja katso, kuka pelaa millä numerolla."
   },
   "opp": {
     "title": "Vastustajat",
@@ -3028,7 +3033,9 @@
     "r_error": "Jokin meni vikaan. Yritä uudelleen.",
     "r_duplicate": "Vastustaja on jo listassa.",
     "r_notAllowed": "Vain ylläpitäjät voivat muuttaa listaa.",
-    "r_name": "Kirjoita 1–120 merkin nimi."
+    "r_name": "Kirjoita 1–120 merkin nimi.",
+    "coachLead": "Vastustajien nimet, joista valitset pelin tai harjoitusottelun sopiessasi. Puuttuuko nimi tai onko se kirjoitettu väärin? Pyydä seuran ylläpitäjää lisäämään tai korjaamaan se.",
+    "countCoach": "{count, plural, one {# nimi} other {# nimeä}}"
   },
   "tasks": {
     "gameTitle": "Ottelupäivän tehtävät",
@@ -3090,7 +3097,14 @@
     "t_started": "Tapahtuma on alkanut: tehtäviä ei voi enää muuttaa.",
     "t_name": "Kirjoita 2–60 merkin nimi.",
     "t_icon": "Valitse kuvake.",
-    "t_typeExists": "Samanniminen tehtävä on jo olemassa."
+    "t_typeExists": "Samanniminen tehtävä on jo olemassa.",
+    "pageCoachLead": "Kuka tekee mitä joukkueidesi seuraavissa peleissä ja harjoituksissa, ja tehtävät, joita voit jakaa. Lisää tai muuta tehtäviä pelin tai harjoituksen sivulla.",
+    "comingTitle": "Kaksi seuraavaa viikkoa",
+    "comingLead": "Avoimet tehtävät on korostettu: kukaan pelaaja ei ole vielä ottanut niitä.",
+    "comingNone": "Ei pelejä eikä harjoituksia kahteen viikkoon.",
+    "open": "avoin",
+    "openCount": "{open}/{count} avoinna",
+    "noTasksYet": "ei vielä tehtäviä"
   },
   "past": {
     "title": "Menneet kaudet",
@@ -3332,6 +3346,22 @@
     "strength": "Efektin voimakkuus (vain efekti)",
     "loading": "Julistetta tehdään…",
     "shade": "Taustan tummuus",
-    "shadeHint": "Kuinka tumma kerros taustakuvan päällä on. Vain kuva; efektillä on oma voimakkuutensa yllä."
+    "shadeHint": "Kuinka tumma kerros taustakuvan päällä on. Vain kuva; efektillä on oma voimakkuutensa yllä.",
+    "coachUploadNote": "Kuvat ja sponsorien logot lataavat seuran ylläpitäjät (Ylläpito → Verkkosivut → Ottelujuliste). Valitse jo ladatuista."
+  },
+  "lineups": {
+    "nav": "Kokoonpanot",
+    "title": "Kokoonpanot",
+    "lead": "Joukkueidesi pelit viime viikosta kahden kuukauden päähän: kuinka valmis kukin kokoonpano on ja näkevätkö pelaajat sen. Avaa peli rakentaaksesi kokoonpanon kentälle; kun avauskokoonpano on valmis, tee ottelujuliste.",
+    "upcoming": "Tulevat pelit",
+    "recent": "Viime viikko",
+    "noUpcoming": "Ei sovittuja pelejä kahden seuraavan kuukauden aikana.",
+    "counts": "{starters}/11 avauksessa · {subs, plural, one {# vaihtopelaaja} other {# vaihtopelaajaa}} · {yes} vastasi kyllä",
+    "state_none": "Ei vielä kokoonpanoa",
+    "state_draft": "Luonnos – pelaajat eivät näe",
+    "state_published": "Näkyy pelaajille",
+    "edit": "Avaa kokoonpano",
+    "make": "Tee kokoonpano",
+    "poster": "Juliste"
   }
 }

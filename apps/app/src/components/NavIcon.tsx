@@ -4,7 +4,7 @@
  */
 export type NavIconName =
   | 'home' | 'inbox' | 'users' | 'key' | 'contract' | 'team' | 'calendar' | 'link' | 'shirt' | 'versus' | 'chart' | 'scale'
-  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks' | 'history';
+  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks' | 'history' | 'lineup' | 'image';
 
 const PATHS: Record<NavIconName, React.ReactNode> = {
   home: <><path d="M3 11 12 4l9 7" /><path d="M5 10v10h5v-6h4v6h5V10" /></>,
@@ -31,6 +31,8 @@ const PATHS: Record<NavIconName, React.ReactNode> = {
   euro: <><path d="M17 6.5A7 7 0 1 0 17 17.5" /><path d="M4 10h9M4 14h9" /></>,
   star: <><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" /></>,
   history: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></>,
+  lineup: <><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M4 12h16M9.5 3v3h5V3M9.5 21v-3h5v3" /><circle cx="12" cy="12" r="2" /></>,
+  image: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="9.5" r="1.8" /><path d="m3 17 5-5 4 4 3-3 6 6" /></>,
   tasks: <><rect x="4" y="4" width="16" height="17" rx="2" /><path d="m8 10 1.5 1.5L12 9M8 16l1.5 1.5L12 15M14 10h3M14 16h3" /></>,
 };
 

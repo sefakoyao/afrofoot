@@ -2503,7 +2503,8 @@
     "opponentChoose": "Choisissez l'adversaire…",
     "opponentNew": "+ Ajouter un nouvel adversaire",
     "opponentNewName": "Nom du nouvel adversaire",
-    "opponentNewHint": "Il est ajouté à la liste du club quand le match est enregistré."
+    "opponentNewHint": "Il est ajouté à la liste du club quand le match est enregistré.",
+    "coachLead": "Les événements des équipes que vous entraînez et ceux du club. Ajoutez une réunion, un événement, un entraînement ou un match pour l'une de vos équipes ; les réponses des joueurs s'affichent sous chaque entraînement et match."
   },
   "relation": {
     "mother": "Mère",
@@ -2562,7 +2563,10 @@
     "removedSelf": "s’est retiré",
     "offRoster": "pas dans l’effectif actuel",
     "r_hidden": "Masqué sur le site.",
-    "r_shown": "De nouveau affiché sur le site."
+    "r_shown": "De nouveau affiché sur le site.",
+    "coachLead": "Les joueurs enregistrés auprès de Palloliitto : numéro, poste, buts en championnat et en coupe, et s'ils apparaissent sur le site. Les administrateurs du club relient et masquent les joueurs.",
+    "linkedTo": "Dans l'appli :",
+    "linkedOther": "un joueur d'une autre équipe"
   },
   "signin": {
     "title": "Aide à la connexion",
@@ -3000,7 +3004,8 @@
     "r_released": "Numéro libéré. Il est de nouveau libre s’il fait partie des numéros du club.",
     "r_setSaved": "Les numéros du club sont enregistrés.",
     "r_setInvalid": "Écrivez des numéros de 1 à 99 en plages ou seuls, p. ex. 1-39.",
-    "r_notInSet": "Ce numéro ne fait pas partie des numéros du club."
+    "r_notInSet": "Ce numéro ne fait pas partie des numéros du club.",
+    "coachLead": "Les numéros de maillot des équipes que vous entraînez cette saison : acceptez ou refusez les demandes des joueurs, libérez un numéro et voyez qui porte quel numéro."
   },
   "opp": {
     "title": "Adversaires",
@@ -3028,7 +3033,9 @@
     "r_error": "Une erreur s'est produite. Veuillez réessayer.",
     "r_duplicate": "Cet adversaire est déjà dans la liste.",
     "r_notAllowed": "Seuls les administrateurs peuvent modifier la liste.",
-    "r_name": "Saisissez un nom de 1 à 120 caractères."
+    "r_name": "Saisissez un nom de 1 à 120 caractères.",
+    "coachLead": "Les noms d'adversaires parmi lesquels vous choisissez en programmant un match ou un amical. Un nom manque ou est mal écrit ? Demandez à un administrateur du club de l'ajouter ou de le corriger.",
+    "countCoach": "{count, plural, one {# nom} other {# noms}}"
   },
   "tasks": {
     "gameTitle": "Tâches du jour de match",
@@ -3090,7 +3097,14 @@
     "t_started": "L'événement a commencé : les tâches ne peuvent plus changer.",
     "t_name": "Saisissez un nom de 2 à 60 caractères.",
     "t_icon": "Choisissez une icône.",
-    "t_typeExists": "Une tâche porte déjà ce nom."
+    "t_typeExists": "Une tâche porte déjà ce nom.",
+    "pageCoachLead": "Qui fait quoi aux prochains matchs et entraînements de vos équipes, et les tâches que vous pouvez confier. Ajoutez ou modifiez les tâches sur la page du match ou de l'entraînement.",
+    "comingTitle": "Les deux prochaines semaines",
+    "comingLead": "Les tâches ouvertes sont mises en évidence : aucun joueur ne les a encore prises.",
+    "comingNone": "Aucun match ni entraînement dans les deux prochaines semaines.",
+    "open": "ouverte",
+    "openCount": "{open} sur {count} ouvertes",
+    "noTasksYet": "pas encore de tâches"
   },
   "past": {
     "title": "Saisons passées",
@@ -3332,6 +3346,22 @@
     "strength": "Intensité de l'effet (l'effet seulement)",
     "loading": "Création de l'affiche…",
     "shade": "Assombrissement du fond",
-    "shadeHint": "À quel point la photo de fond est assombrie. Seulement l'image ; l'effet a sa propre intensité ci-dessus."
+    "shadeHint": "À quel point la photo de fond est assombrie. Seulement l'image ; l'effet a sa propre intensité ci-dessus.",
+    "coachUploadNote": "Les photos et logos de sponsors sont téléversés par les administrateurs du club (Admin → Site web → Affiche du match). Choisissez parmi ceux déjà disponibles."
+  },
+  "lineups": {
+    "nav": "Compositions",
+    "title": "Compositions",
+    "lead": "Les matchs de vos équipes, de la semaine dernière à deux mois : où en est chaque composition et si les joueurs la voient. Ouvrez un match pour composer l'équipe sur le terrain ; une fois les titulaires choisis, créez l'affiche du match.",
+    "upcoming": "Prochains matchs",
+    "recent": "La semaine dernière",
+    "noUpcoming": "Aucun match prévu dans les deux prochains mois.",
+    "counts": "{starters} titulaires sur 11 · {subs, plural, one {# remplaçant} other {# remplaçants}} · {yes} ont dit oui",
+    "state_none": "Pas encore de composition",
+    "state_draft": "Brouillon – invisible pour les joueurs",
+    "state_published": "Visible par les joueurs",
+    "edit": "Ouvrir la composition",
+    "make": "Faire la composition",
+    "poster": "Affiche"
   }
 }

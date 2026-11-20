@@ -79,21 +79,18 @@ export async function createEvent(fd: FormData): Promise<void> {
 }
 
 /**
- * Admin → Events: a training or game for one team, saved like the coaches' own (training_sessions / matches), so it shows in
- * the team's calendar, the coach's team page and, for public teams, on the website. Only admins (RLS admin_all); coaches
- * keep their own forms on the team page. A game gets the standard pre-game protocol (meeting, warm-up, briefing).
+ * Teams & events → Events: a training or game for one team, saved like the team page's own (training_sessions / matches), so
+ * it shows in the team's calendar, the coach's team page and, for public teams, on the website. Admins for any team, a
+ * coach for a team they coach (RLS: admin_all / the coaches' policies). A game gets the standard pre-game protocol.
  */
 async function createSport(fd: FormData, v: z.infer<typeof createSchema>): Promise<never> {
-  const member = await requireMember();
-  if (!isAdminRole(member.role)) back(fd, 'e_notYours');
   if (!v.team_season_id) back(fd, 'e_team');
   if (v.end_date && v.end_date !== v.date) back(fd, 'e_sameDay');
   if (v.kind === 'game' && !v.division) back(fd, 'e_division');
   if (v.kind === 'training' && v.end <= v.start) back(fd, 'e_end');
   if (v.kind === 'training' && v.description && v.description.length > 200) back(fd, 'e_invalid'); // saved as the session's focus
   if (meetingTime(v.meet, v.start) === 'bad') back(fd, 'e_meet');
-  const supabase = await getSupabase();
-  if (!supabase) back(fd, 'e_error');
+  const { member, supabase } = await writer(fd, v.team_season_id);
   const place = await resolveLocation(supabase, fd, member.id);
   if ('error' in place) back(fd, place.error);
   const start = helsinkiToIso(v.date, v.start);
