@@ -11,7 +11,7 @@ type Team = { team_season_id: string; jersey_number: number | null; team_seasons
  * My profile → Shirt number (migration 0057): for each of the player's teams this season, the number they wear, their
  * open request (withdraw) or the last decision, and the free numbers to ask for. The coach or an admin decides.
  */
-export async function MyShirtNumber({ db, playerId, result }: { db: SupabaseClient; playerId: string; result?: unknown }) {
+export async function MyShirtNumber({ db, playerId, result, back = '/me/profile' }: { db: SupabaseClient; playerId: string; result?: unknown; back?: '/me/profile' | '/account' }) {
   const t = await getTranslations('shirt');
   const { data } = await db.from('team_players').select('team_season_id, jersey_number, team_seasons!inner(teams!inner(name), seasons!inner(is_current))')
     .eq('player_id', playerId).is('left_on', null).eq('team_seasons.seasons.is_current', true);
@@ -45,7 +45,7 @@ export async function MyShirtNumber({ db, playerId, result }: { db: SupabaseClie
             </div>
             {open ? (
               <form action={withdrawShirt} className="flex flex-wrap items-center gap-3 rounded-card bg-gold/90 p-3 text-sm text-black" data-open-request>
-                <input type="hidden" name="request_id" value={open.id} /><input type="hidden" name="back" value="/me/profile" />
+                <input type="hidden" name="request_id" value={open.id} /><input type="hidden" name="back" value={back} />
                 <span className="font-semibold">{t('waiting', { number: open.number })}</span>
                 <button className="min-h-9 rounded-full border-2 border-black px-3 font-bold hover:bg-black/10" data-withdraw>{t('withdraw')}</button>
               </form>
@@ -57,7 +57,7 @@ export async function MyShirtNumber({ db, playerId, result }: { db: SupabaseClie
             <details open={!team.jersey_number && !open ? true : undefined} className="rounded-card bg-surface p-3">
               <summary className="cursor-pointer font-semibold">{open ? t('changeRequest') : team.jersey_number ? t('askOther') : t('askTitle')}</summary>
               <form action={requestShirt} className="mt-3 grid gap-3" data-shirt-form>
-                <input type="hidden" name="team_season_id" value={team.team_season_id} /><input type="hidden" name="back" value="/me/profile" />
+                <input type="hidden" name="team_season_id" value={team.team_season_id} /><input type="hidden" name="back" value={back} />
                 <fieldset><legend className="mb-2 text-sm font-semibold">{t('pick')}</legend>
                   <ShirtGrid numbers={grids[i]!} pick="number" mine={team.jersey_number} labels={labels} /></fieldset>
                 <label className="grid gap-1 text-sm font-semibold">{t('note')}

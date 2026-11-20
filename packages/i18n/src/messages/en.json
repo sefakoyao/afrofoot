@@ -1466,7 +1466,7 @@
     "passwordTitle": "Password",
     "passwordLead": "Choose a new password. Your other devices will be signed out.",
     "changePassword": "Change password",
-    "phoneInPlayerProfile": "Your phone number is in My player profile on your home page.",
+    "phoneInPlayerProfile": "Your phone number is with your player details below.",
     "signInPhone": "Phone number (sign-in)",
     "signInPhoneNote": "You sign in with a code sent to this number."
   },
@@ -3416,5 +3416,14 @@
     "m_self": "You cannot merge away your own account; keep it instead.",
     "m_gone": "One of the accounts no longer exists.",
     "m_error": "The merge did not go through. Nothing was changed; try again."
+  },
+  "creq": {
+    "nav": "Applicants",
+    "title": "Tryout requests and team enrolments",
+    "lead": "Who wants to try out or join, from the website forms: position, age, previous team, contact details and message. The club administrators answer them and set the status and tryout date; this page is for planning and welcoming new players.",
+    "showAll": "Show declined and archived too",
+    "empty": "No open requests.",
+    "openProfile": "Open profile",
+    "privacy": "These are personal details: use them only for the tryout or the player's start in the team. Home address and payment details stay with the administrators."
   }
 }

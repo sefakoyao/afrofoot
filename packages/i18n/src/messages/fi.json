@@ -1466,7 +1466,7 @@
     "passwordTitle": "Salasana",
     "passwordLead": "Valitse uusi salasana. Muut laitteesi kirjataan ulos.",
     "changePassword": "Vaihda salasana",
-    "phoneInPlayerProfile": "Puhelinnumerosi on etusivun Pelaajaprofiilini-osiossa.",
+    "phoneInPlayerProfile": "Puhelinnumerosi on alla pelaajatietojesi kohdalla.",
     "signInPhone": "Puhelinnumero (kirjautuminen)",
     "signInPhoneNote": "Kirjaudut tähän numeroon lähetetyllä koodilla."
   },
@@ -3416,5 +3416,14 @@
     "m_self": "Et voi poistaa omaa tiliäsi yhdistämällä; säilytä se.",
     "m_gone": "Toista tiliä ei enää ole.",
     "m_error": "Yhdistäminen ei onnistunut. Mitään ei muutettu; yritä uudelleen."
+  },
+  "creq": {
+    "nav": "Hakijat",
+    "title": "Kokeilupyynnöt ja joukkueilmoittautumiset",
+    "lead": "Ketkä haluavat kokeiluun tai joukkueeseen verkkosivujen lomakkeilla: pelipaikka, ikä, edellinen joukkue, yhteystiedot ja viesti. Seuran ylläpitäjät vastaavat niihin ja asettavat tilan ja kokeilupäivän; tämä sivu on uusien pelaajien kokeilun ja vastaanoton suunnitteluun.",
+    "showAll": "Näytä myös hylätyt ja arkistoidut",
+    "empty": "Ei avoimia pyyntöjä.",
+    "openProfile": "Avaa profiili",
+    "privacy": "Nämä ovat henkilötietoja: käytä niitä vain kokeiluun tai pelaajan joukkueeseen tuloon. Kotiosoite ja maksutiedot ovat vain ylläpitäjien käytössä."
   }
 }

@@ -25,7 +25,7 @@ export async function savePlayerPhoto(_: PhotoState, fd: FormData): Promise<Phot
     const { error } = await supabase.from('players').update({ photo_path: null }).eq('id', player.id);
     if (error) return { status: 'error', error: 'e_failed' };
     if (old) await supabase.storage.from('player-photos').remove([old]);
-    revalidatePath('/me', 'layout'); revalidatePath('/coach', 'layout');
+    revalidatePath('/me', 'layout'); revalidatePath('/coach', 'layout'); revalidatePath('/account');
     return { status: 'removed' };
   }
 
@@ -39,6 +39,6 @@ export async function savePlayerPhoto(_: PhotoState, fd: FormData): Promise<Phot
   const { error } = await supabase.from('players').update({ photo_path: path }).eq('id', player.id);
   if (error) { await supabase.storage.from('player-photos').remove([path]); console.error('[photo] save refused', { code: error.code }); return { status: 'error', error: 'e_failed' }; }
   if (old && old !== path) await supabase.storage.from('player-photos').remove([old]);
-  revalidatePath('/me', 'layout'); revalidatePath('/coach', 'layout');
+  revalidatePath('/me', 'layout'); revalidatePath('/coach', 'layout'); revalidatePath('/account');
   return { status: 'ok' };
 }
