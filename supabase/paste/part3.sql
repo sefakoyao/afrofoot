@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -3946,6 +3946,84 @@ grant execute on function public.release_event_task(uuid) to authenticated;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.53.0','feature','Game-day and training tasks, menu icons',
   'Coaches add tasks to a game or training (balls, water, first-aid kit, washing the kit, driving…), give them to players or leave them open; players take open tasks in their calendar. Coaches and admins can add new tasks. The Admin, Coach and Player menus have icons.','2026-11-20')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000063_season_invoices.sql =====
+-- 0063 Past-season invoices (release 0.54.0). Safe to run again.
+-- Admin → Finance → Past seasons: bill players for a season afterwards. The admin picks the season, the first and last
+-- month (e.g. January–October 2025), the monthly fee, the invoice date, the due date and the players; each player gets
+-- one invoice with one line per month (like the automatic invoices), marked as a season invoice of that season. A player
+-- who already has a season invoice for any of those months is skipped, so running it twice bills nobody twice.
+-- mark_invoices_paid() records several invoices as paid in full at once (through record_invoice_payment, 0056).
+-- Players see these invoices like any other (Membership → My payments) and they count in Finance → Balances.
+
+create or replace function public.create_season_invoices(p_season uuid, p_from date, p_to date, p_monthly_cents int, p_players uuid[],
+  p_due date, p_issue date default null, p_description text default 'Membership fees')
+returns table (created int, skipped int)
+language plpgsql security definer set search_path = public as $$
+declare
+  v_today date := (now() at time zone 'Europe/Helsinki')::date;
+  v_from date := date_trunc('month', p_from)::date; v_to date := date_trunc('month', p_to)::date;
+  v_months int; v_desc text := btrim(coalesce(p_description, '')); v_issue date := coalesce(p_issue, (now() at time zone 'Europe/Helsinki')::date);
+  v_player uuid; v_pay uuid; i int; n int := 0; s int := 0;
+begin
+  if not app.is_admin() then raise exception 'admin only' using errcode = '42501'; end if;
+  if not exists (select 1 from seasons where id = p_season) then raise exception 'unknown season' using errcode = '22023'; end if;
+  if v_from is null or v_to is null or v_to < v_from then raise exception 'the last month is before the first' using errcode = '22023'; end if;
+  v_months := (extract(year from v_to) - extract(year from v_from))::int * 12 + (extract(month from v_to) - extract(month from v_from))::int + 1;
+  if v_months > 24 then raise exception 'at most 24 months' using errcode = '22023'; end if;
+  if p_monthly_cents is null or p_monthly_cents < 1 or p_monthly_cents > 100000 then raise exception 'monthly fee between EUR 0.01 and 1000' using errcode = '22023'; end if;
+  if p_due is null or p_due < v_today - 365 or p_due > v_today + 365 then raise exception 'due date within a year' using errcode = '22023'; end if;
+  if v_issue > v_today or v_issue < v_today - 3650 or v_issue > p_due then raise exception 'invoice date: not in the future, not after the due date' using errcode = '22023'; end if;
+  if char_length(v_desc) not between 3 and 60 then raise exception 'description 3–60 characters' using errcode = '22023'; end if;
+  if p_players is null or cardinality(p_players) not between 1 and 300 then raise exception '1 to 300 players' using errcode = '22023'; end if;
+
+  foreach v_player in array (select array_agg(distinct x) from unnest(p_players) x) loop
+    if not exists (select 1 from players where id = v_player) then raise exception 'unknown player' using errcode = '22023'; end if;
+    -- already billed for one of these months of this season: skipped
+    if exists (select 1 from payments p join payment_lines l on l.payment_id = p.id
+               where p.player_id = v_player and p.season_id = p_season and p.notes = 'season invoice' and p.status <> 'refunded'
+                 and l.line_date between v_from and v_to) then
+      s := s + 1; continue;
+    end if;
+    insert into payments (player_id, amount_cents, method, status, due_on, invoice_sent_at, notes, season_id, recorded_by)
+    values (v_player, p_monthly_cents * v_months, 'invoice', 'pending', p_due,
+            case when v_issue = v_today then now() else (v_issue + time '12:00') at time zone 'Europe/Helsinki' end,
+            'season invoice', p_season, auth.uid())
+    returning id into v_pay;
+    for i in 0 .. v_months - 1 loop
+      insert into payment_lines (payment_id, position, description, line_date, unit_price_cents, kind)
+      values (v_pay, i + 1, v_desc, (v_from + make_interval(months => i))::date, p_monthly_cents, 'fee');
+    end loop;
+    n := n + 1;
+  end loop;
+  return query select n, s;
+end $$;
+revoke all on function public.create_season_invoices(uuid, date, date, int, uuid[], date, date, text) from public, anon;
+grant execute on function public.create_season_invoices(uuid, date, date, int, uuid[], date, date, text) to authenticated;
+
+-- Several invoices paid in full on one day (what is still owed on each); invoices already paid are left as they are.
+create or replace function public.mark_invoices_paid(p_payments uuid[], p_paid_on date default null) returns int
+language plpgsql security definer set search_path = public as $$
+declare v_id uuid; n int := 0;
+begin
+  if not app.is_admin() then raise exception 'admin only' using errcode = '42501'; end if;
+  if p_payments is null or cardinality(p_payments) not between 1 and 300 then raise exception '1 to 300 invoices' using errcode = '22023'; end if;
+  foreach v_id in array (select array_agg(distinct x) from unnest(p_payments) x) loop
+    if exists (select 1 from payments where id = v_id and status in ('pending', 'failed') and amount_cents > paid_cents) then
+      perform public.record_invoice_payment(v_id, null, p_paid_on, 'marked paid with others');
+      n := n + 1;
+    end if;
+  end loop;
+  return n;
+end $$;
+revoke all on function public.mark_invoices_paid(uuid[], date) from public, anon;
+grant execute on function public.mark_invoices_paid(uuid[], date) to authenticated;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.54.0','feature','Past-season invoices',
+  'Admin → Finance → Past seasons: bill chosen players for a season afterwards (first and last month, monthly fee, invoice and due date): one invoice per player with a line per month. Mark several as paid at once and see what is paid and still owed per player. Players see these invoices on their page.','2026-11-20')
 on conflict (version) do nothing;
 
 

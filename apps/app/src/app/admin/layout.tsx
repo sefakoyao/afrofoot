@@ -30,6 +30,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/finance/balances', label: tm('navBalances'), group: finance, icon: 'scale' },
     { href: '/admin/invoices', label: t('navInvoices'), group: finance, icon: 'receipt' },
     { href: '/admin/finance/expenses', label: tm('navExpenses'), group: finance, icon: 'coins' },
+    { href: '/admin/finance/past', label: tm('navPast'), group: finance, icon: 'history' },
     { href: '/admin/quiz', label: t('navQuiz'), group: club, icon: 'quiz', groupIcon: 'star' },
     { href: '/admin/audit', label: t('navAudit'), group: club, icon: 'list' },
   ];
