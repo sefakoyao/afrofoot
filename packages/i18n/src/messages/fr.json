@@ -3322,6 +3322,14 @@
     "k_sponsor": "Logo du sponsor",
     "k_player": "Photo de joueur",
     "sampleGame": "Match exemple (aperçu seulement)",
-    "sampleNote": "Match exemple : joueurs inventés, rien n'est enregistré et personne d'autre ne le voit. L'affiche porte la mention « SAMPLE ». Choisissez un vrai match pour l'affiche à publier."
+    "sampleNote": "Match exemple : joueurs inventés, rien n'est enregistré et personne d'autre ne le voit. L'affiche porte la mention « SAMPLE ». Choisissez un vrai match pour l'affiche à publier.",
+    "effect": "Effet",
+    "fx_wave": "Vague ballon",
+    "fx_ribbons": "Rubans",
+    "fx_stripes": "Rayures du maillot",
+    "fx_dots": "Pois du maillot",
+    "fx_none": "Aucun",
+    "strength": "Intensité de l'effet",
+    "loading": "Création de l'affiche…"
   }
 }

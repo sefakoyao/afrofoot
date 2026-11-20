@@ -3,6 +3,23 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – poster effects and faster preview (branch `phase2/poster-effects`, release 0.57.0, no database change)
+- **Effect** choice:
+  - football wave (the original)
+  - ribbons
+  - kit stripes (the shirt's yellow stripes)
+  - kit dots (the shirt's dots)
+  - none
+- **Effect strength** slider (0–100 %, default 60 = the original look).
+- **Live preview:** the poster updates as soon as a choice changes. There is no Show button and no page reload; a "Making the poster…" sign shows while it renders. The address and uploads keep the current choices.
+- **Faster:**
+  - shirt-number shields drawn as shapes instead of 11 separate images
+  - no blurred text shadow (a dark fade behind the list instead)
+  - images (team photo, crest, uploads) kept in server memory after the first use
+  - a smaller team photo
+  - identical previews remembered by the browser for a minute
+  The list layout went from about 3 s to under 1 s.
+
 ## Unreleased – sample game for the matchday poster (branch `phase2/poster-sample`, release 0.56.1, no database change)
 - Admin → Website → Matchday poster: **Sample game (preview only)** in the game list, chosen automatically when no game has a lineup yet.
   - It uses invented players (4-3-3, captain, bench) against "Example City FC", next Saturday 18:00.

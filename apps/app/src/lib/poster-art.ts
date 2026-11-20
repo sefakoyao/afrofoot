@@ -22,35 +22,77 @@ export function starsBand(w: number, h: number): string {
   return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="${h}" fill="url(#g)"/>${stars}`);
 }
 
+/** The background effects the admin chooses from (Matchday poster → Effect); "none" draws nothing. */
+export const EFFECTS = ['wave', 'ribbons', 'stripes', 'dots', 'none'] as const;
+export type Effect = (typeof EFFECTS)[number];
+export const DEFAULT_STRENGTH = 60; // 0–100 on the page; 60 is the original look
+
+/** The shared curve every effect follows: a sine wave that rises slightly to the right. */
+const curve = (w: number, h: number, centre: number) => (x: number) => h * centre + h * 0.07 * Math.sin((x / w) * Math.PI * 1.6 + 0.6) - (x / w) * h * 0.12;
+const clamp = (v: number) => Math.max(0, Math.min(1, v)).toFixed(2);
+const ribbonPath = (w: number, cy: (x: number) => number, off: number) => {
+  let d = '';
+  for (let x = -20; x <= w + 20; x += 20) d += `${x === -20 ? 'M' : 'L'}${x},${(cy(x) + off).toFixed(1)} `;
+  return d;
+};
+
 /**
- * The football wave: hexagon panels (like a ball's skin) along a sine wave that sweeps across the poster, larger and
- * brighter at its centre line and fading at its edges, with two ribbons following the same curve.
+ * One background effect, drawn once for the whole poster. strength 0–100 scales every opacity (60 = the original).
+ * wave: football panels (hexagons) along the curve, brightest on its centre line, with two ribbons.
+ * ribbons: five flowing green-to-yellow bands. stripes: the kit's horizontal yellow stripes in a band along the curve.
+ * dots: the kit's yellow dots, growing towards the curve's centre line.
  */
-export function ballWave(w: number, h: number, centre = 0.66, amplitude = 0.07): string {
-  const cy = (x: number) => h * centre + h * amplitude * Math.sin((x / w) * Math.PI * 1.6 + 0.6) - (x / w) * h * 0.12;
-  const r = 34, dx = r * Math.sqrt(3), dy = r * 1.5, band = h * 0.16;
-  let cells = '';
-  for (let row = -2; row * dy < h + r * 2; row++) {
-    for (let col = -1; col * dx < w + dx; col++) {
-      const x = col * dx + (row % 2 ? dx / 2 : 0), y = row * dy;
-      const dist = Math.abs(y - cy(x));
-      if (dist > band) continue;
-      const k = 1 - dist / band;                              // 1 on the wave's centre line, 0 at its edges
-      const s = r * (0.55 + 0.45 * k);
-      const pts = Array.from({ length: 6 }, (_, i) => {
-        const a = Math.PI / 6 + (i * Math.PI) / 3;
-        return `${(x + s * Math.cos(a)).toFixed(1)},${(y + s * Math.sin(a)).toFixed(1)}`;
-      }).join(' ');
-      const filled = (col * 7 + row * 3) % 5 === 0 && k > 0.45;   // a few solid panels, like a ball's
-      cells += `<polygon points="${pts}" fill="${filled ? 'url(#g)' : 'none'}" fill-opacity="${(0.38 * k).toFixed(2)}" stroke="url(#g)" stroke-opacity="${(0.1 + 0.55 * k).toFixed(2)}" stroke-width="${(1.2 + 2.2 * k).toFixed(1)}"/>`;
+export function effect(kind: Effect, w: number, h: number, strength = DEFAULT_STRENGTH, centre = 0.6): string | null {
+  if (kind === 'none' || strength <= 0) return null;
+  const m = strength / DEFAULT_STRENGTH;
+  const cy = curve(w, h, centre), band = h * 0.16;
+  let body = '';
+  if (kind === 'wave') {
+    const r = 34, dx = r * Math.sqrt(3), dy = r * 1.5;
+    for (let row = -2; row * dy < h + r * 2; row++) {
+      for (let col = -1; col * dx < w + dx; col++) {
+        const x = col * dx + (row % 2 ? dx / 2 : 0), y = row * dy;
+        const dist = Math.abs(y - cy(x));
+        if (dist > band) continue;
+        const k = 1 - dist / band;
+        const sz = r * (0.55 + 0.45 * k);
+        const pts = Array.from({ length: 6 }, (_, i) => {
+          const a = Math.PI / 6 + (i * Math.PI) / 3;
+          return `${(x + sz * Math.cos(a)).toFixed(1)},${(y + sz * Math.sin(a)).toFixed(1)}`;
+        }).join(' ');
+        const filled = (col * 7 + row * 3) % 5 === 0 && k > 0.45;
+        body += `<polygon points="${pts}" fill="${filled ? 'url(#g)' : 'none'}" fill-opacity="${clamp(0.38 * k * m)}" stroke="url(#g)" stroke-opacity="${clamp((0.1 + 0.55 * k) * m)}" stroke-width="${(1.2 + 2.2 * k).toFixed(1)}"/>`;
+      }
+    }
+    body += `<path d="${ribbonPath(w, cy, -band - 18)}" fill="none" stroke="url(#g)" stroke-width="6" stroke-opacity="${clamp(0.9 * m)}" stroke-linecap="round"/>`;
+    body += `<path d="${ribbonPath(w, cy, band + 22)}" fill="none" stroke="url(#g)" stroke-width="14" stroke-opacity="${clamp(0.85 * m)}" stroke-linecap="round"/>`;
+  } else if (kind === 'ribbons') {
+    ([[-band, 10, 0.55], [-band * 0.45, 28, 0.35], [0, 54, 0.5], [band * 0.5, 22, 0.4], [band * 1.05, 12, 0.7]] as const).forEach(([off, sw, op]) => {
+      body += `<path d="${ribbonPath(w, cy, off)}" fill="none" stroke="url(#g)" stroke-width="${sw}" stroke-opacity="${clamp(op * m)}" stroke-linecap="round"/>`;
+    });
+  } else if (kind === 'stripes') {
+    // horizontal kit stripes, only inside a band that follows the curve (fading towards its edges)
+    for (let y = 0; y < h; y += 26) {
+      let d = '';
+      for (let x = 0; x <= w; x += 24) {
+        const k = 1 - Math.abs(y - cy(x)) / (band * 1.3);
+        if (k <= 0) { if (d) { body += `<path d="${d}" fill="none" stroke="${GOLD}" stroke-width="7" stroke-opacity="${clamp(0.42 * m)}" stroke-linecap="round"/>`; d = ''; } continue; }
+        d += `${d ? 'L' : 'M'}${x},${y} `;
+      }
+      if (d) body += `<path d="${d}" fill="none" stroke="${GOLD}" stroke-width="7" stroke-opacity="${clamp(0.42 * m)}" stroke-linecap="round"/>`;
+    }
+    body = `<path d="${ribbonPath(w, cy, 0)}" fill="none" stroke="${GREEN}" stroke-width="${band * 2.2}" stroke-opacity="${clamp(0.32 * m)}"/>` + body;
+  } else if (kind === 'dots') {
+    const step = 30;
+    for (let y = step / 2; y < h; y += step) {
+      for (let x = step / 2 + ((y / step) % 2 ? step / 2 : 0); x < w; x += step) {
+        const k = 1 - Math.abs(y - cy(x)) / (band * 1.4);
+        if (k <= 0.05) continue;
+        body += `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(2 + 10 * k).toFixed(1)}" fill="url(#g)" fill-opacity="${clamp((0.15 + 0.6 * k) * m)}"/>`;
+      }
     }
   }
-  const ribbon = (off: number, width: number, op: number) => {
-    let d = '';
-    for (let x = -20; x <= w + 20; x += 20) d += `${x === -20 ? 'M' : 'L'}${x},${(cy(x) + off).toFixed(1)} `;
-    return `<path d="${d}" fill="none" stroke="url(#g)" stroke-width="${width}" stroke-opacity="${op}" stroke-linecap="round"/>`;
-  };
-  return svg(w, h, `<defs>${gradient('g')}</defs>${cells}${ribbon(-band - 18, 6, 0.9)}${ribbon(band + 22, 14, 0.85)}`);
+  return svg(w, h, `<defs>${gradient('g')}</defs>${body}`);
 }
 
 /** A shirt-number shield shaped like the crest: black, a thin white edge, the colour band on top. */

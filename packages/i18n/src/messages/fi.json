@@ -3322,6 +3322,14 @@
     "k_sponsor": "Sponsorin logo",
     "k_player": "Pelaajakuva",
     "sampleGame": "Esimerkkiottelu (vain esikatselu)",
-    "sampleNote": "Esimerkkiottelu: keksityt pelaajat, mitään ei tallenneta eikä kukaan muu näe sitä. Julisteessa on SAMPLE-merkintä. Valitse oikea ottelu tehdäksesi julkaistavan julisteen."
+    "sampleNote": "Esimerkkiottelu: keksityt pelaajat, mitään ei tallenneta eikä kukaan muu näe sitä. Julisteessa on SAMPLE-merkintä. Valitse oikea ottelu tehdäksesi julkaistavan julisteen.",
+    "effect": "Efekti",
+    "fx_wave": "Pallo-aalto",
+    "fx_ribbons": "Nauhat",
+    "fx_stripes": "Peliasun raidat",
+    "fx_dots": "Peliasun pisteet",
+    "fx_none": "Ei mitään",
+    "strength": "Efektin voimakkuus",
+    "loading": "Julistetta tehdään…"
   }
 }
