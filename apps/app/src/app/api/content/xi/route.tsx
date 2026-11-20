@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 import type { ReactNode } from 'react';
-import { isAdminRole } from '@afrofoot/db';
+import { isAdminRole, isCoachRole } from '@afrofoot/db';
+import { coachesTeam } from '@/lib/coach';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect, photoEdge, pitchLines, starsBand, type Effect } from '@/lib/poster-art';
@@ -44,10 +45,16 @@ const PLAN = { portrait: { title: 128, top: 378, footer: 190 }, story: { title: 
 
 export async function GET(req: NextRequest) {
   const member = await getMember();
-  if (!member || member.status !== 'active' || !isAdminRole(member.role)) return new Response('Not allowed', { status: 403 });
+  if (!member || member.status !== 'active' || !(isAdminRole(member.role) || isCoachRole(member.role))) return new Response('Not allowed', { status: 403 });
   const q = req.nextUrl.searchParams;
   const id = q.get('match') ?? '';
   const isSample = id === SAMPLE_MATCH;
+  // a coach: only games of a team they coach (a player-coach can also read their own team's games as a player)
+  if (!isAdminRole(member.role) && !isSample) {
+    const db = await getSupabase();
+    const ts = db && /^[0-9a-f-]{36}$/.test(id) ? (await db.from('matches').select('team_season_id').eq('id', id).maybeSingle()).data?.team_season_id : null;
+    if (!db || !ts || !(await coachesTeam(db, member.id, ts))) return new Response('Not allowed', { status: 403 });
+  }
   if (!isSample && !/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a game', { status: 400 });
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';
   const layout: PosterLayout = (POSTER_LAYOUTS as readonly string[]).includes(q.get('layout') ?? '') ? (q.get('layout') as PosterLayout) : 'list';

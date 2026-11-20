@@ -45,11 +45,14 @@ export function samplePoster(team = 'Afro Foot Club'): PosterData {
   };
 }
 
-/** Games with a lineup on the board (starters chosen), newest kick-off first: the ones a poster can be made for. */
-export async function posterGames(db: SupabaseClient) {
+/** Games with a lineup on the board (starters chosen), newest kick-off first: the ones a poster can be made for. A coach: only their teams. */
+export async function posterGames(db: SupabaseClient, teamSeasonIds?: string[]) {
   const since = new Date(Date.now() - 14 * 86400000).toISOString();
-  const { data } = await db.from('matches').select('id, opponent, kickoff_at, home_away, team_seasons!inner(teams!inner(name)), match_squad!inner(status)')
-    .eq('match_squad.status', 'starter').gte('kickoff_at', since).neq('status', 'cancelled').order('kickoff_at').limit(30);
+  if (teamSeasonIds && !teamSeasonIds.length) return [];
+  let query = db.from('matches').select('id, opponent, kickoff_at, home_away, team_seasons!inner(teams!inner(name)), match_squad!inner(status)')
+    .eq('match_squad.status', 'starter').gte('kickoff_at', since).neq('status', 'cancelled');
+  if (teamSeasonIds) query = query.in('team_season_id', teamSeasonIds);
+  const { data } = await query.order('kickoff_at').limit(30);
   const seen = new Set<string>();
   return ((data ?? []) as unknown as { id: string; opponent: string; kickoff_at: string; home_away: string; team_seasons: { teams: { name: string } } }[])
     .filter((m) => (seen.has(m.id) ? false : (seen.add(m.id), true)))

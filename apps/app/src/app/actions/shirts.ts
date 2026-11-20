@@ -12,7 +12,7 @@ import { getSupabase } from '@/lib/supabase/server';
  * (Admin → Shirt numbers) decide. The database functions check who may do what and that the number is free.
  */
 const uuid = z.string().uuid();
-const BACK = /^\/(me\/profile|admin\/shirts|coach\/teams\/[0-9a-f-]{36})(\?[\w=&%-]*)?$/;
+const BACK = /^\/(me\/profile|admin\/shirts|coach\/shirts|coach\/teams\/[0-9a-f-]{36})(\?[\w=&%-]*)?$/;
 const note = z.string().trim().max(200);
 
 function back(fd: FormData, result: string): never {
