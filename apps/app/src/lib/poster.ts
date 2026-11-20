@@ -24,6 +24,27 @@ export const UPLOAD_PATH = /^posters\/(bg|sponsor|player)\/[\w-]+\.(jpg|jpeg|png
 export const POSTER_FORMATS = { portrait: { w: 1080, h: 1350 }, story: { w: 1080, h: 1920 }, square: { w: 1080, h: 1080 } } as const;
 export type PosterFormat = keyof typeof POSTER_FORMATS;
 
+/**
+ * A sample game for trying the designs (match=sample): invented players in a 4-3-3, nothing stored, so players never see
+ * it. Posters made from it carry a "SAMPLE" tag.
+ */
+export const SAMPLE_MATCH = 'sample';
+export function samplePoster(team = 'Afro Foot Club'): PosterData {
+  const next = new Date(); next.setUTCDate(next.getUTCDate() + ((6 - next.getUTCDay() + 7) % 7 || 7)); next.setUTCHours(16, 0, 0, 0); // next Saturday, 18:00 in Helsinki (winter)
+  const slots: PosterSlot[] = [
+    { slot: 1, role: 'GK', x: 50, y: 92 }, { slot: 2, role: 'DF', x: 20, y: 72 }, { slot: 3, role: 'DF', x: 40, y: 72 }, { slot: 4, role: 'DF', x: 60, y: 72 }, { slot: 5, role: 'DF', x: 80, y: 72 },
+    { slot: 6, role: 'MF', x: 25, y: 44 }, { slot: 7, role: 'MF', x: 50, y: 44 }, { slot: 8, role: 'MF', x: 75, y: 44 },
+    { slot: 9, role: 'FW', x: 25, y: 16 }, { slot: 10, role: 'FW', x: 50, y: 16 }, { slot: 11, role: 'FW', x: 75, y: 16 },
+  ];
+  const xi: [number, string][] = [[1, 'Sample Keeper'], [2, 'Alex Rightback'], [4, 'Sam Stopper'], [5, 'Jo Wall'], [3, 'Kim Leftback'], [8, 'Ali Engine'], [6, 'Chris Anchor'], [10, 'Ola Playmaker'],
+    [7, 'Max Winger'], [9, 'Tom Striker'], [11, 'Lee Flyer']];
+  return {
+    team, opponent: 'Example City FC', homeAway: 'home', kickoff: next.toISOString(), venue: 'Home ground', city: 'Helsinki', division: 'Sample league', friendly: false, formation: '4-3-3', slots,
+    starters: xi.map(([shirt, name], i) => ({ slot: i + 1, shirt, name, captain: shirt === 10, role: slots[i]!.role })),
+    bench: ([[12, 'Pat Reserve'], [14, 'Rui Bench'], [16, 'Dan Sub'], [18, 'Eli Spare'], [21, 'Noa Extra']] as [number, string][]).map(([shirt, name]) => ({ slot: null, shirt, name, captain: false, role: '' })),
+  };
+}
+
 /** Games with a lineup on the board (starters chosen), newest kick-off first: the ones a poster can be made for. */
 export async function posterGames(db: SupabaseClient) {
   const since = new Date(Date.now() - 14 * 86400000).toISOString();

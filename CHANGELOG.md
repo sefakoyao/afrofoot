@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sample game for the matchday poster (branch `phase2/poster-sample`, release 0.56.1, no database change)
+- Admin → Website → Matchday poster: **Sample game (preview only)** in the game list, chosen automatically when no game has a lineup yet.
+  - It uses invented players (4-3-3, captain, bench) against "Example City FC", next Saturday 18:00.
+  - Nothing is stored, so players never see it (not in calendars or anywhere else).
+  - Its posters carry a "SAMPLE" tag.
+
 ## Unreleased – matchday poster (branch `phase2/xi-poster`, release 0.56.0, no database change)
 - **Admin → Website → Matchday poster:** the Starting XI of a game as an image for social media, in the crest's style:
   - black background with the crest's green-to-yellow band and four stars
