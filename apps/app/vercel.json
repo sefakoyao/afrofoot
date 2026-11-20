@@ -2,5 +2,15 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "pnpm install --no-frozen-lockfile",
-  "buildCommand": "pnpm --filter @afrofoot/app build"
+  "buildCommand": "pnpm --filter @afrofoot/app build",
+  "crons": [
+    {
+      "path": "/api/content/scan",
+      "schedule": "15 5 * * *"
+    },
+    {
+      "path": "/api/content/scan",
+      "schedule": "15 20 * * *"
+    }
+  ]
 }

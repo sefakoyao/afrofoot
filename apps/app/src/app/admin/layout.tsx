@@ -7,10 +7,11 @@ import { getSupabase } from '@/lib/supabase/server';
 
 export default async function Layout({ children }: { children: ReactNode }) {
   const member = await requireArea('admin');
-  const [t, tf, tm, supabase] = await Promise.all([getTranslations('admin'), getTranslations('fed'), getTranslations('fin'), getSupabase()]);
+  const [t, tf, tm, tc, supabase] = await Promise.all([getTranslations('admin'), getTranslations('fed'), getTranslations('fin'), getTranslations('content'), getSupabase()]);
   const pending = supabase ? (await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'pending')).count ?? 0 : 0;
   const toCountersign = supabase ? (await supabase.from('player_contracts').select('id', { count: 'exact', head: true }).eq('status', 'player_signed')).count ?? 0 : 0;
   const requests = supabase ? await newRequestCount(supabase) : 0;
+  const newSuggestions = supabase ? (await supabase.from('article_suggestions').select('id', { count: 'exact', head: true }).eq('status', 'new')).count ?? 0 : 0;
   const shirtRequests = supabase ? (await supabase.from('jersey_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')).count ?? 0 : 0;
   // grouped sections that open and close (components/AreaNav): only the section holding the current page is open
   const people = t('navGroupPeople'), teamsGroup = t('navGroupTeams'), club = t('navGroupClub'), finance = tm('navGroup');
@@ -26,6 +27,8 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/shirts', label: t('navShirts'), badge: shirtRequests, group: teamsGroup, icon: 'shirt' },
     { href: '/admin/opponents', label: t('navOpponents'), group: teamsGroup, icon: 'versus' },
     { href: '/admin/tasks', label: t('navTasks'), group: teamsGroup, icon: 'tasks' },
+    { href: '/admin/content', label: tc('navSuggestions'), badge: newSuggestions, group: tc('navGroup'), exact: true, icon: 'star', groupIcon: 'star' },
+    { href: '/admin/content/news', label: tc('navNews'), group: tc('navGroup'), icon: 'list' },
     { href: '/admin/finance', label: tm('navOverview'), group: finance, exact: true, icon: 'chart', groupIcon: 'euro' },
     { href: '/admin/finance/balances', label: tm('navBalances'), group: finance, icon: 'scale' },
     { href: '/admin/invoices', label: t('navInvoices'), group: finance, icon: 'receipt' },
