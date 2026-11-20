@@ -3271,6 +3271,10 @@
     "c_settingsSaved": "حُفظت الإعدادات.",
     "c_pickPerson": "اختر عضوًا.",
     "c_editorAdded": "أُضيف.",
-    "c_editorRemoved": "أُزيل."
+    "c_editorRemoved": "أُزيل.",
+    "envStatus": "يرى هذا النشر ({env}، {commit}):",
+    "envSet": "مضبوط",
+    "envOdd": "مضبوط لكنه يبدو خاطئًا",
+    "envMissing": "مفقود"
   }
 }

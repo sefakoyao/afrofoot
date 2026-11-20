@@ -47,11 +47,12 @@ Rules:
 - Use emojis sparingly (at most 2 per post). No hashtags in the website article.`;
 
 let client: Anthropic | null = null;
-export const draftingAvailable = () => !!process.env.ANTHROPIC_API_KEY;
+// read at request time (a computed key, so the value is never fixed at build time) and trimmed
+export const draftingAvailable = () => !!(process.env['ANTHROPIC' + '_API_KEY'] ?? '').trim();
 
 export async function draftArticle(kind: string, facts: unknown, today: string): Promise<{ draft: Draft; model: string } | { error: string }> {
   if (!draftingAvailable()) return { error: 'no_key' };
-  client ??= new Anthropic();
+  client ??= new Anthropic({ apiKey: (process.env['ANTHROPIC' + '_API_KEY'] ?? '').trim() });
   try {
     const res = await client.beta.messages.parse({
       model: DRAFT_MODEL,

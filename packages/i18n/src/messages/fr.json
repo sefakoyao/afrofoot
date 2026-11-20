@@ -3271,6 +3271,10 @@
     "c_settingsSaved": "Réglages enregistrés.",
     "c_pickPerson": "Choisissez un membre.",
     "c_editorAdded": "Ajouté.",
-    "c_editorRemoved": "Retiré."
+    "c_editorRemoved": "Retiré.",
+    "envStatus": "Ce déploiement ({env}, {commit}) voit :",
+    "envSet": "défini",
+    "envOdd": "défini, mais semble incorrect",
+    "envMissing": "manquant"
   }
 }

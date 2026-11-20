@@ -4,7 +4,7 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { addEditor, findTopics, removeEditor, saveContentSettings } from '@/app/actions/content';
 import { NavIcon } from '@/components/NavIcon';
 import { draftingAvailable } from '@/lib/content/draft';
-import { webUrl } from '@/lib/env';
+import { contentEnvReport, webUrl } from '@/lib/env';
 import { getSupabase } from '@/lib/supabase/server';
 import { ContentBanner, KindBadge, btn, input } from './shared';
 
@@ -67,6 +67,12 @@ export async function SuggestionList({ base, isAdmin, sp }: { base: string; isAd
         <p className="min-w-0 flex-1 text-sm"><span className="block font-bold">{t('autoTitle')}</span>{ready ? t('autoLead') : <span className="font-semibold text-danger">{t('noKeyLead')}</span>}</p>
         <form action={findTopics}><input type="hidden" name="base" value={base} />
           <button className={btn} disabled={!ready} data-find-now>{t('findNow')}</button></form>
+        {isAdmin ? (() => { const r = contentEnvReport(); return (
+          <p className="basis-full border-t border-accent/30 pt-2 text-xs text-muted" data-env-status>
+            {t('envStatus', { env: r.vercelEnv, commit: r.commit || '–' })}{' '}
+            {r.settings.map((x) => <span key={x.name} className={`me-2 inline-block rounded-full px-2 py-0.5 font-mono font-bold ${x.set && x.looksRight ? 'bg-accent/20 text-pitch' : 'bg-danger/10 text-danger'}`} data-env={x.name}>
+              {x.name}: {x.set ? (x.looksRight ? t('envSet') : t('envOdd')) : t('envMissing')}</span>)}
+          </p>); })() : null}
       </section>
 
       <nav className="flex gap-2 border-b border-line" aria-label={t('tabsLabel')}>

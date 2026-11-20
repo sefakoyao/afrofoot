@@ -45,3 +45,20 @@ export const webUrl = (): string => (read('NEXT_PUBLIC_WEB_URL') || 'https://www
 
 /** Public Membership page in the member's language (English has no prefix). Players pay there, also when sign-in is blocked. */
 export const membershipUrl = (locale: string): string => `${webUrl()}${locale === 'en' ? '' : `/${locale}`}/membership`;
+
+/**
+ * Content assistant (0064): which of its server settings this deployment sees - names and "set"/"missing" only,
+ * never values - and which Vercel environment and commit is running. Shown to admins on Admin → Website → Suggestions.
+ */
+export function contentEnvReport(): { vercelEnv: string; commit: string; settings: { name: string; set: boolean; looksRight: boolean }[] } {
+  const key = read('ANTHROPIC_API_KEY');
+  return {
+    vercelEnv: read('VERCEL_ENV') ?? 'local',
+    commit: (read('VERCEL_GIT_COMMIT_SHA') ?? '').slice(0, 7),
+    settings: [
+      { name: 'ANTHROPIC_API_KEY', set: !!key, looksRight: !!key && key.startsWith('sk-ant-') },
+      { name: 'SUPABASE_SERVICE_ROLE_KEY', set: !!read('SUPABASE_SERVICE_ROLE_KEY'), looksRight: !!read('SUPABASE_SERVICE_ROLE_KEY') },
+      { name: 'CRON_SECRET', set: !!read('CRON_SECRET'), looksRight: (read('CRON_SECRET') ?? '').length >= 16 },
+    ],
+  };
+}

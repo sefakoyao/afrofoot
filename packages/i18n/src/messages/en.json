@@ -3271,6 +3271,10 @@
     "c_settingsSaved": "Settings saved.",
     "c_pickPerson": "Choose a member.",
     "c_editorAdded": "Added.",
-    "c_editorRemoved": "Removed."
+    "c_editorRemoved": "Removed.",
+    "envStatus": "This deployment ({env}, {commit}) sees:",
+    "envSet": "set",
+    "envOdd": "set, but looks wrong",
+    "envMissing": "missing"
   }
 }
