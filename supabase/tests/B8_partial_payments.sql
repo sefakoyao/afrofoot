@@ -20,7 +20,7 @@ select t.check('admin records EUR 10 of 20', (select (record_invoice_payment('fd
 select t.check('…the invoice stays open with 10 paid', (select status || ':' || paid_cents from payments where id = 'fd600000-0000-0000-0000-000000000001') = 'pending:1000');
 select t.check('cannot pay more than what is left', t.raises($$select record_invoice_payment('fd600000-0000-0000-0000-000000000001', 1001)$$));
 select t.check('cannot record 0', t.raises($$select record_invoice_payment('fd600000-0000-0000-0000-000000000001', 0)$$));
-select t.check('cannot date a payment in the future', t.raises($$select record_invoice_payment('fd600000-0000-0000-0000-000000000001', 100, current_date + 1)$$));
+select t.check('cannot date a payment in the future', t.raises($$select record_invoice_payment('fd600000-0000-0000-0000-000000000001', 100, (now() at time zone 'Europe/Helsinki')::date + 1)$$));
 select t.check('admin cannot write receipts directly', t.raises($$insert into payment_receipts (payment_id, amount_cents, paid_on) values ('fd600000-0000-0000-0000-000000000001', 100, current_date)$$));
 select t.check('balances: paid 10, owed 10 + 30, overdue 30', (select paid_cents || '/' || open_cents || '/' || overdue_cents || '/' || balance_cents from finance_balances('fd200000-0000-0000-0000-000000000001') where player_id = 'fd500000-0000-0000-0000-000000000002') = '1000/1000/3000/4000');
 select t.check('projection: collected 10, outstanding 40', (select (j ->> 'collected') || '/' || (j ->> 'outstanding') from finance_projection('fd200000-0000-0000-0000-000000000001') j) = '1000/4000');

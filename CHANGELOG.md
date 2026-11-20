@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – merge accounts (branch `phase2/merge-accounts`, release 0.59.0, migration 0065)
+- **Admin → People → Merge accounts**: when one person has two accounts (for example signed up once with an email and once with a phone number), an admin merges them into one.
+  - **Finding them:** "Possible duplicates" lists accounts that share an email or phone number, on the account or in the player's contact details. Spaces and case are ignored. The menu shows how many pairs there are, and any two accounts can also be picked by hand.
+  - **Comparing:** both accounts side by side (email, phone, role, status, created, last sign-in, and teams, game replies, trainings, invoices and unpaid ones, contracts, coached teams). The admin chooses the one to keep. By default that's an active account with more history, and never their own account as the one removed.
+  - **Merging:** the admin ticks "same person" and merges. Teams, game replies, trainings, line-ups, stats, invoices and payments, season memberships, contracts, shirt-number requests, tasks, votes, consents, notifications and the sign-in log all move to the kept account, along with every "done by" mark.
+    - Where both have the same thing (the same game, training, team or season), the kept account's version stays, and the other membership's invoices move onto the kept membership.
+    - Empty details of the kept account are filled from the other one.
+    - The removed login is deleted.
+    - Recent merges are listed on the page.
+- Database: `merge_accounts(keep, remove)` and `duplicate_accounts()`, plus the `account_merges` log (admins read it; only the function writes it; audited).
+  - Only admins can merge, and only a super admin can merge an administrator's account.
+  - The two accounts must share an email or phone number, and an admin cannot merge away their own account.
+- Tests: 22 database checks (`tests/C8_merge_accounts.sql`). B8 now uses the Helsinki date, so it no longer fails after 22:00 UTC.
+
 ## Unreleased – coach menus (branch `phase2/coach-menus`, release 0.58.0, no database change)
 - The Coach area menu gains two sections, each for the teams the coach is assigned to this season:
   - **Teams & events**:
