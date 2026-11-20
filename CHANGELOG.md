@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – past-season invoices (branch `phase2/past-season-billing`, migration 0063, release 0.54.0)
+- **Admin → Finance → Past seasons** (opens on the latest past season; any season can be chosen):
+  - **Bill a season afterwards:** first and last month (e.g. January–October 2025, up to 24 months), monthly fee, text on each line, invoice date, due date, and the players. Search, select all or none; players who were in a team that season are ticked first. A running total shows "players × months × fee" before sending.
+  - Each player gets **one invoice with a line per month** (invoice number, reference number, PDF, bank barcode). A player already billed for any of those months is skipped, so nobody is billed twice.
+  - **Totals:** invoiced, paid, still owed, and how many paid in full.
+  - **The list:** per player the months, invoiced, paid, still owed and status (paid, part paid, overdue, open). Tick several and **Mark selected as paid** on a date; part payments are recorded on the Invoices page as before.
+- Players see these invoices under Membership → My payments, can pay them, and they count in Finance → Balances.
+- 14 database checks, 11 browser checks; the invoice, finance and payment suites pass.
+
 ## Unreleased – game-day and training tasks, menu icons (branch `phase2/event-tasks`, migration 0062, release 0.53.0)
 - **Tasks on games and training** (the coach's game and training pages, new "Tasks" section):
   - Tap a task to add it: 10 built in, each with an icon (balls, water, first-aid kit, wash the kit, bibs, cones, driving/carpool, referee, photos, fruit and snacks). The same task can be added twice (two drivers).

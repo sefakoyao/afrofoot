@@ -4,7 +4,7 @@
  */
 export type NavIconName =
   | 'home' | 'inbox' | 'users' | 'key' | 'contract' | 'team' | 'calendar' | 'link' | 'shirt' | 'versus' | 'chart' | 'scale'
-  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks';
+  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks' | 'history';
 
 const PATHS: Record<NavIconName, React.ReactNode> = {
   home: <><path d="M3 11 12 4l9 7" /><path d="M5 10v10h5v-6h4v6h5V10" /></>,
@@ -30,6 +30,7 @@ const PATHS: Record<NavIconName, React.ReactNode> = {
   handshake: <><path d="m11 17 2 2a1.4 1.4 0 0 0 2-2" /><path d="m14 14 2.5 2.5a1.4 1.4 0 0 0 2-2L15 11l-1.5 1a2 2 0 0 1-2.5-3l3-2.5a3 3 0 0 1 3 0L21 9" /><path d="m3 9 4-3 4 1M3 9l-1 6 4 4a1.4 1.4 0 0 0 2-2" /></>,
   euro: <><path d="M17 6.5A7 7 0 1 0 17 17.5" /><path d="M4 10h9M4 14h9" /></>,
   star: <><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" /></>,
+  history: <><path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5M12 7v5l3 2" /></>,
   tasks: <><rect x="4" y="4" width="16" height="17" rx="2" /><path d="m8 10 1.5 1.5L12 9M8 16l1.5 1.5L12 15M14 10h3M14 16h3" /></>,
 };
 
