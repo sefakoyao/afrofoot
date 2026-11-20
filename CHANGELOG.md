@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – lighter poster, separate background darkness (branch `phase2/poster-brightness`, release 0.57.1, no database change)
+- **Effect strength** now says what it does: it changes only the effect (wave, ribbons, stripes, dots), never the photo or the background.
+- New **Background darkness** slider (0–90 %, default 35 %): the dark layer over the background photo, the fade behind the player list and the footer. It was fixed at about 85 % before, which made the whole poster too dark.
+- Lighter **Night** and **Pitch** backgrounds; the featured player photo's dark edges follow the darkness setting.
+
 ## Unreleased – poster effects and faster preview (branch `phase2/poster-effects`, release 0.57.0, no database change)
 - **Effect** choice:
   - football wave (the original)

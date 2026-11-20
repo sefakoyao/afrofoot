@@ -5,7 +5,7 @@ import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
 import { PosterPreview } from '@/components/admin/PosterPreview';
-import { DEFAULT_STRENGTH, EFFECTS, effect } from '@/lib/poster-art';
+import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect } from '@/lib/poster-art';
 import { POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_KINDS, posterGames, type PosterFormat, type PosterLayout, type UploadKind } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -68,9 +68,10 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
   const photo = uploads.player.some((p) => `media:${p}` === one(sp.photo)) ? one(sp.photo) : '';
   const fx = (EFFECTS as readonly string[]).includes(one(sp.fx)) ? one(sp.fx) : 'wave';
   const strength = sp.strength !== undefined ? String(Math.max(0, Math.min(100, Math.round(Number(one(sp.strength)) || 0)))) : String(DEFAULT_STRENGTH);
-  const q = new URLSearchParams({ match, layout, format, title, fx, strength, bg, ...(sponsor ? { sponsor } : {}), ...(photo ? { photo } : {}) });
+  const shade = sp.shade !== undefined ? String(Math.max(0, Math.min(100, Math.round(Number(one(sp.shade)) || 0)))) : String(DEFAULT_SHADE);
+  const q = new URLSearchParams({ match, layout, format, title, fx, strength, bg, shade, ...(sponsor ? { sponsor } : {}), ...(photo ? { photo } : {}) });
   const result = one(sp.result);
-  const SW: Record<string, string> = { night: 'linear-gradient(160deg,#1a1a1a,#0b0b0b 55%,#0d2409)', pitch: 'linear-gradient(165deg,#2c8a20,#1b5e14 55%,#0e3a0a)' };
+  const SW: Record<string, string> = { night: 'linear-gradient(160deg,#2a2a2a,#171717 50%,#0f2a0b)', pitch: 'linear-gradient(165deg,#2f9223,#1f6c17 50%,#134a0e)' };
   const ok = result === 'p_uploaded' || result === 'p_removed';
 
   const pick = (name: string, value: string, checked: boolean, inner: React.ReactNode, cls = '') => (
@@ -123,6 +124,11 @@ export default async function PosterPage({ searchParams }: { searchParams: Promi
                 <span className={`${tile} aspect-[4/5] items-end`} style={{ backgroundImage: b.thumb ? `url(${b.thumb})` : SW[b.key] }}>
                   <span className="w-full bg-black/70 px-1 py-0.5 text-center text-[11px] font-bold text-white">{b.label}</span></span>, ''))}</div>
             </fieldset>
+
+            <label className="-mt-2 grid gap-1 text-sm font-semibold">{t('shade')}
+              <span className="flex items-center gap-3"><input type="range" name="shade" min={0} max={90} step={5} defaultValue={shade} className="w-full accent-accent" data-shade />
+                <output className="w-12 text-end font-mono text-xs text-muted">{shade}%</output></span>
+              <span className="text-xs font-normal text-muted">{t('shadeHint')}</span></label>
 
             <fieldset className="grid gap-2" data-pick-photo><legend className="text-sm font-semibold">{t('featured')}</legend>
               <div className="grid grid-cols-3 gap-2">
