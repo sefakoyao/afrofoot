@@ -26,6 +26,7 @@ export function starsBand(w: number, h: number): string {
 export const EFFECTS = ['wave', 'ribbons', 'stripes', 'dots', 'none'] as const;
 export type Effect = (typeof EFFECTS)[number];
 export const DEFAULT_STRENGTH = 60; // 0–100 on the page; 60 is the original look
+export const DEFAULT_SHADE = 35;    // darkness over a background photo, 0–100 (it was a fixed ~85 before)
 
 /** The shared curve every effect follows: a sine wave that rises slightly to the right. */
 const curve = (w: number, h: number, centre: number) => (x: number) => h * centre + h * 0.07 * Math.sin((x / w) * Math.PI * 1.6 + 0.6) - (x / w) * h * 0.12;
@@ -105,7 +106,7 @@ export function shield(size: number, goalkeeper = false): string {
 }
 
 /** The edge that blends a photo into the poster: a wave fading in from the left, a fade at the top and a wave at the bottom. */
-export function photoEdge(w: number, h: number): string {
+export function photoEdge(w: number, h: number, dark = 1): string {
   let d = `M0,0 L${w * 0.2},0 `;
   for (let y = 0; y <= h; y += 20) d += `L${(w * 0.12 + w * 0.07 * Math.sin((y / h) * Math.PI * 2.2)).toFixed(1)},${y} `;
   d += `L0,${h} Z`;
@@ -113,10 +114,10 @@ export function photoEdge(w: number, h: number): string {
   for (let x = 0; x <= w; x += 20) b += `L${x},${(h * 0.86 + h * 0.05 * Math.sin((x / w) * Math.PI * 1.6 + 1)).toFixed(1)} `;
   b += `L${w},${h} Z`;
   return svg(w, h, `<defs>
-    <linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${INK}" stop-opacity="0.95"/><stop offset="0.18" stop-color="${INK}" stop-opacity="0"/><stop offset="0.7" stop-color="${INK}" stop-opacity="0"/><stop offset="1" stop-color="${INK}" stop-opacity="0.85"/></linearGradient>
-    <linearGradient id="l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${INK}" stop-opacity="0.95"/><stop offset="1" stop-color="${INK}" stop-opacity="0"/></linearGradient></defs>
+    <linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${INK}" stop-opacity="${(0.6 * dark).toFixed(2)}"/><stop offset="0.14" stop-color="${INK}" stop-opacity="0"/><stop offset="0.75" stop-color="${INK}" stop-opacity="0"/><stop offset="1" stop-color="${INK}" stop-opacity="${(0.6 * dark).toFixed(2)}"/></linearGradient>
+    <linearGradient id="l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${INK}" stop-opacity="${(0.7 * dark).toFixed(2)}"/><stop offset="1" stop-color="${INK}" stop-opacity="0"/></linearGradient></defs>
     <rect width="${w}" height="${h}" fill="url(#t)"/><rect width="${w * 0.35}" height="${h}" fill="url(#l)"/>
-    <path d="${d}" fill="${INK}" fill-opacity="0.9"/><path d="${b}" fill="${INK}"/>`);
+    <path d="${d}" fill="${INK}" fill-opacity="${(0.75 * dark).toFixed(2)}"/><path d="${b}" fill="${INK}" fill-opacity="${Math.min(1, 0.4 + 0.6 * dark).toFixed(2)}"/>`);
 }
 
 /** A pitch outline (thin white lines) for the pitch layout. */

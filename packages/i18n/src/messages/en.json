@@ -3329,7 +3329,9 @@
     "fx_stripes": "Kit stripes",
     "fx_dots": "Kit dots",
     "fx_none": "None",
-    "strength": "Effect strength",
-    "loading": "Making the poster…"
+    "strength": "Effect strength (the effect only)",
+    "loading": "Making the poster…",
+    "shade": "Background darkness",
+    "shadeHint": "How dark the layer over the background photo is. Only the picture; the effect has its own strength above."
   }
 }

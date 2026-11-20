@@ -3329,7 +3329,9 @@
     "fx_stripes": "Peliasun raidat",
     "fx_dots": "Peliasun pisteet",
     "fx_none": "Ei mitään",
-    "strength": "Efektin voimakkuus",
-    "loading": "Julistetta tehdään…"
+    "strength": "Efektin voimakkuus (vain efekti)",
+    "loading": "Julistetta tehdään…",
+    "shade": "Taustan tummuus",
+    "shadeHint": "Kuinka tumma kerros taustakuvan päällä on. Vain kuva; efektillä on oma voimakkuutensa yllä."
   }
 }

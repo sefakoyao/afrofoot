@@ -3329,7 +3329,9 @@
     "fx_stripes": "Rayures du maillot",
     "fx_dots": "Pois du maillot",
     "fx_none": "Aucun",
-    "strength": "Intensité de l'effet",
-    "loading": "Création de l'affiche…"
+    "strength": "Intensité de l'effet (l'effet seulement)",
+    "loading": "Création de l'affiche…",
+    "shade": "Assombrissement du fond",
+    "shadeHint": "À quel point la photo de fond est assombrie. Seulement l'image ; l'effet a sa propre intensité ci-dessus."
   }
 }

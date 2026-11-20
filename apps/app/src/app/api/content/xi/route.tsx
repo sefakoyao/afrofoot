@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { isAdminRole } from '@afrofoot/db';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
-import { CREST_RATIO, DEFAULT_STRENGTH, EFFECTS, effect, photoEdge, pitchLines, starsBand, type Effect } from '@/lib/poster-art';
+import { CREST_RATIO, DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect, photoEdge, pitchLines, starsBand, type Effect } from '@/lib/poster-art';
 import { POSTER_BACKGROUNDS, POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_PATH, loadPoster, samplePoster, type PosterFormat, type PosterLayout, type PosterPlayer } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -53,6 +53,9 @@ export async function GET(req: NextRequest) {
   const layout: PosterLayout = (POSTER_LAYOUTS as readonly string[]).includes(q.get('layout') ?? '') ? (q.get('layout') as PosterLayout) : 'list';
   const title = POSTER_TITLES[Number(q.get('title')) || 0] ?? POSTER_TITLES[0];
   const fx: Effect = (EFFECTS as readonly string[]).includes(q.get('fx') ?? '') ? (q.get('fx') as Effect) : 'wave';
+  // how dark the layer over a background photo is (0 = the photo as it is, 100 = almost black); only the picture, never the effect
+  const shade = q.has('shade') ? Math.max(0, Math.min(100, Math.round(Number(q.get('shade')) || 0))) : DEFAULT_SHADE;
+  const a = shade / 100, al = (v: number) => Math.max(0, Math.min(0.97, v)).toFixed(2);
   const strength = q.has('strength') ? Math.max(0, Math.min(100, Math.round(Number(q.get('strength')) || 0))) : DEFAULT_STRENGTH;
   const supabase = await getSupabase();
   const d = isSample ? samplePoster() : supabase ? await loadPoster(supabase, id) : null;
@@ -171,10 +174,10 @@ export async function GET(req: NextRequest) {
 
   return new ImageResponse(
     (
-      <div style={{ width: W, height: H, display: 'flex', position: 'relative', background: plain === 'pitch' && !photoBg ? '#0e2a0a' : INK, color: '#fff', fontFamily: 'Figtree', fontWeight: 700 }}>
+      <div style={{ width: W, height: H, display: 'flex', position: 'relative', background: INK, ...(photoBg ? {} : { backgroundImage: plain === 'pitch' ? 'linear-gradient(165deg, #2f9223 0%, #1f6c17 50%, #134a0e 100%)' : 'linear-gradient(160deg, #2a2a2a 0%, #171717 50%, #0f2a0b 100%)' }), color: '#fff', fontFamily: 'Figtree', fontWeight: 700 }}>
         {/* background photo (cropped to fill), darkened so the wave and text stand out */}
         {photoBg ? <img src={photoBg} alt="" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, objectFit: 'cover' }} /> : null}
-        {photoBg ? <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, display: 'flex', backgroundImage: 'linear-gradient(180deg, rgba(11,11,11,.78), rgba(11,11,11,.9) 60%, rgba(11,11,11,.97))' }} /> : null}
+        {photoBg ? <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, display: 'flex', backgroundImage: `linear-gradient(180deg, rgba(11,11,11,${al(a)}), rgba(11,11,11,${al(a + 0.08)}) 55%, rgba(11,11,11,${al(a + 0.3)}))` }} /> : null}
         {/* the background effect the admin chose (football wave, ribbons, kit stripes, kit dots or none) at their strength */}
         {(() => { const art = effect(fx, W, H, strength, format === 'square' ? 0.66 : 0.6); return art ? <img src={art} alt="" width={W} height={H} style={{ position: 'absolute', left: 0, top: 0 }} /> : null; })()}
         {/* featured player photo, cropped to fill its frame, blended in with a wave edge */}
@@ -183,12 +186,12 @@ export async function GET(req: NextRequest) {
           return (
             <div style={{ position: 'absolute', left: W - fw, top: fy, width: fw, height: fh, display: 'flex', overflow: 'hidden' }}>
               <img src={featured} alt="" width={fw} height={fh} style={{ width: fw, height: fh, objectFit: 'cover', objectPosition: 'center top' }} />
-              <img src={photoEdge(fw, fh)} alt="" width={fw} height={fh} style={{ position: 'absolute', left: 0, top: 0 }} />
+              <img src={photoEdge(fw, fh, photoBg ? Math.min(1, 0.25 + a) : 1)} alt="" width={fw} height={fh} style={{ position: 'absolute', left: 0, top: 0 }} />
             </div>
           );
         })() : null}
         {/* a dark fade behind the footer so the bench, sponsor and venue read clearly */}
-        <div style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: P.footer + 90, display: 'flex', backgroundImage: 'linear-gradient(180deg, rgba(11,11,11,0), rgba(11,11,11,.92) 45%, rgba(11,11,11,.97))' }} />
+        <div style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: P.footer + 90, display: 'flex', backgroundImage: `linear-gradient(180deg, rgba(11,11,11,0), rgba(11,11,11,${al(0.35 + a * 0.5)}) 50%, rgba(11,11,11,${al(0.45 + a * 0.5)}))` }} />
         {/* the crest's band with four stars, top; a thin one at the bottom */}
         <img src={starsBand(W, 54)} alt="" width={W} height={54} style={{ position: 'absolute', left: 0, top: 0 }} />
         <div style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: 12, display: 'flex', backgroundImage: `linear-gradient(90deg, ${GREEN}, ${GOLD})` }} />
@@ -207,7 +210,7 @@ export async function GET(req: NextRequest) {
         </div>
         <img src={crestSrc ?? `${origin}/afc-logo.png`} alt="" width={crestW} height={crestH} style={{ position: 'absolute', right: pad, top: 84, width: crestW, height: crestH, objectFit: 'contain' }} />
 
-        {layout === 'list' ? <div style={{ position: 'absolute', left: 0, top: P.top - 30, width: W * 0.62, height: bodyH + 60, display: 'flex', backgroundImage: 'linear-gradient(90deg, rgba(11,11,11,.82) 0%, rgba(11,11,11,.55) 55%, rgba(11,11,11,0) 100%)' }} /> : null}
+        {layout === 'list' ? <div style={{ position: 'absolute', left: 0, top: P.top - 30, width: W * 0.62, height: bodyH + 60, display: 'flex', backgroundImage: `linear-gradient(90deg, rgba(11,11,11,${al(0.25 + a * 0.6)}) 0%, rgba(11,11,11,${al(0.12 + a * 0.4)}) 55%, rgba(11,11,11,0) 100%)` }} /> : null}
         {layout === 'list' ? listLayout() : layout === 'cards' ? cardsLayout() : pitchLayout()}
         {isSample ? <div style={{ position: 'absolute', right: pad, top: 84 + crestH + 14, display: 'flex', background: '#fff', color: INK, fontSize: 22, fontWeight: 900, letterSpacing: 4, padding: '4px 12px', borderRadius: 6 }}>SAMPLE</div> : null}
 
