@@ -3275,6 +3275,37 @@
     "envStatus": "Tämä julkaisu ({env}, {commit}) näkee:",
     "envSet": "asetettu",
     "envOdd": "asetettu, mutta näyttää väärältä",
-    "envMissing": "puuttuu"
+    "envMissing": "puuttuu",
+    "navPoster": "Ottelujuliste"
+  },
+  "poster": {
+    "title": "Ottelujuliste",
+    "lead": "Ottelun avauskokoonpano kuvana Instagramiin, Facebookiin ja TikTokiin seuran väreissä. Valitse ottelu, koko ja tausta ja lataa.",
+    "noGames": "Ei vielä otteluita, joilla on kokoonpano. Juliste tulee, kun valmentaja on asettanut avauksen kokoonpanotaululle.",
+    "game": "Ottelu",
+    "format": "Koko",
+    "f_portrait": "Pysty",
+    "f_square": "Neliö",
+    "f_story": "Tarina",
+    "background": "Tausta",
+    "bgTeam": "Joukkuekuva",
+    "bgNight": "Yö",
+    "bgPitch": "Kenttä",
+    "bgUpload": "Oma kuva",
+    "update": "Näytä",
+    "preview": "Esikatselu",
+    "previewAlt": "Avauskokoonpanon juliste",
+    "download": "Lataa PNG",
+    "namesNote": "Nimet näkyvät vain pelaajilta, jotka ovat antaneet luvan julkiseen näkyvyyteen (kuten verkkosivuilla); muilta vain pelinumero. Pysty sopii Instagramin ja Facebookin julkaisuihin, Tarina Instagramin tarinoihin ja TikTokiin.",
+    "uploadTitle": "Oma taustakuva",
+    "uploadLead": "JPG, PNG tai WebP, enintään 8 Mt. Käytä kuvia, jotka seura saa julkaista (alle 18-vuotiailta huoltajan luvalla).",
+    "upload": "Lataa",
+    "removePhoto": "Poista kuva {name}",
+    "p_uploaded": "Kuva ladattu ja valittu taustaksi.",
+    "p_removed": "Kuva poistettu.",
+    "p_noFile": "Valitse ensin kuva.",
+    "p_type": "Käytä JPG-, PNG- tai WebP-kuvaa.",
+    "p_size": "Kuva on yli 8 Mt.",
+    "p_error": "Jokin meni vikaan. Yritä uudelleen."
   }
 }

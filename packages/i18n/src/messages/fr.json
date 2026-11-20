@@ -3275,6 +3275,37 @@
     "envStatus": "Ce déploiement ({env}, {commit}) voit :",
     "envSet": "défini",
     "envOdd": "défini, mais semble incorrect",
-    "envMissing": "manquant"
+    "envMissing": "manquant",
+    "navPoster": "Affiche de match"
+  },
+  "poster": {
+    "title": "Affiche de match",
+    "lead": "Le onze de départ d'un match en image pour Instagram, Facebook et TikTok, aux couleurs du club. Choisissez le match, le format et le fond, puis téléchargez.",
+    "noGames": "Pas encore de match avec une composition. L'affiche apparaît quand un entraîneur a placé les titulaires sur le tableau de composition.",
+    "game": "Match",
+    "format": "Format",
+    "f_portrait": "Portrait",
+    "f_square": "Carré",
+    "f_story": "Story",
+    "background": "Fond",
+    "bgTeam": "Photo d'équipe",
+    "bgNight": "Nuit",
+    "bgPitch": "Terrain",
+    "bgUpload": "Votre photo",
+    "update": "Afficher",
+    "preview": "Aperçu",
+    "previewAlt": "Affiche du onze de départ",
+    "download": "Télécharger le PNG",
+    "namesNote": "Les noms ne s'affichent que pour les joueurs qui ont accepté d'être affichés publiquement (comme sur le site) ; pour les autres, seulement le numéro. Portrait convient aux publications Instagram et Facebook, Story aux Stories Instagram et à TikTok.",
+    "uploadTitle": "Votre photo de fond",
+    "uploadLead": "JPG, PNG ou WebP, 8 Mo au plus. Utilisez des photos que le club peut publier (pour les moins de 18 ans, avec l'accord du tuteur).",
+    "upload": "Envoyer",
+    "removePhoto": "Retirer la photo {name}",
+    "p_uploaded": "Photo envoyée et choisie comme fond.",
+    "p_removed": "Photo retirée.",
+    "p_noFile": "Choisissez d'abord une photo.",
+    "p_type": "Utilisez une image JPG, PNG ou WebP.",
+    "p_size": "La photo dépasse 8 Mo.",
+    "p_error": "Une erreur s'est produite. Veuillez réessayer."
   }
 }

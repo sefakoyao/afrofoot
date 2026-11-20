@@ -3275,6 +3275,37 @@
     "envStatus": "This deployment ({env}, {commit}) sees:",
     "envSet": "set",
     "envOdd": "set, but looks wrong",
-    "envMissing": "missing"
+    "envMissing": "missing",
+    "navPoster": "Matchday poster"
+  },
+  "poster": {
+    "title": "Matchday poster",
+    "lead": "The Starting XI of a game as a picture for Instagram, Facebook and TikTok, in the club's colours. Choose the game, the size and the background, then download.",
+    "noGames": "No game with a lineup yet. The poster appears once a coach has put the starters on the lineup board.",
+    "game": "Game",
+    "format": "Size",
+    "f_portrait": "Portrait",
+    "f_square": "Square",
+    "f_story": "Story",
+    "background": "Background",
+    "bgTeam": "Team photo",
+    "bgNight": "Night",
+    "bgPitch": "Pitch",
+    "bgUpload": "Your photo",
+    "update": "Show",
+    "preview": "Preview",
+    "previewAlt": "Starting XI poster",
+    "download": "Download PNG",
+    "namesNote": "Names are shown only for players who agreed to be shown publicly (as on the website); for the others, only their shirt number. Portrait suits Instagram and Facebook posts, Story suits Instagram Stories and TikTok.",
+    "uploadTitle": "Your own background photo",
+    "uploadLead": "JPG, PNG or WebP, up to 8 MB. Use photos the club may publish (and, for players under 18, with their guardian's consent).",
+    "upload": "Upload",
+    "removePhoto": "Remove photo {name}",
+    "p_uploaded": "Photo uploaded and chosen as the background.",
+    "p_removed": "Photo removed.",
+    "p_noFile": "Choose a photo first.",
+    "p_type": "Use a JPG, PNG or WebP picture.",
+    "p_size": "The photo is larger than 8 MB.",
+    "p_error": "Something went wrong. Please try again."
   }
 }
