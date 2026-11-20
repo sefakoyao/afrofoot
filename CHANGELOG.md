@@ -3,6 +3,22 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – content assistant, step 1 (branch `phase2/content-assistant`, migration 0064, release 0.55.0)
+- **Admin → Website → Suggestions:**
+  - Twice a day (scheduled job) or with **Find new topics now**, the app finds topics in the club's data: match reports, previews, new public events, new players (only players shown publicly), new sponsors, and a monthly recap on the 1st–5th.
+  - Claude drafts each one: the website article in English, Finnish, French and Arabic, plus Facebook, Instagram and TikTok posts (Finnish + English), and a list of things to check. Only facts from the app are sent, and they are shown on the page.
+- **Review page:**
+  - Edit every text, see previews of the three posts with the club's branded picture, untick platforms and choose the posting time ("best time" suggested).
+  - **Approve and publish** puts the article on the website and queues the posts; **Reject** with a reason.
+  - Posts wait ("waiting for the connection") until Facebook, Instagram and TikTok are connected in step 2.
+- **News:** list of all articles; write and edit articles by hand in four languages, publish, and share on social media.
+- **Communications people:** admins name members who can review, approve and write news (a "Website" button appears for them). Posting time: best time (recommended) or a fixed time.
+- **Server settings:**
+  - `ANTHROPIC_API_KEY` (drafting)
+  - `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET` (the scheduled job only; `vercel.json` crons)
+- Security: suggestions, posts and editors are behind RLS (`app.can_publish`); the topic finder runs in the database for approvers or the service role only. Audited.
+- 23 database checks, 27 browser checks (Claude's API replaced by a local stand-in in tests); the menu and coach suites pass.
+
 ## Unreleased – past-season invoices (branch `phase2/past-season-billing`, migration 0063, release 0.54.0)
 - **Admin → Finance → Past seasons** (opens on the latest past season; any season can be chosen):
   - **Bill a season afterwards:** first and last month (e.g. January–October 2025, up to 24 months), monthly fee, text on each line, invoice date, due date, and the players. Search, select all or none; players who were in a team that season are ticked first. A running total shows "players × months × fee" before sending.

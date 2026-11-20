@@ -10,6 +10,7 @@ import type { NavIconName } from './NavIcon';
 import { PitchWatermark } from './PitchWatermark';
 import { IdleGuard } from './IdleGuard';
 import { idleMinutes } from '@/lib/idle';
+import { getSupabase } from '@/lib/supabase/server';
 
 const SURFACE: Record<Area, 'admin' | 'coach' | 'player'> = { admin: 'admin', coach: 'coach', me: 'player' };
 const TITLE: Record<Area, 'areaAdmin' | 'areaCoach' | 'areaPlayer'> = { admin: 'areaAdmin', coach: 'areaCoach', me: 'areaPlayer' };
@@ -23,6 +24,9 @@ export interface NavItem { href: string; label: string; badge?: number; group?: 
 export async function AppShell({ area, member, nav, children }: { area: Area; member: Member; nav?: NavItem[]; children: ReactNode }) {
   const [t, tn, tr] = await Promise.all([getTranslations('app'), getTranslations('nav'), getTranslations('role')]);
   const name = `${member.firstName} ${member.lastName}`.trim() || member.email || member.phone || '';
+  // 0064: the club's communications people (not admins) reach the website pages from any area
+  const supabase = area !== 'admin' ? await getSupabase() : null;
+  const publisher = supabase ? !!(await supabase.rpc('can_publish')).data : false;
   return (
     <div data-surface={SURFACE[area]} className="relative isolate flex min-h-screen flex-col">
       <PitchWatermark />
@@ -39,6 +43,7 @@ export async function AppShell({ area, member, nav, children }: { area: Area; me
             {/* a player-coach moves between their coaching pages and their own player pages */}
             {area === 'coach' && canEnter(member.role, 'me') ? <a href="/me" className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold hover:bg-white hover:text-ink-950" data-area-switch="me">{t('switchToPlayer')}</a> : null}
             {area === 'me' && canEnter(member.role, 'coach') ? <a href="/coach" className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-bold hover:bg-white hover:text-ink-950" data-area-switch="coach">{t('switchToCoach')}</a> : null}
+            {publisher ? <a href="/content" className="rounded-full bg-gold px-3 py-1.5 text-sm font-bold text-ink-950 hover:brightness-110" data-content-link>{t('websiteLink')}</a> : null}
             <LanguageSwitcher />
             <form action={signOut}>
               <button type="submit" className="min-h-9 rounded-full border-2 border-white/70 px-4 text-sm font-bold hover:bg-white hover:text-ink-950">{tn('logout')}</button>
