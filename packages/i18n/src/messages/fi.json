@@ -3271,6 +3271,10 @@
     "c_settingsSaved": "Asetukset tallennettu.",
     "c_pickPerson": "Valitse jäsen.",
     "c_editorAdded": "Lisätty.",
-    "c_editorRemoved": "Poistettu."
+    "c_editorRemoved": "Poistettu.",
+    "envStatus": "Tämä julkaisu ({env}, {commit}) näkee:",
+    "envSet": "asetettu",
+    "envOdd": "asetettu, mutta näyttää väärältä",
+    "envMissing": "puuttuu"
   }
 }

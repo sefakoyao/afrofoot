@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – content assistant settings check (branch `phase2/content-env-status`, release 0.55.1, no database change)
+- Admin → Website → Suggestions shows admins which of the content assistant's server settings this deployment sees: `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET`, as "set", "missing" or "looks wrong", never the values. It also shows the Vercel environment (production / preview) and the commit.
+- The Claude key is read when each request runs and trimmed, so spaces pasted around it no longer matter.
+
 ## Unreleased – content assistant, step 1 (branch `phase2/content-assistant`, migration 0064, release 0.55.0)
 - **Admin → Website → Suggestions:**
   - Twice a day (scheduled job) or with **Find new topics now**, the app finds topics in the club's data: match reports, previews, new public events, new players (only players shown publicly), new sponsors, and a monthly recap on the 1st–5th.
