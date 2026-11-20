@@ -14,6 +14,13 @@ export type PosterData = {
 };
 
 export const POSTER_BACKGROUNDS = ['team', 'pitch', 'night'] as const;   // built-in backgrounds; uploaded photos are "media:<path>"
+export const POSTER_LAYOUTS = ['list', 'cards', 'pitch'] as const;
+export type PosterLayout = (typeof POSTER_LAYOUTS)[number];
+export const POSTER_TITLES = ['STARTING XI', 'LINE UP', 'MATCHDAY'] as const;
+/** Uploaded images, by use: backgrounds, sponsor logos ("Presented by") and featured player photos. */
+export const UPLOAD_KINDS = ['bg', 'sponsor', 'player'] as const;
+export type UploadKind = (typeof UPLOAD_KINDS)[number];
+export const UPLOAD_PATH = /^posters\/(bg|sponsor|player)\/[\w-]+\.(jpg|jpeg|png)$/;
 export const POSTER_FORMATS = { portrait: { w: 1080, h: 1350 }, story: { w: 1080, h: 1920 }, square: { w: 1080, h: 1080 } } as const;
 export type PosterFormat = keyof typeof POSTER_FORMATS;
 

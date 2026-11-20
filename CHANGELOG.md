@@ -4,13 +4,22 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
 ## Unreleased – matchday poster (branch `phase2/xi-poster`, release 0.56.0, no database change)
-- **Admin → Website → Matchday poster:** the Starting XI of a game as an image for social media.
-  - Pick a game with a lineup on the board (from 14 days back), a size (portrait 1080×1350, story 1080×1920, square 1080×1080) and a background (team photo, night, pitch, or a photo you upload).
-  - Preview, then **Download PNG**.
-- The poster shows the club logo and colours, the division or "Friendly", "STARTING XI", the two teams, the XI on a pitch in the coach's formation with shirt numbers and the captain, the bench, the date, kick-off and venue.
-- Players' names appear only for players shown publicly (the website rule); for others only the shirt number.
-- Uploads go to the club's public images (`public-media/posters/`, admins only) and can be removed. The club font Figtree Black is embedded like the invoice fonts.
-- Admins only (the image route refuses everyone else). 9 browser checks.
+- **Admin → Website → Matchday poster:** the Starting XI of a game as an image for social media, in the crest's style:
+  - black background with the crest's green-to-yellow band and four stars
+  - a **football wave** (football panels and ribbons in the club colours) across the picture
+  - crest-shaped shirt-number shields
+- **Choices:**
+  - **Layout:** list (with a featured player photo), cards, or pitch
+  - **Size:** portrait 1080×1350, story 1080×1920, or square 1080×1080
+  - **Title:** STARTING XI, LINE UP, or MATCHDAY
+  - **Background:** night, pitch, the team photo, or an upload
+  - **Featured player photo**
+  - **Presented by** sponsor logo
+  Then preview and **Download PNG**.
+- Photos are cropped to fill their frame; the crest and sponsor logos keep their proportions inside their space.
+- Uploads (background, sponsor logo, player photo; JPG or PNG up to 8 MB) go to the club's public images (`public-media/posters/<kind>/`, admins only) and can be removed.
+- Players' names appear only for players shown publicly (the website rule); for others the shirt number and position.
+- Admins only (the image route refuses everyone else). Figtree Black is embedded like the invoice fonts.
 
 ## Unreleased – content assistant settings check (branch `phase2/content-env-status`, release 0.55.1, no database change)
 - Admin → Website → Suggestions shows admins which of the content assistant's server settings this deployment sees: `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `CRON_SECRET`, as "set", "missing" or "looks wrong", never the values. It also shows the Vercel environment (production / preview) and the commit.
