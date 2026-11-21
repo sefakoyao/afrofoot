@@ -8,7 +8,7 @@ import { getSupabase } from '@/lib/supabase/server';
 
 /**
  * Coach area menu: Overview; "My teams" (one entry per team the coach is assigned to this season); "Teams & events"
- * (events, line-ups, tasks, shirt numbers, opponents, Palloliitto players, for the coach's teams: components/staff);
+ * (events, saved places, line-ups, tasks, shirt numbers, opponents, Palloliitto players, for the coach's teams: components/staff);
  * tryout requests and enrolments, read only); "Website" (Matchday poster); Code of Conduct. Grouped sections open and close (components/AreaNav).
  */
 export default async function Layout({ children }: { children: ReactNode }) {
@@ -26,11 +26,13 @@ export default async function Layout({ children }: { children: ReactNode }) {
   // rights an admin granted (0070): their pages join the menu
   const perms = supabase ? await permissionsOf(supabase, member.id) : new Set<string>();
   const tperm = await getTranslations('perm');
+  const tplc = await getTranslations('places');
   // Overview, then the coach's teams grouped under "My teams", then the Code of Conduct
   const nav: NavItem[] = [
     { href: '/coach', label: t('navHome'), icon: 'home' },
     ...teams.map((x): NavItem => ({ href: `/coach/teams/${x.id}`, label: x.name, group: t('navMyTeams'), icon: 'team', groupIcon: 'users' })),
     { href: '/coach/events', label: ta('navEvents'), group: tev, icon: 'calendar', groupIcon: 'ball' },
+    { href: '/coach/places', label: tplc('nav'), group: tev, icon: 'pin' },
     { href: '/coach/lineups', label: tl('nav'), group: tev, icon: 'lineup' },
     { href: '/coach/requests', label: tcr('nav'), badge: newRequests, group: tev, icon: 'inbox' },
     { href: '/coach/tasks', label: ta('navTasks'), group: tev, icon: 'tasks' },

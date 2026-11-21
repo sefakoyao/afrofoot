@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – saved places page, brought up to date (branch `phase2/saved-places-v2`, release 0.65.0, migration 0039)
+Replaces pull request #54 (written for release 0.27.0), merged with today's code.
+- **Places** for admins and coaches, under Teams & events (in "More" on a phone):
+  - add a pitch, hall or gym once, then choose it in any training, game or event form
+  - edit any saved place: name, type, address, postal code, city, Google Maps link, how to find it, public transport, parking, and notes for coaches
+- Players see **How to get there** under the place in their calendar; coaches' notes stay hidden from them.
+- **Admins** also hide or show a place, and delete one that nothing uses. The database refuses to delete a place in use.
+- **Database (0039):**
+  - coaches and player-coaches may edit every saved place; only admins hide or show one
+  - who added a place can't be changed
+  - length checks on the text fields
+  - safe to run more than once, and works before the player-coach update (0045)
+- The player home still opens on a database without these place details.
+
 ## Unreleased – contract list fixed and clearer (branch `phase2/contracts-list`, release 0.64.4, no database change)
 - **Fixed:** on a database without the under-18 update (0068), the contract list, the contract pages (admin, coach, player) and the PDF came back empty, because they asked for the new columns. They now read contracts without those columns there (`readContracts`).
 - **Admin → Contracts:**

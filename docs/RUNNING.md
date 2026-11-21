@@ -265,6 +265,15 @@ Emails (reminders, approval, request alerts) are sent by the database through Re
 7. **Check:** Admin → Overview → **Club emails** says "Sending works". Approving a test account, or sending the website contact form, delivers an email within 2 minutes.
 Settings (sender `noreply@afrofoot.club`, reply-to and alerts `info@afrofoot.club`, app link): `site_settings` key `email`.
 
+## 3q. Saved places page (migration 0039)
+**Database:** paste `supabase/migrations/20260101000039_saved_places.sql` into Supabase → SQL Editor and run it once (fresh installs get it with `supabase/paste/part3.sql`).
+
+**From then on:**
+- **Places** in the admin and coach menus: add pitches, halls and gyms, and edit any saved place (name, type, address, postal code, city, Google Maps link, how to find it, public transport, parking, notes for coaches).
+- Players see *How to get there* under the place in their calendar when directions, transport or parking are filled in. Notes for coaches are not shown to players.
+- Admins also hide a place (no longer offered in event forms; events keep it) or show it again, and delete a place nothing uses. The database refuses to delete a place used by a training, schedule, game or event.
+- Every change is in the audit log.
+
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.
 - **MobilePay**: needs a merchant agreement and API credentials from Vipps MobilePay. The server creates a checkout (`payments.provider='mobilepay'`, `provider_ref`, `checkout_url`) and a webhook route records events in `payment_events` (idempotent by event id) and marks the payment paid. Credentials stay in server environment variables only. Until credentials exist, MobilePay is hidden in the member screen.
