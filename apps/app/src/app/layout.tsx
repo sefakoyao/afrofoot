@@ -11,8 +11,8 @@ import './globals.css';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', display: 'swap' });
-// handwriting font for typed-name signatures on contracts (Great Vibes, OFL, Latin subset; see src/fonts)
-const signature = localFont({ src: '../fonts/GreatVibes-Latin.woff2', variable: '--font-signature', display: 'swap', preload: false });
+// handwriting font for typed-name signatures on contracts (Mrs Saint Delafield, OFL; see src/fonts)
+const signature = localFont({ src: '../fonts/MrsSaintDelafield.woff2', variable: '--font-signature', display: 'swap', preload: false });
 
 export const metadata: Metadata = {
   title: { default: 'Afro Foot Club', template: '%s · Afro Foot Club' },

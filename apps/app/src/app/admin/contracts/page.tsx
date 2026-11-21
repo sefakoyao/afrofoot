@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
-type Row = { id: string; title: string; status: ContractStatus; starts_on: string; ends_on: string; years: number; players: { first_name: string; last_name: string } };
+type Row = { id: string; title: string; status: ContractStatus; starts_on: string; ends_on: string; years: number; player_id: string; is_minor?: boolean; players: { first_name: string; last_name: string } };
 
 /** Admin → Contracts: list with status filter, new contract (1, 2 or 3 years) from the template, and the template itself. */
 export default async function ContractsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -25,7 +25,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
   const status = CONTRACT_STATUSES.find((s) => s === sp.status);
   const today = helsinkiToday();
 
-  let q = supabase?.from('player_contracts').select('id, title, status, starts_on, ends_on, years, players!inner(first_name, last_name)').order('created_at', { ascending: false }).limit(200);
+  let q = supabase?.from('player_contracts').select('id, title, status, starts_on, ends_on, years, player_id, is_minor, players!inner(first_name, last_name)').order('created_at', { ascending: false }).limit(200);
   if (q && status) q = q.eq('status', status);
   // ?player=<id>: one player's contracts (link from Admin → Invoices, "waiting before invoicing")
   const player = typeof sp.player === 'string' && /^[0-9a-f-]{36}$/.test(sp.player) ? sp.player : '';
@@ -37,6 +37,9 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
     supabase.from('contract_templates').select('body').eq('is_default', true).maybeSingle(),
   ]) : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }, { data: null }];
   const list = (rows as unknown as Row[] | null) ?? [];
+  // 0068: under 18 (signed as a minor, or under 18 today by the birth date): a parent or guardian signs too
+  const minors = new Set(supabase ? (((await supabase.rpc('minor_players')).data as string[] | null) ?? []) : []);
+  const under18 = (c: Row) => !!c.is_minor || minors.has(c.player_id);
   const n = (s: ContractStatus) => (all ?? []).filter((r) => r.status === s).length;
   const teamList = ((teams as unknown as { id: string; teams: { name: string }; seasons: { name: string } }[] | null) ?? []);
 
@@ -82,7 +85,8 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
                   const st = shownStatus(c, today);
                   return (
                     <tr key={c.id} data-contract={c.id} data-status={st}>
-                      <td className="px-2 py-2 font-semibold"><Link href={`/admin/contracts/${c.id}`} className="text-pitch underline underline-offset-2"><bdi>{c.players.first_name} {c.players.last_name}</bdi></Link></td>
+                      <td className="px-2 py-2 font-semibold"><Link href={`/admin/contracts/${c.id}`} className="text-pitch underline underline-offset-2"><bdi>{c.players.first_name} {c.players.last_name}</bdi></Link>
+                        {under18(c) ? <span className="ms-2 whitespace-nowrap rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-ink-950" data-under-18>{t('under18')}</span> : null}</td>
                       <td className="px-2 py-2">{c.title}</td>
                       <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(`${c.starts_on}T12:00:00Z`))} – {fmt.date.format(new Date(`${c.ends_on}T12:00:00Z`))} · {t('yearsN', { count: c.years })}</td>
                       <td className="px-2 py-2"><span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[st]}`}>{t(`st_${st}`)}</span></td>

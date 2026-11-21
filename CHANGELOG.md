@@ -3,6 +3,27 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – contracts of players under 18 (branch `phase2/minor-contracts`, release 0.62.0, migration 0068)
+- **Players under 18 sign with a parent or guardian.**
+  - **Who counts as under 18:** a player under 18 on the day of signing, by their birth date. Without a birth date, the player answers "Are you under 18?".
+  - **On the signing page,** the player sees a yellow note and a "Parent or guardian" section: full name, relation (mother, father or guardian), phone with country code, optional email, and the parent or guardian's signature (they type their own full name). It's prefilled from the player's emergency contact when that is a parent or guardian.
+  - **What's refused:** signing without them, a phone without country code, the player as their own guardian, a signature that doesn't match the name, and a minor claiming to be an adult (the birth date decides).
+- **Admins:**
+  - an "Under 18" badge in the contract list, both before signing (by birth date) and after
+  - a yellow notice on the contract page, and the guardian's name, relation, phone and email under the signatures
+  - countersigning is blocked until a parent or guardian has signed
+- **Signatures and PDF:** a third signature block, "Parent or guardian", with its own signature ID, in the app and in the contract PDF. The PDF explains that the parent or guardian signed together with the player.
+- **Database (0068):**
+  - guardian columns on `player_contracts` with checks; a minor's signed contract must carry the guardian's signature
+  - `sign_contract(…, minor, guardian name, relation, phone, email, signature)`; the old two-argument form now works for adults only
+  - `my_minor_status()`, `minor_players()` (admins), `app.is_minor`
+  - the `guard_guardian` trigger: guardian details can't be edited afterwards, and there's no countersigning before the guardian signs
+  - the script stops with a clear message if player contracts (0030) aren't installed
+- **New signature handwriting:** Mrs Saint Delafield (SIL Open Font License) replaces Great Vibes for every typed-name signature, in the app (signing preview and signature blocks) and in the contract PDF (embedded).
+  - Signatures now shrink to fit their box instead of being cut off, and in the PDF they sit higher on the line, so their long tails don't touch the printed name.
+  - Which names are drawn in handwriting now follows the font's own character list. Names with letters the font lacks (for example ğ, ş, č) or in other scripts are shown in the normal bold font.
+- Tests: 21 database checks (`tests/D2_minor_contracts.sql`).
+
 ## Unreleased – merge and delete on older databases (branches `phase2/merge-missing-tables` and `phase2/merge-no-email`, releases 0.61.1–0.61.2, migration 0067 corrected)
 - Migration 0067 failed on a database without the player-contracts table (`relation "player_contracts" does not exist`) or the email outbox (`relation "email_templates" does not exist`). It now works on any installed version: a table or column that isn't there is skipped.
   - New helpers `app.has_column`, `app.has_rows` and `app.repoint`.

@@ -12,6 +12,7 @@ import { CONTRACT_COLUMNS, STATUS_BADGE, shownStatus, type Contract } from '@/li
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
+import { relationLabel } from '@/lib/relations';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('contract'))('myContract') };
@@ -24,7 +25,7 @@ export default async function MyContractPage({ params, searchParams }: { params:
   const member = await requireArea('me');
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!UUID.test(id)) notFound();
-  const [t, fmt, supabase] = await Promise.all([getTranslations('contract'), dateFormats(), getSupabase()]);
+  const [t, trel, fmt, supabase] = await Promise.all([getTranslations('contract'), getTranslations('relation'), dateFormats(), getSupabase()]);
   if (!supabase) notFound();
   const { data } = await supabase.from('player_contracts').select(CONTRACT_COLUMNS).eq('id', id).maybeSingle();
   if (!data) notFound();
@@ -32,6 +33,15 @@ export default async function MyContractPage({ params, searchParams }: { params:
   const st = shownStatus(c, helsinkiToday());
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
   const fullName = `${member.firstName} ${member.lastName}`.trim();
+  // 0068: under 18 → a parent or guardian signs too (true / false / null = birth date not known: the player answers)
+  const minor = c.status === 'sent' ? ((await supabase.rpc('my_minor_status')).data as boolean | null) : false;
+  // prefill from the emergency contact when it is a parent or guardian
+  const { data: priv } = c.status === 'sent' && minor !== false
+    ? await supabase.from('player_private').select('emergency_name, emergency_phone, emergency_relation').eq('player_id', c.player_id).maybeSingle()
+    : { data: null };
+  const parentLike = priv?.emergency_relation && ['mother', 'father', 'guardian'].includes(priv.emergency_relation);
+  const g = { name: parentLike ? priv!.emergency_name ?? '' : '', phone: parentLike ? priv!.emergency_phone ?? '' : '', relation: parentLike ? priv!.emergency_relation! : '' };
+  const input = 'min-h-11 rounded-control border border-line bg-raised px-3 font-normal';
 
   return (
     <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-5">
@@ -52,12 +62,39 @@ export default async function MyContractPage({ params, searchParams }: { params:
       {c.status === 'sent' ? (
         <section className="rounded-card border-2 border-accent bg-raised p-6" aria-labelledby="sign-h" id="sign">
           <h2 id="sign-h" className="font-display text-xl font-extrabold">{t('signTitle')}</h2>
+          {minor ? <p className="mt-2 rounded-card bg-gold p-3 text-sm font-semibold text-ink-950" data-minor-note>{t('minorNote')}</p> : null}
           <form action={signContract} className="mt-3 grid gap-4">
             <input type="hidden" name="id" value={c.id} />
             <SignaturePreview label={t('typeName')} hint={t('typeNameHint', { name: fullName || '–' })} previewLabel={t('sigPreview')} placeholder={t('sigPreviewEmpty')} />
+            {minor === null ? (
+              <fieldset className="grid gap-2 rounded-card bg-surface p-4" data-minor-question>
+                <legend className="font-semibold">{t('minorQuestion')}</legend>
+                <label className="flex items-center gap-2"><input type="radio" name="minor" value="no" required className="size-5 accent-[rgb(var(--accent))]" />{t('minorNo')}</label>
+                <label className="flex items-center gap-2"><input type="radio" name="minor" value="yes" className="size-5 accent-[rgb(var(--accent))]" />{t('minorYes')}</label>
+              </fieldset>
+            ) : null}
+            {minor !== false ? (
+              // shown at once for a known minor; without a birth date only after answering "under 18"
+              <fieldset className={`gap-4 rounded-card border-2 border-gold bg-surface p-4 ${minor ? 'grid' : 'hidden [form:has(input[name=minor][value=yes]:checked)_&]:grid'}`} data-guardian>
+                <legend className="rounded-full bg-gold px-3 py-1 text-sm font-bold text-ink-950">{t('guardianTitle')}</legend>
+                <p className="text-sm">{t('guardianLead')}</p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-sm font-semibold">{t('guardianName')}<input name="guardian_name" required={!!minor} minLength={2} maxLength={120} defaultValue={g.name} autoComplete="off" className={input} /></label>
+                  <label className="grid gap-1 text-sm font-semibold">{t('guardianRelation')}
+                    <select name="guardian_relation" required={!!minor} defaultValue={g.relation} className={input}>
+                      <option value="" disabled>{t('choose')}</option>
+                      {(['mother', 'father', 'guardian'] as const).map((r) => <option key={r} value={r}>{relationLabel(trel, r)}</option>)}
+                    </select></label>
+                  <label className="grid gap-1 text-sm font-semibold">{t('guardianPhone')}<input name="guardian_phone" type="tel" inputMode="tel" dir="ltr" required={!!minor} maxLength={30} defaultValue={g.phone} placeholder="+358 40 123 4567" className={input} />
+                    <span className="text-xs font-normal text-muted">{t('guardianPhoneHint')}</span></label>
+                  <label className="grid gap-1 text-sm font-semibold">{t('guardianEmail')}<input name="guardian_email" type="email" maxLength={200} dir="ltr" className={input} /></label>
+                </div>
+                <SignaturePreview field="guardian_sign" autoComplete="off" required={!!minor} label={t('guardianSign')} hint={t('guardianSignHint')} previewLabel={t('guardianPreview')} placeholder={t('sigPreviewEmpty')} />
+              </fieldset>
+            ) : null}
             <label className="flex items-start gap-3">
               <input type="checkbox" name="agree" required className="mt-1 size-6 shrink-0 accent-[rgb(var(--accent))]" />
-              <span>{t('signCheckbox')}</span>
+              <span>{minor ? t('signCheckboxMinor') : t('signCheckbox')}</span>
             </label>
             <button className="min-h-12 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:justify-self-start">{t('signButton')}</button>
             <p className="text-xs text-muted">{t('signRecord')}</p>

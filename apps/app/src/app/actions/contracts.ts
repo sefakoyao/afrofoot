@@ -129,6 +129,19 @@ export async function saveTemplate(fd: FormData): Promise<void> {
 }
 
 // ---------- player ----------
+/**
+ * The player signs. 0068: under 18 (the birth date decides; without one, the player's answer), a parent or guardian
+ * signs too: name, relation, phone with country code, optional email, and their own typed name. The database
+ * (sign_contract) checks the same and stores it with the signature.
+ */
+const guardianSchema = z.object({
+  guardian_name: z.string().trim().min(2, 'r_guardianName').max(120, 'r_guardianName'),
+  guardian_relation: z.enum(['mother', 'father', 'guardian'], { message: 'r_guardianRelation' }),
+  guardian_phone: z.string().trim().refine((v) => /^\+[1-9][0-9]{6,14}$/.test(v.replace(/[ ()-]/g, '')), 'r_guardianPhone'),
+  guardian_email: z.union([z.literal(''), z.string().trim().email('r_guardianEmail').max(200, 'r_guardianEmail')]),
+  guardian_sign: z.string().trim().min(2, 'r_guardianSign').max(120, 'r_guardianSign'),
+}).refine((g) => g.guardian_sign.replace(/\s+/g, ' ').toLowerCase() === g.guardian_name.replace(/\s+/g, ' ').toLowerCase(), { message: 'r_guardianSign' });
+
 export async function signContract(fd: FormData): Promise<void> {
   await requireArea('me');
   const id = String(fd.get('id') ?? '');
@@ -139,8 +152,24 @@ export async function signContract(fd: FormData): Promise<void> {
   if (!name.success) go(back, 'r_name');
   const supabase = await getSupabase();
   if (!supabase) go(back, 'r_error');
-  const { error } = await supabase.rpc('sign_contract', { p_id: id, p_name: name.data });
-  if (error) go(back, errKey(error));
+  // under 18? the birth date decides; when it is not known, the player's own answer on the form
+  const { data: known } = await supabase.rpc('my_minor_status');
+  const said = fd.get('minor');
+  const minor = known === true || (known === null && said === 'yes');
+  if (known === null && said !== 'yes' && said !== 'no') go(back, 'r_minorAnswer');
+  let g: z.infer<typeof guardianSchema> | null = null;
+  if (minor) {
+    const p = guardianSchema.safeParse(Object.fromEntries(['guardian_name', 'guardian_relation', 'guardian_phone', 'guardian_email', 'guardian_sign'].map((k) => [k, fd.get(k) ?? ''])));
+    if (!p.success) go(back, p.error.issues[0]?.message?.startsWith('r_') ? p.error.issues[0].message : 'r_guardianName');
+    g = p.data;
+    if (g.guardian_name.replace(/\s+/g, ' ').toLowerCase() === name.data.replace(/\s+/g, ' ').toLowerCase()) go(back, 'r_guardianSelf');
+  }
+  const { error } = await supabase.rpc('sign_contract', {
+    p_id: id, p_name: name.data, p_minor: known === null ? minor : null,
+    p_guardian_name: g?.guardian_name ?? null, p_guardian_relation: g?.guardian_relation ?? null, p_guardian_phone: g?.guardian_phone ?? null,
+    p_guardian_email: g?.guardian_email || null, p_guardian_sign: g?.guardian_sign ?? null,
+  });
+  if (error) go(back, /guardian/i.test(error.message ?? '') ? 'r_guardian' : errKey(error));
   refresh();
   go('/me/membership', 'r_signed', '#contract');
 }

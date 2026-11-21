@@ -13,8 +13,11 @@ export interface Contract {
   player_signed_at: string | null; player_signed_name: string | null; club_signed_at: string | null; club_signed_name: string | null; club_signed_title?: string | null;
   declined_at: string | null; decline_reason: string | null; cancelled_at: string | null; terminated_on: string | null; termination_reason: string | null;
   created_at: string;
+  // 0068: a player under 18 signs together with a parent or guardian
+  is_minor?: boolean; guardian_name?: string | null; guardian_relation?: string | null; guardian_phone?: string | null; guardian_email?: string | null;
+  guardian_signed_name?: string | null; guardian_signed_at?: string | null;
 }
-export const CONTRACT_COLUMNS = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, club_signed_title, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at';
+export const CONTRACT_COLUMNS = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, club_signed_title, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at, is_minor, guardian_name, guardian_relation, guardian_phone, guardian_email, guardian_signed_name, guardian_signed_at';
 
 export const STATUS_BADGE: Record<ContractStatus | 'expired', string> = {
   draft: 'bg-line text-fg', sent: 'bg-ink-950 text-white', player_signed: 'bg-danger text-white', active: 'bg-accent/20 text-pitch',
