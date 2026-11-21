@@ -30,7 +30,9 @@ export default async function SignUpPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <h1 className="font-display text-2xl font-extrabold">{t('signUpTitle')}</h1>
-      <p className="mb-5 mt-1 text-muted">{t('signUpLead')}</p>
+      <p className="mt-1 text-muted">{t('signUpLead')}</p>
+      {/* one account per person: a second one (e.g. with the phone after the email) has to be merged by the club */}
+      <p className="mb-5 mt-3 rounded-card bg-gold p-3 text-sm font-semibold text-ink-950" data-signup-once>{t('signUpOnce')}</p>
       {!challenge ? <Alert tone="info"><span data-signup-closed>{t('signUpClosed')}</span></Alert> : (
         <>
           {phone ? (

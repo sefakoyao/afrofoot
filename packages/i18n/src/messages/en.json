@@ -142,7 +142,8 @@
     "idleSignedOut": "You were signed out because the app was not used for a while. Please sign in again.",
     "robotNew": "New pictures",
     "robotLead": "This keeps spam robots out. No cookies, no tracking.",
-    "signUpCreated": "Account created! The club now checks and approves it. After that you can sign in with your email and password."
+    "signUpCreated": "Account created! The club now checks and approves it. After that you can sign in with your email and password.",
+    "signUpOnce": "One account per person. Already have one – with your email or your phone number? Sign in with it (or use “Forgot password”) instead of creating a second account."
   },
   "role": {
     "super_admin": "Super administrator",
@@ -3415,7 +3416,16 @@
     "m_adminOnlySuper": "Only a super administrator can merge an administrator's account.",
     "m_self": "You cannot merge away your own account; keep it instead.",
     "m_gone": "One of the accounts no longer exists.",
-    "m_error": "The merge did not go through. Nothing was changed; try again."
+    "m_error": "The merge did not go through. Nothing was changed; try again.",
+    "deleteTitle": "Or delete an empty account",
+    "deleteLead": "An account with no history (no team, games, trainings, invoices or contracts) can simply be deleted, for example a second account made by mistake. An account with history has to be merged so that nothing is lost.",
+    "deleteConfirm": "I have checked that this is a duplicate and that the person keeps their other account.",
+    "deleteBtn": "Delete {name}'s account",
+    "historyDeleted": "{removed} deleted (duplicate without history)",
+    "m_deleted": "Account deleted.",
+    "m_confirmDelete": "Tick the box to confirm the account is a duplicate.",
+    "m_hasHistory": "This account has history (teams, games, invoices…), so it cannot be deleted. Merge it instead.",
+    "m_selfDelete": "You cannot delete your own account."
   },
   "creq": {
     "nav": "Applicants",

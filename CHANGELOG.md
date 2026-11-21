@@ -3,6 +3,20 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – duplicate accounts (branch `phase2/duplicate-accounts`, release 0.61.0, migration 0067)
+- **Delete a duplicate:** on Admin → People → Merge accounts, after comparing two accounts, an account with **no history** can be deleted. No history means no team, games, trainings, invoices, contracts, shirt numbers or tasks; typically a second account made by mistake.
+  - It needs a "this is a duplicate" tick.
+  - An account with history can't be deleted, only merged, so nothing is lost.
+  - Same rules as merging: admins only, an administrator's account only by a super admin, and never your own.
+  - Deletions are listed with the merges.
+- **Alert to the club:** when a new account shares an email or phone number with an existing one (for example someone signs up again with their phone after using their email), the request-alert address gets an email linking to Merge accounts. Adding a phone number to an account triggers the same check.
+- **Sign-up page:** a yellow note: one account per person; sign in (or use "Forgot password") instead of creating a second account. The form still never tells whether an account exists.
+- Database (0067):
+  - `delete_account(profile)`, `account_deletable(profile)` and `app.account_has_history`
+  - `account_merges.action` ('merge' or 'delete')
+  - the `duplicate_alert` email and its trigger
+- Tests: 14 database checks (`tests/D1_duplicate_accounts.sql`).
+
 ## Unreleased – coaches see applicants; one profile page (branch `phase2/coach-requests-profile`, release 0.60.0, migration 0066)
 - **Coach → Teams & events → Applicants** (read only): tryout requests and team enrolments from the website, for coaches and player-coaches.
   - **What coaches see:** name, age, position, previous team, Palloliitto link, phone and email (tap to call or write), guardian, nationality, membership plan, the message, the status and the tryout date.

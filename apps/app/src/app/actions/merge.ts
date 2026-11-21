@@ -40,3 +40,24 @@ export async function mergeAccounts(fd: FormData): Promise<void> {
   revalidatePath('/admin', 'layout');
   go('m_merged', { kept: p.data.keep });
 }
+
+/** 0067: deletes an account that has no history (a second account made by mistake); one with history must be merged. */
+export async function deleteAccount(fd: FormData): Promise<void> {
+  await requireArea('admin');
+  const raw = { id: String(fd.get('id') ?? ''), a: String(fd.get('a') ?? ''), b: String(fd.get('b') ?? ''), confirm: fd.get('confirm') ?? '' };
+  const uuid = z.string().uuid();
+  const pair: Record<string, string> = uuid.safeParse(raw.a).success && uuid.safeParse(raw.b).success ? { a: raw.a, b: raw.b } : {};
+  if (!uuid.safeParse(raw.id).success) go('m_invalid', pair);
+  if (raw.confirm !== 'on') go('m_confirmDelete', pair);
+  const supabase = await getSupabase();
+  if (!supabase) go('m_error', pair);
+  const { error } = await supabase.rpc('delete_account', { p_profile: raw.id });
+  if (error) {
+    console.error('[merge] delete refused', { code: error.code, message: error.message });
+    const m = error.message ?? '';
+    go(/history/.test(m) ? 'm_hasHistory' : /super administrator/.test(m) ? 'm_adminOnlySuper' : /own account/.test(m) ? 'm_selfDelete'
+      : error.code === 'P0002' ? 'm_gone' : error.code === '42501' ? 'm_notAllowed' : 'm_error', pair);
+  }
+  revalidatePath('/admin', 'layout');
+  go('m_deleted');
+}
