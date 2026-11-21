@@ -3,10 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
-## Unreleased – merge and delete on older databases (branch `phase2/merge-missing-tables`, release 0.61.1, migration 0067 corrected)
-- Migration 0067 failed on a database without the player-contracts table (`relation "player_contracts" does not exist`). It now works on any installed version: a table or column that isn't there is skipped.
+## Unreleased – merge and delete on older databases (branches `phase2/merge-missing-tables` and `phase2/merge-no-email`, releases 0.61.1–0.61.2, migration 0067 corrected)
+- Migration 0067 failed on a database without the player-contracts table (`relation "player_contracts" does not exist`) or the email outbox (`relation "email_templates" does not exist`). It now works on any installed version: a table or column that isn't there is skipped.
   - New helpers `app.has_column`, `app.has_rows` and `app.repoint`.
   - `merge_accounts` (0065) is replaced by a version built on them. It also finds every "done by" column from the database itself instead of a fixed list.
+- The duplicate-alert email is installed only where the email outbox (0048) exists; elsewhere that part is skipped with a notice.
 - Tests: 3 more database checks (merge and history check without the contracts table).
 
 ## Unreleased – duplicate accounts (branch `phase2/duplicate-accounts`, release 0.61.0, migration 0067)
