@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, 20260101000070_coach_permissions.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -4856,6 +4856,77 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function public.event_reply_counts(uuid[]) from public, anon;
 grant execute on function public.event_reply_counts(uuid[]) to authenticated;
+
+
+-- ===== 20260101000070_coach_permissions.sql =====
+-- 0070 Coach permissions: extra rights an administrator grants to a coach (or player-coach), one tick per right, on
+-- Admin → People → Coach permissions. Each right only ever reaches the teams the coach coaches this season. Off by default.
+--   contracts  see the contracts of their teams' players (read only; replaces 0031's rule that every coach saw them)
+--   fees       see their teams' players' invoices and whether they are paid (read only)
+--   opponents  add, rename and hide names in the opponents list
+--   posters    upload and remove matchday poster photos and sponsor logos (storage: public-media/posters/)
+-- Safe to run more than once; parts for tables that are not installed (e.g. player contracts) are skipped.
+
+create table if not exists coach_permissions (
+  profile_id uuid not null references profiles(id) on delete cascade,
+  permission text not null check (permission in ('contracts', 'fees', 'opponents', 'posters')),
+  granted_by uuid references profiles(id) on delete set null default auth.uid(),
+  granted_at timestamptz not null default now(),
+  primary key (profile_id, permission)
+);
+alter table coach_permissions enable row level security;
+revoke all on coach_permissions from anon;
+drop policy if exists admin_all on coach_permissions;
+create policy admin_all on coach_permissions for all to authenticated using (app.is_admin()) with check (app.is_admin());
+drop policy if exists self_read on coach_permissions;
+create policy self_read on coach_permissions for select to authenticated using (profile_id = auth.uid());
+drop trigger if exists audit on coach_permissions;
+create trigger audit after insert or update or delete on coach_permissions for each row execute function app.audit();
+
+-- only coaches and player-coaches hold a permission
+create or replace function app.guard_coach_permission() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from profiles where id = new.profile_id and role in ('coach', 'player_coach')) then
+    raise exception 'Permissions are for coaches and player-coaches' using errcode = 'check_violation';
+  end if;
+  return new;
+end $$;
+drop trigger if exists guard on coach_permissions;
+create trigger guard before insert or update on coach_permissions for each row execute function app.guard_coach_permission();
+
+-- true when the signed-in coach (still a coach, active) has been granted this right
+create or replace function app.coach_may(p_permission text) returns boolean language sql stable security definer set search_path = public as $$
+  select app.is_coach() and exists (select 1 from coach_permissions where profile_id = auth.uid() and permission = p_permission)
+$$;
+
+-- contracts: only with the right (it was every coach of the player's team since 0031)
+do $$ begin
+  if to_regclass('public.player_contracts') is not null then
+    drop policy if exists contract_coach_read on player_contracts;
+    create policy contract_coach_read on player_contracts for select to authenticated
+      using (status <> 'draft' and app.coach_may('contracts') and app.coaches_player(player_id));
+  end if;
+end $$;
+
+-- fees: the invoices (and their lines and receipts) of the coach's players
+drop policy if exists coach_fees_read on payments;
+create policy coach_fees_read on payments for select to authenticated using (app.coach_may('fees') and app.coaches_player(player_id));
+drop policy if exists coach_fees_read on memberships;
+create policy coach_fees_read on memberships for select to authenticated using (app.coach_may('fees') and app.coaches_player(player_id));
+
+-- opponents: coaches with the right add, rename and hide names (every coach already reads them, 0061)
+drop policy if exists coach_write on opponents;
+create policy coach_write on opponents for all to authenticated using (app.coach_may('opponents')) with check (app.coach_may('opponents'));
+
+-- poster photos and logos (only where Supabase Storage is installed)
+do $$ begin
+  if to_regclass('storage.objects') is not null then
+    execute 'drop policy if exists "public-media posters by coaches" on storage.objects';
+    execute $p$create policy "public-media posters by coaches" on storage.objects for all to authenticated
+      using (bucket_id = 'public-media' and name like 'posters/%' and app.coach_may('posters'))
+      with check (bucket_id = 'public-media' and name like 'posters/%' and app.coach_may('posters'))$p$;
+  end if;
+end $$;
 
 
 -- ===== seed.sql =====

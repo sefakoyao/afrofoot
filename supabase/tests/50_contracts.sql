@@ -49,6 +49,9 @@ select t.check('overlapping second contract cannot be sent', not t.raises($$inse
 select t.admin();
 
 -- ---------- coach, other player, anonymous ----------
+reset role;
+-- 0070: coaches see their players' contracts only with the "contracts" right, granted by an admin
+insert into coach_permissions (profile_id, permission) values ('a1000000-0000-0000-0000-000000000002', 'contracts');
 select t.login('a1000000-0000-0000-0000-000000000002');
 select t.check('coach reads the sent contract of own team player, not drafts or the template (0031)', (select count(*) from player_contracts) = 1
   and (select id from player_contracts) = 'a7000000-0000-0000-0000-000000000001' and (select count(*) from contract_templates) = 0);

@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { AppShell, type NavItem } from '@/components/AppShell';
 import { requireArea } from '@/lib/auth';
 import { myTeams } from '@/lib/coach';
+import { permissionsOf } from '@/lib/permissions';
 import { getSupabase } from '@/lib/supabase/server';
 
 /**
@@ -22,6 +23,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const newRequests = supabase ? ((await supabase.rpc('coach_requests')).data as { status: string }[] | null ?? []).filter((r) => r.status === 'new').length : 0;
   const tcr = await getTranslations('creq');
   const tev = ta('navGroupTeams'), web = tn('navGroup');
+  // rights an admin granted (0070): their pages join the menu
+  const perms = supabase ? await permissionsOf(supabase, member.id) : new Set<string>();
+  const tperm = await getTranslations('perm');
   // Overview, then the coach's teams grouped under "My teams", then the Code of Conduct
   const nav: NavItem[] = [
     { href: '/coach', label: t('navHome'), icon: 'home' },
@@ -30,6 +34,8 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/coach/lineups', label: tl('nav'), group: tev, icon: 'lineup' },
     { href: '/coach/requests', label: tcr('nav'), badge: newRequests, group: tev, icon: 'inbox' },
     { href: '/coach/tasks', label: ta('navTasks'), group: tev, icon: 'tasks' },
+    ...(perms.has('contracts') ? [{ href: '/coach/contracts', label: tperm('contractsTitle'), group: tev, icon: 'contract' } as NavItem] : []),
+    ...(perms.has('fees') ? [{ href: '/coach/fees', label: tperm('feesTitle'), group: tev, icon: 'euro' } as NavItem] : []),
     { href: '/coach/shirts', label: ta('navShirts'), badge: shirtRequests, group: tev, icon: 'shirt' },
     { href: '/coach/opponents', label: ta('navOpponents'), group: tev, icon: 'versus' },
     { href: '/coach/palloliitto', label: tf('nav'), group: tev, icon: 'link' },
