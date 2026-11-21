@@ -4894,9 +4894,11 @@ end $$;
 drop trigger if exists guard on coach_permissions;
 create trigger guard before insert or update on coach_permissions for each row execute function app.guard_coach_permission();
 
--- true when the signed-in coach (still a coach, active) has been granted this right
+-- true when the signed-in coach (still a coach or player-coach, active) has been granted this right. Uses app.role()
+-- (migration 0007) rather than app.is_coach() (0045), so it also works on a database installed before 0045.
 create or replace function app.coach_may(p_permission text) returns boolean language sql stable security definer set search_path = public as $$
-  select app.is_coach() and exists (select 1 from coach_permissions where profile_id = auth.uid() and permission = p_permission)
+  select coalesce(app.role()::text in ('coach', 'player_coach'), false)
+     and exists (select 1 from coach_permissions where profile_id = auth.uid() and permission = p_permission)
 $$;
 
 -- contracts: only with the right (it was every coach of the player's team since 0031)
@@ -4914,9 +4916,13 @@ create policy coach_fees_read on payments for select to authenticated using (app
 drop policy if exists coach_fees_read on memberships;
 create policy coach_fees_read on memberships for select to authenticated using (app.coach_may('fees') and app.coaches_player(player_id));
 
--- opponents: coaches with the right add, rename and hide names (every coach already reads them, 0061)
-drop policy if exists coach_write on opponents;
-create policy coach_write on opponents for all to authenticated using (app.coach_may('opponents')) with check (app.coach_may('opponents'));
+-- opponents: coaches with the right add, rename and hide names (every coach already reads them, 0061; skipped before 0061)
+do $$ begin
+  if to_regclass('public.opponents') is not null then
+    drop policy if exists coach_write on opponents;
+    create policy coach_write on opponents for all to authenticated using (app.coach_may('opponents')) with check (app.coach_may('opponents'));
+  end if;
+end $$;
 
 -- poster photos and logos (only where Supabase Storage is installed)
 do $$ begin
