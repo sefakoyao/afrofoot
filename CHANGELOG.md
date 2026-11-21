@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – merge and delete on older databases (branch `phase2/merge-missing-tables`, release 0.61.1, migration 0067 corrected)
+- Migration 0067 failed on a database without the player-contracts table (`relation "player_contracts" does not exist`). It now works on any installed version: a table or column that isn't there is skipped.
+  - New helpers `app.has_column`, `app.has_rows` and `app.repoint`.
+  - `merge_accounts` (0065) is replaced by a version built on them. It also finds every "done by" column from the database itself instead of a fixed list.
+- Tests: 3 more database checks (merge and history check without the contracts table).
+
 ## Unreleased – duplicate accounts (branch `phase2/duplicate-accounts`, release 0.61.0, migration 0067)
 - **Delete a duplicate:** on Admin → People → Merge accounts, after comparing two accounts, an account with **no history** can be deleted. No history means no team, games, trainings, invoices, contracts, shirt numbers or tasks; typically a second account made by mistake.
   - It needs a "this is a duplicate" tick.
