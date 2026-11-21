@@ -59,8 +59,8 @@ const KEYS = {
     err: ['r_invalid', 'r_error', 'r_amount', 'r_date', 'r_text'],
   },
   perm: {
-    ok: ['p_saved'],
-    err: ['p_invalid', 'p_error', 'p_notCoach', 'p_notInstalled', 'p_notAllowed', 'p_dbOld'],
+    ok: ['p_saved', 'p_madePlayerCoach'],
+    err: ['p_invalid', 'p_error', 'p_notCoach', 'p_notInstalled', 'p_notAllowed', 'p_dbOld', 'p_noPlayerCoachRole'],
   },
   merge: {
     ok: ['m_merged', 'm_deleted'],

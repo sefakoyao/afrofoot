@@ -45,3 +45,24 @@ export async function saveCoachPermissions(fd: FormData): Promise<void> {
   revalidatePath('/admin', 'layout'); revalidatePath('/coach', 'layout');
   go('p_saved', id.data);
 }
+
+/**
+ * A player who coaches a team gets the Player-coach role (playing and coaching rights in one account, migration 0045),
+ * so that coach permissions can be ticked for them. The profiles guard lets club and super admins do this; a database
+ * without the Player-coach role (before 0045) says so.
+ */
+export async function makePlayerCoach(fd: FormData): Promise<void> {
+  await requireArea('admin');
+  const id = z.string().uuid().safeParse(fd.get('profile_id'));
+  if (!id.success) go('p_invalid');
+  const supabase = await getSupabase();
+  if (!supabase) go('p_error');
+  const { data, error } = await supabase.from('profiles').update({ role: 'player_coach' }).eq('id', id.data).eq('role', 'player').select('id');
+  if (error) {
+    console.error('[permissions] player-coach refused', { code: error.code, message: error.message });
+    go(error.code === '22P02' ? 'p_noPlayerCoachRole' : error.code === '42501' ? 'p_notAllowed' : 'p_error', id.data);
+  }
+  if (!data?.length) go('p_error', id.data);
+  revalidatePath('/admin', 'layout'); revalidatePath('/coach', 'layout');
+  go('p_madePlayerCoach', id.data);
+}

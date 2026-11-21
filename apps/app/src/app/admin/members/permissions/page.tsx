@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { saveCoachPermissions } from '@/app/actions/permissions';
+import { makePlayerCoach, saveCoachPermissions } from '@/app/actions/permissions';
 import { ResultBanner } from '@/components/ResultBanner';
 import { NavIcon, type NavIconName } from '@/components/NavIcon';
 import { requireArea } from '@/lib/auth';
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const ICON: Record<Permission, NavIconName> = { contracts: 'contract', fees: 'euro', opponents: 'versus', posters: 'image' };
-type Coach = { id: string; first_name: string; last_name: string; email: string | null; phone: string | null; role: string };
+type Coach = { id: string; first_name: string; last_name: string; email: string | null; phone: string | null; role: string; status: string };
 
 /**
  * Admin → People → Coach permissions (migration 0070): one row per coach and player-coach, a tick per right (contracts,
@@ -24,19 +24,23 @@ export default async function CoachPermissionsPage({ searchParams }: { searchPar
   await requireArea('admin');
   let installed = true; // false while the database update (migration 0070) is not installed
   let dbError = ''; // the database's own words, shown to the admin to find the cause
-  const [sp, t, tr, supabase] = await Promise.all([searchParams, getTranslations('perm'), getTranslations('role'), getSupabase()]);
+  const [sp, t, tr, ts, supabase] = await Promise.all([searchParams, getTranslations('perm'), getTranslations('role'), getTranslations('status'), getSupabase()]);
   if (!supabase) return null;
   const [{ data: coachRows }, { data: grants }, { data: staff }] = await Promise.all([
-    supabase.from('profiles').select('id, first_name, last_name, email, phone, role').in('role', ['coach', 'player_coach']).eq('status', 'active').order('first_name').order('last_name'),
+    // coaches and player-coaches, whatever their status (written without the 'player_coach' value, which databases before 0045 lack)
+    supabase.from('profiles').select('id, first_name, last_name, email, phone, role, status').not('role', 'in', '(player,super_admin,club_admin)').order('first_name').order('last_name'),
     supabase.from('coach_permissions').select('profile_id, permission').then((r) => { installed = !r.error; dbError = r.error ? `${r.error.code ?? ''} ${r.error.message ?? ''}`.trim() : ''; return r; }),
-    supabase.from('team_staff').select('staff_members!inner(profile_id), team_seasons!inner(teams!inner(name), seasons!inner(is_current))').eq('team_seasons.seasons.is_current', true),
+    supabase.from('team_staff').select('staff_members!inner(profile_id, profiles(id, first_name, last_name, email, phone, role, status)), team_seasons!inner(teams!inner(name), seasons!inner(is_current))').eq('team_seasons.seasons.is_current', true),
   ]);
   const coaches = (coachRows ?? []) as Coach[];
   const has = new Set(((grants ?? []) as { profile_id: string; permission: string }[]).map((g) => `${g.profile_id}:${g.permission}`));
   const teamsOf = new Map<string, string[]>();
-  for (const s of (staff ?? []) as unknown as { staff_members: { profile_id: string | null }; team_seasons: { teams: { name: string } } }[]) {
+  // people on a team's staff this season whose role is still "Player": they coach, but rights need the Player-coach role
+  const playersCoaching = new Map<string, Coach>();
+  for (const s of (staff ?? []) as unknown as { staff_members: { profile_id: string | null; profiles: Coach | null }; team_seasons: { teams: { name: string } } }[]) {
     const pid = s.staff_members.profile_id; if (!pid) continue;
     teamsOf.set(pid, [...(teamsOf.get(pid) ?? []), s.team_seasons.teams.name]);
+    if (s.staff_members.profiles?.role === 'player') playersCoaching.set(pid, s.staff_members.profiles);
   }
   const counts = Object.fromEntries(PERMISSIONS.map((p) => [p, coaches.filter((c) => has.has(`${c.id}:${p}`)).length])) as Record<Permission, number>;
 
@@ -77,7 +81,8 @@ export default async function CoachPermissionsPage({ searchParams }: { searchPar
                 <form action={saveCoachPermissions} className="grid gap-3">
                   <input type="hidden" name="profile_id" value={c.id} />
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p><bdi className="font-display text-lg font-extrabold">{name}</bdi><span className="ms-2 rounded-full bg-surface px-2 py-0.5 text-xs font-bold">{tr(c.role as never)}</span></p>
+                    <p><bdi className="font-display text-lg font-extrabold">{name}</bdi><span className="ms-2 rounded-full bg-surface px-2 py-0.5 text-xs font-bold">{tr(c.role as never)}</span>
+                      {c.status !== 'active' ? <span className="ms-1 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger" data-status={c.status}>{ts(c.status as never)}</span> : null}</p>
                     <p className="text-sm text-muted">{teams.length ? <><span className="font-semibold">{t('teams')}</span> <bdi>{teams.join(', ')}</bdi></> : <span className="text-danger">{t('noTeam')}</span>}</p>
                   </div>
                   <fieldset className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -99,6 +104,23 @@ export default async function CoachPermissionsPage({ searchParams }: { searchPar
           })}
         </ul>
       )}
+      {playersCoaching.size ? (
+        <section aria-labelledby="pc-h" className="grid gap-2 rounded-card border-2 border-gold bg-raised p-4" data-players-coaching>
+          <h2 id="pc-h" className="font-display text-lg font-extrabold">{t('playersCoachingTitle')}</h2>
+          <p className="text-sm text-muted">{t('playersCoachingLead')}</p>
+          <ul className="grid gap-2">
+            {[...playersCoaching.values()].map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-2 rounded-control bg-surface p-3" data-player-coaching={c.id}>
+                <span><bdi className="font-bold">{`${c.first_name} ${c.last_name}`.trim() || c.email || c.phone}</bdi>
+                  <span className="ms-2 rounded-full bg-raised px-2 py-0.5 text-xs font-bold">{tr('player')}</span>
+                  <span className="ms-2 text-sm text-muted">{t('teams')} <bdi>{(teamsOf.get(c.id) ?? []).join(', ')}</bdi></span></span>
+                <form action={makePlayerCoach}><input type="hidden" name="profile_id" value={c.id} />
+                  <button className="min-h-10 rounded-full bg-accent px-4 text-sm font-bold text-on-accent hover:brightness-110" data-make-player-coach>{t('makePlayerCoach')}</button></form>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <p className="text-xs text-muted">{t('note')}</p>
     </div>
   );
