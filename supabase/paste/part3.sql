@@ -4886,7 +4886,8 @@ create trigger audit after insert or update or delete on coach_permissions for e
 -- only coaches and player-coaches hold a permission
 create or replace function app.guard_coach_permission() returns trigger language plpgsql security definer set search_path = public as $$
 begin
-  if not exists (select 1 from profiles where id = new.profile_id and role in ('coach', 'player_coach')) then
+  -- role::text: a database installed before 0045 has no 'player_coach' role value yet
+  if not exists (select 1 from profiles where id = new.profile_id and role::text in ('coach', 'player_coach')) then
     raise exception 'Permissions are for coaches and player-coaches' using errcode = 'check_violation';
   end if;
   return new;
