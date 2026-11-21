@@ -3555,6 +3555,11 @@
     "p_notAllowed": "Ei tallennettu: vain ylläpitäjät voivat muuttaa oikeuksia.",
     "p_dbOld": "Ei tallennettu: tietokannasta puuttuu aiempia päivityksiä. Aja uusin valmentajien oikeuksien skripti (0070) uudelleen ja yritä uudelleen.",
     "dbSays": "Tietokanta ilmoittaa:",
-    "appProject": "Sovellus käyttää Supabase-projektia:"
+    "appProject": "Sovellus käyttää Supabase-projektia:",
+    "playersCoachingTitle": "Valmentavat, mutta rooli on \"Pelaaja\"",
+    "playersCoachingLead": "Nämä jäsenet ovat joukkueen henkilökunnassa tällä kaudella, mutta heidän roolinsa on yhä Pelaaja, joten heille ei voi antaa oikeuksia. Tee heistä pelaajavalmentajia: he säilyttävät kaiken pelaajana ja saavat myös valmentajan sivut.",
+    "makePlayerCoach": "Tee pelaajavalmentajaksi",
+    "p_madePlayerCoach": "Nyt pelaajavalmentaja. Rastita oikeudet alta ja tallenna.",
+    "p_noPlayerCoachRole": "Tietokannassa ei ole vielä pelaajavalmentajan roolia (tietokantapäivitys 0045 puuttuu). Aja puuttuvat päivitykset Supabasessa ja yritä uudelleen."
   }
 }

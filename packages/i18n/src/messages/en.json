@@ -3555,6 +3555,11 @@
     "p_notAllowed": "Not saved: only administrators can change permissions.",
     "p_dbOld": "Not saved: the database is missing earlier updates. Run the latest coach permissions script (0070) again, then try again.",
     "dbSays": "The database says:",
-    "appProject": "The app uses the Supabase project:"
+    "appProject": "The app uses the Supabase project:",
+    "playersCoachingTitle": "Coaching, but with the role \"Player\"",
+    "playersCoachingLead": "These members are on a team’s staff this season but their role is still Player, so rights cannot be ticked for them. Make them player-coaches: they keep everything they have as players and also get the coach pages.",
+    "makePlayerCoach": "Make player-coach",
+    "p_madePlayerCoach": "Now a player-coach. Tick their rights below and save.",
+    "p_noPlayerCoachRole": "The database has no Player-coach role yet (database update 0045 is missing). Run the missing updates in Supabase, then try again."
   }
 }

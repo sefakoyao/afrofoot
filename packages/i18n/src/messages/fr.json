@@ -3555,6 +3555,11 @@
     "p_notAllowed": "Non enregistré : seuls les administrateurs peuvent modifier les droits.",
     "p_dbOld": "Non enregistré : il manque des mises à jour antérieures à la base de données. Exécutez à nouveau le dernier script des droits (0070), puis réessayez.",
     "dbSays": "La base de données indique :",
-    "appProject": "L’application utilise le projet Supabase :"
+    "appProject": "L’application utilise le projet Supabase :",
+    "playersCoachingTitle": "Entraînent, mais avec le rôle « Joueur »",
+    "playersCoachingLead": "Ces membres font partie de l’encadrement d’une équipe cette saison, mais leur rôle est encore Joueur : on ne peut pas leur cocher de droits. Faites-en des joueurs-entraîneurs : ils gardent tout comme joueurs et ont aussi les pages entraîneur.",
+    "makePlayerCoach": "Faire joueur-entraîneur",
+    "p_madePlayerCoach": "Désormais joueur-entraîneur. Cochez ses droits ci-dessous et enregistrez.",
+    "p_noPlayerCoachRole": "La base de données n’a pas encore le rôle Joueur-entraîneur (mise à jour 0045 manquante). Exécutez les mises à jour manquantes dans Supabase, puis réessayez."
   }
 }

@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coach permissions: everyone who coaches (branch `phase2/perm-player-coach`, release 0.64.3, no database change)
+- The Coach permissions page now lists coaches and player-coaches whatever their status (waiting or suspended accounts show it). It reads them without naming the Player-coach role, so the list also appears on a database installed before 0045.
+- **"Coaching, but with the role Player":** members on a team's staff this season whose role is still Player are listed with a **Make player-coach** button. They keep everything as players and get the coach pages, and their rights can then be ticked. A database without the Player-coach role (before 0045) says so.
+
 ## Unreleased – coach permissions: show the cause (branch `phase2/perm-diagnose`, release 0.64.2, no database change)
 - When the coach permissions table can't be read, the notice now also shows the database's own error and which Supabase project the app uses (the first part of its public address), so a script run in another project, or a missing table, is spotted at once.
 
