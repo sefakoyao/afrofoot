@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { relationLabel } from '@/lib/relations';
 import { contractStep, saveContract } from '@/app/actions/contracts';
 import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
@@ -25,7 +26,7 @@ export default async function ContractPage({ params, searchParams }: { params: P
   const me = await requireArea('admin');
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   if (!UUID.test(id)) notFound();
-  const [t, fmt, supabase] = await Promise.all([getTranslations('contract'), dateFormats(), getSupabase()]);
+  const [t, trel, fmt, supabase] = await Promise.all([getTranslations('contract'), getTranslations('relation'), dateFormats(), getSupabase()]);
   if (!supabase) notFound();
   const { data } = await supabase.from('player_contracts').select(`${CONTRACT_COLUMNS}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle();
   if (!data) notFound();
@@ -34,6 +35,10 @@ export default async function ContractPage({ params, searchParams }: { params: P
   const signer = settings.signatory_name || `${me.firstName} ${me.lastName}`.trim();
   const c = data as unknown as Contract & { players: { first_name: string; last_name: string } };
   const st = shownStatus(c, helsinkiToday());
+  // 0068: a player under 18 signs together with a parent or guardian; countersigning waits for them
+  const minorNow = ((await supabase.rpc('minor_players')).data as string[] | null ?? []).includes(c.player_id);
+  const under18 = !!c.is_minor || (minorNow && ['draft', 'sent'].includes(c.status));
+  const guardianMissing = c.status === 'player_signed' && !!c.is_minor && !c.guardian_signed_at;
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
   const blanks = hasBlanks(c.body);
   const missing = blanksIn(c.body);
@@ -58,6 +63,11 @@ export default async function ContractPage({ params, searchParams }: { params: P
       </header>
       <ResultBanner ns="contract" result={sp.result} />
       <p className="rounded-card bg-surface p-4 text-sm" data-next-step>{t(`next_${st}`)}</p>
+      {under18 ? (
+        <p className="rounded-card bg-gold p-4 text-sm font-semibold text-ink-950" data-minor-flag>
+          {c.is_minor && c.guardian_signed_at ? t('minorSignedBy', { name: c.guardian_signed_name ?? '', relation: relationLabel(trel, c.guardian_relation).toLowerCase() }) : t('minorAdmin')}
+        </p>
+      ) : null}
 
       {c.status === 'draft' ? (
         <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="edit-h">
@@ -120,7 +130,7 @@ export default async function ContractPage({ params, searchParams }: { params: P
             {settings.signatory_name ? t('signatoryFromSettings') : t('signatoryYou')}{' '}
             <a href="/admin/contracts#auto-h" className="font-semibold text-pitch underline underline-offset-2">{t('signatoryChange')}</a>
           </p>
-          <Step op="countersign" label={t('countersign')} />
+          {guardianMissing ? <p role="alert" className="font-semibold text-danger">{t('minorWaiting')}</p> : <Step op="countersign" label={t('countersign')} />}
         </section>
       ) : null}
       {c.status === 'sent' || c.status === 'player_signed' ? <Step op="cancel" label={t('cancel')} tone="danger" /> : null}

@@ -97,12 +97,12 @@ async function layout(c: Contract, player: string, club: string, footer: string[
   }
 
   // signatures: kept together; the typed name drawn as a signature over a line, then name, title, time, reference
-  const sigH = 150 + (c.sent_at ? 30 : 0);
+  const sigH = 150 + (c.sent_at ? 30 : 0) + (c.is_minor ? 110 : 0);
   y -= 8; need(sigH);
   page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.8, color: INK }); y -= 12;
   para('Electronic signatures', { font: bold, size: 11, gap: 8 });
   const colW = (W - 2 * M - 28) / 2;
-  const col = (x: number, who: string, party: 'player' | 'club', name: string | null, title: string | null, at: string | null, top: number) => {
+  const col = (x: number, who: string, party: 'player' | 'club' | 'guardian', name: string | null, title: string | null, at: string | null, top: number) => {
     page.drawText(who, { x, y: top, size: 7.5, font: bold, color: MUTED });
     const lineY = top - 44;
     if (name && at) {
@@ -125,10 +125,18 @@ async function layout(c: Contract, player: string, club: string, footer: string[
   col(M, 'PLAYER', 'player', c.player_signed_name, null, c.player_signed_at, y - 4);
   col(M + colW + 28, `FOR ${club}`.toUpperCase(), 'club', c.club_signed_name, c.club_signed_title ?? null, c.club_signed_at, y - 4);
   y -= 100;
+  // 0068: a player under 18 signed together with a parent or guardian (name, relation and contact under the signature)
+  if (c.is_minor) {
+    const rel = c.guardian_relation ? c.guardian_relation[0]!.toUpperCase() + c.guardian_relation.slice(1) : null;
+    col(M, 'PARENT OR GUARDIAN (THE PLAYER IS UNDER 18)', 'guardian', c.guardian_signed_name ?? null, rel, c.guardian_signed_at ?? null, y - 4);
+    const contact = [c.guardian_phone, c.guardian_email].filter(Boolean).join('  ·  ');
+    if (contact) page.drawText(contact, { x: M + colW + 28, y: y - 62, size: 8.5, font: regular, color: INK });
+    y -= 100;
+  }
   if (c.status === 'declined') para(`Declined by the player on ${when(c.declined_at)}${c.decline_reason ? `: ${c.decline_reason}` : ''}`, { color: rgb(0.7, 0.1, 0.1) });
   if (c.status === 'cancelled') para(`Cancelled by the club on ${when(c.cancelled_at)}.`, { color: MUTED });
   if (c.terminated_on) para(`Terminated on ${day(c.terminated_on)}${c.termination_reason ? `: ${c.termination_reason}` : ''}`, { color: MUTED });
-  if (c.sent_at) para(`Sent to the player on ${when(c.sent_at)}. Each party signed in the Afro Foot Club member app with their own account by typing their name and confirming; the typed name is shown above in a handwriting style. The signature IDs refer to these records.`, { size: 7.5, color: MUTED, gap: 1 });
+  if (c.sent_at) para(`Sent to the player on ${when(c.sent_at)}. Each party signed in the Afro Foot Club member app with their own account by typing their name and confirming; the typed name is shown above in a handwriting style. ${c.is_minor ? ' The player is under 18: their parent or guardian signed together with them, in the player\'s account, by typing their own name.' : ''} The signature IDs refer to these records.`, { size: 7.5, color: MUTED, gap: 1 });
   if (c.body_sha256) para(`SHA-256 fingerprint of the contract text: ${c.body_sha256}`, { size: 7, color: MUTED, gap: 2 });
   if (c.status === 'active' || c.status === 'terminated') para('Signed by both parties.', { font: bold, size: 8.5, color: GREEN });
 
