@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
+import { readContracts, STATUS_BADGE, shownStatus, type ContractStatus } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { coachScope } from '@/lib/staff';
 import { getSupabase } from '@/lib/supabase/server';
@@ -22,7 +22,7 @@ export default async function CoachContractsPage() {
   const scope = await coachScope();
   if (!scope.perms.has('contracts')) redirect('/coach');
   const [t, tk, fmt, supabase] = await Promise.all([getTranslations('perm'), getTranslations('contract'), dateFormats(), getSupabase()]);
-  const { data } = supabase ? await supabase.from('player_contracts').select('id, title, status, starts_on, ends_on, is_minor, player_id, players!inner(first_name, last_name)').order('starts_on', { ascending: false }).limit(300) : { data: [] };
+  const { data } = supabase ? await readContracts((extra) => supabase.from('player_contracts').select(`id, title, status, starts_on, ends_on${extra ? ', is_minor' : ''}, player_id, players!inner(first_name, last_name)`).order('starts_on', { ascending: false }).limit(300)) : { data: [] };
   const rows = ((data ?? []) as unknown as Row[]).sort((a, b) => a.players.last_name.localeCompare(b.players.last_name));
   const today = helsinkiToday();
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));

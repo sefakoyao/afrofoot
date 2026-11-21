@@ -5,7 +5,7 @@ import { getTranslations } from 'next-intl/server';
 import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_COLUMNS, STATUS_BADGE, shownStatus, type Contract } from '@/lib/contracts';
+import { contractColumns, readContracts, STATUS_BADGE, shownStatus, type Contract } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -23,7 +23,7 @@ export default async function CoachContractPage({ params }: { params: Promise<{ 
   if (!UUID.test(id)) notFound();
   const [t, fmt, supabase] = await Promise.all([getTranslations('contract'), dateFormats(), getSupabase()]);
   if (!supabase) notFound();
-  const { data } = await supabase.from('player_contracts').select(`${CONTRACT_COLUMNS}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle();
+  const { data } = await readContracts((_, minor) => supabase.from('player_contracts').select(`${contractColumns(minor)}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle());
   if (!data) notFound();
   const c = data as unknown as Contract & { players: { first_name: string; last_name: string } };
   const st = shownStatus(c, helsinkiToday());

@@ -2164,7 +2164,15 @@
     "r_guardianPhone": "Kirjoita vanhemman tai huoltajan puhelinnumero maatunnuksen kanssa, esimerkiksi +358 40 123 4567.",
     "r_guardianEmail": "Vanhemman tai huoltajan sähköpostiosoite ei kelpaa.",
     "r_guardianSign": "Vanhemman tai huoltajan on kirjoitettava oma koko nimensä täsmälleen kuten yllä.",
-    "r_guardianSelf": "Vanhemman tai huoltajan on oltava joku muu kuin sinä."
+    "r_guardianSelf": "Vanhemman tai huoltajan on oltava joku muu kuin sinä.",
+    "listCount": "{count, plural, =0 {ei yhtään} one {# sopimus} other {# sopimusta}}",
+    "showAll": "Näytä kaikki",
+    "rowSignedBoth": "Molemmat allekirjoittaneet {date}",
+    "rowSignedPlayer": "Pelaaja allekirjoitti {date}: odottaa seuraa",
+    "rowSent": "Lähetetty {date}: odottaa pelaajaa",
+    "rowDraft": "Luonnos, ei vielä lähetetty",
+    "rowCountersign": "Vahvista",
+    "rowOpen": "Avaa"
   },
   "match": {
     "title": "Ottelupäivä",
