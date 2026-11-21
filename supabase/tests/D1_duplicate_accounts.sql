@@ -43,4 +43,18 @@ select t.check('the deletion is logged with the shared phone', exists (select 1 
 select t.check('a merge is still logged as a merge', (select column_default from information_schema.columns where table_name = 'account_merges' and column_name = 'action') like '%merge%');
 select t.login('fe000000-0000-0000-0000-000000000005');
 select t.check('a super admin can delete an administrator without history', not t.raises($$select delete_account('fe000000-0000-0000-0000-000000000001')$$));
+-- an older install without some tables (e.g. no player contracts): checks, merge and delete still work
+reset role;
+alter table player_contracts rename to player_contracts_gone;
+insert into auth.users (id, email, raw_user_meta_data) values
+ ('fe000000-0000-0000-0000-000000000006', 'dp-old1@example.test', '{"first_name":"Old","last_name":"One"}'),
+ ('fe000000-0000-0000-0000-000000000007', 'dp-old2@example.test', '{"first_name":"Old","last_name":"Two"}');
+update profiles set role = 'player', status = 'active', phone = '+358405550077' where id in ('fe000000-0000-0000-0000-000000000006', 'fe000000-0000-0000-0000-000000000007');
+insert into players (profile_id, first_name, last_name) values ('fe000000-0000-0000-0000-000000000006', 'Old', 'One'), ('fe000000-0000-0000-0000-000000000007', 'Old', 'Two') on conflict (profile_id) do nothing;
+insert into team_players (team_season_id, player_id, jersey_number) select 'fe300000-0000-0000-0000-000000000001', id, 61 from players where profile_id = 'fe000000-0000-0000-0000-000000000007';
+select t.login('fe000000-0000-0000-0000-000000000005');
+select t.check('without the contracts table: history is still found', not account_deletable('fe000000-0000-0000-0000-000000000007') and account_deletable('fe000000-0000-0000-0000-000000000006'));
+select t.check('without the contracts table: a merge still works', not t.raises($$select merge_accounts('fe000000-0000-0000-0000-000000000006', 'fe000000-0000-0000-0000-000000000007')$$));
+reset role;
+select t.check('…and moved the team to the kept account', exists (select 1 from team_players tp join players pl on pl.id = tp.player_id where pl.profile_id = 'fe000000-0000-0000-0000-000000000006' and tp.jersey_number = 61));
 rollback;
