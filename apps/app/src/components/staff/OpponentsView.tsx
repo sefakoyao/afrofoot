@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { addOpponent, renameOpponent, setOpponentActive } from '@/app/actions/opponents';
 import { ResultBanner } from '@/components/ResultBanner';
-import type { Scope } from '@/lib/staff';
+import { may, type Scope } from '@/lib/staff';
 import { getSupabase } from '@/lib/supabase/server';
 
 const input = 'min-h-10 w-full rounded-control border border-line bg-raised px-3';
@@ -14,11 +14,13 @@ const btn = 'min-h-10 rounded-full bg-accent px-5 font-display font-bold text-on
  */
 export async function OpponentsView({ sp, scope }: { sp: Record<string, string | string[] | undefined>; scope: Scope }) {
   const admin = scope.area === 'admin';
+  // admins, and coaches with the "opponents" right (0070), add and correct names
+  const edit = may(scope, 'opponents');
   const [t, supabase] = await Promise.all([getTranslations('opp'), getSupabase()]);
   if (!supabase) return null;
   const q = typeof sp.q === 'string' ? sp.q.trim().slice(0, 60) : '';
   const [{ data: rows }, { data: games }] = await Promise.all([
-    admin ? supabase.from('opponents').select('id, name, active') : supabase.from('opponents').select('id, name, active').eq('active', true),
+    edit ? supabase.from('opponents').select('id, name, active') : supabase.from('opponents').select('id, name, active').eq('active', true),
     supabase.from('matches').select('opponent'),
   ]);
   const played = new Map<string, number>();
@@ -32,11 +34,11 @@ export async function OpponentsView({ sp, scope }: { sp: Record<string, string |
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <header>
         <h1 className="font-display text-2xl font-extrabold">{t('title')}</h1>
-        <p className="mt-1 max-w-3xl text-muted">{admin ? t('lead') : t('coachLead')}</p>
+        <p className="mt-1 max-w-3xl text-muted">{edit ? t('lead') : t('coachLead')}</p>
       </header>
       <ResultBanner ns="opp" result={sp.result} />
 
-      {admin ? <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="add-h">
+      {edit ? <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="add-h">
         <h2 id="add-h" className="font-display text-xl font-extrabold">{t('addTitle')}</h2>
         <form action={addOpponent} className="mt-3 flex flex-wrap items-end gap-2" data-opp-add>
           <label className="grid min-w-0 flex-1 gap-1 text-sm font-semibold sm:max-w-md">{t('name')}
@@ -49,7 +51,7 @@ export async function OpponentsView({ sp, scope }: { sp: Record<string, string |
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 id="list-h" className="font-display text-xl font-extrabold">{t('listTitle')}</h2>
-            <p className="text-sm text-muted" data-opp-count>{admin ? t('count', { shown, hidden: all.length - shown }) : t('countCoach', { count: shown })}</p>
+            <p className="text-sm text-muted" data-opp-count>{edit ? t('count', { shown, hidden: all.length - shown }) : t('countCoach', { count: shown })}</p>
           </div>
           <form className="flex items-end gap-2" role="search">
             <label className="grid gap-1 text-sm font-semibold">{t('search')}
@@ -61,7 +63,7 @@ export async function OpponentsView({ sp, scope }: { sp: Record<string, string |
           <ul className="mt-4 divide-y divide-line">
             {list.map((o) => {
               const n = played.get(o.name.toLowerCase()) ?? 0;
-              if (!admin) return (
+              if (!edit) return (
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 py-2" data-opponent={o.name} data-active={o.active}>
                   <bdi className="font-semibold">{o.name}</bdi><span className="text-xs text-muted">{n ? t('games', { count: n }) : t('noGames')}</span>
                 </li>

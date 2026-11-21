@@ -3,6 +3,21 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coach permissions (branch `phase2/coach-permissions`, release 0.64.0, migration 0070)
+- **Admin → People → Coach permissions:** one row per coach and player-coach, with the teams they coach this season and a checkbox for each right. Save per coach. Each right reaches only the coach's own teams, and nothing is on until ticked.
+  - **Contracts:** see their players' contracts and PDF (read only). Before, every coach saw them (0031); now only with this right.
+  - **Fees:** see their players' invoices (paid, open, overdue, amount and next due date), read only.
+  - **Opponents:** add, correct and hide names in the opponents list.
+  - **Poster photos:** upload and remove photos and sponsor logos for the matchday poster.
+- **Coaches:** granted rights add **Contracts** and **Fees** pages to their Teams & events menu, the add/rename form on Opponents, and the upload section on the Matchday poster.
+- **Database (0070):**
+  - the `coach_permissions` table: admins write it, the coach reads their own, coaches only, audited
+  - `app.coach_may(right)`
+  - new rules for contracts, payments, memberships, opponents and poster storage
+  - parts for tables that aren't installed are skipped
+- The poster upload now also keeps the chosen effect, strength and darkness.
+- Tests: 16 database checks (`tests/D4_coach_permissions.sql`). The contract and match-day tests now grant the contracts right first.
+
 ## Unreleased – app layout A (branch `phase2/app-layout-a`, release 0.63.0, migration 0069)
 - **New frame for the Player, Coach and Admin areas:**
   - a slim black top bar with the crest, the area name and an account menu (your initials): name and role, My account, the other area for player-coaches, website, language, sign out

@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
-import type { Scope } from '@/lib/staff';
+import { may, type Scope } from '@/lib/staff';
 import { supabaseEnv } from '@/lib/env';
 import { PosterPreview } from '@/components/admin/PosterPreview';
 import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect } from '@/lib/poster-art';
@@ -39,6 +39,8 @@ function LayoutSketch({ l }: { l: PosterLayout }) {
  */
 export async function PosterView({ sp, scope }: { sp: Record<string, string | string[] | undefined>; scope: Scope }) {
   const admin = scope.area === 'admin';
+  // admins, and coaches with the "posters" right (0070), upload and remove photos and logos
+  const upload = may(scope, 'posters');
   const [t, locale, supabase] = await Promise.all([getTranslations('poster'), getLocale(), getSupabase()]);
   if (!supabase) return null;
   const tag = isLocale(locale) ? LOCALE_LABELS[locale].intl : 'en-GB';
@@ -156,11 +158,11 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
         </div>
       )}
 
-      {!admin ? <p className="rounded-card border border-line bg-raised p-4 text-sm text-muted" data-upload-note>{t('coachUploadNote')}</p> : <section className="grid gap-3 rounded-card border border-line bg-raised p-5" aria-labelledby="up-h">
+      {!upload ? <p className="rounded-card border border-line bg-raised p-4 text-sm text-muted" data-upload-note>{t('coachUploadNote')}</p> : <section className="grid gap-3 rounded-card border border-line bg-raised p-5" aria-labelledby="up-h">
         <h2 id="up-h" className="font-display text-lg font-extrabold">{t('uploadTitle')}</h2>
         <p className="text-sm text-muted">{t('uploadLead')}</p>
         <form action={uploadPosterPhoto} className="flex flex-wrap items-end gap-3" data-poster-upload>
-          <input type="hidden" name="keep" value={q.toString()} />
+          <input type="hidden" name="keep" value={q.toString()} /><input type="hidden" name="area" value={scope.area} />
           <label className="grid gap-1 text-sm font-semibold">{t('uploadKind')}
             <select name="kind" defaultValue="player" className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal" data-upload-kind>
               {UPLOAD_KINDS.map((k) => <option key={k} value={k}>{t(`k_${k}`)}</option>)}
@@ -170,7 +172,7 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
         </form>
         {UPLOAD_KINDS.some((k) => uploads[k].length) ? (
           <ul className="flex flex-wrap gap-2">{UPLOAD_KINDS.flatMap((k) => uploads[k].map((p) => (
-            <li key={p}><form action={removePosterPhoto}><input type="hidden" name="path" value={p} /><input type="hidden" name="keep" value={q.toString()} />
+            <li key={p}><form action={removePosterPhoto}><input type="hidden" name="path" value={p} /><input type="hidden" name="keep" value={q.toString()} /><input type="hidden" name="area" value={scope.area} />
               <button className="inline-flex min-h-9 items-center gap-2 rounded-full border border-danger px-3 text-xs font-bold text-danger hover:bg-danger/10">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={url(p)} alt="" className="size-6 rounded object-cover" />{t('removePhoto', { name: t(`k_${k}`) })}</button></form></li>)))}</ul>

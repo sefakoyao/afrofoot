@@ -6,6 +6,8 @@ insert into auth.users (id, email, raw_user_meta_data) values
  ('b1000000-0000-0000-0000-000000000003', 'md-player@example.test', '{"first_name":"Md","last_name":"Player"}'),
  ('b1000000-0000-0000-0000-000000000004', 'md-other@example.test', '{"first_name":"Md","last_name":"Other"}');
 update profiles set role = 'coach', status = 'active' where id in ('b1000000-0000-0000-0000-000000000002', 'b1000000-0000-0000-0000-000000000005');
+-- 0070: the contracts check below needs the coach's "contracts" right (granted by an admin)
+insert into coach_permissions (profile_id, permission) values ('b1000000-0000-0000-0000-000000000002', 'contracts');
 update profiles set role = 'player', status = 'active' where id in ('b1000000-0000-0000-0000-000000000003', 'b1000000-0000-0000-0000-000000000004');
 insert into seasons (id, name, starts_on, ends_on) values ('b2000000-0000-0000-0000-000000000001', 'Md season', '2026-01-01', '2028-12-31');
 insert into teams (id, name, slug) values ('b3000000-0000-0000-0000-000000000001', 'Md A', 'md-a'), ('b3000000-0000-0000-0000-000000000002', 'Md B', 'md-b');
