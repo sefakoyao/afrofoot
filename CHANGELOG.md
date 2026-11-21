@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coach permissions: show the cause (branch `phase2/perm-diagnose`, release 0.64.2, no database change)
+- When the coach permissions table can't be read, the notice now also shows the database's own error and which Supabase project the app uses (the first part of its public address), so a script run in another project, or a missing table, is spotted at once.
+
 ## Unreleased – coach permissions on older databases (branch `phase2/perm-older-db`, release 0.64.1, migration 0070 corrected)
 - Migration 0070 failed on a database installed before 0045 (`function app.is_coach() does not exist`). `app.coach_may` now checks the role with `app.role()` (0007), and the opponents part is skipped where the opponents list (0061) isn't installed. Tested on a database built only up to migration 0044.
 - The permission check on roles also works before 0045 (no 'player_coach' role value yet).
