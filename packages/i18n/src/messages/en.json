@@ -2164,7 +2164,15 @@
     "r_guardianPhone": "Enter the parent or guardian's phone number with the country code, for example +358 40 123 4567.",
     "r_guardianEmail": "The parent or guardian's email address is not valid.",
     "r_guardianSign": "The parent or guardian must type their own full name, exactly as above, to sign.",
-    "r_guardianSelf": "The parent or guardian must be someone other than you."
+    "r_guardianSelf": "The parent or guardian must be someone other than you.",
+    "listCount": "{count, plural, =0 {none} one {# contract} other {# contracts}}",
+    "showAll": "Show all",
+    "rowSignedBoth": "Signed by both on {date}",
+    "rowSignedPlayer": "Signed by the player on {date}: waiting for the club",
+    "rowSent": "Sent on {date}: waiting for the player",
+    "rowDraft": "Draft, not sent yet",
+    "rowCountersign": "Countersign",
+    "rowOpen": "Open"
   },
   "match": {
     "title": "Match day",

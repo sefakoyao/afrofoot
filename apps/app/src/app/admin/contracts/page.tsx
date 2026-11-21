@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { createContract, saveContractSettings, saveTemplate } from '@/app/actions/contracts';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_DEFAULTS, CONTRACT_STATUSES, STATUS_BADGE, loadContractSettings, shownStatus, type ContractStatus } from '@/lib/contracts';
+import { CONTRACT_DEFAULTS, CONTRACT_STATUSES, STATUS_BADGE, readContracts, loadContractSettings, shownStatus, type ContractStatus } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const input = 'min-h-11 w-full rounded-control border border-line bg-raised px-3';
-type Row = { id: string; title: string; status: ContractStatus; starts_on: string; ends_on: string; years: number; player_id: string; is_minor?: boolean; players: { first_name: string; last_name: string } };
+type Row = { id: string; title: string; status: ContractStatus; starts_on: string; ends_on: string; years: number; player_id: string; is_minor?: boolean; sent_at: string | null; player_signed_at: string | null; club_signed_at: string | null; players: { first_name: string; last_name: string } };
 
 /** Admin → Contracts: list with status filter, new contract (1, 2 or 3 years) from the template, and the template itself. */
 export default async function ContractsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
@@ -25,13 +25,17 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
   const status = CONTRACT_STATUSES.find((s) => s === sp.status);
   const today = helsinkiToday();
 
-  let q = supabase?.from('player_contracts').select('id, title, status, starts_on, ends_on, years, player_id, is_minor, players!inner(first_name, last_name)').order('created_at', { ascending: false }).limit(200);
-  if (q && status) q = q.eq('status', status);
   // ?player=<id>: one player's contracts (link from Admin → Invoices, "waiting before invoicing")
   const player = typeof sp.player === 'string' && /^[0-9a-f-]{36}$/.test(sp.player) ? sp.player : '';
-  if (q && player) q = q.eq('player_id', player);
+  // 0068's under-18 column only where installed (readContracts reads again without it on an older database)
+  const listQuery = (extra: string) => {
+    let q = supabase!.from('player_contracts').select(`id, title, status, starts_on, ends_on, years, player_id, sent_at, player_signed_at, club_signed_at${extra ? ', is_minor' : ''}, players!inner(first_name, last_name)`).order('created_at', { ascending: false }).limit(200);
+    if (status) q = q.eq('status', status);
+    if (player) q = q.eq('player_id', player);
+    return q;
+  };
   const [{ data: rows }, { data: all }, { data: players }, { data: teams }, { data: tpl }] = supabase ? await Promise.all([
-    q!, supabase.from('player_contracts').select('status'),
+    readContracts((extra) => listQuery(extra)), supabase.from('player_contracts').select('status'),
     supabase.from('players').select('id, first_name, last_name, profile_id').not('profile_id', 'is', null).order('last_name'),
     supabase.from('team_seasons').select('id, teams!inner(name), seasons!inner(name, is_current)').eq('seasons.is_current', true),
     supabase.from('contract_templates').select('body').eq('is_default', true).maybeSingle(),
@@ -53,19 +57,19 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
 
       <section className="grid gap-3 sm:grid-cols-4" aria-label={t('adminTitle')}>
         {(['player_signed', 'sent', 'active', 'draft'] as const).map((s) => (
-          <Link key={s} href={`/admin/contracts?status=${s}`} data-count={s} className={`rounded-card border p-4 hover:border-accent ${s === 'player_signed' && n(s) ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`}>
+          <Link key={s} href={status === s ? '/admin/contracts#list' : `/admin/contracts?status=${s}#list`} aria-current={status === s ? 'true' : undefined} data-count={s} className={`rounded-card border-2 p-4 hover:border-accent ${status === s ? 'border-accent bg-accent/10' : s === 'player_signed' && n(s) ? 'border-danger/40 bg-danger/5' : 'border-line bg-raised'}`}>
             <p className="text-sm text-muted">{t(`count_${s}`)}</p>
             <p className="font-display text-3xl font-black">{n(s)}</p>
           </Link>
         ))}
       </section>
 
-      <section className="rounded-card border border-line bg-raised p-6" aria-labelledby="list-h">
+      <section id="list" className="scroll-mt-20 rounded-card border border-line bg-raised p-4 sm:p-6" aria-labelledby="list-h">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h2 id="list-h" className="font-display text-xl font-extrabold">{t('listTitle')}</h2>
           <form className="flex flex-wrap items-end gap-2" role="search">
             <label className="grid gap-1 text-sm font-semibold">{t('filterStatus')}
-              <select name="status" defaultValue={status ?? ''} className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal">
+              <select key={status ?? "all"} name="status" defaultValue={status ?? ''} className="min-h-10 rounded-control border border-line bg-raised px-3 font-normal">
                 <option value="">{t('all')}</option>
                 {CONTRACT_STATUSES.map((s) => <option key={s} value={s}>{t(`st_${s}`)}</option>)}
               </select>
@@ -73,29 +77,32 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
             <button className="min-h-10 rounded-full bg-accent px-5 font-bold text-on-accent hover:brightness-110">{t('apply')}</button>
           </form>
         </div>
+        {status ? <p className="mt-1 text-sm"><span className="font-semibold">{t(`st_${status}`)}</span> · {t('listCount', { count: list.length })} · <Link href="/admin/contracts#list" className="font-semibold text-pitch underline underline-offset-2" data-show-all>{t('showAll')}</Link></p> : null}
         {list.length === 0 ? <p className="mt-3 text-muted">{t('empty')}</p> : (
-          <div className="relative mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b border-line text-xs uppercase tracking-wide text-muted">
-                <tr><th scope="col" className="px-2 py-2 text-start">{t('player')}</th><th scope="col" className="px-2 py-2 text-start">{t('contractCol')}</th>
-                  <th scope="col" className="px-2 py-2 text-start">{t('term')}</th><th scope="col" className="px-2 py-2 text-start">{t('status')}</th></tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {list.map((c) => {
-                  const st = shownStatus(c, today);
-                  return (
-                    <tr key={c.id} data-contract={c.id} data-status={st}>
-                      <td className="px-2 py-2 font-semibold"><Link href={`/admin/contracts/${c.id}`} className="text-pitch underline underline-offset-2"><bdi>{c.players.first_name} {c.players.last_name}</bdi></Link>
-                        {under18(c) ? <span className="ms-2 whitespace-nowrap rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-ink-950" data-under-18>{t('under18')}</span> : null}</td>
-                      <td className="px-2 py-2">{c.title}</td>
-                      <td className="whitespace-nowrap px-2 py-2">{fmt.date.format(new Date(`${c.starts_on}T12:00:00Z`))} – {fmt.date.format(new Date(`${c.ends_on}T12:00:00Z`))} · {t('yearsN', { count: c.years })}</td>
-                      <td className="px-2 py-2"><span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[st]}`}>{t(`st_${st}`)}</span></td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <ul className="mt-3 divide-y divide-line" data-contract-list>
+            {list.map((c) => {
+              const st = shownStatus(c, today);
+              const when = c.club_signed_at ? t('rowSignedBoth', { date: fmt.date.format(new Date(c.club_signed_at)) })
+                : c.player_signed_at ? t('rowSignedPlayer', { date: fmt.date.format(new Date(c.player_signed_at)) })
+                : c.sent_at ? t('rowSent', { date: fmt.date.format(new Date(c.sent_at)) }) : t('rowDraft');
+              return (
+                <li key={c.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3" data-contract={c.id} data-status={st}>
+                  <span className="grid min-w-0 flex-1 basis-60 gap-0.5 leading-tight">
+                    <Link href={`/admin/contracts/${c.id}`} className="font-bold text-pitch underline underline-offset-2"><bdi>{c.players.first_name} {c.players.last_name}</bdi></Link>
+                    <span className="text-sm text-muted">{c.title} · {fmt.date.format(new Date(`${c.starts_on}T12:00:00Z`))} – {fmt.date.format(new Date(`${c.ends_on}T12:00:00Z`))} · {t('yearsN', { count: c.years })}</span>
+                    <span className="text-xs text-muted" data-row-when>{when}</span>
+                  </span>
+                  <span className="flex flex-wrap items-center gap-2">
+                    {under18(c) ? <span className="whitespace-nowrap rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-ink-950" data-under-18>{t('under18')}</span> : null}
+                    <span className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_BADGE[st]}`}>{t(`st_${st}`)}</span>
+                    <Link href={`/admin/contracts/${c.id}${c.status === 'player_signed' ? '#countersign' : ''}`} className={`inline-flex min-h-10 items-center rounded-full px-4 text-sm font-bold ${c.status === 'player_signed' ? 'bg-accent text-on-accent hover:brightness-110' : 'border-2 border-fg hover:bg-fg hover:text-raised'}`} data-open>
+                      {c.status === 'player_signed' ? t('rowCountersign') : t('rowOpen')}</Link>
+                    {c.status !== 'draft' ? <a href={`/contracts/${c.id}`} target="_blank" rel="noopener" className="inline-flex min-h-10 items-center rounded-full border border-line px-4 text-sm font-bold hover:border-accent" data-pdf>PDF</a> : null}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </section>
 

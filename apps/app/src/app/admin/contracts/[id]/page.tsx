@@ -9,7 +9,7 @@ import { ContractSignatures } from '@/components/ContractSignatures';
 import { SignatureMark } from '@/components/SignatureMark';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_COLUMNS, STATUS_BADGE, loadContractSettings, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
+import { contractColumns, readContracts, STATUS_BADGE, loadContractSettings, blanksIn, hasBlanks, shownStatus, type Contract } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -28,7 +28,7 @@ export default async function ContractPage({ params, searchParams }: { params: P
   if (!UUID.test(id)) notFound();
   const [t, trel, fmt, supabase] = await Promise.all([getTranslations('contract'), getTranslations('relation'), dateFormats(), getSupabase()]);
   if (!supabase) notFound();
-  const { data } = await supabase.from('player_contracts').select(`${CONTRACT_COLUMNS}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle();
+  const { data } = await readContracts((_, minor) => supabase.from('player_contracts').select(`${contractColumns(minor)}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle());
   if (!data) notFound();
   const settings = await loadContractSettings(supabase);
   // who the club's signature names: the signatory set in the contract settings (0052), else the admin who countersigns
@@ -118,7 +118,7 @@ export default async function ContractPage({ params, searchParams }: { params: P
       {c.status !== 'draft' ? <ContractSignatures c={c} /> : null}
 
       {c.status === 'player_signed' ? (
-        <section className="grid gap-3 rounded-card border-2 border-accent bg-raised p-6" data-countersign-preview>
+        <section id="countersign" className="grid scroll-mt-20 gap-3 rounded-card border-2 border-accent bg-raised p-6" data-countersign-preview>
           <h2 className="font-display text-xl font-extrabold">{t('countersign')}</h2>
           <div className="rounded-card bg-surface p-4 sm:max-w-md">
             <p className="text-xs font-bold uppercase tracking-widest text-muted">{t('sigPreviewClub')}</p>

@@ -17,7 +17,23 @@ export interface Contract {
   is_minor?: boolean; guardian_name?: string | null; guardian_relation?: string | null; guardian_phone?: string | null; guardian_email?: string | null;
   guardian_signed_name?: string | null; guardian_signed_at?: string | null;
 }
-export const CONTRACT_COLUMNS = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, club_signed_title, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at, is_minor, guardian_name, guardian_relation, guardian_phone, guardian_email, guardian_signed_name, guardian_signed_at';
+export const CONTRACT_COLUMNS_BASE = 'id, player_id, team_season_id, title, years, starts_on, ends_on, body, body_sha256, status, sent_at, player_signed_at, player_signed_name, club_signed_at, club_signed_name, club_signed_title, declined_at, decline_reason, cancelled_at, terminated_on, termination_reason, created_at';
+/** The under-18 columns (migration 0068). */
+export const MINOR_COLUMNS = 'is_minor, guardian_name, guardian_relation, guardian_phone, guardian_email, guardian_signed_name, guardian_signed_at';
+export const CONTRACT_COLUMNS = `${CONTRACT_COLUMNS_BASE}, ${MINOR_COLUMNS}`;
+
+type Read<T> = PromiseLike<{ data: T; error: { code?: string; message?: string } | null }>;
+/**
+ * Reads contracts with the under-18 columns (0068); on a database where they are not installed yet, reads them again
+ * without (otherwise every list, contract page and PDF came back empty there). `run` builds the query from a column list.
+ */
+export async function readContracts<T>(run: (columns: string, minor: boolean) => Read<T>) {
+  const r = await run(MINOR_COLUMNS, true);
+  if (r.error && (r.error.code === '42703' || /is_minor|guardian_/.test(r.error.message ?? ''))) return run('', false);
+  return r;
+}
+/** The full column list for one contract, with or without the under-18 columns. */
+export const contractColumns = (minor: boolean) => (minor ? CONTRACT_COLUMNS : CONTRACT_COLUMNS_BASE);
 
 export const STATUS_BADGE: Record<ContractStatus | 'expired', string> = {
   draft: 'bg-line text-fg', sent: 'bg-ink-950 text-white', player_signed: 'bg-danger text-white', active: 'bg-accent/20 text-pitch',

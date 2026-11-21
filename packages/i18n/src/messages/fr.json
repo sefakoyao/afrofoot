@@ -2164,7 +2164,15 @@
     "r_guardianPhone": "Saisis le téléphone du parent ou tuteur avec l'indicatif du pays, par exemple +358 40 123 4567.",
     "r_guardianEmail": "L'adresse e-mail du parent ou tuteur n'est pas valide.",
     "r_guardianSign": "Le parent ou tuteur doit taper son propre nom complet, exactement comme ci-dessus, pour signer.",
-    "r_guardianSelf": "Le parent ou tuteur doit être une autre personne que toi."
+    "r_guardianSelf": "Le parent ou tuteur doit être une autre personne que toi.",
+    "listCount": "{count, plural, =0 {aucun} one {# contrat} other {# contrats}}",
+    "showAll": "Tout afficher",
+    "rowSignedBoth": "Signé par les deux le {date}",
+    "rowSignedPlayer": "Signé par le joueur le {date} : en attente du club",
+    "rowSent": "Envoyé le {date} : en attente du joueur",
+    "rowDraft": "Brouillon, pas encore envoyé",
+    "rowCountersign": "Contresigner",
+    "rowOpen": "Ouvrir"
   },
   "match": {
     "title": "Jour de match",

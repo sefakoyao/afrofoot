@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getMember } from '@/lib/auth';
 import { renderContractPdf } from '@/lib/contract-pdf';
-import { CONTRACT_COLUMNS, type Contract } from '@/lib/contracts';
+import { contractColumns, readContracts, type Contract } from '@/lib/contracts';
 import { loadBilling } from '@/lib/invoice/data';
 import { getSupabase } from '@/lib/supabase/server';
 
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!UUID.test(id)) return new NextResponse('Not found', { status: 404 });
   const supabase = await getSupabase();
   if (!supabase) return new NextResponse('Not available', { status: 503 });
-  const { data } = await supabase.from('player_contracts').select(`${CONTRACT_COLUMNS}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle();
+  const { data } = await readContracts((_, minor) => supabase.from('player_contracts').select(`${contractColumns(minor)}, players!inner(first_name, last_name)`).eq('id', id).maybeSingle());
   if (!data) return new NextResponse('Not found', { status: 404 });
   const c = data as unknown as Contract & { players: { first_name: string; last_name: string } };
   const billing = await loadBilling(supabase);
