@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type Event = { id: string; event_type: 'practice' | 'game' | 'friendly' | 'event'; team_season_id: string | null; title: string; division: string | null; starts_at: string; ends_at: string; location_id: string | null; status: string;
   meet_at: string | null; meeting_point: string | null; kind: string | null; description: string | null; reply_by?: string | null };
 type Reply = { availability: 'pending' | 'yes' | 'no' | 'maybe'; note: string | null };
-type Place = { id: string; name: string; address: string | null; city: string | null; maps_url: string | null };
+type Place = { id: string; name: string; address: string | null; city: string | null; maps_url: string | null; directions: string | null; transit: string | null; parking: string | null };
 
 const TYPE_STYLE: Record<Event['event_type'], string> = { practice: 'bg-accent/20 text-pitch', game: 'bg-ink-950 text-white', friendly: 'bg-line text-fg', event: 'bg-fg/10 text-fg' };
 const CANCELLED = new Set(['cancelled', 'postponed']);
@@ -33,7 +33,7 @@ const CANCELLED = new Set(['cancelled', 'postponed']);
 export default async function CalendarTab({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const member = await requireArea('me');
   const sp = await searchParams;
-  const [t, tav, tq, rawLocale, supabase] = await Promise.all([getTranslations('me'), getTranslations('availability'), getTranslations('quiz'), getLocale(), getSupabase()]);
+  const [t, tav, tq, tp, rawLocale, supabase] = await Promise.all([getTranslations('me'), getTranslations('availability'), getTranslations('quiz'), getTranslations('places'), getLocale(), getSupabase()]);
   const tag = isLocale(rawLocale) ? LOCALE_LABELS[rawLocale].intl : 'en-GB';
   const today = helsinkiToday();
   const wanted = typeof sp.m === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(sp.m) ? sp.m : today.slice(0, 7);
@@ -66,7 +66,9 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     tactic_style: string | null; formation: string | null; game_plan: string | null; goals_for: number | null; goals_against: number | null; live_state: string };
   type SquadRow = { match_id: string; player_id: string; status: 'starter' | 'substitute' | 'not_selected'; slot: number | null; shirt_number: number | null; captain: boolean };
   const [{ data: places }, { data: teams }, { data: sessReplies }, { data: matchReplies }, { data: matchInfo }, { data: squadRows }, { data: roster }, { data: formations }] = supabase ? await Promise.all([
-    placeIds.length ? supabase.from('locations').select('id, name, address, city, maps_url').in('id', placeIds) : none,
+    // 0039's how-to-get-there fields only where installed: an older database is read without them
+    placeIds.length ? supabase.from('locations').select('id, name, address, city, maps_url, directions, transit, parking').in('id', placeIds)
+      .then((r) => (r.error ? supabase.from('locations').select('id, name, address, city, maps_url').in('id', placeIds) : r)) : none,
     teamIds.length ? supabase.from('team_seasons').select('id, teams(name)').in('id', teamIds) : none,
     me && practiceIds.length ? supabase.from('session_attendance').select('session_id, availability, note').eq('player_id', me.id).in('session_id', practiceIds) : none,
     me && matchIds.length ? supabase.from('match_availability').select('match_id, availability, note').eq('player_id', me.id).in('match_id', matchIds) : none,
@@ -119,9 +121,23 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     if (!p) return null;
     const text = [p.name, p.address, p.city].filter(Boolean).join(', ');
     const link = mapsLinkFor(p); // the saved link, or a Google Maps search from the address
-    return link
+    const where = link
       ? <a href={link} target="_blank" rel="noopener noreferrer" className="text-pitch underline underline-offset-2" data-maps-link>{text}</a>
       : <span>{text}</span>;
+    // Directions written on the Places page (coaches and admins), only when there are some
+    const how = ([['directions', p.directions], ['transit', p.transit], ['parking', p.parking]] as const).filter(([, v]) => v);
+    if (!how.length) return where;
+    return (
+      <>
+        {where}
+        <details className="mt-1" data-how-to-get-there>
+          <summary className="cursor-pointer text-sm font-semibold text-pitch">{tp('howToGetThere')}</summary>
+          <dl className="mt-1 grid gap-1 text-sm">
+            {how.map(([k, v]) => <div key={k}><dt className="inline font-semibold">{tp(k)}: </dt><dd className="inline whitespace-pre-line">{v}</dd></div>)}
+          </dl>
+        </details>
+      </>
+    );
   };
   const REPLY_STYLE: Record<Reply['availability'], string> = { yes: 'bg-accent/20 text-pitch', no: 'bg-danger/10 text-danger', maybe: 'bg-line text-fg', pending: 'bg-line text-muted' };
   const ReplyBox = ({ e, r }: { e: Event; r: Reply }) => {
@@ -226,7 +242,7 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
           {off ? <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-bold text-danger">{t(`ev_${e.status}` as 'ev_cancelled')}</span> : null}
         </div>
         <p className={`font-display text-lg font-extrabold ${off ? 'line-through' : ''}`}><bdi>{title(e)}</bdi>{e.division ? <span className="ms-2 text-sm font-normal text-muted">{e.division}</span> : null}</p>
-        <p className="text-sm text-muted"><Where e={e} />{manyTeams || !e.team_season_id ? <> · {e.team_season_id ? teamName.get(e.team_season_id) : tev('wholeClub')}</> : null}</p>
+        <div className="text-sm text-muted"><Where e={e} />{manyTeams || !e.team_season_id ? <> · {e.team_season_id ? teamName.get(e.team_season_id) : tev('wholeClub')}</> : null}</div>
         {(e.event_type === 'practice' || e.event_type === 'event') && e.meet_at && !off ? (
           <p className="text-sm" data-meeting><span className="rounded-full bg-surface px-3 py-1"><span className="text-muted">{tev('meeting')}</span> <b dir="ltr">{hm.format(new Date(e.meet_at))}</b>{e.meeting_point ? <> · <bdi>{e.meeting_point}</bdi></> : null}</span></p>
         ) : null}

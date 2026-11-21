@@ -26,6 +26,10 @@ const KEYS = {
     ok: ['r_synced', 'r_disabled', 'r_linked', 'r_hidden', 'r_shown'],
     err: ['r_noKey', 'r_refused', 'r_failed', 'r_settings', 'r_error', 'r_taken', 'r_invalid'],
   },
+  places: {
+    ok: ['r_created', 'r_saved', 'r_hidden', 'r_shown', 'r_deleted'],
+    err: ['r_invalid', 'r_duplicate', 'r_inUse', 'r_notAllowed', 'r_error'],
+  },
   events: {
     ok: ['e_created', 'e_cancelled', 'e_restored', 'e_trainingCreated', 'e_matchCreated'],
     err: ['e_invalid', 'e_error', 'e_title', 'e_date', 'e_time', 'e_end', 'e_long', 'e_meet', 'e_location', 'e_notYours', 'e_team', 'e_division', 'e_sameDay'],

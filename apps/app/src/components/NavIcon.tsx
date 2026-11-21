@@ -4,7 +4,7 @@
  */
 export type NavIconName =
   | 'home' | 'inbox' | 'users' | 'key' | 'contract' | 'team' | 'calendar' | 'link' | 'shirt' | 'versus' | 'chart' | 'scale'
-  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks' | 'history' | 'lineup' | 'image' | 'merge' | 'more' | 'whistle';
+  | 'receipt' | 'coins' | 'quiz' | 'list' | 'card' | 'trophy' | 'user' | 'ball' | 'handshake' | 'euro' | 'star' | 'tasks' | 'history' | 'lineup' | 'image' | 'merge' | 'more' | 'whistle' | 'pin';
 
 const PATHS: Record<NavIconName, React.ReactNode> = {
   home: <><path d="M3 11 12 4l9 7" /><path d="M5 10v10h5v-6h4v6h5V10" /></>,
@@ -36,6 +36,7 @@ const PATHS: Record<NavIconName, React.ReactNode> = {
   merge: <><circle cx="6" cy="6" r="2.5" /><circle cx="6" cy="18" r="2.5" /><circle cx="18" cy="12" r="2.5" /><path d="M8.5 6h2a4 4 0 0 1 4 4v0M8.5 18h2a4 4 0 0 0 4-4v0M14.5 12h1" /></>,
   more: <><circle cx="5" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="19" cy="12" r="1.4" /></>,
   whistle: <><circle cx="9" cy="14" r="5" /><path d="M13 11h8v3h-5M9 14h.01" /></>,
+  pin: <><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" /><circle cx="12" cy="9" r="2.5" /></>,
   tasks: <><rect x="4" y="4" width="16" height="17" rx="2" /><path d="m8 10 1.5 1.5L12 9M8 16l1.5 1.5L12 15M14 10h3M14 16h3" /></>,
 };
 
