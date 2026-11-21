@@ -3553,6 +3553,8 @@
     "notInstalled": "Valmentajien oikeuksien tietokantaosaa ei ole vielä asennettu, joten rasteja ei voi tallentaa. Aja valmentajien oikeuksien skripti (tietokantapäivitys 0070) kohdassa Supabase → SQL Editor ja lataa sivu uudelleen.",
     "p_notInstalled": "Ei tallennettu: valmentajien oikeuksien tietokantapäivitystä (0070) ei ole vielä asennettu. Aja sen skripti kohdassa Supabase → SQL Editor ja yritä uudelleen.",
     "p_notAllowed": "Ei tallennettu: vain ylläpitäjät voivat muuttaa oikeuksia.",
-    "p_dbOld": "Ei tallennettu: tietokannasta puuttuu aiempia päivityksiä. Aja uusin valmentajien oikeuksien skripti (0070) uudelleen ja yritä uudelleen."
+    "p_dbOld": "Ei tallennettu: tietokannasta puuttuu aiempia päivityksiä. Aja uusin valmentajien oikeuksien skripti (0070) uudelleen ja yritä uudelleen.",
+    "dbSays": "Tietokanta ilmoittaa:",
+    "appProject": "Sovellus käyttää Supabase-projektia:"
   }
 }

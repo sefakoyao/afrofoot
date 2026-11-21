@@ -6,6 +6,7 @@ import { ResultBanner } from '@/components/ResultBanner';
 import { NavIcon, type NavIconName } from '@/components/NavIcon';
 import { requireArea } from '@/lib/auth';
 import { PERMISSIONS, type Permission } from '@/lib/permissions';
+import { supabaseEnv } from '@/lib/env';
 import { getSupabase } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -22,11 +23,12 @@ type Coach = { id: string; first_name: string; last_name: string; email: string 
 export default async function CoachPermissionsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
   let installed = true; // false while the database update (migration 0070) is not installed
+  let dbError = ''; // the database's own words, shown to the admin to find the cause
   const [sp, t, tr, supabase] = await Promise.all([searchParams, getTranslations('perm'), getTranslations('role'), getSupabase()]);
   if (!supabase) return null;
   const [{ data: coachRows }, { data: grants }, { data: staff }] = await Promise.all([
     supabase.from('profiles').select('id, first_name, last_name, email, phone, role').in('role', ['coach', 'player_coach']).eq('status', 'active').order('first_name').order('last_name'),
-    supabase.from('coach_permissions').select('profile_id, permission').then((r) => { installed = !r.error; return r; }),
+    supabase.from('coach_permissions').select('profile_id, permission').then((r) => { installed = !r.error; dbError = r.error ? `${r.error.code ?? ''} ${r.error.message ?? ''}`.trim() : ''; return r; }),
     supabase.from('team_staff').select('staff_members!inner(profile_id), team_seasons!inner(teams!inner(name), seasons!inner(is_current))').eq('team_seasons.seasons.is_current', true),
   ]);
   const coaches = (coachRows ?? []) as Coach[];
@@ -46,7 +48,14 @@ export default async function CoachPermissionsPage({ searchParams }: { searchPar
         <p className="mt-1 max-w-3xl text-muted">{t('lead')}</p>
       </header>
       <ResultBanner ns="perm" result={sp.result} />
-      {!installed ? <p role="alert" className="rounded-card border-2 border-danger/40 bg-danger/5 p-4 font-semibold" data-not-installed>{t('notInstalled')}</p> : null}
+      {!installed ? (
+        <div role="alert" className="rounded-card border-2 border-danger/40 bg-danger/5 p-4" data-not-installed>
+          <p className="font-semibold">{t('notInstalled')}</p>
+          {/* which Supabase project the app talks to (the first part of its public address), to compare with the SQL Editor's */}
+          <p className="mt-2 text-sm">{t('appProject')} <code className="rounded bg-raised px-1.5 py-0.5 font-mono text-xs" dir="ltr" data-app-project>{(() => { try { return new URL(supabaseEnv()?.url ?? '').hostname.split('.')[0]; } catch { return '–'; } })()}</code></p>
+          {dbError ? <p className="mt-2 text-sm">{t('dbSays')} <code className="break-all rounded bg-raised px-1.5 py-0.5 font-mono text-xs" dir="ltr" data-db-error>{dbError}</code></p> : null}
+        </div>
+      ) : null}
 
       <section className="grid gap-2 sm:grid-cols-2" aria-label={t('rightsTitle')} data-rights>
         {PERMISSIONS.map((p) => (

@@ -3553,6 +3553,8 @@
     "notInstalled": "The database part of coach permissions is not installed yet, so ticks cannot be saved. Run the coach permissions script (database update 0070) in Supabase → SQL Editor, then reload this page.",
     "p_notInstalled": "Not saved: the database update for coach permissions (0070) is not installed yet. Run its script in Supabase → SQL Editor, then try again.",
     "p_notAllowed": "Not saved: only administrators can change permissions.",
-    "p_dbOld": "Not saved: the database is missing earlier updates. Run the latest coach permissions script (0070) again, then try again."
+    "p_dbOld": "Not saved: the database is missing earlier updates. Run the latest coach permissions script (0070) again, then try again.",
+    "dbSays": "The database says:",
+    "appProject": "The app uses the Supabase project:"
   }
 }
