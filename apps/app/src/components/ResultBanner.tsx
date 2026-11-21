@@ -60,7 +60,7 @@ const KEYS = {
   },
   perm: {
     ok: ['p_saved'],
-    err: ['p_invalid', 'p_error', 'p_notCoach'],
+    err: ['p_invalid', 'p_error', 'p_notCoach', 'p_notInstalled', 'p_notAllowed', 'p_dbOld'],
   },
   merge: {
     ok: ['m_merged', 'm_deleted'],

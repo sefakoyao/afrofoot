@@ -21,11 +21,12 @@ type Coach = { id: string; first_name: string; last_name: string; email: string 
  */
 export default async function CoachPermissionsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
+  let installed = true; // false while the database update (migration 0070) is not installed
   const [sp, t, tr, supabase] = await Promise.all([searchParams, getTranslations('perm'), getTranslations('role'), getSupabase()]);
   if (!supabase) return null;
   const [{ data: coachRows }, { data: grants }, { data: staff }] = await Promise.all([
     supabase.from('profiles').select('id, first_name, last_name, email, phone, role').in('role', ['coach', 'player_coach']).eq('status', 'active').order('first_name').order('last_name'),
-    supabase.from('coach_permissions').select('profile_id, permission'),
+    supabase.from('coach_permissions').select('profile_id, permission').then((r) => { installed = !r.error; return r; }),
     supabase.from('team_staff').select('staff_members!inner(profile_id), team_seasons!inner(teams!inner(name), seasons!inner(is_current))').eq('team_seasons.seasons.is_current', true),
   ]);
   const coaches = (coachRows ?? []) as Coach[];
@@ -45,6 +46,7 @@ export default async function CoachPermissionsPage({ searchParams }: { searchPar
         <p className="mt-1 max-w-3xl text-muted">{t('lead')}</p>
       </header>
       <ResultBanner ns="perm" result={sp.result} />
+      {!installed ? <p role="alert" className="rounded-card border-2 border-danger/40 bg-danger/5 p-4 font-semibold" data-not-installed>{t('notInstalled')}</p> : null}
 
       <section className="grid gap-2 sm:grid-cols-2" aria-label={t('rightsTitle')} data-rights>
         {PERMISSIONS.map((p) => (

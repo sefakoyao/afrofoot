@@ -3549,6 +3549,10 @@
     "feesOverdue": "En retard {amount}",
     "feesOpen": "Ouvert {amount}",
     "feesPaid": "Payé",
-    "feesNote": "Les montants sont affichés pour que vous puissiez relancer gentiment ; gardez-les pour vous."
+    "feesNote": "Les montants sont affichés pour que vous puissiez relancer gentiment ; gardez-les pour vous.",
+    "notInstalled": "La partie base de données des droits des entraîneurs n’est pas encore installée : les cases ne peuvent pas être enregistrées. Exécutez le script des droits des entraîneurs (mise à jour 0070) dans Supabase → SQL Editor, puis rechargez cette page.",
+    "p_notInstalled": "Non enregistré : la mise à jour de base de données des droits des entraîneurs (0070) n’est pas encore installée. Exécutez son script dans Supabase → SQL Editor, puis réessayez.",
+    "p_notAllowed": "Non enregistré : seuls les administrateurs peuvent modifier les droits.",
+    "p_dbOld": "Non enregistré : il manque des mises à jour antérieures à la base de données. Exécutez à nouveau le dernier script des droits (0070), puis réessayez."
   }
 }
