@@ -97,7 +97,7 @@ async function layout(c: Contract, player: string, club: string, footer: string[
   }
 
   // signatures: kept together; the typed name drawn as a signature over a line, then name, title, time, reference
-  const sigH = 150 + (c.sent_at ? 30 : 0) + (c.is_minor ? 110 : 0);
+  const sigH = 158 + (c.sent_at ? 30 : 0) + (c.is_minor ? 118 : 0);
   y -= 8; need(sigH);
   page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.8, color: INK }); y -= 12;
   para('Electronic signatures', { font: bold, size: 11, gap: 8 });
@@ -108,12 +108,13 @@ async function layout(c: Contract, player: string, club: string, footer: string[
     if (name && at) {
       // as large as fits the column, handwriting font when the name is in Latin letters
       const font = scriptable(name) ? script : bold;
-      let sz = font === script ? 26 : 14;
+      let sz = font === script ? 30 : 14;
       while (sz > 12 && font.widthOfTextAtSize(name, sz) > colW) sz -= 1;
-      page.drawText(name, { x: x + 4, y: lineY + (font === script ? 10 : 7), size: sz, font, color: SIGN_INK });
+      // the handwriting sits on the line with room for its long tails before the printed name below
+      page.drawText(name, { x: x + 4, y: lineY + (font === script ? 13 : 7), size: sz, font, color: SIGN_INK });
     }
     page.drawLine({ start: { x, y: lineY }, end: { x: x + colW, y: lineY }, thickness: 0.6, color: MUTED });
-    let ly = lineY - 14;
+    let ly = lineY - 18;
     page.drawText(name ?? 'Not signed yet', { x, y: ly, size: 9.5, font: bold, color: name ? INK : MUTED });
     if (name && title) { ly -= 11; page.drawText(title, { x, y: ly, size: 8.5, font: regular, color: INK }); }
     if (at) {
@@ -124,14 +125,14 @@ async function layout(c: Contract, player: string, club: string, footer: string[
   };
   col(M, 'PLAYER', 'player', c.player_signed_name, null, c.player_signed_at, y - 4);
   col(M + colW + 28, `FOR ${club}`.toUpperCase(), 'club', c.club_signed_name, c.club_signed_title ?? null, c.club_signed_at, y - 4);
-  y -= 100;
+  y -= 108;
   // 0068: a player under 18 signed together with a parent or guardian (name, relation and contact under the signature)
   if (c.is_minor) {
     const rel = c.guardian_relation ? c.guardian_relation[0]!.toUpperCase() + c.guardian_relation.slice(1) : null;
     col(M, 'PARENT OR GUARDIAN (THE PLAYER IS UNDER 18)', 'guardian', c.guardian_signed_name ?? null, rel, c.guardian_signed_at ?? null, y - 4);
     const contact = [c.guardian_phone, c.guardian_email].filter(Boolean).join('  ·  ');
     if (contact) page.drawText(contact, { x: M + colW + 28, y: y - 62, size: 8.5, font: regular, color: INK });
-    y -= 100;
+    y -= 108;
   }
   if (c.status === 'declined') para(`Declined by the player on ${when(c.declined_at)}${c.decline_reason ? `: ${c.decline_reason}` : ''}`, { color: rgb(0.7, 0.1, 0.1) });
   if (c.status === 'cancelled') para(`Cancelled by the club on ${when(c.cancelled_at)}.`, { color: MUTED });

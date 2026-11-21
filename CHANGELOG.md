@@ -19,6 +19,9 @@ Format: [Semantic Versioning](https://semver.org). The same history lives in the
   - `my_minor_status()`, `minor_players()` (admins), `app.is_minor`
   - the `guard_guardian` trigger: guardian details can't be edited afterwards, and there's no countersigning before the guardian signs
   - the script stops with a clear message if player contracts (0030) aren't installed
+- **New signature handwriting:** Mrs Saint Delafield (SIL Open Font License) replaces Great Vibes for every typed-name signature, in the app (signing preview and signature blocks) and in the contract PDF (embedded).
+  - Signatures now shrink to fit their box instead of being cut off, and in the PDF they sit higher on the line, so their long tails don't touch the printed name.
+  - Which names are drawn in handwriting now follows the font's own character list. Names with letters the font lacks (for example ğ, ş, č) or in other scripts are shown in the normal bold font.
 - Tests: 21 database checks (`tests/D2_minor_contracts.sql`).
 
 ## Unreleased – merge and delete on older databases (branches `phase2/merge-missing-tables` and `phase2/merge-no-email`, releases 0.61.1–0.61.2, migration 0067 corrected)
