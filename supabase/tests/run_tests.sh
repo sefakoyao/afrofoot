@@ -48,3 +48,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/C6_season_invoices.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C7_content_assistant.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C8_merge_accounts.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C9_coach_requests.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/D1_duplicate_accounts.sql

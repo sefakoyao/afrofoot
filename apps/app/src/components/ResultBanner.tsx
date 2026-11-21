@@ -59,8 +59,8 @@ const KEYS = {
     err: ['r_invalid', 'r_error', 'r_amount', 'r_date', 'r_text'],
   },
   merge: {
-    ok: ['m_merged'],
-    err: ['m_invalid', 'm_confirm', 'm_notShared', 'm_notAllowed', 'm_adminOnlySuper', 'm_self', 'm_gone', 'm_error'],
+    ok: ['m_merged', 'm_deleted'],
+    err: ['m_invalid', 'm_confirm', 'm_confirmDelete', 'm_hasHistory', 'm_selfDelete', 'm_notShared', 'm_notAllowed', 'm_adminOnlySuper', 'm_self', 'm_gone', 'm_error'],
   },
   quizAdmin: {
     ok: ['r_added', 'r_saved', 'r_deleted'],

@@ -142,7 +142,8 @@
     "idleSignedOut": "Sinut kirjattiin ulos, koska sovellusta ei käytetty hetkeen. Kirjaudu uudelleen.",
     "robotNew": "Uudet kuvat",
     "robotLead": "Näin pidämme roskapostirobotit poissa. Ei evästeitä, ei seurantaa.",
-    "signUpCreated": "Tili luotu! Seura tarkistaa ja hyväksyy sen. Sen jälkeen voit kirjautua sähköpostillasi ja salasanallasi."
+    "signUpCreated": "Tili luotu! Seura tarkistaa ja hyväksyy sen. Sen jälkeen voit kirjautua sähköpostillasi ja salasanallasi.",
+    "signUpOnce": "Yksi tili per henkilö. Onko sinulla jo tili – sähköpostilla tai puhelinnumerolla? Kirjaudu sillä (tai käytä ”Unohtuiko salasana”) äläkä luo toista tiliä."
   },
   "role": {
     "super_admin": "Pääkäyttäjä",
@@ -3415,7 +3416,16 @@
     "m_adminOnlySuper": "Vain pääylläpitäjä voi yhdistää ylläpitäjän tilin.",
     "m_self": "Et voi poistaa omaa tiliäsi yhdistämällä; säilytä se.",
     "m_gone": "Toista tiliä ei enää ole.",
-    "m_error": "Yhdistäminen ei onnistunut. Mitään ei muutettu; yritä uudelleen."
+    "m_error": "Yhdistäminen ei onnistunut. Mitään ei muutettu; yritä uudelleen.",
+    "deleteTitle": "Tai poista tyhjä tili",
+    "deleteLead": "Tilin, jolla ei ole historiaa (ei joukkuetta, pelejä, harjoituksia, laskuja tai sopimuksia), voi yksinkertaisesti poistaa, esimerkiksi vahingossa tehdyn toisen tilin. Tili, jolla on historiaa, pitää yhdistää, jotta mitään ei katoa.",
+    "deleteConfirm": "Olen tarkistanut, että tämä on kaksoistili ja henkilö säilyttää toisen tilinsä.",
+    "deleteBtn": "Poista käyttäjän {name} tili",
+    "historyDeleted": "{removed} poistettu (kaksoistili ilman historiaa)",
+    "m_deleted": "Tili poistettu.",
+    "m_confirmDelete": "Vahvista rastilla, että tili on kaksoistili.",
+    "m_hasHistory": "Tilillä on historiaa (joukkueita, pelejä, laskuja…), joten sitä ei voi poistaa. Yhdistä se.",
+    "m_selfDelete": "Et voi poistaa omaa tiliäsi."
   },
   "creq": {
     "nav": "Hakijat",

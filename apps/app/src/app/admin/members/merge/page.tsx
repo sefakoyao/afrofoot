@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
-import { mergeAccounts } from '@/app/actions/merge';
+import { deleteAccount, mergeAccounts } from '@/app/actions/merge';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase/server';
@@ -54,7 +54,7 @@ export default async function MergePage({ searchParams }: { searchParams: Promis
   const [{ data: pairs }, { data: all }, { data: history }] = await Promise.all([
     supabase.rpc('duplicate_accounts'),
     supabase.from('profiles').select('id, email, phone, first_name, last_name, role, status, created_at').order('first_name').order('last_name').limit(2000),
-    supabase.from('account_merges').select('id, removed_name, removed_email, removed_phone, shared, merged_at, kept_profile_id, profiles!account_merges_kept_profile_id_fkey(first_name, last_name)').order('merged_at', { ascending: false }).limit(20),
+    supabase.from('account_merges').select('id, action, removed_name, removed_email, removed_phone, shared, merged_at, kept_profile_id, profiles!account_merges_kept_profile_id_fkey(first_name, last_name)').order('merged_at', { ascending: false }).limit(20),
   ]);
   const accounts = (all ?? []) as Account[];
   const byId = new Map(accounts.map((a) => [a.id, a]));
@@ -64,9 +64,13 @@ export default async function MergePage({ searchParams }: { searchParams: Promis
   const admins = ['super_admin', 'club_admin'];
 
   // the comparison: which one to keep by default — not my own account to remove, then active, then the older one
-  let cmp: null | { left: Account; right: Account; fl: Awaited<ReturnType<typeof footprint>>; fr: Awaited<ReturnType<typeof footprint>>; shared: string | null; keepDefault: string; blocked: string | null } = null;
+  let cmp: null | { left: Account; right: Account; fl: Awaited<ReturnType<typeof footprint>>; fr: Awaited<ReturnType<typeof footprint>>; shared: string | null; keepDefault: string; blocked: string | null; deletable: Account[] } = null;
   if (a && b && a.id !== b.id) {
-    const [fl, fr] = await Promise.all([footprint(supabase, a.id), footprint(supabase, b.id)]);
+    const [fl, fr, da, db] = await Promise.all([footprint(supabase, a.id), footprint(supabase, b.id),
+      supabase.rpc('account_deletable', { p_profile: a.id }), supabase.rpc('account_deletable', { p_profile: b.id })]);
+    // 0067: an account without history can simply be deleted (not my own; an administrator's only by a super administrator)
+    const canDelete = (x: Account, ok: unknown) => ok === true && x.id !== me.id && (!admins.includes(x.role) || me.role === 'super_admin');
+    const deletable = [canDelete(a, da.data) ? a : null, canDelete(b, db.data) ? b : null].filter((x): x is Account => !!x);
     const dupe = dupes.find((p) => (p.a === a.id && p.b === b.id) || (p.a === b.id && p.b === a.id));
     const shared = dupe?.shared ?? contacts(a).find((c) => contacts(b).includes(c)) ?? null;
     // default: my own account, then an active one, then the one with more history (player record, teams, games, invoices), then the older
@@ -74,7 +78,7 @@ export default async function MergePage({ searchParams }: { searchParams: Promis
     const score = (x: Account, f: Awaited<ReturnType<typeof footprint>>) => (x.id === me.id ? 100 : 0) + (x.status === 'active' ? 10 : 0) + weight(f) - Date.parse(x.created_at) / 1e14;
     const keepDefault = score(a, fl) >= score(b, fr) ? a.id : b.id;
     const blocked = !shared ? 'notShared' : (admins.includes(a.role) || admins.includes(b.role)) && me.role !== 'super_admin' ? 'adminOnlySuper' : null;
-    cmp = { left: a, right: b, fl, fr, shared, keepDefault, blocked };
+    cmp = { left: a, right: b, fl, fr, shared, keepDefault, blocked, deletable };
   }
 
   const select = 'min-h-11 w-full min-w-0 rounded-control border border-line bg-raised px-3';
@@ -140,6 +144,20 @@ export default async function MergePage({ searchParams }: { searchParams: Promis
               </>
             )}
           </form>
+          {cmp.deletable.length ? (
+            <div className="mt-5 grid gap-3 border-t border-line pt-5" data-delete-options>
+              <h3 className="font-display text-lg font-extrabold">{t('deleteTitle')}</h3>
+              <p className="text-sm text-muted">{t('deleteLead')}</p>
+              {cmp.deletable.map((x) => (
+                <form key={x.id} action={deleteAccount} className="grid gap-2 rounded-card border border-danger/40 p-4" data-delete-form={x.id}>
+                  <input type="hidden" name="id" value={x.id} /><input type="hidden" name="a" value={cmp!.left.id} /><input type="hidden" name="b" value={cmp!.right.id} />
+                  <p className="text-sm"><bdi className="font-semibold">{name(x)}</bdi> · <span dir="ltr">{x.email ?? x.phone}</span></p>
+                  <label className="flex items-start gap-3 text-sm"><input type="checkbox" name="confirm" required className="mt-0.5 size-5 accent-accent" data-delete-confirm />{t('deleteConfirm')}</label>
+                  <button className="min-h-10 justify-self-start rounded-full border-2 border-danger px-5 text-sm font-bold text-danger hover:bg-danger/10" data-delete-submit>{t('deleteBtn', { name: name(x) })}</button>
+                </form>
+              ))}
+            </div>
+          ) : null}
         </section>
       ) : null}
 
@@ -179,8 +197,8 @@ export default async function MergePage({ searchParams }: { searchParams: Promis
         <section className="rounded-card border border-line bg-raised p-5 sm:p-6" aria-labelledby="hist-h" data-merge-history>
           <h2 id="hist-h" className="font-display text-xl font-extrabold">{t('historyTitle')}</h2>
           <ul className="mt-3 divide-y divide-line text-sm">
-            {((history ?? []) as unknown as { id: string; removed_name: string; removed_email: string | null; removed_phone: string | null; shared: string; merged_at: string; profiles: { first_name: string; last_name: string } | null }[]).map((h) => (
-              <li key={h.id} className="py-2">{day.format(new Date(h.merged_at))} · {t('historyLine', { removed: `${h.removed_name} (${h.removed_email ?? h.removed_phone ?? '–'})`, kept: h.profiles ? `${h.profiles.first_name} ${h.profiles.last_name}` : '–' })}</li>
+            {((history ?? []) as unknown as { id: string; action: string | null; removed_name: string; removed_email: string | null; removed_phone: string | null; shared: string; merged_at: string; profiles: { first_name: string; last_name: string } | null }[]).map((h) => (
+              <li key={h.id} className="py-2">{day.format(new Date(h.merged_at))} · {h.action === 'delete' ? t('historyDeleted', { removed: `${h.removed_name} (${h.removed_email ?? h.removed_phone ?? '–'})` }) : t('historyLine', { removed: `${h.removed_name} (${h.removed_email ?? h.removed_phone ?? '–'})`, kept: h.profiles ? `${h.profiles.first_name} ${h.profiles.last_name}` : '–' })}</li>
             ))}
           </ul>
         </section>

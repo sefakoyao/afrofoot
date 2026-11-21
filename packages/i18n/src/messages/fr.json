@@ -142,7 +142,8 @@
     "idleSignedOut": "Vous avez été déconnecté car l’application n’a pas été utilisée pendant un moment. Reconnectez-vous.",
     "robotNew": "Autres images",
     "robotLead": "Cela bloque les robots de spam. Pas de cookies, pas de suivi.",
-    "signUpCreated": "Compte créé ! Le club le vérifie et l’approuve. Ensuite, vous pourrez vous connecter avec votre e-mail et votre mot de passe."
+    "signUpCreated": "Compte créé ! Le club le vérifie et l’approuve. Ensuite, vous pourrez vous connecter avec votre e-mail et votre mot de passe.",
+    "signUpOnce": "Un seul compte par personne. Vous en avez déjà un – avec votre e-mail ou votre numéro de téléphone ? Connectez-vous avec (ou utilisez « Mot de passe oublié ») au lieu d'en créer un second."
   },
   "role": {
     "super_admin": "Super administrateur",
@@ -3415,7 +3416,16 @@
     "m_adminOnlySuper": "Seul un super administrateur peut fusionner le compte d'un administrateur.",
     "m_self": "Vous ne pouvez pas supprimer votre propre compte par fusion ; gardez-le.",
     "m_gone": "L'un des comptes n'existe plus.",
-    "m_error": "La fusion n'a pas abouti. Rien n'a été modifié ; réessayez."
+    "m_error": "La fusion n'a pas abouti. Rien n'a été modifié ; réessayez.",
+    "deleteTitle": "Ou supprimer un compte vide",
+    "deleteLead": "Un compte sans historique (aucune équipe, aucun match, entraînement, facture ni contrat) peut simplement être supprimé, par exemple un second compte créé par erreur. Un compte avec historique doit être fusionné pour ne rien perdre.",
+    "deleteConfirm": "J'ai vérifié qu'il s'agit d'un doublon et que la personne garde son autre compte.",
+    "deleteBtn": "Supprimer le compte de {name}",
+    "historyDeleted": "{removed} supprimé (doublon sans historique)",
+    "m_deleted": "Compte supprimé.",
+    "m_confirmDelete": "Cochez la case pour confirmer que le compte est un doublon.",
+    "m_hasHistory": "Ce compte a un historique (équipes, matchs, factures…) : il ne peut pas être supprimé. Fusionnez-le.",
+    "m_selfDelete": "Vous ne pouvez pas supprimer votre propre compte."
   },
   "creq": {
     "nav": "Candidats",
