@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -4834,6 +4834,28 @@ create or replace function public.minor_players() returns setof uuid language sq
 $$;
 revoke all on function public.minor_players() from public, anon;
 grant execute on function public.minor_players() to authenticated;
+
+
+-- ===== 20260101000069_reply_counts.sql =====
+-- 0069 How many teammates said they are in: for the player's home screen ("14 in · 2 out · 4 waiting"). Counts only,
+-- never names, and only for trainings and games of a team the caller plays in or coaches (admins: any).
+create or replace function public.event_reply_counts(p_ids uuid[])
+returns table (event_id uuid, yes int, no int, maybe int, pending int)
+language sql stable security definer set search_path = public as $$
+  select s.id, count(*) filter (where a.availability = 'yes')::int, count(*) filter (where a.availability = 'no')::int,
+         count(*) filter (where a.availability = 'maybe')::int, count(*) filter (where a.availability = 'pending')::int
+  from training_sessions s join session_attendance a on a.session_id = s.id
+  where s.id = any(p_ids) and (app.is_admin() or app.coaches_ts(s.team_season_id) or app.in_team_ts(s.team_season_id))
+  group by s.id
+  union all
+  select m.id, count(*) filter (where a.availability = 'yes')::int, count(*) filter (where a.availability = 'no')::int,
+         count(*) filter (where a.availability = 'maybe')::int, count(*) filter (where a.availability = 'pending')::int
+  from matches m join match_availability a on a.match_id = m.id
+  where m.id = any(p_ids) and (app.is_admin() or app.coaches_ts(m.team_season_id) or app.in_team_ts(m.team_season_id))
+  group by m.id
+$$;
+revoke all on function public.event_reply_counts(uuid[]) from public, anon;
+grant execute on function public.event_reply_counts(uuid[]) to authenticated;
 
 
 -- ===== seed.sql =====

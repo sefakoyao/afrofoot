@@ -11,7 +11,19 @@
     "login": "تسجيل الدخول",
     "logout": "تسجيل الخروج",
     "language": "اللغة",
-    "changeLanguage": "تغيير"
+    "changeLanguage": "تغيير",
+    "more": "المزيد",
+    "close": "إغلاق",
+    "barHome": "الرئيسية",
+    "barFees": "الرسوم",
+    "barSeason": "الموسم",
+    "barQuiz": "المسابقة",
+    "barMe": "أنا",
+    "barEvents": "الفعاليات",
+    "barLineups": "التشكيلات",
+    "barTasks": "المهام",
+    "barPeople": "الأعضاء",
+    "barMoney": "المالية"
   },
   "common": {
     "save": "حفظ",
@@ -1319,7 +1331,26 @@
     "navGroupClub": "النادي",
     "navShirts": "أرقام القمصان",
     "navOpponents": "الخصوم",
-    "navTasks": "المهام"
+    "navTasks": "المهام",
+    "tilePending": "{count} بانتظار الموافقة",
+    "tileOverdue": "رسوم متأخرة",
+    "tilePlayers": "{count, plural, one {لاعب واحد} other {# لاعبين}}",
+    "tileCountersign": "للتوقيع",
+    "tileRequests": "طلبات جديدة",
+    "tileRequestsSub": "تجارب، تسجيلات، رسائل",
+    "todoTitle": "بحاجة إلى انتباهك",
+    "todoApprove": "{count, plural, one {وافق على عضو جديد} other {وافق على # أعضاء جدد}}",
+    "todoApproveSub": "سجّلوا وينتظرون",
+    "todoDupes": "{count, plural, one {حساب مكرر محتمل} other {# حسابات مكررة محتملة}}",
+    "todoDupesSub": "البريد أو الهاتف نفسه: قارن وادمج",
+    "todoShirts": "{count, plural, one {طلب رقم قميص واحد} other {# طلبات أرقام قمصان}}",
+    "todoShirtsSub": "اقبل أو ارفض",
+    "todoNone": "لا شيء بانتظارك. تم كل شيء!",
+    "qaTitle": "إجراءات سريعة",
+    "qaEvent": "فعالية",
+    "qaInvoice": "فاتورة",
+    "qaContract": "عقد",
+    "qaPoster": "ملصق"
   },
   "me": {
     "team": "الفريق",
@@ -1444,7 +1475,20 @@
     "balanceFees": "رسوم العضوية",
     "partOf": "دُفع {paid} من {total}",
     "partPaid": "دُفع {paid} · المتبقي للدفع {left}",
-    "received": "استُلم {amount} في {date}"
+    "received": "استُلم {amount} في {date}",
+    "comingUp": "القادم",
+    "tomorrow": "غدًا",
+    "inDays": "بعد {count} أيام",
+    "cantCome": "غائب",
+    "replySaved": "تم الحفظ. يرى مدربك ردّك.",
+    "r_error": "لم ينجح ذلك. حاول مرة أخرى بعد قليل.",
+    "countIn": "{count} حاضرون",
+    "countOut": "{count} غائبون",
+    "countMaybe": "{count} ربما",
+    "countWaiting": "{count} بلا رد",
+    "thisWeek": "هذا الأسبوع",
+    "replyNow": "ردّ",
+    "r_maybe": "تم الحفظ: ربما. يرى مدربك ردّك."
   },
   "account": {
     "title": "حسابي",
@@ -1720,7 +1764,11 @@
     "save": "حفظ",
     "replyByHint": "يُضبط تلقائيًا: التدريبات قبلها بيوم الساعة 20:00، والمباريات قبلها بيومين. يتلقى من لم يرد بريدًا قبل 3 أيام وفي اليوم الأخير.",
     "r_replyBySaved": "تم حفظ آخر موعد للرد.",
-    "r_replyByLate": "يجب أن يكون الموعد قبل البداية."
+    "r_replyByLate": "يجب أن يكون الموعد قبل البداية.",
+    "saidYes": "{count} قالوا نعم",
+    "noAnswer": "لا رد",
+    "marksLegend": "✓ حاضر · L متأخر · ✕ غائب · E بعذر. اضغط مرة أخرى للتغيير.",
+    "allYesPresent": "كل من قال نعم حاضر"
   },
   "inv": {
     "title": "الفواتير",

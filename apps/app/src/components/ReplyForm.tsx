@@ -15,8 +15,8 @@ export function ReplyForm({ eventId, kind, availability, note, eventLabel }: { e
   const [state, action, pending] = useActionState(replyToEvent, IDLE);
   const cur: Availability = state.status === 'ok' && state.answer ? state.answer : availability;
   const curNote = state.status === 'ok' ? state.note ?? '' : note ?? '';
-  const btn = (on: boolean, tone: 'in' | 'out') => `inline-flex min-h-11 items-center rounded-full px-5 font-display font-bold disabled:opacity-60 ${on
-    ? (tone === 'in' ? 'bg-accent text-on-accent' : 'bg-danger text-white')
+  const btn = (on: boolean, tone: 'in' | 'out' | 'maybe') => `inline-flex min-h-11 items-center rounded-full px-5 font-display font-bold disabled:opacity-60 ${on
+    ? (tone === 'in' ? 'bg-accent text-on-accent' : tone === 'maybe' ? 'bg-gold text-ink-950' : 'bg-danger text-white')
     : 'border-2 border-line bg-raised hover:border-fg'}`;
   return (
     <form action={action} className="mt-2 grid gap-2 border-t border-line pt-3" data-reply={cur}>
@@ -24,6 +24,7 @@ export function ReplyForm({ eventId, kind, availability, note, eventLabel }: { e
       <p className="text-sm font-semibold">{t('yourReply')}: <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STYLE[cur]}`} data-reply-state={cur}>{cur === 'pending' ? t('noReply') : tav(cur)}</span></p>
       <div className="flex flex-wrap gap-2" role="group" aria-label={`${t('yourReply')}: ${eventLabel}`}>
         <button name="answer" value="yes" aria-pressed={cur === 'yes'} disabled={pending} className={btn(cur === 'yes', 'in')}>✓ {t('imIn')}</button>
+        <button name="answer" value="maybe" aria-pressed={cur === 'maybe'} disabled={pending} className={btn(cur === 'maybe', 'maybe')}>? {tav('maybe')}</button>
         <button name="answer" value="no" aria-pressed={cur === 'no'} disabled={pending} className={btn(cur === 'no', 'out')}>✕ {t('imOut')}</button>
       </div>
       <label className="grid gap-1 text-sm">{t('replyNote')}

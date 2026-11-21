@@ -3,6 +3,29 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – app layout A (branch `phase2/app-layout-a`, release 0.63.0, migration 0069)
+- **New frame for the Player, Coach and Admin areas:**
+  - a slim black top bar with the crest, the area name and an account menu (your initials): name and role, My account, the other area for player-coaches, website, language, sign out
+  - **on phones, a menu bar at the bottom of the screen**:
+    - Player: Home, Fees, Season, Quiz, Me
+    - Coach: Home, Events, Line-ups, Tasks, More
+    - Admin: Home, People, Events, Money, More
+  - "More" opens a sheet with the whole area menu and its badges
+  - wide screens keep the sidebar
+- **Player home:**
+  - the next training or game as a black card with **I'm in / Maybe / Can't** in one tap, the reply deadline, and how many teammates are in, out or waiting (counts only)
+  - a week strip, and "Coming up" with the next events (a yellow "Reply" when you haven't answered)
+  - "Maybe" is now also offered in the calendar
+- **Coach attendance:**
+  - a ring with today's count, and one row per player with their answer and one-tap ✓ / L / ✕ / E marks
+  - **"All 'yes' present"** marks the players who said they're in; Save stays at the bottom, above the menu bar
+- **Admin home:**
+  - four tiles to tap: active members, overdue fees (amount and players), contracts to countersign, new requests
+  - a "Needs your attention" list: approvals, duplicate accounts, contracts, Code of Conduct, shirt requests, email set-up
+  - quick actions: event, invoice, contract, poster
+- Database (0069): `event_reply_counts(ids)` returns in / out / maybe / waiting counts, without names, for events of the caller's own teams.
+- Tests: 5 database checks (`tests/D3_reply_counts.sql`).
+
 ## Unreleased – contracts of players under 18 (branch `phase2/minor-contracts`, release 0.62.0, migration 0068)
 - **Players under 18 sign with a parent or guardian.**
   - **Who counts as under 18:** a player under 18 on the day of signing, by their birth date. Without a birth date, the player answers "Are you under 18?".

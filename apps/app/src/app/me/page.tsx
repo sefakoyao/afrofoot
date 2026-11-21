@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
+import { NextReply } from '@/components/NextReply';
 import { ReplyForm } from '@/components/ReplyForm';
 import { ResultBanner } from '@/components/ResultBanner';
 import { TaskIcon } from '@/components/TaskIcon';
@@ -45,13 +46,16 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
   const [{ data: monthData }, { data: nextData }, { data: me }] = supabase ? await Promise.all([
     // cancelled events are left out of the player's list; postponed ones stay, marked, until they get a new date
     supabase.from('team_schedule').select('*').gte('starts_at', from).lt('starts_at', to).neq('status', 'cancelled').order('starts_at'),
-    supabase.from('team_schedule').select('*').gte('starts_at', new Date().toISOString()).not('status', 'in', '(cancelled,postponed)').order('starts_at').limit(1),
+    // the next four: the first is "Next up" (Alternative A home card), the others "Coming up"; and this week for the week strip
+    supabase.from('team_schedule').select('*').gte('starts_at', new Date().toISOString()).not('status', 'in', '(cancelled,postponed)').order('starts_at').limit(4),
     // My replies (sign in / out): RLS returns only the player's own rows (migration 0008); rows exist for roster players.
     supabase.from('players').select('id').eq('profile_id', member.id).maybeSingle(),
   ]) : [{ data: [] }, { data: [] }, { data: null }];
   const events = (monthData as Event[] | null) ?? [];
-  const next = ((nextData as Event[] | null) ?? [])[0] ?? null;
-  const all = next ? [...events, next] : events;
+  const upcoming = (nextData as Event[] | null) ?? [];
+  const next = upcoming[0] ?? null;
+  const coming = upcoming.slice(1);
+  const all = [...events, ...upcoming];
   const placeIds = [...new Set(all.map((e) => e.location_id).filter((x): x is string => !!x))];
   const teamIds = [...new Set(all.map((e) => e.team_season_id).filter((x): x is string => !!x))];
   const practiceIds = all.filter((e) => e.event_type === 'practice').map((e) => e.id), matchIds = all.filter((e) => e.event_type === 'game' || e.event_type === 'friendly').map((e) => e.id);
@@ -75,6 +79,10 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     ...((sessReplies ?? []) as (Reply & { session_id: string })[]).map((r) => [r.session_id, r] as const),
     ...((matchReplies ?? []) as (Reply & { match_id: string })[]).map((r) => [r.match_id, r] as const),
   ]);
+  // how many teammates are in / out / waiting (counts only; migration 0069)
+  const countIds = [next, ...coming].filter((e): e is Event => !!e && e.event_type !== 'event').map((e) => e.id);
+  const { data: countRows } = supabase && countIds.length ? await supabase.rpc('event_reply_counts', { p_ids: countIds }) : { data: [] };
+  const counts = new Map(((countRows ?? []) as { event_id: string; yes: number; no: number; maybe: number; pending: number }[]).map((c) => [c.event_id, c]));
   const squad = new Map<string, SquadRow[]>();
   for (const r of (squadRows ?? []) as SquadRow[]) squad.set(r.match_id, [...(squad.get(r.match_id) ?? []), r]);
   const role = new Map([...squad].map(([mid, rows]) => [mid, rows.find((r) => r.player_id === me?.id)] as const).filter(([, r]) => !!r) as [string, SquadRow][]);
@@ -230,14 +238,99 @@ export default async function CalendarTab({ searchParams }: { searchParams: Prom
     );
   };
 
+  // ===== Alternative A: the next event as a black card, answered in one tap =====
+  const daysTo = (iso: string) => Math.round((Date.parse(`${dayKey(iso)}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 86400000);
+  const NextUp = ({ e }: { e: Event }) => {
+    const r = reply.get(e.id);
+    const c = counts.get(e.id);
+    const closesAt = e.reply_by && e.reply_by < e.starts_at ? e.reply_by : e.starts_at;
+    const open = e.status === 'scheduled' && closesAt > nowIso;
+    const d = daysTo(e.starts_at);
+    const p = e.location_id ? place.get(e.location_id) : null;
+    const link = p ? mapsLinkFor(p) : null;
+    const kindLabel = e.event_type === 'event' ? tev(`kind_${e.kind ?? 'other'}` as 'kind_other') : t(`ev_${e.event_type}`);
+    return (
+      <section aria-labelledby="next-h" className="grid gap-3" data-next>
+        <div className="relative overflow-hidden rounded-[26px] bg-ink-950 p-5 text-white shadow-lg" data-next-card>
+          <div aria-hidden className="pointer-events-none absolute -end-10 -top-10 size-44 rounded-full bg-[radial-gradient(circle,rgba(61,175,44,.55),transparent_70%)]" />
+          <div className="relative flex flex-wrap items-center justify-between gap-2">
+            <h2 id="next-h" className="rounded-full bg-gold px-3 py-1 text-xs font-extrabold uppercase tracking-wide text-ink-950">{kindLabel} · {d <= 0 ? t('today') : d === 1 ? t('tomorrow') : t('inDays', { count: d })}</h2>
+            {e.reply_by && open ? <span className="text-xs text-white/70">{t('replyBy', { when: dayTime.format(new Date(e.reply_by)) })}</span> : null}
+          </div>
+          <p className="relative mt-3 font-display text-[26px] font-black leading-tight"><bdi>{title(e)}</bdi></p>
+          <p className="relative mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-white/80">
+            <span dir="ltr">{dayTime.format(new Date(e.starts_at))}</span>
+            {p ? (link ? <a href={link} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2" data-maps-link><bdi>{p.name}</bdi></a> : <bdi>{p.name}</bdi>) : null}
+          </p>
+          {r ? (
+            <div className="relative mt-4">
+              {open ? <NextReply eventId={e.id} kind={e.event_type} availability={r.availability}
+                labels={{ yes: t('imIn'), maybe: tav('maybe'), no: t('cantCome'), group: `${t('yourReply')}: ${title(e)}`, saved: t('replySaved'), error: t('r_error') }} />
+                : <p className="text-sm font-semibold">{t('repliesClosed')}{r.availability !== 'pending' ? <> · {t('yourReply')}: {tav(r.availability)}</> : null}</p>}
+            </div>
+          ) : null}
+          {c ? <p className="relative mt-3 text-sm" data-reply-counts><b>{t('countIn', { count: c.yes })}</b> · {t('countOut', { count: c.no })}{c.maybe ? <> · {t('countMaybe', { count: c.maybe })}</> : null} · {t('countWaiting', { count: c.pending })}</p> : null}
+        </div>
+        {/* the match-day details and tasks of the next event, as before */}
+        {(e.event_type === 'game' || e.event_type === 'friendly') && info.get(e.id) || tasksOf.get(e.id)?.length ? (
+          <div className="grid gap-2 rounded-card border border-line bg-raised p-4">
+            {e.event_type === 'game' || e.event_type === 'friendly' ? <MatchDay e={e} open /> : null}
+            <Tasks e={e} />
+          </div>
+        ) : null}
+      </section>
+    );
+  };
+  // this week: seven days from today, a dot under each day with a training (green), game (black) or event
+  const WeekStrip = () => {
+    const days = Array.from({ length: 7 }, (_, i) => new Date(Date.parse(`${today}T12:00:00Z`) + i * 86400000).toISOString().slice(0, 10));
+    const wd = new Intl.DateTimeFormat(tag, { weekday: 'short', timeZone: 'UTC' }), dn = new Intl.DateTimeFormat(tag, { day: 'numeric', timeZone: 'UTC' });
+    const on = (k: string) => [...events, ...upcoming].filter((e, i, a) => a.findIndex((x) => x.id === e.id) === i && dayKey(e.starts_at) === k && !CANCELLED.has(e.status));
+    return (
+      <ol className="grid grid-cols-7 gap-1" aria-label={t('thisWeek')} data-week-strip>
+        {days.map((k) => {
+          const list = on(k), isNext = next && dayKey(next.starts_at) === k;
+          return (
+            <li key={k} className={`grid justify-items-center gap-0.5 rounded-2xl py-2 ${isNext ? 'bg-ink-950 text-white' : ''}`}>
+              <span className={`text-xs font-bold ${isNext ? '' : 'text-muted'}`}>{wd.format(new Date(`${k}T12:00:00Z`))}</span>
+              <span className="font-display text-lg font-black leading-none">{dn.format(new Date(`${k}T12:00:00Z`))}</span>
+              <span className="flex h-1.5 gap-0.5">{list.slice(0, 3).map((e) => <span key={e.id} className={`size-1.5 rounded-full ${e.event_type === 'practice' ? 'bg-accent' : isNext ? 'bg-white' : 'bg-ink-950'}`} />)}</span>
+            </li>
+          );
+        })}
+      </ol>
+    );
+  };
+
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <div className="empty:hidden"><ResultBanner ns="tasks" result={sp.result} /></div>
-      {next ? (
-        <section aria-labelledby="next-h" className="rounded-card border-2 border-accent bg-raised p-5" data-next>
-          <h2 id="next-h" className="text-xs font-bold uppercase tracking-widest text-muted">{t('nextUp')}</h2>
-          <p className="mt-1 font-semibold">{dayLabel.format(new Date(next.starts_at))}</p>
-          <ul className="mt-2"><Item e={next} /></ul>
+      {next ? <NextUp e={next} /> : null}
+      {next ? <WeekStrip /> : null}
+      {coming.length ? (
+        <section aria-labelledby="coming-h" className="grid gap-2" data-coming>
+          <h2 id="coming-h" className="font-display text-lg font-extrabold">{t('comingUp')}</h2>
+          <ul className="grid gap-2">
+            {coming.map((e) => {
+              const r = reply.get(e.id);
+              const kindIcon = e.event_type === 'practice' ? 'bg-accent/15 text-pitch' : e.event_type === 'event' ? 'bg-surface text-fg' : 'bg-ink-950 text-white';
+              return (
+                <li key={e.id}>
+                  <a href={`/me?m=${dayKey(e.starts_at).slice(0, 7)}#ev-${e.id}`} className="flex items-center gap-3 rounded-card border border-line bg-raised p-3 hover:border-accent" data-coming-event={e.id}>
+                    <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${kindIcon}`} aria-hidden>
+                      <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">{e.event_type === 'practice' ? <><circle cx="9" cy="14" r="5" /><path d="M13 11h8v3h-5M9 14h.01" /></> : e.event_type === 'event' ? <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></> : <><circle cx="12" cy="12" r="9" /><path d="m12 7.5 3.6 2.6-1.4 4.2H9.8l-1.4-4.2z" /></>}</svg>
+                    </span>
+                    <span className="grid min-w-0 flex-1 leading-tight">
+                      <span className="truncate font-bold"><bdi>{title(e)}</bdi></span>
+                      <span className="truncate text-sm text-muted">{dayTime.format(new Date(e.starts_at))}</span>
+                    </span>
+                    {r && r.availability !== 'pending' ? <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${REPLY_STYLE[r.availability]}`}>{tav(r.availability)}</span>
+                      : r ? <span className="shrink-0 rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-ink-950" data-needs-reply>{t('replyNow')}</span> : null}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       ) : null}
 

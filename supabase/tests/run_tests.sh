@@ -50,3 +50,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/C8_merge_accounts.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/C9_coach_requests.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D1_duplicate_accounts.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D2_minor_contracts.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/D3_reply_counts.sql

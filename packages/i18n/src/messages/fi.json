@@ -11,7 +11,19 @@
     "login": "Kirjaudu",
     "logout": "Kirjaudu ulos",
     "language": "Kieli",
-    "changeLanguage": "Vaihda"
+    "changeLanguage": "Vaihda",
+    "more": "Lisää",
+    "close": "Sulje",
+    "barHome": "Koti",
+    "barFees": "Maksut",
+    "barSeason": "Kausi",
+    "barQuiz": "Visa",
+    "barMe": "Minä",
+    "barEvents": "Tapahtumat",
+    "barLineups": "Kokoonpanot",
+    "barTasks": "Tehtävät",
+    "barPeople": "Jäsenet",
+    "barMoney": "Talous"
   },
   "common": {
     "save": "Tallenna",
@@ -1319,7 +1331,26 @@
     "navGroupClub": "Seura",
     "navShirts": "Pelinumerot",
     "navOpponents": "Vastustajat",
-    "navTasks": "Tehtävät"
+    "navTasks": "Tehtävät",
+    "tilePending": "{count} odottaa hyväksyntää",
+    "tileOverdue": "Erääntyneet maksut",
+    "tilePlayers": "{count, plural, one {# pelaaja} other {# pelaajaa}}",
+    "tileCountersign": "Vahvistettavana",
+    "tileRequests": "Uudet pyynnöt",
+    "tileRequestsSub": "Kokeilut, ilmoittautumiset, viestit",
+    "todoTitle": "Vaatii huomiota",
+    "todoApprove": "{count, plural, one {Hyväksy # uusi jäsen} other {Hyväksy # uutta jäsentä}}",
+    "todoApproveSub": "He rekisteröityivät ja odottavat",
+    "todoDupes": "{count, plural, one {# mahdollinen kaksoistili} other {# mahdollista kaksoistiliä}}",
+    "todoDupesSub": "Sama sähköposti tai puhelin: vertaa ja yhdistä",
+    "todoShirts": "{count, plural, one {# pelinumeropyyntö} other {# pelinumeropyyntöä}}",
+    "todoShirtsSub": "Hyväksy tai hylkää",
+    "todoNone": "Ei mitään odottamassa. Kaikki tehty!",
+    "qaTitle": "Pikatoiminnot",
+    "qaEvent": "Tapahtuma",
+    "qaInvoice": "Lasku",
+    "qaContract": "Sopimus",
+    "qaPoster": "Juliste"
   },
   "me": {
     "team": "Joukkue",
@@ -1444,7 +1475,20 @@
     "balanceFees": "Jäsenmaksut",
     "partOf": "{paid}/{total} maksettu",
     "partPaid": "{paid} maksettu · {left} vielä maksettavana",
-    "received": "Vastaanotettu {amount} {date}"
+    "received": "Vastaanotettu {amount} {date}",
+    "comingUp": "Tulossa",
+    "tomorrow": "huomenna",
+    "inDays": "{count} päivän päästä",
+    "cantCome": "En pääse",
+    "replySaved": "Tallennettu. Valmentaja näkee vastauksesi.",
+    "r_error": "Se ei onnistunut. Yritä hetken päästä uudelleen.",
+    "countIn": "{count} tulossa",
+    "countOut": "{count} ei pääse",
+    "countMaybe": "{count} ehkä",
+    "countWaiting": "{count} ei vastannut",
+    "thisWeek": "Tämä viikko",
+    "replyNow": "Vastaa",
+    "r_maybe": "Tallennettu: ehkä. Valmentaja näkee vastauksesi."
   },
   "account": {
     "title": "Oma tili",
@@ -1720,7 +1764,11 @@
     "save": "Tallenna",
     "replyByHint": "Asetetaan automaattisesti: harjoitukset edellisenä päivänä klo 20, ottelut kahta päivää ennen. Vastaamattomat saavat sähköpostin 3 päivää ennen ja viimeisenä päivänä.",
     "r_replyBySaved": "Vastausaika tallennettu.",
-    "r_replyByLate": "Vastausajan pitää olla ennen alkua."
+    "r_replyByLate": "Vastausajan pitää olla ennen alkua.",
+    "saidYes": "{count} vastasi kyllä",
+    "noAnswer": "Ei vastausta",
+    "marksLegend": "✓ paikalla · L myöhässä · ✕ poissa · E luvallisesti poissa. Napauta uudelleen muuttaaksesi.",
+    "allYesPresent": "Kaikki \"kyllä\" paikalla"
   },
   "inv": {
     "title": "Laskut",

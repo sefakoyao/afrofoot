@@ -36,5 +36,13 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/coach/poster', label: tn('navPoster'), group: web, icon: 'image', groupIcon: 'star' },
     { href: '/coach/conduct', label: tc('title'), icon: 'handshake' },
   ];
-  return <AppShell area="coach" member={member} nav={nav}>{children}</AppShell>;
+  const tbar = await getTranslations('nav');
+  return (
+    <AppShell area="coach" member={member} nav={nav} tabs={[
+      { href: '/coach', label: tbar('barHome'), icon: 'home', exact: true },
+      { href: '/coach/events', label: tbar('barEvents'), icon: 'calendar' },
+      { href: '/coach/lineups', label: tbar('barLineups'), icon: 'lineup' },
+      { href: '/coach/tasks', label: tbar('barTasks'), icon: 'tasks' },
+    ]}>{children}</AppShell>
+  );
 }

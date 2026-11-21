@@ -42,5 +42,13 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/quiz', label: t('navQuiz'), group: club, icon: 'quiz', groupIcon: 'star' },
     { href: '/admin/audit', label: t('navAudit'), group: club, icon: 'list' },
   ];
-  return <AppShell area="admin" member={member} nav={nav}>{children}</AppShell>;
+  const tbar = await getTranslations('nav');
+  return (
+    <AppShell area="admin" member={member} nav={nav} tabs={[
+      { href: '/admin', label: tbar('barHome'), icon: 'home', exact: true },
+      { href: '/admin/members', label: tbar('barPeople'), icon: 'users', badge: pending, exact: true },
+      { href: '/admin/events', label: tbar('barEvents'), icon: 'calendar' },
+      { href: '/admin/finance', label: tbar('barMoney'), icon: 'euro' },
+    ]}>{children}</AppShell>
+  );
 }
