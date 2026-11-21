@@ -4688,27 +4688,37 @@ revoke all on function public.delete_account(uuid) from public, anon;
 grant execute on function public.delete_account(uuid) to authenticated;
 
 -- ---------- tell the club about a new duplicate ----------
-alter table email_templates drop constraint if exists email_templates_kind_check;
-alter table email_templates add constraint email_templates_kind_check check (kind in ('reminder_3d', 'reminder_last', 'approved', 'request_alert', 'label_game', 'duplicate_alert'));
-alter table email_outbox drop constraint if exists email_outbox_kind_check;
-alter table email_outbox add constraint email_outbox_kind_check check (kind in ('reminder_3d', 'reminder_last', 'approved', 'request_alert', 'duplicate_alert'));
-insert into email_templates (kind, locale, subject, body, cta) values
- ('duplicate_alert', 'en', 'Possible duplicate account: {name}', E'A new account was created with an email or phone number that another account already uses ({shared}): {name}.\n\nCompare the two and merge them (or delete the empty one) in Admin → People → Merge accounts.', 'Open Merge accounts')
-on conflict (kind, locale) do update set subject = excluded.subject, body = excluded.body, cta = excluded.cta;
-
-create or replace function app.email_on_duplicate() returns trigger language plpgsql security definer set search_path = public as $$
-declare v_shared text; v_to text := coalesce(app.email_setting('alert_to'), 'info@afrofoot.club');
+-- Only where the email outbox (migration 0048) is installed; elsewhere this part is skipped and the duplicates simply
+-- show on Admin → People → Merge accounts (with a count in the menu).
+do $do$
 begin
-  select min(c) into v_shared from app.account_contacts(new.id) c
-    where exists (select 1 from profiles o where o.id <> new.id and c in (select app.account_contacts(o.id)));
-  if v_shared is not null then
-    perform app.queue_email('duplicate_alert', v_to, 'en', jsonb_build_object('name', trim(new.first_name || ' ' || new.last_name), 'shared', v_shared), new.id, null,
-      coalesce(app.email_setting('app_url'), 'https://app.afrofoot.club') || '/admin/members/merge');
+  if to_regclass('public.email_templates') is null or to_regclass('public.email_outbox') is null
+     or to_regprocedure('app.queue_email(text,text,text,jsonb,uuid,uuid,text)') is null or to_regprocedure('app.email_setting(text)') is null then
+    raise notice 'email outbox (0048) not installed: no duplicate alert email';
+    return;
   end if;
-  return new;
-end $$;
-drop trigger if exists email_on_duplicate on profiles;
-create trigger email_on_duplicate after insert or update of phone on profiles for each row execute function app.email_on_duplicate();
+  alter table email_templates drop constraint if exists email_templates_kind_check;
+  alter table email_templates add constraint email_templates_kind_check check (kind in ('reminder_3d', 'reminder_last', 'approved', 'request_alert', 'label_game', 'duplicate_alert'));
+  alter table email_outbox drop constraint if exists email_outbox_kind_check;
+  alter table email_outbox add constraint email_outbox_kind_check check (kind in ('reminder_3d', 'reminder_last', 'approved', 'request_alert', 'duplicate_alert'));
+  insert into email_templates (kind, locale, subject, body, cta) values
+   ('duplicate_alert', 'en', 'Possible duplicate account: {name}', E'A new account was created with an email or phone number that another account already uses ({shared}): {name}.\n\nCompare the two and merge them (or delete the empty one) in Admin → People → Merge accounts.', 'Open Merge accounts')
+  on conflict (kind, locale) do update set subject = excluded.subject, body = excluded.body, cta = excluded.cta;
+
+  create or replace function app.email_on_duplicate() returns trigger language plpgsql security definer set search_path = public as $fn$
+  declare v_shared text; v_to text := coalesce(app.email_setting('alert_to'), 'info@afrofoot.club');
+  begin
+    select min(c) into v_shared from app.account_contacts(new.id) c
+      where exists (select 1 from profiles o where o.id <> new.id and c in (select app.account_contacts(o.id)));
+    if v_shared is not null then
+      perform app.queue_email('duplicate_alert', v_to, 'en', jsonb_build_object('name', trim(new.first_name || ' ' || new.last_name), 'shared', v_shared), new.id, null,
+        coalesce(app.email_setting('app_url'), 'https://app.afrofoot.club') || '/admin/members/merge');
+    end if;
+    return new;
+  end $fn$;
+  drop trigger if exists email_on_duplicate on profiles;
+  create trigger email_on_duplicate after insert or update of phone on profiles for each row execute function app.email_on_duplicate();
+end $do$;
 
 
 -- ===== seed.sql =====
