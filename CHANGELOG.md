@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coaches see applicants; one profile page (branch `phase2/coach-requests-profile`, release 0.60.0, migration 0066)
+- **Coach → Teams & events → Applicants** (read only): tryout requests and team enrolments from the website, for coaches and player-coaches.
+  - **What coaches see:** name, age, position, previous team, Palloliitto link, phone and email (tap to call or write), guardian, nationality, membership plan, the message, the status and the tryout date.
+  - **Filters:** All, Tryouts or Team enrolments; open ones by default, or declined and archived too. The menu shows how many are new.
+  - **What stays with admins:** the home address, payment choice, consents and internal notes. Admins still set the status and tryout date (Admin → Requests).
+  - **Database (0066):** `coach_requests(p_all)` returns only those fields to coaches and admins. The tables themselves stay admins-only.
+- **One profile page** for coaches and player-coaches, the same from the name in the header (`/account`) and the player area's Profile tab (`/me/profile`).
+  - **What's on it:** sign-in and role, name, phone and language, then (for players and player-coaches) every player detail: sport details, shirt number, photo, website listing, email reminders, contact and emergency details. The password is at the end.
+  - **Saving:** each choice returns to the page it was made on.
+- Fixed: the email-reminders box on the player profile showed text keys instead of text.
+- Tests: 10 database checks (`tests/C9_coach_requests.sql`).
+
 ## Unreleased – merge accounts (branch `phase2/merge-accounts`, release 0.59.0, migration 0065)
 - **Admin → People → Merge accounts**: when one person has two accounts (for example signed up once with an email and once with a phone number), an admin merges them into one.
   - **Finding them:** "Possible duplicates" lists accounts that share an email or phone number, on the account or in the player's contact details. Spaces and case are ignored. The menu shows how many pairs there are, and any two accounts can also be picked by hand.

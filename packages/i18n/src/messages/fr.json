@@ -1466,7 +1466,7 @@
     "passwordTitle": "Mot de passe",
     "passwordLead": "Choisissez un nouveau mot de passe. Vos autres appareils seront déconnectés.",
     "changePassword": "Changer le mot de passe",
-    "phoneInPlayerProfile": "Votre numéro de téléphone se trouve dans Mon profil joueur, sur votre page d’accueil.",
+    "phoneInPlayerProfile": "Votre numéro de téléphone se trouve avec vos informations de joueur ci-dessous.",
     "signInPhone": "Numéro de téléphone (connexion)",
     "signInPhoneNote": "Vous vous connectez avec un code envoyé à ce numéro."
   },
@@ -3416,5 +3416,14 @@
     "m_self": "Vous ne pouvez pas supprimer votre propre compte par fusion ; gardez-le.",
     "m_gone": "L'un des comptes n'existe plus.",
     "m_error": "La fusion n'a pas abouti. Rien n'a été modifié ; réessayez."
+  },
+  "creq": {
+    "nav": "Candidats",
+    "title": "Demandes d'essai et inscriptions en équipe",
+    "lead": "Qui veut faire un essai ou rejoindre une équipe, via les formulaires du site : poste, âge, club précédent, coordonnées et message. Les administrateurs du club y répondent et fixent le statut et la date d'essai ; cette page sert à préparer l'essai et accueillir les nouveaux joueurs.",
+    "showAll": "Afficher aussi les refusées et archivées",
+    "empty": "Aucune demande ouverte.",
+    "openProfile": "Ouvrir le profil",
+    "privacy": "Ce sont des données personnelles : utilisez-les uniquement pour l'essai ou l'arrivée du joueur dans l'équipe. L'adresse et les informations de paiement restent chez les administrateurs."
   }
 }

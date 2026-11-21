@@ -43,9 +43,12 @@ async function save(fd: FormData): Promise<PlayerProfileState> {
     console.error('[player] profile save refused', { code: error.code, message: error.message });
     return { status: 'error', error: error.code === '23514' ? 'e_phone' : 'e_failed' };
   }
-  revalidatePath('/me', 'layout');
+  revalidatePath('/me', 'layout'); revalidatePath('/account');
   return { status: 'ok' };
 }
+
+/** Back to the profile page the member used: /account or /me/profile (the same page, components/profile/ProfileView). */
+const profileBack = (fd: FormData) => (fd.get('back') === '/account' ? '/account' : '/me/profile');
 
 /**
  * The player's own opt-out from the squad on the club website (players.website_hidden, view public_squad, migration
@@ -60,8 +63,8 @@ export async function setWebsiteListing(fd: FormData): Promise<void> {
     const { error } = await supabase.from('players').update({ website_hidden: !show }).eq('profile_id', member.id);
     if (error) console.error('[player] website listing refused', { code: error.code, message: error.message });
   }
-  revalidatePath('/me/profile');
-  redirect('/me/profile?website=saved#website');
+  revalidatePath('/me/profile'); revalidatePath('/account');
+  redirect(`${profileBack(fd)}?website=saved#website`);
 }
 
 /** The member's own choice to get reply reminders by email (profiles.reminder_emails, migration 0048). */
@@ -73,6 +76,6 @@ export async function setReminderEmails(fd: FormData): Promise<void> {
     const { error } = await supabase.from('profiles').update({ reminder_emails: on }).eq('id', member.id);
     if (error) console.error('[player] reminder setting refused', { code: error.code, message: error.message });
   }
-  revalidatePath('/me/profile');
-  redirect('/me/profile?reminders=saved#reminders');
+  revalidatePath('/me/profile'); revalidatePath('/account');
+  redirect(`${profileBack(fd)}?reminders=saved#reminders`);
 }

@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -4449,6 +4449,33 @@ begin
 end $$;
 revoke all on function public.merge_accounts(uuid, uuid) from public, anon;
 grant execute on function public.merge_accounts(uuid, uuid) to authenticated;
+
+
+-- ===== 20260101000066_coach_requests.sql =====
+-- 0066 Coaches see tryout requests and team enrolments (read only). Coaches and player-coaches (app.is_coach) get the
+-- details they need to plan a tryout and welcome a new player: name, birth date, position, previous team, Palloliitto
+-- link, contact and guardian details, the message, the status and the tryout date. Not the home address, payment
+-- choice, consents or the admins' internal note. The tables stay admins-only (RLS admin_all); this function is the
+-- coaches' only way in, and it changes nothing. Admins still handle the requests (Admin → Requests).
+create or replace function public.coach_requests(p_all boolean default false)
+returns table (kind text, id uuid, created_at timestamptz, status text, first_name text, last_name text, date_of_birth date,
+  email text, phone text, "position" text, nationality text, previous_team text, palloliitto_url text, guardian_name text,
+  guardian_phone text, message text, tryout_on date, plan text)
+language sql stable security definer set search_path = public as $$
+  select * from (
+    select 'tryout'::text, r.id, r.created_at, r.status::text, r.first_name, r.last_name, r.date_of_birth, r.email::text, r.phone,
+      r.position::text, null::text, r.previous_team, r.palloliitto_url, r.guardian_name, r.guardian_phone, r.message, r.tryout_on, null::text
+    from tryout_requests r where p_all or r.status::text in ('new', 'in_review', 'accepted')
+    union all
+    select 'enrolment', e.id, e.created_at, e.status::text, e.first_name, e.last_name, e.date_of_birth, e.email::text, e.phone,
+      e.position::text, e.nationality, e.previous_team, e.palloliitto_url, e.guardian_name, e.guardian_phone, null, null, mp.name
+    from player_enrolments e left join membership_plans mp on mp.id = e.plan_id where p_all or e.status::text in ('new', 'in_review', 'accepted')
+  ) x where app.is_coach() or app.is_admin()
+  order by 3 desc
+  limit 300
+$$;
+revoke all on function public.coach_requests(boolean) from public, anon;
+grant execute on function public.coach_requests(boolean) to authenticated;
 
 
 -- ===== seed.sql =====
