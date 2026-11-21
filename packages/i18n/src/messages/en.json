@@ -11,7 +11,19 @@
     "login": "Sign in",
     "logout": "Sign out",
     "language": "Language",
-    "changeLanguage": "Change"
+    "changeLanguage": "Change",
+    "more": "More",
+    "close": "Close",
+    "barHome": "Home",
+    "barFees": "Fees",
+    "barSeason": "Season",
+    "barQuiz": "Quiz",
+    "barMe": "Me",
+    "barEvents": "Events",
+    "barLineups": "Line-ups",
+    "barTasks": "Tasks",
+    "barPeople": "People",
+    "barMoney": "Money"
   },
   "common": {
     "save": "Save",
@@ -1319,7 +1331,26 @@
     "navGroupClub": "Club",
     "navShirts": "Shirt numbers",
     "navOpponents": "Opponents",
-    "navTasks": "Tasks"
+    "navTasks": "Tasks",
+    "tilePending": "{count} waiting for approval",
+    "tileOverdue": "Overdue fees",
+    "tilePlayers": "{count, plural, one {# player} other {# players}}",
+    "tileCountersign": "To countersign",
+    "tileRequests": "New requests",
+    "tileRequestsSub": "Tryouts, enrolments, messages",
+    "todoTitle": "Needs your attention",
+    "todoApprove": "{count, plural, one {Approve # new member} other {Approve # new members}}",
+    "todoApproveSub": "They signed up and are waiting",
+    "todoDupes": "{count, plural, one {# possible duplicate account} other {# possible duplicate accounts}}",
+    "todoDupesSub": "Same email or phone: compare and merge",
+    "todoShirts": "{count, plural, one {# shirt number request} other {# shirt number requests}}",
+    "todoShirtsSub": "Approve or decline",
+    "todoNone": "Nothing waiting. All done!",
+    "qaTitle": "Quick actions",
+    "qaEvent": "Event",
+    "qaInvoice": "Invoice",
+    "qaContract": "Contract",
+    "qaPoster": "Poster"
   },
   "me": {
     "team": "Team",
@@ -1444,7 +1475,20 @@
     "balanceFees": "Membership fees",
     "partOf": "{paid} of {total} paid",
     "partPaid": "{paid} paid · {left} still to pay",
-    "received": "Received {amount} on {date}"
+    "received": "Received {amount} on {date}",
+    "comingUp": "Coming up",
+    "tomorrow": "tomorrow",
+    "inDays": "in {count} days",
+    "cantCome": "Can't",
+    "replySaved": "Saved. Your coach can see your answer.",
+    "r_error": "That did not work. Try again in a moment.",
+    "countIn": "{count} in",
+    "countOut": "{count} out",
+    "countMaybe": "{count} maybe",
+    "countWaiting": "{count} waiting",
+    "thisWeek": "This week",
+    "replyNow": "Reply",
+    "r_maybe": "Saved as maybe. Your coach can see your reply."
   },
   "account": {
     "title": "My account",
@@ -1720,7 +1764,11 @@
     "save": "Save",
     "replyByHint": "Set automatically: trainings the day before at 20:00, games two days before. Players who have not replied get an email 3 days before and on the last day.",
     "r_replyBySaved": "Reply deadline saved.",
-    "r_replyByLate": "The deadline must be before the start."
+    "r_replyByLate": "The deadline must be before the start.",
+    "saidYes": "{count} said yes",
+    "noAnswer": "No answer",
+    "marksLegend": "✓ present · L late · ✕ absent · E excused. Tap again to change.",
+    "allYesPresent": "All \"yes\" present"
   },
   "inv": {
     "title": "Invoices",

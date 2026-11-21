@@ -97,6 +97,11 @@ export async function saveAttendance(fd: FormData): Promise<void> {
   const allowed = new Set((roster ?? []).map((r) => r.player_id));
   const marks: { player_id: string; attendance: string | null }[] = [];
   if (fd.get('all') === 'present') for (const pid of allowed) marks.push({ player_id: pid, attendance: 'present' }); // "All present" button
+  else if (fd.get('all') === 'yes') {
+    // "All who said yes are present": only the players who answered I'm in; the others keep their mark
+    const { data: yes } = await supabase.from('session_attendance').select('player_id').eq('session_id', s.id).eq('availability', 'yes');
+    for (const r of yes ?? []) if (allowed.has(r.player_id)) marks.push({ player_id: r.player_id, attendance: 'present' });
+  }
   else for (const [k, v] of fd.entries()) {
     if (!k.startsWith('att_') || typeof v !== 'string') continue;
     const pid = k.slice(4);

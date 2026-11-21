@@ -11,12 +11,12 @@ import { getSupabase } from '@/lib/supabase/server';
  * answer time itself (RLS + app.guard_event_reply, migration 0029). Returns a state for the form (no redirect, so the
  * calendar keeps its scroll position); message keys are under me.*.
  */
-export type ReplyState = { status: 'idle' | 'ok' | 'error'; key?: string; answer?: 'yes' | 'no'; note?: string | null };
+export type ReplyState = { status: 'idle' | 'ok' | 'error'; key?: string; answer?: 'yes' | 'no' | 'maybe'; note?: string | null };
 
 const schema = z.object({
   event_id: z.string().uuid(),
   kind: z.enum(['practice', 'game', 'friendly']),
-  answer: z.enum(['yes', 'no']),
+  answer: z.enum(['yes', 'no', 'maybe']),
   note: z.string().trim().max(300).transform((v) => v || null),
 });
 
@@ -40,5 +40,5 @@ export async function replyToEvent(_prev: ReplyState, fd: FormData): Promise<Rep
   if (!data?.length) return { status: 'error', key: 'r_replyNotInvited' };
   revalidatePath('/me', 'layout');
   revalidatePath('/coach', 'layout');
-  return { status: 'ok', key: v.answer === 'yes' ? 'r_signedIn' : 'r_signedOut', answer: v.answer, note: v.note };
+  return { status: 'ok', key: v.answer === 'yes' ? 'r_signedIn' : v.answer === 'maybe' ? 'r_maybe' : 'r_signedOut', answer: v.answer, note: v.note };
 }

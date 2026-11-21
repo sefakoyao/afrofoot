@@ -9,7 +9,7 @@ import { NavIcon, type NavIconName } from './NavIcon';
 import { usePendingHref } from './usePendingHref';
 
 /**
- * Player area tabs (Calendar, Membership, My season) and, until the player has agreed to the current Code of Conduct,
+ * Player area tabs on wide screens (on phones the bottom bar of AppShell replaces them: Calendar, Membership, My season) and, until the player has agreed to the current Code of Conduct,
  * a reminder on every tab except the Code of Conduct page itself; likewise for a contract waiting for the player's signature.
  */
 export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing: boolean; contractToSign?: string | null }) {
@@ -46,7 +46,7 @@ export function PlayerTabs({ conductMissing, contractToSign }: { conductMissing:
           <Link href={`/me/contract/${contractToSign}#sign`} className="inline-flex min-h-11 items-center rounded-full bg-accent px-5 font-display font-bold text-on-accent hover:brightness-110">{t('contractBannerCta')}</Link>
         </div>
       ) : null}
-      <nav ref={navRef} aria-label={t('tabsLabel')} className="-mx-4 overflow-x-auto px-4">
+      <nav ref={navRef} aria-label={t('tabsLabel')} className="-mx-4 hidden overflow-x-auto px-4 md:block">
         <ul className="flex gap-1 border-b border-line sm:gap-2">
           {tabs.map((x) => (
             <li key={x.href}>

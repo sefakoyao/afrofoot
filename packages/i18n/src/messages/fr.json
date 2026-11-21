@@ -11,7 +11,19 @@
     "login": "Connexion",
     "logout": "Déconnexion",
     "language": "Langue",
-    "changeLanguage": "Changer"
+    "changeLanguage": "Changer",
+    "more": "Plus",
+    "close": "Fermer",
+    "barHome": "Accueil",
+    "barFees": "Cotisations",
+    "barSeason": "Saison",
+    "barQuiz": "Quiz",
+    "barMe": "Moi",
+    "barEvents": "Événements",
+    "barLineups": "Compos",
+    "barTasks": "Tâches",
+    "barPeople": "Membres",
+    "barMoney": "Finances"
   },
   "common": {
     "save": "Enregistrer",
@@ -1319,7 +1331,26 @@
     "navGroupClub": "Club",
     "navShirts": "Numéros de maillot",
     "navOpponents": "Adversaires",
-    "navTasks": "Tâches"
+    "navTasks": "Tâches",
+    "tilePending": "{count} en attente de validation",
+    "tileOverdue": "Cotisations en retard",
+    "tilePlayers": "{count, plural, one {# joueur} other {# joueurs}}",
+    "tileCountersign": "À contresigner",
+    "tileRequests": "Nouvelles demandes",
+    "tileRequestsSub": "Essais, inscriptions, messages",
+    "todoTitle": "À traiter",
+    "todoApprove": "{count, plural, one {Valider # nouveau membre} other {Valider # nouveaux membres}}",
+    "todoApproveSub": "Inscrits et en attente",
+    "todoDupes": "{count, plural, one {# compte en double possible} other {# comptes en double possibles}}",
+    "todoDupesSub": "Même e-mail ou téléphone : comparer et fusionner",
+    "todoShirts": "{count, plural, one {# demande de numéro} other {# demandes de numéro}}",
+    "todoShirtsSub": "Accepter ou refuser",
+    "todoNone": "Rien en attente. Tout est fait !",
+    "qaTitle": "Actions rapides",
+    "qaEvent": "Événement",
+    "qaInvoice": "Facture",
+    "qaContract": "Contrat",
+    "qaPoster": "Affiche"
   },
   "me": {
     "team": "Équipe",
@@ -1444,7 +1475,20 @@
     "balanceFees": "Cotisations",
     "partOf": "{paid} sur {total} payés",
     "partPaid": "{paid} payés · reste {left} à payer",
-    "received": "Reçu {amount} le {date}"
+    "received": "Reçu {amount} le {date}",
+    "comingUp": "À venir",
+    "tomorrow": "demain",
+    "inDays": "dans {count} jours",
+    "cantCome": "Absent",
+    "replySaved": "Enregistré. Ton entraîneur voit ta réponse.",
+    "r_error": "Ça n'a pas marché. Réessaie dans un instant.",
+    "countIn": "{count} présents",
+    "countOut": "{count} absents",
+    "countMaybe": "{count} peut-être",
+    "countWaiting": "{count} sans réponse",
+    "thisWeek": "Cette semaine",
+    "replyNow": "Répondre",
+    "r_maybe": "Enregistré : peut-être. Ton entraîneur voit ta réponse."
   },
   "account": {
     "title": "Mon compte",
@@ -1720,7 +1764,11 @@
     "save": "Enregistrer",
     "replyByHint": "Réglé automatiquement : entraînements la veille à 20h, matchs deux jours avant. Les joueurs sans réponse reçoivent un e-mail 3 jours avant et le dernier jour.",
     "r_replyBySaved": "Date limite enregistrée.",
-    "r_replyByLate": "La date limite doit être avant le début."
+    "r_replyByLate": "La date limite doit être avant le début.",
+    "saidYes": "{count} ont dit oui",
+    "noAnswer": "Pas de réponse",
+    "marksLegend": "✓ présent · L en retard · ✕ absent · E excusé. Touchez à nouveau pour changer.",
+    "allYesPresent": "Tous les « oui » présents"
   },
   "inv": {
     "title": "Factures",
