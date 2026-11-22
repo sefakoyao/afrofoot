@@ -38,6 +38,10 @@ const KEYS = {
     ok: ['r_created', 'r_saved', 'r_sent', 'r_countersigned', 'r_cancelled', 'r_terminated', 'r_deleted', 'r_templateSaved', 'r_signed', 'r_declined', 'r_settingsSaved', 'r_refilled'],
     err: ['r_invalid', 'r_error', 'r_dates', 'r_blanks', 'r_refilledBlanks', 'r_overlap', 'r_notAllowed', 'r_name', 'r_tick', 'r_gone', 'r_noPlayer', 'r_reason', 'r_minorAnswer', 'r_guardian', 'r_guardianName', 'r_guardianRelation', 'r_guardianPhone', 'r_guardianEmail', 'r_guardianSign', 'r_guardianSelf'],
   },
+  social: {
+    ok: ['s_settingsSaved', 's_posted', 's_retrying', 's_cancelled'],
+    err: ['s_invalid', 's_error', 's_notAllowed', 's_noService', 's_failed', 's_busy'],
+  },
   req: {
     ok: ['r_saved'],
     err: ['r_invalid', 'r_error', 'r_gone'],

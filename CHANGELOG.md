@@ -3,6 +3,16 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – posting to Facebook and Instagram (branch `phase2/social-publish`, release 0.66.0, migration 0071)
+Content assistant, step 2: the posts queued when an article is approved now go out by themselves.
+- **Admin → Website → Social media:**
+  - **Connections:** the Facebook Page and Instagram account the server key reaches (or what is missing), **Post automatically** on / off per platform, and whether the 10-minute job is set up. TikTok: coming later, its posts keep waiting.
+  - **Posts:** every queued post with its state: waiting, posting, posted (with **View the post**), failed (with Meta's reason, **Retry** and **Post now**) or cancelled.
+- Facebook gets a photo post with the caption; Instagram the picture and the caption. The picture is the club's branded card (headline, and the score for a match report) as a 1080 × 1080 JPEG.
+- Supabase calls the app every 10 minutes (pg_cron, Vault secret `cron_secret`); Vercel also runs the job once a day. Posts more than 3 days late are only sent with Post now.
+- **Safety:** each post is claimed in the database before it is sent, so it goes out once even when two runs overlap; a run that stops half-way marks the post failed instead of sending it again. Only the app marks a post sent. The Meta key is a Vercel setting (`META_PAGE_ACCESS_TOKEN`), never stored in the database or shown.
+- **Migration 0071 (run it once in the SQL Editor):** posting states, the claim functions, the 10-minute job and the on/off setting (`social_posting`, off by default). 30 new database tests. Setup steps: docs/RUNNING.md §3ab.
+
 ## Unreleased – saved places page, brought up to date (branch `phase2/saved-places-v2`, release 0.65.0, migration 0039)
 Replaces pull request #54 (written for release 0.27.0), merged with today's code.
 - **Places** for admins and coaches, under Teams & events (in "More" on a phone):
