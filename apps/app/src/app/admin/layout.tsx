@@ -38,6 +38,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/content', label: tc('navSuggestions'), badge: newSuggestions, group: tc('navGroup'), exact: true, icon: 'star', groupIcon: 'star' },
     { href: '/admin/content/news', label: tc('navNews'), group: tc('navGroup'), icon: 'list' },
     { href: '/admin/content/poster', label: tc('navPoster'), group: tc('navGroup'), icon: 'image' },
+    { href: '/admin/content/social', label: tc('navSocial'), group: tc('navGroup'), icon: 'share' },
     { href: '/admin/finance', label: tm('navOverview'), group: finance, exact: true, icon: 'chart', groupIcon: 'euro' },
     { href: '/admin/finance/balances', label: tm('navBalances'), group: finance, icon: 'scale' },
     { href: '/admin/invoices', label: t('navInvoices'), group: finance, icon: 'receipt' },

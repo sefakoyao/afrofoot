@@ -1,6 +1,8 @@
 /** Pages reachable without a session. Everything else needs a signed-in user (middleware) and the right role (area layouts). */
 export const PUBLIC_PATHS = ['/login', '/forgot-password', '/reset-password', '/auth/confirm', '/auth/hash', '/auth/callback', '/pay', '/signup',
   '/api/content/scan', // the scheduled content job: checks CRON_SECRET itself
+  '/api/social/publish', // the scheduled social media job: checks CRON_SECRET itself
+  '/api/social/image', // the picture Facebook and Instagram download (published articles only)
 ] as const;
 export const isPublicPath = (p: string): boolean => PUBLIC_PATHS.some((x) => p === x || p.startsWith(`${x}/`));
 

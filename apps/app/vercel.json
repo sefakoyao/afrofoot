@@ -11,6 +11,10 @@
     {
       "path": "/api/content/scan",
       "schedule": "15 20 * * *"
+    },
+    {
+      "path": "/api/social/publish",
+      "schedule": "47 7 * * *"
     }
   ]
 }

@@ -11,8 +11,8 @@ import { SocialPreview } from './SocialPreview';
 type S = { id: string; kind: string; title: string; excerpt: string | null; body_md: string; translations: Record<string, Record<string, string>>; social: Record<string, string>;
   checks: string[]; facts: Record<string, unknown>; post_at: string | null; status: string; model: string | null; created_at: string };
 const LANGS = [['fi', 'Suomi'], ['fr', 'Français'], ['ar', 'العربية']] as const;
-const PLATFORMS = ['facebook', 'instagram', 'tiktok'] as const;
-const LIMIT: Record<(typeof PLATFORMS)[number], number> = { facebook: 2200, instagram: 2200, tiktok: 2200 };
+const PLATFORMS = ['facebook', 'instagram', 'linkedin', 'x', 'tiktok'] as const;
+const LIMIT: Record<(typeof PLATFORMS)[number], number> = { facebook: 2200, instagram: 2200, linkedin: 2200, x: 280, tiktok: 2200 };
 
 /** One suggestion: the article in four languages, the three posts with a preview, what to check, and approve / reject. */
 export async function SuggestionReview({ base, id, sp }: { base: string; id: string; sp: Record<string, string | string[] | undefined> }) {
@@ -28,6 +28,8 @@ export async function SuggestionReview({ base, id, sp }: { base: string; id: str
   const score = s.kind === 'match_report' && s.facts.goals_for != null ? `${s.facts.goals_for}–${s.facts.goals_against}` : '';
   const q = new URLSearchParams({ t: s.title, k: t(`kind_${s.kind}` as 'kind_event'), ...(score ? { s: score } : {}) });
   const tr = (l: string, f: string) => s.translations?.[l]?.[f] ?? '';
+  // suggestions drafted before LinkedIn and X: start from the Facebook text, and the headline with the link
+  const cap = (p: (typeof PLATFORMS)[number]) => s.social?.[p] ?? (p === 'linkedin' ? s.social?.facebook ?? '' : p === 'x' ? `${s.title.slice(0, 200)} {link} #afrofootclub` : '');
   const ro = !open || undefined;
 
   return (
@@ -77,14 +79,14 @@ export async function SuggestionReview({ base, id, sp }: { base: string; id: str
             {PLATFORMS.map((p) => (
               <div key={p} className="grid content-start gap-2">
                 <label className="flex items-center gap-2 font-bold"><input type="checkbox" name="platforms" value={p} defaultChecked disabled={ro} className="size-5 accent-accent" />{t(`pf_${p}` as 'pf_facebook')}</label>
-                <CaptionField name={`social_${p}`} defaultValue={s.social?.[p] ?? ''} max={LIMIT[p]} readOnly={!open} label={t('captionFor', { platform: t(`pf_${p}` as 'pf_facebook') })} />
+                <CaptionField name={`social_${p}`} defaultValue={cap(p)} max={LIMIT[p]} readOnly={!open} label={t('captionFor', { platform: t(`pf_${p}` as 'pf_facebook') })} />
               </div>
             ))}
           </div>
           <p className="mt-2 text-xs text-muted">{t('linkHint')}</p>
           <h3 className="mt-5 text-sm font-bold">{t('previewTitle')}</h3>
           <div className="mt-2">
-            <SocialPreview captions={{ facebook: s.social?.facebook ?? '', instagram: s.social?.instagram ?? '', tiktok: s.social?.tiktok ?? '' }}
+            <SocialPreview captions={{ facebook: cap('facebook'), instagram: cap('instagram'), linkedin: cap('linkedin'), x: cap('x'), tiktok: cap('tiktok') }}
               cardUrl={`/api/content/card?${q}`} tallUrl={`/api/content/card?${q}&tall=1`} labels={{ club: 'Afro Foot Club', justNow: t('justNow') }} />
           </div>
           <p className="mt-2 text-xs text-muted">{t('previewNote')}</p>

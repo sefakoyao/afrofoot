@@ -1,8 +1,8 @@
 /**
- * How the three posts will look (approximately) on Facebook, Instagram and TikTok, with the branded picture.
+ * How the posts will look (approximately) on Facebook, Instagram, LinkedIn, X and TikTok, with the branded picture.
  * Labels come from the page; the captions are the current saved text.
  */
-export function SocialPreview({ captions, cardUrl, tallUrl, labels }: { captions: Record<'facebook' | 'instagram' | 'tiktok', string>; cardUrl: string; tallUrl: string; labels: { club: string; justNow: string } }) {
+export function SocialPreview({ captions, cardUrl, tallUrl, labels }: { captions: Record<'facebook' | 'instagram' | 'linkedin' | 'x' | 'tiktok', string>; cardUrl: string; tallUrl: string; labels: { club: string; justNow: string } }) {
   const head = (
     <div className="flex items-center gap-2 p-3">
       <span className="grid size-8 place-items-center rounded-full bg-ink-950 text-[10px] font-black text-gold">AFC</span>
@@ -24,6 +24,20 @@ export function SocialPreview({ captions, cardUrl, tallUrl, labels }: { captions
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={cardUrl} alt="" className="aspect-square w-full object-cover" />
         <p className="whitespace-pre-line p-3 text-sm" dir="auto"><b>afrofootclub</b> {captions.instagram}</p>
+      </figure>
+      <figure className="overflow-hidden rounded-card border border-line bg-raised shadow-sm" data-preview="linkedin">
+        <figcaption className="bg-[#0A66C2] px-3 py-1 text-xs font-bold text-white">LinkedIn</figcaption>
+        {head}
+        <p className="whitespace-pre-line px-3 pb-3 text-sm" dir="auto">{captions.linkedin}</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cardUrl} alt="" className="aspect-square w-full object-cover" />
+      </figure>
+      <figure className="overflow-hidden rounded-card border border-line bg-raised shadow-sm" data-preview="x">
+        <figcaption className="bg-ink-950 px-3 py-1 text-xs font-bold text-white">X</figcaption>
+        {head}
+        <p className="whitespace-pre-line px-3 pb-3 text-sm" dir="auto">{captions.x}</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={cardUrl} alt="" className="mx-3 mb-3 aspect-square w-[calc(100%-1.5rem)] rounded-2xl object-cover" />
       </figure>
       <figure className="relative overflow-hidden rounded-card border border-line bg-ink-950 text-white shadow-sm" data-preview="tiktok">
         <figcaption className="relative z-10 bg-black px-3 py-1 text-xs font-bold">TikTok</figcaption>

@@ -17,7 +17,7 @@ export const Draft = z.object({
   title_fi: lang(3, 120), excerpt_fi: lang(10, 280), body_fi: lang(150, 6000),
   title_fr: lang(3, 120), excerpt_fr: lang(10, 280), body_fr: lang(150, 6000),
   title_ar: lang(3, 120), excerpt_ar: lang(10, 280), body_ar: lang(150, 6000),
-  facebook: lang(20, 1500), instagram: lang(20, 2000), tiktok: lang(10, 900),
+  facebook: lang(20, 1500), instagram: lang(20, 2000), tiktok: lang(10, 900), linkedin: lang(20, 1500), x: lang(10, 200),
   checks: z.array(z.string().max(200)).max(8),
 });
 export type Draft = z.infer<typeof Draft>;
@@ -44,6 +44,8 @@ Rules:
   - facebook: 2-4 sentences per language, ending with the article link written exactly as {link}.
   - instagram: 2-3 sentences per language, then "Linkki biossa / Link in bio", then 5-10 hashtags including #afrofootclub and #helsinki. No link.
   - tiktok: one short line per language and 3-6 hashtags including #afrofootclub. No link.
+  - linkedin: 2-4 sentences per language in a slightly more formal tone (community, volunteers, partners), ending with the article link written exactly as {link}.
+  - x: one post of at most 200 characters in total: one short sentence in Finnish, one in English, then {link} and #afrofootclub.
 - Use emojis sparingly (at most 2 per post). No hashtags in the website article.`;
 
 let client: Anthropic | null = null;
