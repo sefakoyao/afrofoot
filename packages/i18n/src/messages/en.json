@@ -3260,7 +3260,7 @@
   },
   "content": {
     "title": "Suggestions",
-    "lead": "Articles drafted from the club's own data: match reports, previews, events, new players and sponsors, and a monthly recap. Check, edit and approve: the article goes on the website and the posts are queued for Facebook, Instagram and TikTok.",
+    "lead": "Articles drafted from the club's own data: match reports, previews, events, new players and sponsors, and a monthly recap. Check, edit and approve: the article goes on the website and the posts are queued for Facebook, Instagram, LinkedIn, X and TikTok.",
     "allNews": "All news",
     "autoTitle": "Topics are found automatically twice a day",
     "autoLead": "Every morning and evening the app looks for new topics and drafts them. You can also look now.",
@@ -3376,7 +3376,10 @@
     "envOdd": "set, but looks wrong",
     "envMissing": "missing",
     "navPoster": "Matchday poster",
-    "navSocial": "Social media"
+    "navSocial": "Social media",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "c_xLong": "The X post is too long: at most 280 characters, the article link included."
   },
   "poster": {
     "title": "Matchday poster",
@@ -3628,7 +3631,7 @@
   },
   "social": {
     "title": "Social media",
-    "lead": "Approved articles are posted to the club's Facebook Page and Instagram account at their time, with the club's picture. Here you see the connection, switch automatic posting on or off, and follow every post.",
+    "lead": "Approved articles are posted to the club's Facebook Page, Instagram, LinkedIn page and X account at their time, with the club's picture. Here you see the connections, switch automatic posting on or off, and follow every post.",
     "connections": "Connections",
     "pf_facebook": "Facebook",
     "pf_instagram": "Instagram",
@@ -3636,12 +3639,11 @@
     "connectedTo": "Connected:",
     "missing": "Not connected: the server setting {names} is missing (Vercel, app project).",
     "noInstagram": "No Instagram professional account is linked to the club's Facebook Page.",
-    "refused": "Meta refused the connection: {reason}",
     "auto": "Post automatically",
     "tiktokLater": "Coming later. TikTok posts stay waiting until TikTok is connected.",
     "jobReady": "The 10-minute job is set up: due posts go out within 10 minutes.",
     "jobMissing": "The 10-minute job is not set up yet: posts only go out once a day, or with Post now. See the setup guide (docs/RUNNING.md §3ab).",
-    "setupHint": "The Facebook Page key is a server setting on Vercel; it is never shown here.",
+    "setupHint": "The keys are server settings on Vercel; they are never shown here.",
     "save": "Save",
     "posts": "Posts",
     "none": "No social media posts yet. They are added when an article is approved or shared.",
@@ -3666,6 +3668,11 @@
     "s_notAllowed": "Only club admins can do this.",
     "s_noService": "The server setting SUPABASE_SERVICE_ROLE_KEY is missing, so the app cannot post.",
     "s_failed": "The post failed: the reason is shown below.",
-    "s_busy": "This post is already being sent."
+    "s_busy": "This post is already being sent.",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "refusedBy": "The platform refused the connection: {reason}",
+    "linkedinExpires": "The LinkedIn key expires in {days, plural, one {# day} other {# days}}: make a new one and update LINKEDIN_ACCESS_TOKEN on Vercel (RUNNING §3ab).",
+    "linkedinExpired": "The LinkedIn key has expired: make a new one and update LINKEDIN_ACCESS_TOKEN on Vercel (RUNNING §3ab)."
   }
 }

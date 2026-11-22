@@ -9,7 +9,7 @@ import { ContentBanner, area, btn, input, toLocalInput } from './shared';
 
 type Post = { id: string; slug: string; title: string; excerpt: string | null; body_md: string; status: string; published_at: string | null; updated_at: string; translations: Record<string, Record<string, string>> };
 const LANGS = [['fi', 'Suomi'], ['fr', 'Français'], ['ar', 'العربية']] as const;
-const PLATFORMS = ['facebook', 'instagram', 'tiktok'] as const;
+const PLATFORMS = ['facebook', 'instagram', 'linkedin', 'x', 'tiktok'] as const;
 
 /** Website → News: every article (published and drafts), newest first. */
 export async function NewsList({ base, sp }: { base: string; sp: Record<string, string | string[] | undefined> }) {
@@ -84,7 +84,7 @@ export async function NewsEditor({ base, id, sp }: { base: string; id: string; s
           <fieldset className="grid gap-2">
             <legend className="text-sm font-bold">{t('shareTitle')}</legend>
             <div className="flex flex-wrap gap-3">{PLATFORMS.map((x) => (
-              <label key={x} className="flex items-center gap-2 text-sm"><input type="checkbox" name="share" value={x} disabled={sharedOn.has(x)} defaultChecked={!p && x !== 'tiktok'} className="size-5 accent-accent" />
+              <label key={x} className="flex items-center gap-2 text-sm"><input type="checkbox" name="share" value={x} disabled={sharedOn.has(x)} defaultChecked={!p && x !== 'tiktok' && x !== 'x'} className="size-5 accent-accent" />
                 {t(`pf_${x}` as 'pf_facebook')}{sharedOn.has(x) ? <span className="text-xs text-muted">({t('alreadyShared')})</span> : null}</label>))}</div>
             <label className="grid gap-1 text-sm font-semibold">{t('shareCaption')}<textarea name="caption" rows={5} maxLength={2200} placeholder={t('shareCaptionHint')} className={area} dir="auto" /></label>
             <label className="grid gap-1 text-sm font-semibold sm:max-w-xs">{t('postAt')}<input type="datetime-local" name="post_at" defaultValue={toLocalInput(null)} className={input} /></label>

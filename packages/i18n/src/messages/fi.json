@@ -3260,7 +3260,7 @@
   },
   "content": {
     "title": "Ehdotukset",
-    "lead": "Seuran omista tiedoista luonnostellut artikkelit: otteluraportit, ennakot, tapahtumat, uudet pelaajat ja sponsorit sekä kuukauden kooste. Tarkista, muokkaa ja hyväksy: artikkeli julkaistaan verkkosivuilla ja julkaisut jonoon Facebookiin, Instagramiin ja TikTokiin.",
+    "lead": "Seuran omista tiedoista luonnostellut artikkelit: otteluraportit, ennakot, tapahtumat, uudet pelaajat ja sponsorit sekä kuukauden kooste. Tarkista, muokkaa ja hyväksy: artikkeli julkaistaan verkkosivuilla ja julkaisut jonoon Facebookiin, Instagramiin, LinkedIniin, X:ään ja TikTokiin.",
     "allNews": "Kaikki uutiset",
     "autoTitle": "Aiheet haetaan automaattisesti kahdesti päivässä",
     "autoLead": "Joka aamu ja ilta sovellus etsii uusia aiheita ja luonnostelee ne. Voit myös hakea nyt.",
@@ -3376,7 +3376,10 @@
     "envOdd": "asetettu, mutta näyttää väärältä",
     "envMissing": "puuttuu",
     "navPoster": "Ottelujuliste",
-    "navSocial": "Some"
+    "navSocial": "Some",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "c_xLong": "X-julkaisu on liian pitkä: enintään 280 merkkiä artikkelin linkki mukaan lukien."
   },
   "poster": {
     "title": "Ottelujuliste",
@@ -3628,7 +3631,7 @@
   },
   "social": {
     "title": "Some",
-    "lead": "Hyväksytyt artikkelit julkaistaan seuran Facebook-sivulla ja Instagram-tilillä ajallaan, seuran kuvan kanssa. Täällä näet yhteyden, kytket automaattisen julkaisun päälle tai pois ja seuraat jokaista julkaisua.",
+    "lead": "Hyväksytyt artikkelit julkaistaan seuran Facebook-sivulla, Instagramissa, LinkedIn-sivulla ja X-tilillä ajallaan, seuran kuvan kanssa. Täällä näet yhteydet, kytket automaattisen julkaisun päälle tai pois ja seuraat jokaista julkaisua.",
     "connections": "Yhteydet",
     "pf_facebook": "Facebook",
     "pf_instagram": "Instagram",
@@ -3636,12 +3639,11 @@
     "connectedTo": "Yhdistetty:",
     "missing": "Ei yhdistetty: palvelinasetus {names} puuttuu (Vercel, app-projekti).",
     "noInstagram": "Seuran Facebook-sivuun ei ole liitetty Instagramin ammattilaistiliä.",
-    "refused": "Meta hylkäsi yhteyden: {reason}",
     "auto": "Julkaise automaattisesti",
     "tiktokLater": "Tulossa myöhemmin. TikTok-julkaisut odottavat, kunnes TikTok on yhdistetty.",
     "jobReady": "10 minuutin ajo on käytössä: julkaisut lähtevät 10 minuutin sisällä.",
     "jobMissing": "10 minuutin ajoa ei ole vielä otettu käyttöön: julkaisut lähtevät vain kerran päivässä tai Julkaise nyt -napilla. Katso ohje (docs/RUNNING.md §3ab).",
-    "setupHint": "Facebook-sivun avain on Vercelin palvelinasetus; sitä ei koskaan näytetä täällä.",
+    "setupHint": "Avaimet ovat Vercelin palvelinasetuksia; niitä ei koskaan näytetä täällä.",
     "save": "Tallenna",
     "posts": "Julkaisut",
     "none": "Ei vielä somejulkaisuja. Ne lisätään, kun artikkeli hyväksytään tai jaetaan.",
@@ -3666,6 +3668,11 @@
     "s_notAllowed": "Vain seuran ylläpitäjät voivat tehdä tämän.",
     "s_noService": "Palvelinasetus SUPABASE_SERVICE_ROLE_KEY puuttuu, joten sovellus ei voi julkaista.",
     "s_failed": "Julkaisu epäonnistui: syy näkyy alla.",
-    "s_busy": "Tätä julkaisua lähetetään jo."
+    "s_busy": "Tätä julkaisua lähetetään jo.",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "refusedBy": "Palvelu hylkäsi yhteyden: {reason}",
+    "linkedinExpires": "LinkedIn-avain vanhenee {days, plural, one {# päivän} other {# päivän}} kuluttua: tee uusi ja päivitä LINKEDIN_ACCESS_TOKEN Verceliin (RUNNING §3ab).",
+    "linkedinExpired": "LinkedIn-avain on vanhentunut: tee uusi ja päivitä LINKEDIN_ACCESS_TOKEN Verceliin (RUNNING §3ab)."
   }
 }

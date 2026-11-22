@@ -1,8 +1,11 @@
 -- 0071 Social media publishing (content assistant, step 2). Release 0.66.0.
--- The posts queued when an article is approved (social_posts, migration 0064) are now sent to the club's Facebook Page
--- and Instagram account by the app. TikTok stays queued ("waiting for the connection") for a later step.
---  * Admins switch automatic posting on or off per platform (site setting "social_posting", not public). The Facebook Page token
---    itself is a server setting on Vercel (META_PAGE_ACCESS_TOKEN), never stored in the database.
+-- The posts queued when an article is approved (social_posts, migration 0064) are now sent by the app to the club's
+-- Facebook Page, Instagram account, LinkedIn page and X account. TikTok stays queued ("waiting for the connection").
+--  * New platforms LinkedIn and X. An X post has at most 280 characters (link included, as X counts them at most).
+--    Approving a suggestion drafted before LinkedIn and X existed uses the Facebook text for LinkedIn and the headline
+--    with the link for X, unless the approver wrote their own.
+--  * Admins switch automatic posting on or off per platform (site setting "social_posting", not public). The keys
+--    themselves are server settings on Vercel (Meta, LinkedIn, X), never stored in the database.
 --  * The app claims due posts with public.claim_social_posts (service role only): one post is sent once, even when two
 --    runs overlap (status 'posting', for update skip locked). A run interrupted while posting marks the post failed
 --    instead of sending it again.
@@ -20,7 +23,45 @@ end $$;
 alter table social_posts add column if not exists external_id text check (external_id is null or char_length(external_id) <= 200);
 alter table social_posts drop constraint if exists social_posts_status_check;
 alter table social_posts add constraint social_posts_status_check check (status in ('waiting', 'scheduled', 'posting', 'posted', 'failed', 'cancelled'));
+alter table social_posts drop constraint if exists social_posts_platform_check;
+alter table social_posts add constraint social_posts_platform_check check (platform in ('facebook', 'instagram', 'tiktok', 'linkedin', 'x'));
+alter table social_posts drop constraint if exists social_posts_x_length;
+alter table social_posts add constraint social_posts_x_length check (platform <> 'x' or char_length(caption) <= 280) not valid;
 create index if not exists social_posts_due on social_posts (post_at) where status in ('waiting', 'scheduled');
+
+-- Approving: the same as 0064, with LinkedIn and X (a suggestion drafted without them gets a text from the others).
+create or replace function public.approve_suggestion(p_id uuid, p_post_at timestamptz, p_platforms text[], p_captions jsonb default null, p_site_url text default 'https://www.afrofoot.club') returns uuid
+language plpgsql security definer set search_path = public as $$
+declare s article_suggestions; v_slug text; v_base text; v_post uuid; v_p text; v_cap text; v_link text; n int := 1;
+begin
+  if not app.can_publish() then raise exception 'publishers only' using errcode = '42501'; end if;
+  select * into s from article_suggestions where id = p_id for update;
+  if s.id is null or s.status <> 'new' then raise exception 'not an open suggestion' using errcode = '22023'; end if;
+  if p_post_at is not null and (p_post_at < now() - interval '1 hour' or p_post_at > now() + interval '60 days') then raise exception 'posting time: from now to 60 days ahead' using errcode = '22023'; end if;
+  if p_platforms is null or not (p_platforms <@ array['facebook', 'instagram', 'tiktok', 'linkedin', 'x']) then raise exception 'unknown platform' using errcode = '22023'; end if;
+  v_base := left(coalesce(nullif(app.slugify(s.title), ''), 'news'), 70);
+  v_slug := v_base;
+  while exists (select 1 from news_posts where slug = v_slug) loop n := n + 1; v_slug := v_base || '-' || n; end loop;
+  v_link := rtrim(coalesce(nullif(p_site_url, ''), 'https://www.afrofoot.club'), '/') || '/news/' || v_slug;
+  insert into news_posts (slug, title, excerpt, body_md, status, published_at, author_id, translations)
+  values (v_slug, s.title, s.excerpt, s.body_md, 'published', now(), auth.uid(), s.translations)
+  returning id into v_post;
+  foreach v_p in array (select array_agg(distinct x) from unnest(p_platforms) x where x is not null) loop
+    v_cap := coalesce(nullif(btrim(p_captions ->> v_p), ''), nullif(btrim(s.social ->> v_p), ''),
+                      case v_p when 'linkedin' then nullif(btrim(s.social ->> 'facebook'), '')
+                               when 'x' then left(s.title, 200) || ' {link} #afrofootclub' end);
+    if v_cap is null then raise exception 'caption missing for %', v_p using errcode = '22023'; end if;
+    -- the article's address replaces {link} (Instagram and TikTok captions say "link in bio" instead)
+    v_cap := replace(v_cap, '{link}', v_link);
+    if v_p = 'x' and char_length(v_cap) > 280 then raise exception 'x: at most 280 characters with the link' using errcode = '22023'; end if;
+    insert into social_posts (news_post_id, suggestion_id, platform, caption, status, post_at)
+    values (v_post, s.id, v_p, left(v_cap, 2200), 'waiting', coalesce(p_post_at, now()));
+  end loop;
+  update article_suggestions set status = 'approved', news_post_id = v_post, decided_by = auth.uid(), decided_at = now(), post_at = coalesce(p_post_at, post_at), updated_at = now() where id = s.id;
+  return v_post;
+end $$;
+revoke all on function public.approve_suggestion(uuid, timestamptz, text[], jsonb, text) from public, anon;
+grant execute on function public.approve_suggestion(uuid, timestamptz, text[], jsonb, text) to authenticated;
 
 -- what people may change; the publisher (service role: no signed-in user) may change everything
 create or replace function app.guard_social_post() returns trigger language plpgsql security definer set search_path = public as $$
@@ -123,10 +164,10 @@ exception when others then raise notice 'Could not schedule the social media job
 end $$;
 
 -- automatic posting: off until an admin switches it on
-insert into site_settings (key, value, is_public) values ('social_posting', '{"facebook": false, "instagram": false}', false)
+insert into site_settings (key, value, is_public) values ('social_posting', '{"facebook": false, "instagram": false, "linkedin": false, "x": false}', false)
 on conflict (key) do nothing;
 
 insert into app_releases (version, kind, title, notes, released_at) values
- ('0.66.0','feature','Posting to Facebook and Instagram',
-  'Approved articles are posted to the club''s Facebook Page and Instagram account at their time, with the club''s picture. Admin → Website → Social media shows the connection, switches automatic posting on or off, and lists every post: posted (with a link), failed (with the reason and Retry), or waiting (Post now).','2026-11-22')
+ ('0.66.0','feature','Posting to Facebook, Instagram, LinkedIn and X',
+  'Approved articles are posted to the club''s Facebook Page, Instagram, LinkedIn page and X account at their time, with the club''s picture. Admin → Website → Social media shows the connection, switches automatic posting on or off, and lists every post: posted (with a link), failed (with the reason and Retry), or waiting (Post now).','2026-11-22')
 on conflict (version) do nothing;

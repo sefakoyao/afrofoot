@@ -13,6 +13,11 @@ select t.check('a publisher queues posts (waiting)', t.rows($$insert into social
   ('fc300000-0000-0000-0000-000000000001', 'fc200000-0000-0000-0000-000000000001', 'facebook', 'Due now', now() - interval '5 minutes'),
   ('fc300000-0000-0000-0000-000000000002', 'fc200000-0000-0000-0000-000000000001', 'instagram', 'Later', now() + interval '2 hours'),
   ('fc300000-0000-0000-0000-000000000003', 'fc200000-0000-0000-0000-000000000001', 'tiktok', 'Tiktok due', now() - interval '5 minutes')$$) = 3);
+select t.check('LinkedIn and X posts can be queued', t.rows($$insert into social_posts (id, news_post_id, platform, caption, post_at) values
+  ('fc300000-0000-0000-0000-000000000004', 'fc200000-0000-0000-0000-000000000001', 'linkedin', 'Linkedin text', now() + interval '1 day'),
+  ('fc300000-0000-0000-0000-000000000005', 'fc200000-0000-0000-0000-000000000001', 'x', 'Short X text', now() + interval '1 day')$$) = 2);
+select t.check('an X post longer than 280 characters is refused', t.raises($$insert into social_posts (news_post_id, platform, caption) values ('fc200000-0000-0000-0000-000000000001', 'x', repeat('a', 281))$$));
+select t.check('unknown platforms are refused', t.raises($$insert into social_posts (news_post_id, platform, caption) values ('fc200000-0000-0000-0000-000000000001', 'myspace', 'X')$$));
 select t.check('…but cannot queue a post as already sent', t.raises($$insert into social_posts (news_post_id, platform, caption, status) values ('fc200000-0000-0000-0000-000000000001', 'facebook', 'X', 'posted')$$));
 select t.check('a publisher cannot mark a post as sent', t.raises($$update social_posts set status = 'posted', external_url = 'https://facebook.com/1' where id = 'fc300000-0000-0000-0000-000000000001'$$));
 select t.check('…nor as being sent', t.raises($$update social_posts set status = 'posting' where id = 'fc300000-0000-0000-0000-000000000001'$$));
@@ -21,13 +26,28 @@ select t.check('people cannot claim posts (app only)', t.raises($$select * from 
 select t.check('…nor one post', t.raises($$select * from public.claim_social_post('fc300000-0000-0000-0000-000000000001')$$));
 select t.check('…nor ping the job', t.raises($$select app.ping_social_publisher()$$));
 select t.check('admins see the job status', (select count(*) from public.social_job_status()) = 1);
-select t.check('automatic posting starts switched off', (select value = '{"facebook": false, "instagram": false}'::jsonb from site_settings where key = 'social_posting'));
+select t.check('automatic posting starts switched off', (select value = '{"facebook": false, "instagram": false, "linkedin": false, "x": false}'::jsonb from site_settings where key = 'social_posting'));
 select t.check('the website social links (setting "social") are left alone', not exists (select 1 from site_settings where key = 'social' and not is_public));
 select t.login('fc100000-0000-0000-0000-000000000002');
 select t.check('members cannot see the job status', t.raises($$select * from public.social_job_status()$$));
 select t.check('members see no social posts', (select count(*) from social_posts) = 0);
 select t.anon();
 select t.check('visitors cannot read the social setting', (select count(*) from site_settings where key = 'social_posting') = 0);
+
+-- approving a suggestion drafted before LinkedIn and X: their texts come from the others
+select t.service();
+insert into article_suggestions (id, kind, source_key, title, excerpt, body_md, facts, social, status) values
+ ('fc400000-0000-0000-0000-000000000001', 'event', 'sp:1', 'Sp camp opens', 'Excerpt text here', repeat('Body text. ', 20), '{}', '{"facebook": "FB text {link}", "instagram": "IG text", "tiktok": "TT"}', 'new');
+select t.login('fc100000-0000-0000-0000-000000000001');
+select t.check('approve with LinkedIn and X', public.approve_suggestion('fc400000-0000-0000-0000-000000000001', null, array['facebook', 'linkedin', 'x'], null, 'https://www.example.test') is not null);
+select t.check('…LinkedIn gets the Facebook text with the link', (select caption from social_posts where suggestion_id = 'fc400000-0000-0000-0000-000000000001' and platform = 'linkedin') = 'FB text https://www.example.test/news/sp-camp-opens');
+select t.check('…X gets the headline, the link and the hashtag', (select caption from social_posts where suggestion_id = 'fc400000-0000-0000-0000-000000000001' and platform = 'x') = 'Sp camp opens https://www.example.test/news/sp-camp-opens #afrofootclub');
+select t.service();
+insert into article_suggestions (id, kind, source_key, title, excerpt, body_md, facts, social, status) values
+ ('fc400000-0000-0000-0000-000000000002', 'event', 'sp:2', 'Sp long', 'Excerpt text here', repeat('Body text. ', 20), '{}', '{"facebook": "FB"}', 'new');
+select t.login('fc100000-0000-0000-0000-000000000001');
+select t.check('an X text too long with the link is refused', t.raises($$select public.approve_suggestion('fc400000-0000-0000-0000-000000000002', null, array['x'], jsonb_build_object('x', repeat('a', 260) || ' {link}'), 'https://www.example.test')$$));
+delete from social_posts where suggestion_id = 'fc400000-0000-0000-0000-000000000001';
 
 -- the app (service role)
 select t.service();

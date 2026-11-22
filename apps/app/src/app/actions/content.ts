@@ -15,7 +15,7 @@ import { helsinkiToIso } from '@/lib/time';
  */
 const uuid = z.string().uuid();
 const BASES = ['/admin/content', '/content'] as const;
-const PLATFORMS = ['facebook', 'instagram', 'tiktok'] as const;
+const PLATFORMS = ['facebook', 'instagram', 'linkedin', 'x', 'tiktok'] as const;
 
 function base(fd: FormData): string { const b = String(fd.get('base') ?? ''); return (BASES as readonly string[]).includes(b) ? b : '/content'; }
 function go(path: string, result: string, extra: Record<string, string> = {}): never {
@@ -98,6 +98,7 @@ export async function approveSuggestion(fd: FormData): Promise<void> {
   const { supabase, social } = await saveDraft(fd, id.data, back);
   for (const p of platforms) if (!social[p]) go(back, 'c_caption');
   const { error } = await supabase.rpc('approve_suggestion', { p_id: id.data, p_post_at: when.data, p_platforms: platforms, p_captions: social, p_site_url: webUrl() });
+  if (error?.message?.startsWith('x:')) go(back, 'c_xLong');
   if (error) fail(back, 'approve', error);
   refresh(); go(base(fd), 'c_approved', { n: String(platforms.length) });
 }
@@ -145,6 +146,8 @@ export async function saveNews(fd: FormData): Promise<void> {
   const caption = String(fd.get('caption') ?? '').trim().replace(/\{link\}/g, `${webUrl()}/news/${slug}`).slice(0, 2200);
   if (publish && platforms.length) {
     if (!caption) go(`${base(fd)}/news/${postId}`, 'c_caption');
+    // X: at most 280 characters, link included (the same rule as the database)
+    if (platforms.includes('x') && caption.length > 280) go(`${base(fd)}/news/${postId}`, 'c_xLong');
     const when = localDateTime.safeParse(String(fd.get('post_at') ?? ''));
     const { error } = await supabase.from('social_posts').insert(platforms.map((p) => ({ news_post_id: postId, platform: p, caption, status: 'waiting', post_at: when.success ? when.data : new Date().toISOString() })));
     if (error && error.code !== '23505') fail(`${base(fd)}/news/${postId}`, 'share', error);

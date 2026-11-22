@@ -3260,7 +3260,7 @@
   },
   "content": {
     "title": "Suggestions",
-    "lead": "Des articles rédigés à partir des données du club : comptes rendus de match, avant-matchs, événements, nouveaux joueurs et sponsors, et un récapitulatif mensuel. Vérifiez, modifiez et approuvez : l'article est publié sur le site et les publications sont mises en file pour Facebook, Instagram et TikTok.",
+    "lead": "Des articles rédigés à partir des données du club : comptes rendus de match, avant-matchs, événements, nouveaux joueurs et sponsors, et un récapitulatif mensuel. Vérifiez, modifiez et approuvez : l'article est publié sur le site et les publications sont mises en file pour Facebook, Instagram, LinkedIn, X et TikTok.",
     "allNews": "Toutes les actualités",
     "autoTitle": "Les sujets sont trouvés automatiquement deux fois par jour",
     "autoLead": "Chaque matin et chaque soir, l'application cherche de nouveaux sujets et les rédige. Vous pouvez aussi chercher maintenant.",
@@ -3376,7 +3376,10 @@
     "envOdd": "défini, mais semble incorrect",
     "envMissing": "manquant",
     "navPoster": "Affiche de match",
-    "navSocial": "Réseaux sociaux"
+    "navSocial": "Réseaux sociaux",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "c_xLong": "La publication X est trop longue : 280 caractères au maximum, lien de l'article compris."
   },
   "poster": {
     "title": "Affiche de match",
@@ -3628,7 +3631,7 @@
   },
   "social": {
     "title": "Réseaux sociaux",
-    "lead": "Les articles approuvés sont publiés sur la page Facebook et le compte Instagram du club à l'heure prévue, avec l'image du club. Ici, vous voyez la connexion, activez ou désactivez la publication automatique et suivez chaque publication.",
+    "lead": "Les articles approuvés sont publiés sur la page Facebook, Instagram, la page LinkedIn et le compte X du club à l'heure prévue, avec l'image du club. Ici, vous voyez les connexions, activez ou désactivez la publication automatique et suivez chaque publication.",
     "connections": "Connexions",
     "pf_facebook": "Facebook",
     "pf_instagram": "Instagram",
@@ -3636,12 +3639,11 @@
     "connectedTo": "Connecté :",
     "missing": "Non connecté : le paramètre serveur {names} manque (Vercel, projet app).",
     "noInstagram": "Aucun compte Instagram professionnel n'est lié à la page Facebook du club.",
-    "refused": "Meta a refusé la connexion : {reason}",
     "auto": "Publier automatiquement",
     "tiktokLater": "Bientôt. Les publications TikTok restent en attente jusqu'à la connexion de TikTok.",
     "jobReady": "La tâche des 10 minutes est en place : les publications partent dans les 10 minutes.",
     "jobMissing": "La tâche des 10 minutes n'est pas encore en place : les publications ne partent qu'une fois par jour, ou avec Publier maintenant. Voir le guide (docs/RUNNING.md §3ab).",
-    "setupHint": "La clé de la page Facebook est un paramètre serveur sur Vercel ; elle n'est jamais affichée ici.",
+    "setupHint": "Les clés sont des paramètres serveur sur Vercel ; elles ne sont jamais affichées ici.",
     "save": "Enregistrer",
     "posts": "Publications",
     "none": "Aucune publication pour l'instant. Elles sont ajoutées quand un article est approuvé ou partagé.",
@@ -3666,6 +3668,11 @@
     "s_notAllowed": "Seuls les administrateurs du club peuvent faire cela.",
     "s_noService": "Le paramètre serveur SUPABASE_SERVICE_ROLE_KEY manque : l'application ne peut pas publier.",
     "s_failed": "La publication a échoué : la raison est indiquée ci-dessous.",
-    "s_busy": "Cette publication est déjà en cours d'envoi."
+    "s_busy": "Cette publication est déjà en cours d'envoi.",
+    "pf_linkedin": "LinkedIn",
+    "pf_x": "X",
+    "refusedBy": "La plateforme a refusé la connexion : {reason}",
+    "linkedinExpires": "La clé LinkedIn expire dans {days, plural, one {# jour} other {# jours}} : créez-en une nouvelle et mettez à jour LINKEDIN_ACCESS_TOKEN sur Vercel (RUNNING §3ab).",
+    "linkedinExpired": "La clé LinkedIn a expiré : créez-en une nouvelle et mettez à jour LINKEDIN_ACCESS_TOKEN sur Vercel (RUNNING §3ab)."
   }
 }

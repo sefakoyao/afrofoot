@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { canEnter } from '@afrofoot/db';
 import { z } from 'zod';
 import { getMember } from '@/lib/auth';
-import { publishOne } from '@/lib/social/publish';
+import { AUTO_PLATFORMS, publishOne } from '@/lib/social/publish';
 import { getSupabase } from '@/lib/supabase/server';
 import { serviceClient } from '@/lib/supabase/service';
 
@@ -27,7 +27,7 @@ function done(result: string): never { revalidatePath('/admin', 'layout'); go(re
 
 export async function saveSocialSettings(fd: FormData): Promise<void> {
   const supabase = await admin();
-  const value = { facebook: fd.get('facebook') === 'on', instagram: fd.get('instagram') === 'on' };
+  const value = Object.fromEntries(AUTO_PLATFORMS.map((p) => [p, fd.get(p) === 'on']));
   const { error } = await supabase.from('site_settings').upsert({ key: 'social_posting', value, is_public: false });
   if (error) { console.error('[social] settings refused', { code: error.code, message: error.message }); go('s_error'); }
   done('s_settingsSaved');
@@ -39,7 +39,7 @@ export async function postNow(fd: FormData): Promise<void> {
   const supabase = await admin();
   // the person must see the post (RLS) and it must be a Facebook or Instagram post that is not sent yet
   const { data } = await supabase.from('social_posts').select('platform, status').eq('id', id.data!).maybeSingle();
-  if (!data || !['facebook', 'instagram'].includes(data.platform) || !['waiting', 'scheduled', 'failed'].includes(data.status)) go('s_invalid');
+  if (!data || !(AUTO_PLATFORMS as readonly string[]).includes(data.platform) || !['waiting', 'scheduled', 'failed'].includes(data.status)) go('s_invalid');
   const db = serviceClient();
   if (!db) go('s_noService');
   const r = await publishOne(db!, id.data!);

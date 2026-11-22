@@ -29,7 +29,7 @@ export async function findAndDraft(db: SupabaseClient, limit = 3): Promise<RunRe
       kind: topic.kind, source_key: topic.source_key, facts: topic.facts, model: r.model,
       title: d.title_en, excerpt: d.excerpt_en, body_md: d.body_en,
       translations: { fi: { title: d.title_fi, excerpt: d.excerpt_fi, body_md: d.body_fi }, fr: { title: d.title_fr, excerpt: d.excerpt_fr, body_md: d.body_fr }, ar: { title: d.title_ar, excerpt: d.excerpt_ar, body_md: d.body_ar } },
-      social: { facebook: d.facebook, instagram: d.instagram, tiktok: d.tiktok },
+      social: { facebook: d.facebook, instagram: d.instagram, tiktok: d.tiktok, linkedin: d.linkedin, x: d.x },
       checks: d.checks, post_at: suggestPostTime(topic.kind, topic.facts, postTime),
     });
     if (e) { failed++; lastError = 'db'; console.error('[content] saving a suggestion refused', { code: e.code, message: e.message }); } else drafted++;

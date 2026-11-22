@@ -274,8 +274,8 @@ Settings (sender `noreply@afrofoot.club`, reply-to and alerts `info@afrofoot.clu
 - Admins also hide a place (no longer offered in event forms; events keep it) or show it again, and delete a place nothing uses. The database refuses to delete a place used by a training, schedule, game or event.
 - Every change is in the audit log.
 
-## 3ab. Posting to Facebook and Instagram (migration 0071, release 0.66.0)
-Approved articles (Admin → Website → Suggestions, or News → Share) are posted to the club's Facebook Page and Instagram account at their time, with the club's branded picture. TikTok comes later: its posts stay "waiting for the connection". Nothing is posted until an admin ticks **Post automatically** (or presses **Post now** on one post).
+## 3ab. Posting to Facebook, Instagram, LinkedIn and X (migration 0071, release 0.66.0)
+Approved articles (Admin → Website → Suggestions, or News → Share) are posted to the club's Facebook Page, Instagram account, LinkedIn page and X account at their time, with the club's branded picture. Each platform is set up on its own: set up only the ones the club uses. TikTok comes later: its posts stay "waiting for the connection". Nothing is posted until an admin ticks **Post automatically** (or presses **Post now** on one post).
 
 **1. Instagram account (5 minutes, on a phone):** the club's Instagram must be a **professional account** (Instagram app → Settings → Account type and tools → Switch to professional account → Business) and **linked to the club's Facebook Page** (Facebook Page → Settings → Linked accounts → Instagram → Connect, or Meta Business Suite → Settings → Instagram accounts).
 
@@ -287,6 +287,20 @@ Approved articles (Admin → Website → Suggestions, or News → Share) are pos
 5. The Page id: Facebook Page → About → Page transparency (or Business settings → Accounts → Pages: the id under the name).
 Meta usually needs no app review while only the club's own system user and admins use the app. If Meta asks for business verification, follow its steps.
 
+**2b. LinkedIn page (about 30 minutes, plus LinkedIn's review):**
+1. https://www.linkedin.com/developers/apps → **Create app**: name "Afro Foot Club posting", LinkedIn Page = the club's page, logo. A page admin confirms the link to the page (Settings → **Verify**).
+2. Products → request **Community Management API**. LinkedIn reviews the request (it asks about the club and how the API is used: "post the club's own news on its own page"). Until it is approved, posting is refused.
+3. Once approved: Docs and tools → **OAuth Token Tools** → Create token → tick `w_organization_social`, `r_organization_social` and `rw_organization_admin` → sign in as a **page admin** → copy the access token straight into Vercel.
+4. The page number: open the page as admin; the address is `linkedin.com/company/<number>/admin`.
+5. Vercel (app project): `LINKEDIN_ORGANIZATION_ID` = the number, `LINKEDIN_ACCESS_TOKEN` = the token (Sensitive), and `LINKEDIN_TOKEN_EXPIRES` = the date 60 days from today (YYYY-MM-DD). LinkedIn tokens last **60 days**: the Social media page warns two weeks before; then repeat step 3 and replace the two values.
+
+**2c. X account (about 15 minutes):**
+1. https://developer.x.com → sign in **as the club's X account** → set up the developer account (X's access levels and prices change; the free level allows a limited number of posts per month, enough for club news, but check the current plan there).
+2. Projects & Apps → the app → **User authentication settings** → App permissions **Read and write** (type: Web App, any callback such as `https://app.afrofoot.club`) → Save.
+3. **Keys and tokens:** API Key and Secret → Regenerate; Access Token and Secret → Generate (after step 2, so they can post). Copy each straight into Vercel.
+4. Vercel (app project, all Sensitive): `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`. These keys do not expire.
+5. X posts have at most **280 characters, link included**: the review page and the News form check it.
+
 **3. Vercel (app project → Settings → Environment Variables, Production; then redeploy):**
 - `META_PAGE_ID`: the Page id.
 - `META_PAGE_ACCESS_TOKEN`: the system user's token (mark it **Sensitive**). The app asks Meta for the Page's own token itself. A Page access token that never expires also works.
@@ -295,13 +309,13 @@ Meta usually needs no app review while only the club's own system user and admin
 
 **4. Database:** Supabase → SQL Editor (the **live** project) → paste `supabase/migrations/20260101000071_social_publishing.sql` → Run. It needs the content assistant (migration 0064). Then Supabase → Project Settings → **Vault** → Add new secret: name `cron_secret`, value = the same value as `CRON_SECRET` on Vercel. Supabase then asks the app every 10 minutes to post what is due (pg_cron and pg_net: if the run shows *Could not schedule the social media job*, enable both under Database → Extensions and run the file again). Without it, Vercel still runs the job once a day (07:47 UTC) and **Post now** works.
 
-**5. Switch it on:** Admin → Website → **Social media**. Facebook should show *Connected: Afro Foot Club* and Instagram *Connected: @…*; the line under the cards says whether the 10-minute job is set up. Tick **Post automatically** for each, **Save**.
+**5. Switch it on:** Admin → Website → **Social media**. Each platform you set up should show *Connected: …* (the Page, @account or page name); the line under the cards says whether the 10-minute job is set up. Tick **Post automatically** for each, **Save**.
 
 **How it behaves:**
 - Each post is sent once: the database claims it ("Posting…") before it goes out. Posted posts show **View the post**; failed ones show Meta's reason with **Retry** (sent again within 10 minutes) and **Post now**.
 - Posts more than 3 days late (for example queued long before the connection existed) are not sent automatically: press **Post now** or **Cancel**.
-- Facebook gets a photo post (the picture and the caption, links clickable); Instagram gets the picture and the caption ("link in bio": Instagram does not make links clickable). The picture is a 1080 × 1080 JPEG made from the article's headline (and the score for a match report).
-- The key is never shown in the app or stored in the database. To disconnect: untick Post automatically, or remove the variable on Vercel (or revoke the system user's token in Meta Business settings).
+- Facebook gets a photo post (the picture and the caption, links clickable); Instagram gets the picture and the caption ("link in bio": Instagram does not make links clickable); LinkedIn an image post on the club page; X the picture with a short post. The picture is a 1080 × 1080 JPEG made from the article's headline (and the score for a match report).
+- The keys are never shown in the app or stored in the database. To disconnect a platform: untick Post automatically, or remove its variables on Vercel (or revoke the key on the platform).
 
 ## 4. Payments setup
 - **Wire transfer / invoice**: set the club IBAN and recipient in `site_settings`; the database generates Finnish reference numbers (viitenumero, check digit 7-3-1) and invoice numbers.

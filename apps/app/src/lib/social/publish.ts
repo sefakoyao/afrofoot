@@ -1,13 +1,17 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { MetaError, metaConfig, postFacebook, postInstagram, type Posted } from './meta';
+import { SocialError, type Posted } from './errors';
+import { postImage } from './image';
+import { linkedinConfig, postLinkedIn } from './linkedin';
+import { metaConfig, postFacebook, postInstagram } from './meta';
+import { postX, xMissing } from './x';
 
 /**
  * Sends the queued social posts (social_posts, migrations 0064 and 0071) with the service role. A post is claimed in the
  * database first (status "posting"), so it is sent once even when two runs overlap; the result is written back:
- * posted (with its id and link) or failed (with Meta's reason). TikTok is not connected yet: its posts stay waiting.
+ * posted (with its id and link) or failed (with the platform's reason). TikTok is not connected yet: its posts stay waiting.
  */
-export const AUTO_PLATFORMS = ['facebook', 'instagram'] as const;
+export const AUTO_PLATFORMS = ['facebook', 'instagram', 'linkedin', 'x'] as const;
 export type AutoPlatform = (typeof AUTO_PLATFORMS)[number];
 type Row = { id: string; platform: string; caption: string };
 
@@ -15,13 +19,19 @@ export const appUrl = () => (process.env.APP_URL?.trim() || 'https://app.afrofoo
 /** The JPEG Meta downloads for a post (app/api/social/image/[id]). */
 export const imageUrlFor = (id: string) => `${appUrl()}/api/social/image/${id}`;
 
-/** The platforms an admin switched on (site setting "social_posting") that also have the Meta key. */
+/** Whether the server has the keys for a platform. */
+export function configured(p: AutoPlatform): boolean {
+  if (p === 'facebook' || p === 'instagram') { const m = metaConfig(); return !!m.pageId && !!m.token; }
+  if (p === 'linkedin') { const l = linkedinConfig(); return !!l.org && !!l.token; }
+  return xMissing().length === 0;
+}
+
+/** The platforms an admin switched on (site setting "social_posting") that also have their keys. */
 export async function switchedOn(db: SupabaseClient): Promise<AutoPlatform[]> {
-  const { pageId, token } = metaConfig();
-  if (!pageId || !token) return [];
+  if (!AUTO_PLATFORMS.some(configured)) return [];
   const { data } = await db.from('site_settings').select('value').eq('key', 'social_posting').maybeSingle();
   const v = (data?.value ?? {}) as Record<string, unknown>;
-  return AUTO_PLATFORMS.filter((p) => v[p] === true);
+  return AUTO_PLATFORMS.filter((p) => v[p] === true && configured(p));
 }
 
 async function send(db: SupabaseClient, row: Row): Promise<boolean> {
@@ -29,9 +39,13 @@ async function send(db: SupabaseClient, row: Row): Promise<boolean> {
   try {
     if (row.platform === 'facebook') r = await postFacebook(row.caption, imageUrlFor(row.id));
     else if (row.platform === 'instagram') r = await postInstagram(row.caption, imageUrlFor(row.id));
-    else throw new MetaError('This platform is not connected yet');
+    else if (row.platform === 'linkedin' || row.platform === 'x') {
+      const img = await postImage(db, row.id);
+      if (!img) throw new SocialError('The article is not published');
+      r = row.platform === 'linkedin' ? await postLinkedIn(row.caption, img.jpeg, img.title) : await postX(row.caption, img.jpeg);
+    } else throw new SocialError('This platform is not connected yet');
   } catch (e) {
-    const error = (e instanceof MetaError ? e.message : 'Unexpected error while posting').slice(0, 500);
+    const error = (e instanceof SocialError ? e.message : 'Unexpected error while posting').slice(0, 500);
     console.error('[social] post failed', { id: row.id, platform: row.platform, error });
     await db.from('social_posts').update({ status: 'failed', error }).eq('id', row.id);
     return false;

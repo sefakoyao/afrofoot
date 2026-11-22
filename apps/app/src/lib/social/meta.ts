@@ -1,4 +1,5 @@
 import 'server-only';
+import { SocialError, type Posted } from './errors';
 
 /**
  * Facebook Page and Instagram publishing through Meta's Graph API (content assistant step 2, migration 0071).
@@ -15,11 +16,10 @@ export function metaConfig() {
 }
 const base = () => `${(read('META_GRAPH_URL') ?? 'https://graph.facebook.com').replace(/\/+$/, '')}/${read('META_GRAPH_VERSION') ?? 'v23.0'}`;
 
-export class MetaError extends Error {}
 
 async function graph<T>(path: string, params: Record<string, string> = {}, method: 'GET' | 'POST' = 'GET', useToken?: string): Promise<T> {
   const token = useToken ?? metaConfig().token;
-  if (!token) throw new MetaError('META_PAGE_ACCESS_TOKEN is not set');
+  if (!token) throw new SocialError('META_PAGE_ACCESS_TOKEN is not set');
   const qs = new URLSearchParams(params);
   const url = method === 'GET' ? `${base()}/${path}${qs.size ? `?${qs}` : ''}` : `${base()}/${path}`;
   let res: Response;
@@ -29,10 +29,10 @@ async function graph<T>(path: string, params: Record<string, string> = {}, metho
       body: method === 'POST' ? qs : undefined, cache: 'no-store', signal: AbortSignal.timeout(30_000),
     });
   } catch (e) {
-    throw new MetaError(`Could not reach Meta (${e instanceof Error ? e.name : 'network'})`);
+    throw new SocialError(`Could not reach Meta (${e instanceof Error ? e.name : 'network'})`);
   }
   const json = (await res.json().catch(() => ({}))) as { error?: { message?: string; code?: number } } & T;
-  if (!res.ok || json.error) throw new MetaError((json.error?.message ?? `HTTP ${res.status}`).slice(0, 400));
+  if (!res.ok || json.error) throw new SocialError((json.error?.message ?? `HTTP ${res.status}`).slice(0, 400));
   return json;
 }
 
@@ -62,7 +62,7 @@ export async function checkConnection(): Promise<Connection> {
   }
 }
 
-export type Posted = { id: string; url: string | null };
+export type { Posted };
 
 /**
  * The Page's own token. META_PAGE_ACCESS_TOKEN may be a Page token or the token of a system user who manages the Page
@@ -78,7 +78,7 @@ async function pageToken(): Promise<string | undefined> {
 /** A photo post on the club's Page: the club's picture with the caption (links in it are clickable). */
 export async function postFacebook(caption: string, imageUrl: string): Promise<Posted> {
   const { pageId } = metaConfig();
-  if (!pageId) throw new MetaError('META_PAGE_ID is not set');
+  if (!pageId) throw new SocialError('META_PAGE_ID is not set');
   const r = await graph<{ id: string; post_id?: string }>(`${pageId}/photos`, { url: imageUrl, message: caption }, 'POST', await pageToken());
   const id = r.post_id ?? r.id;
   return { id, url: `https://www.facebook.com/${id}` };
@@ -87,9 +87,9 @@ export async function postFacebook(caption: string, imageUrl: string): Promise<P
 async function igUser(): Promise<string> {
   const { pageId, igUserId } = metaConfig();
   if (igUserId) return igUserId;
-  if (!pageId) throw new MetaError('META_PAGE_ID is not set');
+  if (!pageId) throw new SocialError('META_PAGE_ID is not set');
   const p = await graph<PageInfo>(pageId, { fields: 'instagram_business_account' });
-  if (!p.instagram_business_account?.id) throw new MetaError('No Instagram professional account is linked to the Facebook Page');
+  if (!p.instagram_business_account?.id) throw new SocialError('No Instagram professional account is linked to the Facebook Page');
   return p.instagram_business_account.id;
 }
 
@@ -102,8 +102,8 @@ export async function postInstagram(caption: string, imageUrl: string): Promise<
   for (let i = 0; i < 10; i++) {
     const s = await graph<{ status_code?: string; status?: string }>(container, { fields: 'status_code,status' });
     if (s.status_code === 'FINISHED') break;
-    if (s.status_code === 'ERROR' || s.status_code === 'EXPIRED') throw new MetaError(`Instagram could not use the picture (${s.status ?? s.status_code})`);
-    if (i === 9) throw new MetaError('Instagram took too long to read the picture');
+    if (s.status_code === 'ERROR' || s.status_code === 'EXPIRED') throw new SocialError(`Instagram could not use the picture (${s.status ?? s.status_code})`);
+    if (i === 9) throw new SocialError('Instagram took too long to read the picture');
     await wait(2000);
   }
   const { id } = await graph<{ id: string }>(`${ig}/media_publish`, { creation_id: container }, 'POST');

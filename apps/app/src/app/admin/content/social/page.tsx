@@ -4,13 +4,16 @@ import { LOCALE_LABELS, TIME_ZONE, isLocale } from '@afrofoot/i18n';
 import { cancelPost, postNow, retryPost, saveSocialSettings } from '@/app/actions/social';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
+import { checkLinkedIn, linkedinConfig } from '@/lib/social/linkedin';
 import { checkConnection } from '@/lib/social/meta';
+import { checkX } from '@/lib/social/x';
 import { getSupabase } from '@/lib/supabase/server';
 
 export async function generateMetadata(): Promise<Metadata> { return { title: (await getTranslations('social'))('title') }; }
 
-type Post = { id: string; platform: 'facebook' | 'instagram' | 'tiktok'; caption: string; status: string; post_at: string | null; posted_at: string | null; external_url: string | null; error: string | null; news_posts: { title: string } | null };
-const PF = { facebook: 'bg-[#1877F2] text-white', instagram: 'bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white', tiktok: 'bg-ink-950 text-white' } as const;
+type Platform = 'facebook' | 'instagram' | 'linkedin' | 'x' | 'tiktok';
+type Post = { id: string; platform: Platform; caption: string; status: string; post_at: string | null; posted_at: string | null; external_url: string | null; error: string | null; news_posts: { title: string } | null };
+const PF: Record<Platform, string> = { facebook: 'bg-[#1877F2] text-white', instagram: 'bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white', linkedin: 'bg-[#0A66C2] text-white', x: 'bg-ink-950 text-white', tiktok: 'bg-ink-950 text-white' };
 const CHIP: Record<string, string> = { posted: 'bg-accent/15 text-pitch', failed: 'bg-danger/10 text-danger', posting: 'bg-gold text-ink-950', waiting: 'bg-line/60', scheduled: 'bg-line/60', cancelled: 'bg-line/60 text-muted' };
 
 /**
@@ -21,7 +24,7 @@ const CHIP: Record<string, string> = { posted: 'bg-accent/15 text-pitch', failed
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
   const sp = await searchParams;
-  const [t, locale, supabase, conn] = await Promise.all([getTranslations('social'), getLocale(), getSupabase(), checkConnection()]);
+  const [t, locale, supabase, conn, li, xa] = await Promise.all([getTranslations('social'), getLocale(), getSupabase(), checkConnection(), checkLinkedIn(), checkX()]);
   const [settings, job, posts] = supabase ? await Promise.all([
     supabase.from('site_settings').select('value').eq('key', 'social_posting').maybeSingle(),
     supabase.rpc('social_job_status'),
@@ -33,11 +36,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const rows = (posts?.data ?? []) as unknown as Post[];
   const tag = isLocale(locale) ? LOCALE_LABELS[locale].intl : 'en-GB';
   const when = (iso: string | null) => (iso ? new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE }).format(new Date(iso)) : '');
-  const reason = (e?: string) => (!e ? '' : e.startsWith('missing:') ? t('missing', { names: e.slice(8) }) : e === 'noInstagram' ? t('noInstagram') : t('refused', { reason: e }));
+  const reason = (e?: string) => (!e ? '' : e.startsWith('missing:') ? t('missing', { names: e.slice(8) }) : e === 'noInstagram' ? t('noInstagram') : t('refusedBy', { reason: e }));
   const btn = 'inline-flex min-h-10 items-center rounded-full border border-line bg-raised px-4 text-sm font-bold hover:border-accent';
   const dot = (ok: boolean) => <span className={`size-2.5 shrink-0 rounded-full ${ok ? 'bg-accent' : 'bg-danger'}`} aria-hidden />;
 
-  const card = (p: 'facebook' | 'instagram' | 'tiktok', status: React.ReactNode, toggle: boolean) => (
+  // LinkedIn keys expire after 60 days: warn two weeks before the date set in LINKEDIN_TOKEN_EXPIRES
+  const liExp = linkedinConfig().expires;
+  const liDays = liExp && /^\d{4}-\d{2}-\d{2}$/.test(liExp) ? Math.floor((Date.parse(`${liExp}T23:59:59Z`) - Date.now()) / 86_400_000) : null;
+  const connected = (who: React.ReactNode) => <p className="flex items-center gap-2 font-semibold">{dot(true)}<span>{t('connectedTo')} {who}</span></p>;
+  const notConnected = (e?: string) => <p className="flex items-start gap-2">{dot(false)}<span>{reason(e)}</span></p>;
+  const card = (p: Platform, status: React.ReactNode, toggle: boolean) => (
     <li className="grid content-start gap-3 rounded-card border border-line bg-raised p-4" data-connection={p}>
       <span className={`w-fit rounded-full px-3 py-0.5 text-xs font-bold ${PF[p]}`}>{t(`pf_${p}`)}</span>
       <div className="text-sm">{status}</div>
@@ -59,18 +67,23 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
 
       <form action={saveSocialSettings} className="grid gap-3 rounded-card border border-line bg-raised p-5" aria-labelledby="conn-h">
         <h2 id="conn-h" className="font-display text-xl font-extrabold">{t('connections')}</h2>
-        <ul className="grid gap-3 md:grid-cols-3">
+        <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {card('facebook', conn.facebook.ok
-            ? <p className="flex items-center gap-2 font-semibold">{dot(true)}<span>{t('connectedTo')} {conn.facebook.link ? <a href={conn.facebook.link} target="_blank" rel="noreferrer" className="text-pitch underline">{conn.facebook.name}</a> : conn.facebook.name}</span></p>
-            : <p className="flex items-start gap-2">{dot(false)}<span>{reason(conn.facebook.error)}</span></p>, conn.facebook.ok)}
-          {card('instagram', conn.instagram.ok
-            ? <p className="flex items-center gap-2 font-semibold">{dot(true)}<span>{t('connectedTo')} @{conn.instagram.username}</span></p>
-            : <p className="flex items-start gap-2">{dot(false)}<span>{reason(conn.instagram.error)}</span></p>, conn.instagram.ok)}
+            ? connected(conn.facebook.link ? <a href={conn.facebook.link} target="_blank" rel="noreferrer" className="text-pitch underline">{conn.facebook.name}</a> : conn.facebook.name)
+            : notConnected(conn.facebook.error), conn.facebook.ok)}
+          {card('instagram', conn.instagram.ok ? connected(`@${conn.instagram.username}`) : notConnected(conn.instagram.error), conn.instagram.ok)}
+          {card('linkedin', li.ok ? (
+            <>
+              {connected(li.name)}
+              {liDays !== null && liDays <= 14 ? <p className="mt-2 rounded-card bg-gold p-2 text-sm font-semibold text-ink-950" data-linkedin-expiry>{liDays < 0 ? t('linkedinExpired') : t('linkedinExpires', { days: liDays })}</p> : null}
+            </>
+          ) : notConnected(li.error), li.ok)}
+          {card('x', xa.ok ? connected(`@${xa.username}`) : notConnected(xa.error), xa.ok)}
           {card('tiktok', <p className="text-muted">{t('tiktokLater')}</p>, false)}
         </ul>
         <p className={`flex items-start gap-2 text-sm ${jobReady ? '' : 'text-danger'}`} data-job={jobReady ? 'ready' : 'missing'}>{dot(jobReady)}<span>{jobReady ? t('jobReady') : t('jobMissing')}</span></p>
         <p className="text-xs text-muted">{t('setupHint')}</p>
-        {conn.facebook.ok || conn.instagram.ok ? <button className="w-fit rounded-full bg-accent px-5 py-2.5 font-bold text-on-accent">{t('save')}</button> : null}
+        {conn.facebook.ok || conn.instagram.ok || li.ok || xa.ok ? <button className="w-fit rounded-full bg-accent px-5 py-2.5 font-bold text-on-accent">{t('save')}</button> : null}
       </form>
 
       <section className="grid gap-3" aria-labelledby="posts-h">
