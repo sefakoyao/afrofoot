@@ -22,6 +22,41 @@ export function starsBand(w: number, h: number): string {
   return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="${h}" fill="url(#g)"/>${stars}`);
 }
 
+/**
+ * The top banner (replaces the full-width star band): a thin green-to-yellow line across the top and a slanted tab on
+ * the left in the same colours, for the club's name (written by the poster over it).
+ */
+export function clubBand(w: number, tabW: number, h: number): string {
+  return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="8" fill="url(#g)"/><polygon points="0,0 ${tabW},0 ${tabW - h * 0.36},${h} 0,${h}" fill="url(#g)"/>`);
+}
+
+/** A football shirt (the "Shirts" line-up): green with a yellow collar and cuffs, or gold with black trim for the keeper. */
+export function shirtIcon(size: number, gk: boolean): string {
+  const body = gk ? GOLD : GREEN, trim = gk ? INK : GOLD;
+  return svg(size, size * 0.94, `<g transform="scale(${(size / 64).toFixed(4)})">`
+    + `<path d="M22 3 L9 9 L1 22 L11 28 L14 23 L14 57 L50 57 L50 23 L53 28 L63 22 L55 9 L42 3 Q32 11 22 3 Z" fill="${body}" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>`
+    + `<path d="M22 3 Q32 11 42 3" fill="none" stroke="${trim}" stroke-width="3.2"/><path d="M1 22 L11 28 M63 22 L53 28" stroke="${trim}" stroke-width="3"/></g>`);
+}
+
+/**
+ * One row of the "broadcast" line-up (TV graphics): a slanted number tab in the row's colour, a dark name bar and a thin
+ * slanted edge at its end in the same colour. tabW: the tab's width; the bar fills the rest of w.
+ */
+export function broadcastRow(w: number, h: number, tabW: number, colour: string): string {
+  const k = h * 0.25; // the slant
+  return svg(w, h, `<polygon points="${k},0 ${tabW},0 ${tabW - k},${h} 0,${h}" fill="${colour}"/>`
+    + `<polygon points="${tabW + 4},0 ${w},0 ${w - k},${h} ${tabW + 4 - k},${h}" fill="rgba(11,11,11,0.8)"/>`
+    + `<polygon points="${w - 9},0 ${w},0 ${w - k},${h} ${w - k - 9},${h}" fill="${colour}"/>`);
+}
+
+/** Where the featured player photo goes, shown in the preview until one is chosen: a dashed frame and a silhouette. */
+export function photoPlaceholder(w: number, h: number): string {
+  const cx = w / 2, r = Math.min(w, h) * 0.16, top = h * 0.3;
+  return svg(w, h, `<rect x="3" y="3" width="${w - 6}" height="${h - 6}" rx="28" fill="rgba(11,11,11,0.35)" stroke="rgba(255,255,255,0.7)" stroke-width="4" stroke-dasharray="18 12"/>`
+    + `<circle cx="${cx}" cy="${top}" r="${r}" fill="rgba(255,255,255,0.5)"/>`
+    + `<path d="M${cx - r * 2.1},${top + r * 3.4} Q${cx - r * 2.1},${top + r * 1.35} ${cx},${top + r * 1.35} Q${cx + r * 2.1},${top + r * 1.35} ${cx + r * 2.1},${top + r * 3.4} Z" fill="rgba(255,255,255,0.5)"/>`);
+}
+
 /** The background effects the admin chooses from (Matchday poster → Effect); "none" draws nothing. */
 export const EFFECTS = ['wave', 'ribbons', 'stripes', 'dots', 'none'] as const;
 export type Effect = (typeof EFFECTS)[number];

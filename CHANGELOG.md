@@ -3,6 +3,18 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – matchday poster: three new line-up styles and a new banner (branch `phase2/poster-list-styles`, release 0.67.0, no database change)
+- **Admin → Website → Matchday poster:** six layouts to choose from (List, **Broadcast**, **Big numbers**, **Shirts**, Cards, Pitch):
+  - **Broadcast** (TV graphics): a slanted number tab (gold for the goalkeeper), the name on a dark bar, the position (GK / DF / MF / FW), a gap between the lines.
+  - **Big numbers:** large shirt numbers in their own column (gold for the goalkeeper), a thin bar, the name; small headings Goalkeeper / Defence / Midfield / Attack.
+  - **Shirts:** a small football shirt with the number (green with a yellow collar; gold for the goalkeeper), the name; the same headings.
+  - All three keep the captain's yellow "C" and work in portrait, story and square.
+- **Featured player photo** beside List, Broadcast, Big numbers and Shirts. While none is chosen, the preview shows a "Player photo" placeholder; the downloaded poster leaves the space empty. Cards and Pitch have no room for one: the page now says so when they are chosen. With no photo uploaded yet, the page links to the upload form (coaches without the right are told an admin uploads them).
+- **Uploads:** when Supabase Storage refuses an image, the page says so (instead of "Something went wrong").
+- **New top banner on every layout:** a thin green-to-yellow line and a slanted tab with "AFRO FOOT CLUB" (no stars; replaces the full-width star band).
+- **Title in Nevera** (STARTING XI / LINE UP / MATCHDAY); everything else stays in Figtree, so names with ä, ö or é show correctly.
+- **Licence:** Nevera's free download is for personal use only. Buy the commercial licence (circlefont.com/product/nevera) before club posters made with it are published.
+
 ## Unreleased – posting to Facebook, Instagram, LinkedIn and X (branch `phase2/social-publish`, release 0.66.0, migration 0071)
 Content assistant, step 2: the posts queued when an article is approved now go out by themselves.
 - **Admin → Website → Social media:**

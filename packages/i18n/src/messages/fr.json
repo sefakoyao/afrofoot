@@ -3412,6 +3412,7 @@
     "p_error": "Une erreur s'est produite. Veuillez réessayer.",
     "layout": "Mise en page",
     "l_list": "Liste",
+    "l_broadcast": "Style TV",
     "l_cards": "Cartes",
     "l_pitch": "Terrain",
     "heading": "Titre",
@@ -3436,7 +3437,13 @@
     "loading": "Création de l'affiche…",
     "shade": "Assombrissement du fond",
     "shadeHint": "À quel point la photo de fond est assombrie. Seulement l'image ; l'effet a sa propre intensité ci-dessus.",
-    "coachUploadNote": "Les photos et logos de sponsors sont téléversés par les administrateurs du club (Admin → Site web → Affiche du match). Choisissez parmi ceux déjà disponibles."
+    "coachUploadNote": "Les photos et logos de sponsors sont téléversés par les administrateurs du club (Admin → Site web → Affiche du match). Choisissez parmi ceux déjà disponibles.",
+    "l_numbers": "Grands numéros",
+    "l_shirts": "Maillots",
+    "featuredUpload": "En ajouter une",
+    "featuredAskAdmin": "Pas encore de photo de joueur : un administrateur les ajoute sur cette page.",
+    "featuredNoRoom": "Les mises en page Cartes et Terrain n'ont pas de place pour une photo. Choisissez Liste, Style TV, Grands numéros ou Maillots pour l'afficher.",
+    "p_storage": "L'image n'a pas pu être enregistrée : Supabase Storage l'a refusée. Vérifiez que le compartiment public-media et ses règles sont en place dans ce projet (docs/RUNNING.md)."
   },
   "lineups": {
     "nav": "Compositions",
