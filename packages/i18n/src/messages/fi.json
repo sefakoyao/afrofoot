@@ -3400,7 +3400,7 @@
     "preview": "Esikatselu",
     "previewAlt": "Avauskokoonpanon juliste",
     "download": "Lataa PNG",
-    "namesNote": "Nimet näkyvät vain pelaajilta, jotka ovat antaneet luvan julkiseen näkyvyyteen (kuten verkkosivuilla); muilta vain pelinumero. Pysty sopii Instagramin ja Facebookin julkaisuihin, Tarina Instagramin tarinoihin ja TikTokiin.",
+    "namesNote": "Nimet näytetään kaikille pelaajille paitsi niille, jotka ovat poistaneet itsensä seuran verkkosivuilta (kuten verkkosivuilla); heistä näytetään vain pelinumero ja pelipaikka. Pysty sopii Instagram- ja Facebook-julkaisuihin, Tarina Instagram Storiesiin ja TikTokiin.",
     "uploadTitle": "Lataa kuvia",
     "uploadLead": "JPG tai PNG, enintään 8 Mt. Logot näyttävät parhaimmilta PNG-muodossa läpinäkyvällä taustalla. Käytä kuvia, jotka seura saa julkaista (alle 18-vuotiaat: huoltajan luvalla).",
     "upload": "Lataa",
@@ -3691,7 +3691,7 @@
     "k_farewell": "Hyvästit",
     "player": "Pelaaja",
     "samplePlayer": "Esimerkkipelaaja (vain esikatselu)",
-    "publicNote": "Vain pelaajat, jotka ovat suostuneet julkiseen näkymiseen, voidaan valita.",
+    "publicNote": "Kaikki seuran nykyiset ja entiset pelaajat, paitsi ne, jotka ovat poistaneet itsensä seuran verkkosivuilta (Oma profiili → Seuran verkkosivuilla).",
     "message": "Viesti",
     "messageHint": "Jätä tyhjäksi, niin käytetään: “{text}”",
     "from": "Edellinen seura (valinnainen)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Tiedotejulisteen esikatselu",
     "download": "Lataa kuva",
     "loading": "Päivitetään…",
-    "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE."
+    "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE.",
+    "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla."
   }
 }

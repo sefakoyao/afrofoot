@@ -3400,7 +3400,7 @@
     "preview": "Preview",
     "previewAlt": "Starting XI poster",
     "download": "Download PNG",
-    "namesNote": "Names are shown only for players who agreed to be shown publicly (as on the website); for the others, only their shirt number. Portrait suits Instagram and Facebook posts, Story suits Instagram Stories and TikTok.",
+    "namesNote": "Names are shown for every player except those who removed themselves from the club website (as on the website); for them, only the shirt number and position. Portrait suits Instagram and Facebook posts, Story suits Instagram Stories and TikTok.",
     "uploadTitle": "Upload images",
     "uploadLead": "JPG or PNG, up to 8 MB. Logos look best as PNG with a transparent background. Use photos the club may publish (players under 18: with their guardian's consent).",
     "upload": "Upload",
@@ -3691,7 +3691,7 @@
     "k_farewell": "Farewell",
     "player": "Player",
     "samplePlayer": "Sample player (preview only)",
-    "publicNote": "Only players who agreed to be shown publicly can be chosen.",
+    "publicNote": "Every club player, current or former, except those who removed themselves from the club website (My profile → On the club website).",
     "message": "Message",
     "messageHint": "Leave empty to use: “{text}”",
     "from": "Previous club (optional)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Preview of the announcement poster",
     "download": "Download picture",
     "loading": "Updating…",
-    "sampleNote": "Sample player: try the designs here; the poster says SAMPLE."
+    "sampleNote": "Sample player: try the designs here; the poster says SAMPLE.",
+    "noPlayers": "No players to choose yet: add players under People, or use the sample player to try the designs."
   }
 }

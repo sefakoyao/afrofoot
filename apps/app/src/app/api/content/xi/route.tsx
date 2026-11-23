@@ -18,7 +18,7 @@ import { getSupabase } from '@/lib/supabase/server';
  * Query: match, layout, format, bg (team | night | pitch | media:posters/bg/…), title (0–2), sponsor
  * (media:posters/sponsor/… → "Presented by"), photo (media:posters/player/…), download=1. Admins only.
  * Photos fill their frame (cropped to fit); the crest and logos keep their proportions inside their space.
- * Names only of players shown publicly; the others by shirt number and position.
+ * Names of every player except those hidden from the club website (lib/poster.ts); those by shirt number and position.
  */
 export const dynamic = 'force-dynamic';
 

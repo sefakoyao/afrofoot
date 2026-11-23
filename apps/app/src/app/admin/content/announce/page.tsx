@@ -17,7 +17,7 @@ const field = 'min-h-11 w-full min-w-0 rounded-control border border-line bg-rai
 /**
  * Admin → Website → Player announcement: a "New signing" or "Farewell" poster for one player, with an editable message
  * (empty = the default line), the previous club and contract end for a new signing, a player photo from the Matchday
- * poster's uploads, and a live preview (/api/content/announce). Only players shown publicly can be chosen.
+ * poster's uploads, and a live preview (/api/content/announce). Players hidden from the club website are not listed.
  */
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
@@ -58,7 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
               <option value={SAMPLE_PLAYER}>{t('samplePlayer')}</option>
               {players.map((p) => <option key={p.id} value={p.id}>{p.last_name}, {p.first_name}</option>)}
             </select>
-            <span className="text-xs font-normal text-muted">{t('publicNote')}</span></label>
+            <span className="text-xs font-normal text-muted">{players.length ? t('publicNote') : t('noPlayers')}</span></label>
           <label className="grid gap-1 text-sm font-semibold">{t('message')}
             <textarea name="msg" rows={3} maxLength={ANNOUNCE_LIMITS.message} defaultValue={msg} className={`${field} py-2`} dir="auto" data-announce-msg />
             <span className="text-xs font-normal text-muted" data-only="welcome">{t('messageHint', { text: DEFAULT_MESSAGE.welcome })}</span>

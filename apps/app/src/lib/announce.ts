@@ -3,7 +3,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Player announcement posters (Admin → Website → Player announcement): a new signing or a farewell, for one player.
- * Only players who agreed to be shown publicly (players.show_publicly, the website's rule) can be chosen. The details
+ * The website's rule decides who can be chosen: every player except those who removed themselves from the club website
+ * (players.website_hidden, opt-out since migration 0042). A database without 0042 falls back to the older consent
+ * (players.show_publicly). The details
  * come from the club's data: shirt number (latest team), position, nationality, and for a farewell the seasons, games
  * (match squads of played games) and goals (not voided). The message, previous club and contract end are typed by the admin.
  */
@@ -28,15 +30,23 @@ export function samplePlayer(kind: AnnounceKind): AnnouncePlayer {
     : { firstName: 'Yusuf', lastName: 'Ahmed', shirt: 9, position: 'forward', nationality: 'FI', seasons: { from: 2021, to: 2026 }, games: 84, goals: 23 };
 }
 
-/** The players who can be announced: shown publicly, by surname. */
+/** The players who can be announced (not hidden from the website), by surname; former players too, for a farewell. */
 export async function announceablePlayers(db: SupabaseClient) {
-  const { data } = await db.from('players').select('id, first_name, last_name').eq('show_publicly', true).order('last_name').order('first_name').limit(500);
+  const list = (col: 'website_hidden' | 'show_publicly') =>
+    db.from('players').select('id, first_name, last_name').eq(col, col === 'show_publicly').order('last_name').order('first_name').limit(1000);
+  let { data, error } = await list('website_hidden');
+  if (error?.code === '42703') ({ data, error } = await list('show_publicly'));   // before migration 0042
+  if (error) console.error('[announce] players refused', { code: error.code, message: error.message });
   return (data ?? []) as { id: string; first_name: string; last_name: string }[];
 }
 
 export async function loadAnnouncePlayer(db: SupabaseClient, id: string): Promise<AnnouncePlayer | null> {
-  const { data: p } = await db.from('players').select('first_name, last_name, position, nationality, show_publicly').eq('id', id).maybeSingle();
-  if (!p || !p.show_publicly) return null;
+  const cols = 'first_name, last_name, position, nationality';
+  let r = await db.from('players').select(`${cols}, website_hidden`).eq('id', id).maybeSingle();
+  let allowed = (x: Record<string, unknown>) => x.website_hidden !== true;
+  if (r.error?.code === '42703') { r = await db.from('players').select(`${cols}, show_publicly`).eq('id', id).maybeSingle(); allowed = (x) => x.show_publicly === true; }
+  const p = r.data as { first_name: string; last_name: string; position: string | null; nationality: string[] | null } | null;
+  if (!p || !allowed(p as unknown as Record<string, unknown>)) return null;
   const [{ data: teams }, { data: squads }, { count: goals }] = await Promise.all([
     db.from('team_players').select('jersey_number, team_seasons!inner(seasons!inner(starts_on, ends_on))').eq('player_id', id),
     db.from('match_squad').select('match_id, matches!inner(status)').eq('player_id', id).in('status', ['starter', 'substitute']).eq('matches.status', 'played'),

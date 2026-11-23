@@ -3400,7 +3400,7 @@
     "preview": "Aperçu",
     "previewAlt": "Affiche du onze de départ",
     "download": "Télécharger le PNG",
-    "namesNote": "Les noms ne s'affichent que pour les joueurs qui ont accepté d'être affichés publiquement (comme sur le site) ; pour les autres, seulement le numéro. Portrait convient aux publications Instagram et Facebook, Story aux Stories Instagram et à TikTok.",
+    "namesNote": "Les noms s'affichent pour tous les joueurs sauf ceux qui se sont retirés du site du club (comme sur le site) ; pour eux, seuls le numéro et le poste. Le format Portrait convient aux publications Instagram et Facebook, Story aux Stories Instagram et à TikTok.",
     "uploadTitle": "Envoyer des images",
     "uploadLead": "JPG ou PNG, 8 Mo au plus. Les logos rendent mieux en PNG sur fond transparent. Utilisez des photos que le club peut publier (moins de 18 ans : avec l'accord du tuteur).",
     "upload": "Envoyer",
@@ -3691,7 +3691,7 @@
     "k_farewell": "Départ",
     "player": "Joueur",
     "samplePlayer": "Joueur exemple (aperçu seulement)",
-    "publicNote": "Seuls les joueurs qui ont accepté d'être affichés publiquement peuvent être choisis.",
+    "publicNote": "Tous les joueurs du club, actuels ou anciens, sauf ceux qui se sont retirés du site du club (Mon profil → Sur le site du club).",
     "message": "Message",
     "messageHint": "Laissez vide pour utiliser : « {text} »",
     "from": "Club précédent (facultatif)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Aperçu de l'affiche d'annonce",
     "download": "Télécharger l'image",
     "loading": "Mise à jour…",
-    "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE."
+    "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE.",
+    "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple."
   }
 }

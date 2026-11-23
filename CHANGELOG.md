@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – player names on posters follow the website's rule (branch `phase2/announce-players`, release 0.68.1, no database change)
+- **Admin → Website → Player announcement:** the player list now follows the club website's rule: every player, current or former, except those who removed themselves from the website (My profile → On the club website; migration 0042). Before, it only listed players with the older "shown publicly" consent, which nothing in the app sets any more, so the list held only the sample player. A database without 0042 still uses the older consent.
+- When there is no player to choose, the page says so and points to People.
+- **Matchday poster:** player names follow the same rule. Before, only players with the older consent were named, so in production posters showed positions ("MIDFIELDER") instead of names. Players hidden from the website still show only their shirt number and position. The note under the preview says so.
+
 ## Unreleased – player announcement posters (branch `phase2/player-announcement`, release 0.68.0, no database change)
 - **Admin → Website → Player announcement** (new): a poster to welcome a new player (**New signing**) or to thank one who leaves (**Farewell**), in the matchday poster's style (club tab, crest, title in Nevera, the rest in Figtree), in portrait, story and square.
   - Choose the player: only players who agreed to be shown publicly (the website's rule); a sample player to try the designs.
