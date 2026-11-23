@@ -22,6 +22,34 @@ export function starsBand(w: number, h: number): string {
   return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="${h}" fill="url(#g)"/>${stars}`);
 }
 
+/**
+ * The top banner (replaces the full-width star band): a thin green-to-yellow line across the top and a slanted tab on
+ * the left in the same colours, for the club's name and the crest's four stars (drawn by the poster over it).
+ */
+export function clubBand(w: number, tabW: number, h: number): string {
+  const stars = [0, 1, 2, 3].map((i) => star(tabW - h * 0.36 - h * 0.5 - (3 - i) * h * 0.62, h / 2, h * 0.24)).join('');
+  return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="8" fill="url(#g)"/><polygon points="0,0 ${tabW},0 ${tabW - h * 0.36},${h} 0,${h}" fill="url(#g)"/>${stars}`);
+}
+
+/**
+ * One row of the "broadcast" line-up (TV graphics): a slanted number tab in the row's colour, a dark name bar and a thin
+ * slanted edge at its end in the same colour. tabW: the tab's width; the bar fills the rest of w.
+ */
+export function broadcastRow(w: number, h: number, tabW: number, colour: string): string {
+  const k = h * 0.25; // the slant
+  return svg(w, h, `<polygon points="${k},0 ${tabW},0 ${tabW - k},${h} 0,${h}" fill="${colour}"/>`
+    + `<polygon points="${tabW + 4},0 ${w},0 ${w - k},${h} ${tabW + 4 - k},${h}" fill="rgba(11,11,11,0.8)"/>`
+    + `<polygon points="${w - 9},0 ${w},0 ${w - k},${h} ${w - k - 9},${h}" fill="${colour}"/>`);
+}
+
+/** Where the featured player photo goes, shown in the preview until one is chosen: a dashed frame and a silhouette. */
+export function photoPlaceholder(w: number, h: number): string {
+  const cx = w / 2, r = Math.min(w, h) * 0.16, top = h * 0.3;
+  return svg(w, h, `<rect x="3" y="3" width="${w - 6}" height="${h - 6}" rx="28" fill="rgba(11,11,11,0.35)" stroke="rgba(255,255,255,0.7)" stroke-width="4" stroke-dasharray="18 12"/>`
+    + `<circle cx="${cx}" cy="${top}" r="${r}" fill="rgba(255,255,255,0.5)"/>`
+    + `<path d="M${cx - r * 2.1},${top + r * 3.4} Q${cx - r * 2.1},${top + r * 1.35} ${cx},${top + r * 1.35} Q${cx + r * 2.1},${top + r * 1.35} ${cx + r * 2.1},${top + r * 3.4} Z" fill="rgba(255,255,255,0.5)"/>`);
+}
+
 /** The background effects the admin chooses from (Matchday poster → Effect); "none" draws nothing. */
 export const EFFECTS = ['wave', 'ribbons', 'stripes', 'dots', 'none'] as const;
 export type Effect = (typeof EFFECTS)[number];

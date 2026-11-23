@@ -13,7 +13,7 @@ const btn = 'inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6
 const tile = 'flex cursor-pointer overflow-hidden rounded-control border-4 border-transparent bg-cover bg-center shadow-sm peer-checked:border-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent';
 const chip = 'flex min-h-10 cursor-pointer flex-col items-center justify-center rounded-control border-2 border-line px-3 py-1 text-sm font-bold peer-checked:border-accent peer-checked:bg-accent/10 peer-focus-visible:ring-2 peer-focus-visible:ring-accent';
 
-/** Small drawings of the three layouts, for the layout picker. */
+/** Small drawings of the layouts, for the layout picker. */
 function LayoutSketch({ l }: { l: PosterLayout }) {
   const bar = 'h-1.5 rounded-full bg-white/80';
   return (
@@ -22,6 +22,9 @@ function LayoutSketch({ l }: { l: PosterLayout }) {
       {l === 'list' ? (
         <span className="flex flex-1 gap-1"><span className="flex w-3/5 flex-col justify-center gap-1 rounded bg-white/20 p-1">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="flex gap-0.5"><span className="size-1.5 rounded-sm bg-gold" /><span className={`${bar} flex-1`} /></span>)}</span>
           <span className="flex-1 rounded bg-accent/60" /></span>
+      ) : l === 'broadcast' ? (
+        <span className="flex flex-1 gap-1"><span className="flex w-3/5 flex-col justify-center gap-[3px]">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="flex h-2 gap-px"><span className={`w-2 -skew-x-12 ${i === 0 ? 'bg-gold' : 'bg-accent'}`} /><span className="flex-1 -skew-x-12 bg-black/80 ring-1 ring-white/30" /></span>)}</span>
+          <span className="flex-1 rounded border border-dashed border-white/60" /></span>
       ) : l === 'cards' ? (
         <span className="flex flex-1 flex-col justify-center gap-1">{[3, 3, 4, 1].map((n, i) => <span key={i} className="flex justify-center gap-0.5">{Array.from({ length: n }).map((_, j) => <span key={j} className="h-3 w-3 rounded-sm bg-white/30 ring-1 ring-white/50" />)}</span>)}</span>
       ) : (
@@ -97,7 +100,7 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
               </select></label>
 
             <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('layout')}</legend>
-              <div className="grid grid-cols-3 gap-2">{POSTER_LAYOUTS.map((l) => pick('layout', l, l === layout,
+              <div className="grid grid-cols-4 gap-2">{POSTER_LAYOUTS.map((l) => pick('layout', l, l === layout,
                 <span className={`${tile} flex-col bg-raised p-1`}><LayoutSketch l={l} /><span className="pt-1 text-center text-xs font-bold">{t(`l_${l}`)}</span></span>))}</div>
             </fieldset>
 

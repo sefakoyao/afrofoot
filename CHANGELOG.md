@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – matchday poster: Broadcast layout and new banner (branch `phase2/poster-list-styles`, release 0.67.0, no database change)
+- **Admin → Website → Matchday poster:** a fourth layout, **Broadcast** (TV graphics): each starter on a row with a slanted number tab (gold for the goalkeeper, green for the others), the name on a dark bar and the position (GK / DF / MF / FW), with a gap between the lines; the captain's yellow "C". In portrait, story and square.
+- **Featured player photo** beside the Broadcast rows, as in the List layout. While none is chosen, the preview shows a "Player photo" placeholder; the downloaded poster leaves the space empty.
+- **New top banner on every layout:** a thin green-to-yellow line and a slanted tab with "AFRO FOOT CLUB" and the crest's four stars (replaces the full-width star band).
+- **Title in Nevera** (STARTING XI / LINE UP / MATCHDAY); everything else stays in Figtree.
+- **Licence:** Nevera's free download is for personal use only. Buy the commercial licence (circlefont.com/product/nevera) before club posters made with it are published.
+
 ## Unreleased – posting to Facebook, Instagram, LinkedIn and X (branch `phase2/social-publish`, release 0.66.0, migration 0071)
 Content assistant, step 2: the posts queued when an article is approved now go out by themselves.
 - **Admin → Website → Social media:**
