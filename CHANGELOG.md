@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – farewell posters with Palloliitto numbers (branch `phase2/farewell-palloliitto`, release 0.69.0, no database change)
+- **Admin → Website → Player announcement → Farewell:** when the player is linked to their Palloliitto entry (Admin → Palloliitto players), the seasons, games and goals come from Palloliitto: the official league and cup games the nightly sync stores (first to last season, total games, total goals). The poster then says "Official league and cup games · Palloliitto". Players who are not linked keep the app's own numbers (which also count friendlies).
+- **Former players from Palloliitto only:** players who never had an app account but played official games for the club can be chosen too ("From Palloliitto only" in the list). Players hidden by the club are never listed or drawn.
+- The page explains where the numbers come from.
+
 ## Unreleased – player names on posters follow the website's rule (branch `phase2/announce-players`, release 0.68.1, no database change)
 - **Admin → Website → Player announcement:** the player list now follows the club website's rule: every player, current or former, except those who removed themselves from the website (My profile → On the club website; migration 0042). Before, it only listed players with the older "shown publicly" consent, which nothing in the app sets any more, so the list held only the sample player. A database without 0042 still uses the older consent.
 - When there is no player to choose, the page says so and points to People.
