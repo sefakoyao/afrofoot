@@ -3698,7 +3698,7 @@
     "fromHint": "ex. FC Example",
     "until": "Contrat jusqu'à (facultatif)",
     "untilHint": "ex. 2027",
-    "statsNote": "Saisons, matchs et buts viennent des données du club (matchs : feuilles de match des matchs joués ; buts : non annulés).",
+    "statsNote": "Saisons, matchs et buts viennent de Palloliitto (matchs officiels de championnat et de coupe) quand le joueur est relié sur la page Joueurs Palloliitto ; sinon des données de l'application (matchs : feuilles de match des matchs joués, amicaux compris ; buts : non annulés).",
     "format": "Format",
     "f_portrait": "Portrait",
     "f_story": "Story",
@@ -3713,6 +3713,8 @@
     "download": "Télécharger l'image",
     "loading": "Mise à jour…",
     "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE.",
-    "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple."
+    "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple.",
+    "groupApp": "Joueurs de l'application",
+    "groupFed": "Seulement chez Palloliitto (ex. anciens joueurs)"
   }
 }

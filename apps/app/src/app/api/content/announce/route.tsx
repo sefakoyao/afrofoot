@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 import { isAdminRole } from '@afrofoot/db';
-import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, SAMPLE_PLAYER, loadAnnouncePlayer, samplePlayer, type AnnounceKind } from '@/lib/announce';
+import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, FED_ID, SAMPLE_PLAYER, loadAnnouncePlayer, loadPalloliittoPlayer, samplePlayer, type AnnounceKind } from '@/lib/announce';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, clubBand, photoPlaceholder } from '@/lib/poster-art';
@@ -39,9 +39,10 @@ export async function GET(req: NextRequest) {
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';
   const id = q.get('player') ?? SAMPLE_PLAYER;
   const isSample = id === SAMPLE_PLAYER;
-  if (!isSample && !/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a player', { status: 400 });
+  const isFed = FED_ID.test(id);
+  if (!isSample && !isFed && !/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a player', { status: 400 });
   const supabase = await getSupabase();
-  const p = isSample ? samplePlayer(kind) : supabase ? await loadAnnouncePlayer(supabase, id) : null;
+  const p = isSample ? samplePlayer(kind) : !supabase ? null : isFed ? await loadPalloliittoPlayer(supabase, id) : await loadAnnouncePlayer(supabase, id);
   if (!p) return new Response('Player not found or hidden from the website', { status: 404 });
   const message = clean(q.get('msg'), ANNOUNCE_LIMITS.message) || DEFAULT_MESSAGE[kind];
   const from = clean(q.get('from'), ANNOUNCE_LIMITS.from), until = clean(q.get('until'), ANNOUNCE_LIMITS.until);
@@ -115,6 +116,7 @@ export async function GET(req: NextRequest) {
               {stat(seasons, 'SEASONS')}{stat(String(p.games), 'GAMES')}{stat(String(p.goals), 'GOALS')}{p.shirt != null ? stat(`#${p.shirt}`, 'SHIRT') : null}
             </div>
           )}
+          {!welcome && p.source === 'palloliitto' ? <span style={{ display: 'flex', fontSize: sq ? 15 : 17, letterSpacing: 2, color: 'rgba(255,255,255,.6)' }}>OFFICIAL LEAGUE AND CUP GAMES · PALLOLIITTO</span> : null}
           {welcome && (from || until) ? (
             <span style={{ display: 'flex', fontSize: sq ? 22 : 26, color: 'rgba(255,255,255,.85)' }}>
               {[from ? `Joins from ${from}` : '', until ? `contract until ${until}` : ''].filter(Boolean).join(' · ')}

@@ -3698,7 +3698,7 @@
     "fromHint": "esim. FC Example",
     "until": "Sopimus asti (valinnainen)",
     "untilHint": "esim. 2027",
-    "statsNote": "Kaudet, ottelut ja maalit tulevat seuran tiedoista (ottelut: pelattujen otteluiden kokoonpanot; maalit: mitätöimättömät).",
+    "statsNote": "Kaudet, ottelut ja maalit tulevat Palloliitolta (viralliset sarja- ja cup-ottelut), kun pelaaja on yhdistetty Palloliiton pelaajat -sivulla; muuten sovelluksen omista tiedoista (ottelut: pelattujen otteluiden kokoonpanot, harjoitusottelut mukaan lukien; maalit: mitätöimättömät).",
     "format": "Koko",
     "f_portrait": "Pysty",
     "f_story": "Tarina",
@@ -3713,6 +3713,8 @@
     "download": "Lataa kuva",
     "loading": "Päivitetään…",
     "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE.",
-    "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla."
+    "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla.",
+    "groupApp": "Sovelluksen pelaajat",
+    "groupFed": "Vain Palloliitosta (esim. entiset pelaajat)"
   }
 }

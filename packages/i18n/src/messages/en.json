@@ -3698,7 +3698,7 @@
     "fromHint": "e.g. FC Example",
     "until": "Contract until (optional)",
     "untilHint": "e.g. 2027",
-    "statsNote": "Seasons, games and goals come from the club's records (games: squads of played games; goals: not voided).",
+    "statsNote": "Seasons, games and goals come from Palloliitto (official league and cup games) when the player is linked on Palloliitto players; otherwise from the app's own records (games: squads of played games, friendlies included; goals: not voided).",
     "format": "Size",
     "f_portrait": "Portrait",
     "f_story": "Story",
@@ -3713,6 +3713,8 @@
     "download": "Download picture",
     "loading": "Updating…",
     "sampleNote": "Sample player: try the designs here; the poster says SAMPLE.",
-    "noPlayers": "No players to choose yet: add players under People, or use the sample player to try the designs."
+    "noPlayers": "No players to choose yet: add players under People, or use the sample player to try the designs.",
+    "groupApp": "Players in the app",
+    "groupFed": "From Palloliitto only (e.g. former players)"
   }
 }

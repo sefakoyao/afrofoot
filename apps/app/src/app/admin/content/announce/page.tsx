@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { PosterPreview } from '@/components/admin/PosterPreview';
-import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, SAMPLE_PLAYER, announceablePlayers, type AnnounceKind } from '@/lib/announce';
+import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
 import { POSTER_FORMATS, type PosterFormat } from '@/lib/poster';
@@ -24,14 +24,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const sp = await searchParams;
   const [t, supabase] = await Promise.all([getTranslations('announce'), getSupabase()]);
   if (!supabase) return null;
-  const players = await announceablePlayers(supabase);
+  const [players, fedOnly] = await Promise.all([announceablePlayers(supabase), palloliittoOnlyPlayers(supabase)]);
   const { data: files } = await supabase.storage.from('public-media').list('posters/player', { limit: 30, sortBy: { column: 'created_at', order: 'desc' } });
   const photos = (files ?? []).filter((f) => /\.(jpg|jpeg|png)$/.test(f.name)).map((f) => `posters/player/${f.name}`);
   const base = supabaseEnv()?.url;
   const url = (p: string) => (base ? `${base}/storage/v1/object/public/public-media/${p}` : '');
 
   const kind: AnnounceKind = (ANNOUNCE_KINDS as readonly string[]).includes(one(sp.kind)) ? (one(sp.kind) as AnnounceKind) : 'welcome';
-  const player = one(sp.player) === SAMPLE_PLAYER || players.some((p) => p.id === one(sp.player)) ? one(sp.player) : SAMPLE_PLAYER;
+  const player = one(sp.player) === SAMPLE_PLAYER || players.some((p) => p.id === one(sp.player)) || fedOnly.some((p) => p.id === one(sp.player)) ? one(sp.player) : SAMPLE_PLAYER;
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(one(sp.format) as PosterFormat) ? (one(sp.format) as PosterFormat) : 'portrait';
   const photo = photos.some((p) => `media:${p}` === one(sp.photo)) ? one(sp.photo) : '';
   const msg = one(sp.msg).slice(0, ANNOUNCE_LIMITS.message), from = one(sp.from).slice(0, ANNOUNCE_LIMITS.from), until = one(sp.until).slice(0, ANNOUNCE_LIMITS.until);
@@ -56,9 +56,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
           <label className="grid gap-1 text-sm font-semibold">{t('player')}
             <select name="player" defaultValue={player} className={field} data-announce-player>
               <option value={SAMPLE_PLAYER}>{t('samplePlayer')}</option>
-              {players.map((p) => <option key={p.id} value={p.id}>{p.last_name}, {p.first_name}</option>)}
+              {players.length ? <optgroup label={t('groupApp')}>{players.map((p) => <option key={p.id} value={p.id}>{p.last_name}, {p.first_name}</option>)}</optgroup> : null}
+              {fedOnly.length ? <optgroup label={t('groupFed')}>{fedOnly.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup> : null}
             </select>
-            <span className="text-xs font-normal text-muted">{players.length ? t('publicNote') : t('noPlayers')}</span></label>
+            <span className="text-xs font-normal text-muted">{players.length || fedOnly.length ? t('publicNote') : t('noPlayers')}</span></label>
           <label className="grid gap-1 text-sm font-semibold">{t('message')}
             <textarea name="msg" rows={3} maxLength={ANNOUNCE_LIMITS.message} defaultValue={msg} className={`${field} py-2`} dir="auto" data-announce-msg />
             <span className="text-xs font-normal text-muted" data-only="welcome">{t('messageHint', { text: DEFAULT_MESSAGE.welcome })}</span>
