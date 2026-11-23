@@ -3379,7 +3379,8 @@
     "navSocial": "Réseaux sociaux",
     "pf_linkedin": "LinkedIn",
     "pf_x": "X",
-    "c_xLong": "La publication X est trop longue : 280 caractères au maximum, lien de l'article compris."
+    "c_xLong": "La publication X est trop longue : 280 caractères au maximum, lien de l'article compris.",
+    "navAnnounce": "Annonce joueur"
   },
   "poster": {
     "title": "Affiche de match",
@@ -3681,5 +3682,36 @@
     "refusedBy": "La plateforme a refusé la connexion : {reason}",
     "linkedinExpires": "La clé LinkedIn expire dans {days, plural, one {# jour} other {# jours}} : créez-en une nouvelle et mettez à jour LINKEDIN_ACCESS_TOKEN sur Vercel (RUNNING §3ab).",
     "linkedinExpired": "La clé LinkedIn a expiré : créez-en une nouvelle et mettez à jour LINKEDIN_ACCESS_TOKEN sur Vercel (RUNNING §3ab)."
+  },
+  "announce": {
+    "title": "Annonce joueur",
+    "lead": "Une affiche pour accueillir un nouveau joueur ou remercier un joueur qui quitte le club, dans le style de l'affiche de match. Choisissez le joueur et une photo, modifiez le message, puis téléchargez l'image pour les réseaux sociaux.",
+    "kind": "Annonce",
+    "k_welcome": "Nouvelle recrue",
+    "k_farewell": "Départ",
+    "player": "Joueur",
+    "samplePlayer": "Joueur exemple (aperçu seulement)",
+    "publicNote": "Seuls les joueurs qui ont accepté d'être affichés publiquement peuvent être choisis.",
+    "message": "Message",
+    "messageHint": "Laissez vide pour utiliser : « {text} »",
+    "from": "Club précédent (facultatif)",
+    "fromHint": "ex. FC Example",
+    "until": "Contrat jusqu'à (facultatif)",
+    "untilHint": "ex. 2027",
+    "statsNote": "Saisons, matchs et buts viennent des données du club (matchs : feuilles de match des matchs joués ; buts : non annulés).",
+    "format": "Format",
+    "f_portrait": "Portrait",
+    "f_story": "Story",
+    "f_square": "Carré",
+    "photo": "Photo du joueur",
+    "none": "Aucune",
+    "photoHint": "Les photos de joueurs s'ajoutent sur la",
+    "photoLink": "page Affiche de match",
+    "update": "Mettre à jour l'aperçu",
+    "preview": "Aperçu",
+    "previewAlt": "Aperçu de l'affiche d'annonce",
+    "download": "Télécharger l'image",
+    "loading": "Mise à jour…",
+    "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE."
   }
 }

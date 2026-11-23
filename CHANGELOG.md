@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – player announcement posters (branch `phase2/player-announcement`, release 0.68.0, no database change)
+- **Admin → Website → Player announcement** (new): a poster to welcome a new player (**New signing**) or to thank one who leaves (**Farewell**), in the matchday poster's style (club tab, crest, title in Nevera, the rest in Figtree), in portrait, story and square.
+  - Choose the player: only players who agreed to be shown publicly (the website's rule); a sample player to try the designs.
+  - **New signing:** first name, surname, shirt number, position and nationality from the club's data; previous club and contract end typed by the admin (optional).
+  - **Farewell:** seasons at the club, games (squads of played games), goals (not voided) and shirt number from the club's records.
+  - **Editable message** on both; left empty it uses the default line ("Welcome to the club! We can’t wait to see you on the pitch." / "Thank you for the shared memories.").
+  - The player photo comes from the photos uploaded on the Matchday poster page; a preview-only placeholder until one is chosen. Live preview and download.
+- Admins only: coaches cannot open the page or make these posters.
+
 ## Unreleased – matchday poster: three new line-up styles and a new banner (branch `phase2/poster-list-styles`, release 0.67.0, no database change)
 - **Admin → Website → Matchday poster:** six layouts to choose from (List, **Broadcast**, **Big numbers**, **Shirts**, Cards, Pitch):
   - **Broadcast** (TV graphics): a slanted number tab (gold for the goalkeeper), the name on a dark bar, the position (GK / DF / MF / FW), a gap between the lines.
