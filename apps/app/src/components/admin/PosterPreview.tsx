@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Live preview for the Matchday poster: watches the settings form and shows the new poster as soon as anything changes
+ * Live preview for the Matchday poster and the player announcement (endpoint): watches the settings form and shows the new poster as soon as anything changes
  * (no page reload; the strength slider waits a moment until it stops moving). Keeps the address and the upload forms'
  * "keep" fields in step, so an upload or a reload keeps the current choices.
  */
-export function PosterPreview({ formId, initial, alt, download, loading, story }: { formId: string; initial: string; alt: string; download: string; loading: string; story: boolean }) {
+export function PosterPreview({ formId, initial, alt, download, loading, story, endpoint = '/api/content/xi' }: { formId: string; initial: string; alt: string; download: string; loading: string; story: boolean; endpoint?: string }) {
   const [query, setQuery] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [tall, setTall] = useState(story);
@@ -44,14 +44,14 @@ export function PosterPreview({ formId, initial, alt, download, loading, story }
     <>
       <div className={`relative w-full ${tall ? 'max-w-sm' : 'max-w-xl'}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={`/api/content/xi?${query}`} alt={alt} onLoad={() => setBusy(false)} onError={() => setBusy(false)}
+        <img src={`${endpoint}?${query}`} alt={alt} onLoad={() => setBusy(false)} onError={() => setBusy(false)}
           className={`w-full rounded-card shadow-lg transition-opacity ${busy ? 'opacity-60' : ''}`} data-poster-img data-busy={busy || undefined} />
         {busy ? (
           <span role="status" className="absolute inset-x-0 top-1/2 mx-auto flex w-fit -translate-y-1/2 items-center gap-2 rounded-full bg-ink-950/85 px-4 py-2 text-sm font-bold text-white">
             <span aria-hidden className="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent motion-reduce:animate-none" />{loading}</span>
         ) : null}
       </div>
-      <a href={`/api/content/xi?${query}&download=1`} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110" data-poster-download>{download}</a>
+      <a href={`${endpoint}?${query}&download=1`} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110" data-poster-download>{download}</a>
     </>
   );
 }

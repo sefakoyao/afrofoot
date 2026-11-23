@@ -3379,7 +3379,8 @@
     "navSocial": "Some",
     "pf_linkedin": "LinkedIn",
     "pf_x": "X",
-    "c_xLong": "X-julkaisu on liian pitkä: enintään 280 merkkiä artikkelin linkki mukaan lukien."
+    "c_xLong": "X-julkaisu on liian pitkä: enintään 280 merkkiä artikkelin linkki mukaan lukien.",
+    "navAnnounce": "Pelaajatiedote"
   },
   "poster": {
     "title": "Ottelujuliste",
@@ -3681,5 +3682,36 @@
     "refusedBy": "Palvelu hylkäsi yhteyden: {reason}",
     "linkedinExpires": "LinkedIn-avain vanhenee {days, plural, one {# päivän} other {# päivän}} kuluttua: tee uusi ja päivitä LINKEDIN_ACCESS_TOKEN Verceliin (RUNNING §3ab).",
     "linkedinExpired": "LinkedIn-avain on vanhentunut: tee uusi ja päivitä LINKEDIN_ACCESS_TOKEN Verceliin (RUNNING §3ab)."
+  },
+  "announce": {
+    "title": "Pelaajatiedote",
+    "lead": "Juliste uuden pelaajan tervetulotoivotukseen tai seurasta lähtevän pelaajan kiittämiseen, ottelujulisteen tyyliin. Valitse pelaaja ja kuva, muokkaa viestiä ja lataa kuva someen.",
+    "kind": "Tiedote",
+    "k_welcome": "Uusi pelaaja",
+    "k_farewell": "Hyvästit",
+    "player": "Pelaaja",
+    "samplePlayer": "Esimerkkipelaaja (vain esikatselu)",
+    "publicNote": "Vain pelaajat, jotka ovat suostuneet julkiseen näkymiseen, voidaan valita.",
+    "message": "Viesti",
+    "messageHint": "Jätä tyhjäksi, niin käytetään: “{text}”",
+    "from": "Edellinen seura (valinnainen)",
+    "fromHint": "esim. FC Example",
+    "until": "Sopimus asti (valinnainen)",
+    "untilHint": "esim. 2027",
+    "statsNote": "Kaudet, ottelut ja maalit tulevat seuran tiedoista (ottelut: pelattujen otteluiden kokoonpanot; maalit: mitätöimättömät).",
+    "format": "Koko",
+    "f_portrait": "Pysty",
+    "f_story": "Tarina",
+    "f_square": "Neliö",
+    "photo": "Pelaajakuva",
+    "none": "Ei kuvaa",
+    "photoHint": "Pelaajakuvat ladataan",
+    "photoLink": "ottelujulistesivulla",
+    "update": "Päivitä esikatselu",
+    "preview": "Esikatselu",
+    "previewAlt": "Tiedotejulisteen esikatselu",
+    "download": "Lataa kuva",
+    "loading": "Päivitetään…",
+    "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE."
   }
 }
