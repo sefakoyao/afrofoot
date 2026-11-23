@@ -36,7 +36,8 @@ export async function uploadPosterPhoto(fd: FormData): Promise<void> {
   const kind = (UPLOAD_KINDS as readonly string[]).includes(String(fd.get('kind'))) ? (String(fd.get('kind')) as UploadKind) : 'bg';
   const path = `posters/${kind}/${randomUUID()}.${TYPES[f.type]}`;
   const { error } = await supabase!.storage.from('public-media').upload(path, f, { contentType: f.type, upsert: false });
-  if (error) { console.error('[poster] upload refused', { message: error.message }); back(fd, 'p_error'); }
+  // a storage refusal has its own message (e.g. the public-media bucket or its rules are not set up in this project)
+  if (error) { console.error('[poster] upload refused', { message: error.message }); back(fd, 'p_storage'); }
   back(fd, 'p_uploaded', [PARAM[kind], `media:${path}`]);
 }
 

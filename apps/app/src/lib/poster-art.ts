@@ -24,11 +24,18 @@ export function starsBand(w: number, h: number): string {
 
 /**
  * The top banner (replaces the full-width star band): a thin green-to-yellow line across the top and a slanted tab on
- * the left in the same colours, for the club's name and the crest's four stars (drawn by the poster over it).
+ * the left in the same colours, for the club's name (written by the poster over it).
  */
 export function clubBand(w: number, tabW: number, h: number): string {
-  const stars = [0, 1, 2, 3].map((i) => star(tabW - h * 0.36 - h * 0.5 - (3 - i) * h * 0.62, h / 2, h * 0.24)).join('');
-  return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="8" fill="url(#g)"/><polygon points="0,0 ${tabW},0 ${tabW - h * 0.36},${h} 0,${h}" fill="url(#g)"/>${stars}`);
+  return svg(w, h, `<defs>${gradient('g')}</defs><rect width="${w}" height="8" fill="url(#g)"/><polygon points="0,0 ${tabW},0 ${tabW - h * 0.36},${h} 0,${h}" fill="url(#g)"/>`);
+}
+
+/** A football shirt (the "Shirts" line-up): green with a yellow collar and cuffs, or gold with black trim for the keeper. */
+export function shirtIcon(size: number, gk: boolean): string {
+  const body = gk ? GOLD : GREEN, trim = gk ? INK : GOLD;
+  return svg(size, size * 0.94, `<g transform="scale(${(size / 64).toFixed(4)})">`
+    + `<path d="M22 3 L9 9 L1 22 L11 28 L14 23 L14 57 L50 57 L50 23 L53 28 L63 22 L55 9 L42 3 Q32 11 22 3 Z" fill="${body}" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>`
+    + `<path d="M22 3 Q32 11 42 3" fill="none" stroke="${trim}" stroke-width="3.2"/><path d="M1 22 L11 28 M63 22 L53 28" stroke="${trim}" stroke-width="3"/></g>`);
 }
 
 /**

@@ -3437,7 +3437,13 @@
     "loading": "Julistetta tehdään…",
     "shade": "Taustan tummuus",
     "shadeHint": "Kuinka tumma kerros taustakuvan päällä on. Vain kuva; efektillä on oma voimakkuutensa yllä.",
-    "coachUploadNote": "Kuvat ja sponsorien logot lataavat seuran ylläpitäjät (Ylläpito → Verkkosivut → Ottelujuliste). Valitse jo ladatuista."
+    "coachUploadNote": "Kuvat ja sponsorien logot lataavat seuran ylläpitäjät (Ylläpito → Verkkosivut → Ottelujuliste). Valitse jo ladatuista.",
+    "l_numbers": "Isot numerot",
+    "l_shirts": "Paidat",
+    "featuredUpload": "Lataa kuva",
+    "featuredAskAdmin": "Pelaajakuvia ei vielä ole: ylläpitäjä lataa ne tällä sivulla.",
+    "featuredNoRoom": "Kortit- ja Kenttä-asetteluissa ei ole tilaa pelaajakuvalle. Valitse Lista, TV-tyyli, Isot numerot tai Paidat.",
+    "p_storage": "Kuvaa ei voitu tallentaa: Supabase Storage hylkäsi sen. Tarkista, että public-media-säilö ja sen säännöt on otettu käyttöön tässä projektissa (docs/RUNNING.md)."
   },
   "lineups": {
     "nav": "Kokoonpanot",

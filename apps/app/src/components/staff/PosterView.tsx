@@ -25,6 +25,12 @@ function LayoutSketch({ l }: { l: PosterLayout }) {
       ) : l === 'broadcast' ? (
         <span className="flex flex-1 gap-1"><span className="flex w-3/5 flex-col justify-center gap-[3px]">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="flex h-2 gap-px"><span className={`w-2 -skew-x-12 ${i === 0 ? 'bg-gold' : 'bg-accent'}`} /><span className="flex-1 -skew-x-12 bg-black/80 ring-1 ring-white/30" /></span>)}</span>
           <span className="flex-1 rounded border border-dashed border-white/60" /></span>
+      ) : l === 'numbers' ? (
+        <span className="flex flex-1 gap-1"><span className="flex w-3/5 flex-col justify-center gap-[3px]">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="flex items-center gap-0.5"><span className={`w-2 text-right text-[7px] font-black leading-none ${i === 0 ? 'text-gold' : 'text-accent'}`}>{i + 1}</span><span className="h-1.5 w-px bg-gold" /><span className={`${bar} flex-1`} /></span>)}</span>
+          <span className="flex-1 rounded border border-dashed border-white/60" /></span>
+      ) : l === 'shirts' ? (
+        <span className="flex flex-1 gap-1"><span className="flex w-3/5 flex-col justify-center gap-[3px]">{[0, 1, 2, 3, 4, 5].map((i) => <span key={i} className="flex items-center gap-0.5"><svg viewBox="0 0 64 60" className="size-2"><path d="M22 3 L9 9 L1 22 L11 28 L14 23 L14 57 L50 57 L50 23 L53 28 L63 22 L55 9 L42 3 Q32 11 22 3 Z" fill={i === 0 ? '#EDF70F' : '#3DAF2C'} /></svg><span className={`${bar} flex-1`} /></span>)}</span>
+          <span className="flex-1 rounded border border-dashed border-white/60" /></span>
       ) : l === 'cards' ? (
         <span className="flex flex-1 flex-col justify-center gap-1">{[3, 3, 4, 1].map((n, i) => <span key={i} className="flex justify-center gap-0.5">{Array.from({ length: n }).map((_, j) => <span key={j} className="h-3 w-3 rounded-sm bg-white/30 ring-1 ring-white/50" />)}</span>)}</span>
       ) : (
@@ -36,7 +42,7 @@ function LayoutSketch({ l }: { l: PosterLayout }) {
 
 /**
  * Website → Matchday poster, for admins (/admin/content/poster) and coaches (/coach/poster): the Starting XI of a game as
- * an image for social media, in the club's colours. Three layouts, three sizes, a background, an effect, an optional
+ * an image for social media, in the club's colours. Six layouts, three sizes, a background, an effect, an optional
  * featured player photo and "Presented by" sponsor logo, and the title. Admins upload the photos and logos (storage:
  * admins write public-media); coaches choose from them, for their own teams' games.
  */
@@ -100,7 +106,7 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
               </select></label>
 
             <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('layout')}</legend>
-              <div className="grid grid-cols-4 gap-2">{POSTER_LAYOUTS.map((l) => pick('layout', l, l === layout,
+              <div className="grid grid-cols-3 gap-2">{POSTER_LAYOUTS.map((l) => pick('layout', l, l === layout,
                 <span className={`${tile} flex-col bg-raised p-1`}><LayoutSketch l={l} /><span className="pt-1 text-center text-xs font-bold">{t(`l_${l}`)}</span></span>))}</div>
             </fieldset>
 
@@ -138,8 +144,11 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
                 {pick('photo', '', !photo, <span className={`${tile} aspect-[4/5] items-center justify-center bg-surface text-xs font-bold`}>{t('none')}</span>)}
                 {uploads.player.map((p) => pick('photo', `media:${p}`, `media:${p}` === photo, <span className={`${tile} aspect-[4/5]`} style={{ backgroundImage: `url(${url(p)})` }} />))}
               </div>
-              {uploads.player.length === 0 ? <span className="text-xs text-muted">{t('featuredHint')}</span> : null}
+              {uploads.player.length === 0 ? <span className="text-xs text-muted" data-no-photos>{upload ? <>{t('featuredHint')} <a href="#up-h" className="font-semibold text-pitch underline">{t('featuredUpload')}</a></> : t('featuredAskAdmin')}</span> : null}
+              {/* shown by the style below while a layout without a photo is chosen (Cards, Pitch) */}
+              <span className="hidden rounded-card bg-gold p-2 text-xs font-semibold text-ink-950" data-photo-note>{t('featuredNoRoom')}</span>
             </fieldset>
+            <style>{`[data-poster-form]:has(input[name=layout][value=cards]:checked) [data-photo-note],[data-poster-form]:has(input[name=layout][value=pitch]:checked) [data-photo-note]{display:block}`}</style>
 
             <fieldset className="grid gap-2" data-pick-sponsor><legend className="text-sm font-semibold">{t('sponsor')}</legend>
               <div className="grid grid-cols-3 gap-2">

@@ -3437,7 +3437,13 @@
     "loading": "Making the poster…",
     "shade": "Background darkness",
     "shadeHint": "How dark the layer over the background photo is. Only the picture; the effect has its own strength above.",
-    "coachUploadNote": "Photos and sponsor logos are uploaded by the club administrators (Admin → Website → Matchday poster). Pick from the ones already there."
+    "coachUploadNote": "Photos and sponsor logos are uploaded by the club administrators (Admin → Website → Matchday poster). Pick from the ones already there.",
+    "l_numbers": "Big numbers",
+    "l_shirts": "Shirts",
+    "featuredUpload": "Upload one",
+    "featuredAskAdmin": "No player photo yet: an admin uploads them on this page.",
+    "featuredNoRoom": "Cards and Pitch have no room for a player photo. Choose List, Broadcast, Big numbers or Shirts to show it.",
+    "p_storage": "The image could not be saved: Supabase Storage refused it. Check that the public-media bucket and its rules are set up in this project (docs/RUNNING.md)."
   },
   "lineups": {
     "nav": "Line-ups",
