@@ -3691,7 +3691,7 @@
     "k_farewell": "Hyvästit",
     "player": "Pelaaja",
     "samplePlayer": "Esimerkkipelaaja (vain esikatselu)",
-    "publicNote": "Vain pelaajat, jotka ovat suostuneet julkiseen näkymiseen, voidaan valita.",
+    "publicNote": "Kaikki seuran nykyiset ja entiset pelaajat, paitsi ne, jotka ovat poistaneet itsensä seuran verkkosivuilta (Oma profiili → Seuran verkkosivuilla).",
     "message": "Viesti",
     "messageHint": "Jätä tyhjäksi, niin käytetään: “{text}”",
     "from": "Edellinen seura (valinnainen)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Tiedotejulisteen esikatselu",
     "download": "Lataa kuva",
     "loading": "Päivitetään…",
-    "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE."
+    "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE.",
+    "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla."
   }
 }

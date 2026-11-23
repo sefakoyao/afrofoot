@@ -3691,7 +3691,7 @@
     "k_farewell": "Départ",
     "player": "Joueur",
     "samplePlayer": "Joueur exemple (aperçu seulement)",
-    "publicNote": "Seuls les joueurs qui ont accepté d'être affichés publiquement peuvent être choisis.",
+    "publicNote": "Tous les joueurs du club, actuels ou anciens, sauf ceux qui se sont retirés du site du club (Mon profil → Sur le site du club).",
     "message": "Message",
     "messageHint": "Laissez vide pour utiliser : « {text} »",
     "from": "Club précédent (facultatif)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Aperçu de l'affiche d'annonce",
     "download": "Télécharger l'image",
     "loading": "Mise à jour…",
-    "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE."
+    "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE.",
+    "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple."
   }
 }

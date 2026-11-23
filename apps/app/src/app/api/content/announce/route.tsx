@@ -14,7 +14,7 @@ import { getSupabase } from '@/lib/supabase/server';
  * (farewell) for one player, in the matchday poster's style (the club tab, the crest, the title in Nevera, the rest in
  * Figtree). Query: kind, player (id or "sample"), format, photo (media:posters/player/…), msg (the editable message;
  * empty = the default line), from and until (new signing: previous club, contract end), download=1. Admins only.
- * Players not shown publicly cannot be announced (lib/announce.ts).
+ * Players who removed themselves from the club website cannot be announced (lib/announce.ts).
  */
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   if (!isSample && !/^[0-9a-f-]{36}$/.test(id)) return new Response('Choose a player', { status: 400 });
   const supabase = await getSupabase();
   const p = isSample ? samplePlayer(kind) : supabase ? await loadAnnouncePlayer(supabase, id) : null;
-  if (!p) return new Response('Player not found or not shown publicly', { status: 404 });
+  if (!p) return new Response('Player not found or hidden from the website', { status: 404 });
   const message = clean(q.get('msg'), ANNOUNCE_LIMITS.message) || DEFAULT_MESSAGE[kind];
   const from = clean(q.get('from'), ANNOUNCE_LIMITS.from), until = clean(q.get('until'), ANNOUNCE_LIMITS.until);
 

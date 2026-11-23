@@ -3691,7 +3691,7 @@
     "k_farewell": "Farewell",
     "player": "Player",
     "samplePlayer": "Sample player (preview only)",
-    "publicNote": "Only players who agreed to be shown publicly can be chosen.",
+    "publicNote": "Every club player, current or former, except those who removed themselves from the club website (My profile → On the club website).",
     "message": "Message",
     "messageHint": "Leave empty to use: “{text}”",
     "from": "Previous club (optional)",
@@ -3712,6 +3712,7 @@
     "previewAlt": "Preview of the announcement poster",
     "download": "Download picture",
     "loading": "Updating…",
-    "sampleNote": "Sample player: try the designs here; the poster says SAMPLE."
+    "sampleNote": "Sample player: try the designs here; the poster says SAMPLE.",
+    "noPlayers": "No players to choose yet: add players under People, or use the sample player to try the designs."
   }
 }
