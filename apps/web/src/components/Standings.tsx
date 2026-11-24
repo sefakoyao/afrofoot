@@ -10,13 +10,13 @@ function Row({ href, children }: { href?: string; children: React.ReactNode }) {
   return href ? <Link href={href} className={`${cls} -mx-2 rounded-control px-2 hover:bg-surface`} data-game-link>{children}</Link> : <div className={cls}>{children}</div>;
 }
 
-/** Card header of the standings: black, with the green-to-yellow band of the logo's top edge. */
-export function Banner({ title, sub }: { title: string; sub?: string }) {
+/** Card header of the standings: black (or club green with black text), with the green-to-yellow band of the logo's top edge. */
+export function Banner({ title, sub, green }: { title: string; sub?: string; green?: boolean }) {
   return (
-    <div className="relative bg-fg px-5 pb-4 pt-6 text-white">
+    <div className={`relative px-5 pb-4 pt-6 ${green ? 'bg-accent text-on-accent' : 'bg-fg text-white'}`}>
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-logo-band rtl:-scale-x-100" />
       <h3 className="font-display text-xl font-extrabold leading-tight">{title}</h3>
-      {sub ? <p className="mt-0.5 text-sm text-white/70">{sub}</p> : null}
+      {sub ? <p className={`mt-0.5 text-sm ${green ? 'text-on-accent/80' : 'text-white/70'}`}>{sub}</p> : null}
     </div>
   );
 }
@@ -24,10 +24,10 @@ export function Banner({ title, sub }: { title: string; sub?: string }) {
 /**
  * The standings section (home page and Team page): latest results and the league table (Palloliitto's when synced, with
  * "final table" once the season is over), else the member app's records. "top" goes above the latest results (the Team
- * page puts the all-time top scorers there).
+ * page puts the all-time top scorers there); "resultsGreen" gives the latest results a club-green header (Team page).
  */
-export function Standings({ league, t, day, short, top }: {
-  league: League; t: Awaited<ReturnType<typeof getTranslations<'site'>>>; day: Intl.DateTimeFormat; short: Intl.DateTimeFormat; top?: ReactNode;
+export function Standings({ league, t, day, short, top, resultsGreen }: {
+  league: League; t: Awaited<ReturnType<typeof getTranslations<'site'>>>; day: Intl.DateTimeFormat; short: Intl.DateTimeFormat; top?: ReactNode; resultsGreen?: boolean;
 }) {
   const { results, table, tableInfo, clubRow, tableFinal, syncedAt, records } = league;
   return (
@@ -44,7 +44,7 @@ export function Standings({ league, t, day, short, top }: {
             {top}
             {results.length ? (
               <Card className="overflow-hidden !p-0">
-                <Banner title={t('res_h')} />
+                <Banner title={t('res_h')} green={resultsGreen} />
                 <ul className="divide-y divide-line px-5 py-1" data-results>
                   {results.map((m) => {
                     const o = m.outcome;

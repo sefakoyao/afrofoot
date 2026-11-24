@@ -31,16 +31,16 @@ async function getTeamData(): Promise<{ squad: SquadRow[]; scorers: Scorer[] }> 
   return { squad: (sq.data ?? []) as SquadRow[], scorers: (ts.data ?? []) as Scorer[] };
 }
 
-/** The club's three all-time top scorers (black card with the logo band, medal colours from the logo), above the latest results. */
+/** The club's three all-time top scorers (club-green card with black text and the logo band; medals gold, white, black), above the latest results. */
 function TopScorers({ scorers, t }: { scorers: Scorer[]; t: Awaited<ReturnType<typeof getTranslations<'site'>>> }) {
   const since = scorers[0]?.since_season;
-  const medal = ['bg-gold text-fg', 'bg-white text-fg', 'bg-accent text-on-accent'];
+  const medal = ['bg-gold text-fg', 'bg-white text-fg', 'bg-fg text-white'];
   return (
-    <aside className="relative overflow-hidden rounded-card bg-fg text-white shadow-sm" aria-labelledby="ts-h" data-top-scorers>
+    <aside className="relative overflow-hidden rounded-card bg-accent text-on-accent shadow-sm" aria-labelledby="ts-h" data-top-scorers>
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-logo-band rtl:-scale-x-100" />
       <div className="px-5 pb-2 pt-6">
         <h3 id="ts-h" className="font-display text-xl font-extrabold leading-tight">{t('ts_h')}</h3>
-        {since ? <p className="mt-0.5 text-sm text-white/70">{t('ts_sub', { year: since })}</p> : null}
+        {since ? <p className="mt-0.5 text-sm text-on-accent/80">{t('ts_sub', { year: since })}</p> : null}
       </div>
       <ol className="px-3 pb-4">
         {scorers.map((s, i) => (
@@ -48,7 +48,7 @@ function TopScorers({ scorers, t }: { scorers: Scorer[]; t: Awaited<ReturnType<t
             <span className={`grid size-10 shrink-0 place-items-center rounded-full font-display text-lg font-black ${medal[i] ?? medal[2]}`}>{s.rank}</span>
             <span className="grid min-w-0 flex-1">
               <span className="truncate font-display font-extrabold">{s.display_name}</span>
-              <span className="text-xs text-white/70">
+              <span className="text-xs text-on-accent/80">
                 {t('ts_games', { n: s.appearances })}
                 {s.first_season && s.last_season ? ` · ${s.first_season === s.last_season ? s.first_season : t('ts_years', { from: s.first_season, to: s.last_season })}` : ''}
                 {s.current_player ? '' : ` · ${t('ts_former')}`}
@@ -56,7 +56,7 @@ function TopScorers({ scorers, t }: { scorers: Scorer[]; t: Awaited<ReturnType<t
             </span>
             <span className="shrink-0 text-end">
               <span className="block font-display text-2xl font-black leading-none tabular-nums">{s.goals}</span>
-              <span className="block text-[11px] text-white/70">{t('ts_goals', { n: s.goals })}</span>
+              <span className="block text-[11px] text-on-accent/80">{t('ts_goals', { n: s.goals })}</span>
             </span>
           </li>
         ))}
@@ -92,7 +92,7 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
         </div>
       </Section>
       {/* Results & standings, as on the home page, with the all-time top scorers above the latest results */}
-      <Standings league={league} t={t} day={day} short={short} top={scorers.length ? <TopScorers scorers={scorers} t={t} /> : undefined} />
+      <Standings league={league} t={t} day={day} short={short} resultsGreen top={scorers.length ? <TopScorers scorers={scorers} t={t} /> : undefined} />
       <Section id="squad">
         <H2>{t('sq_h')}</H2>
         {/* The club's players as registered with Palloliitto (public register), minus anyone who opted out (migration 0042). */}
