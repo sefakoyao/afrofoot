@@ -24,7 +24,7 @@ export function Banner({ title, sub, green }: { title: string; sub?: string; gre
 /**
  * The standings section (home page and Team page): latest results and the league table (Palloliitto's when synced, with
  * "final table" once the season is over), else the member app's records. "top" goes above the latest results (the Team
- * page puts the all-time top scorers there); "resultsGreen" gives the latest results a club-green header (Team page).
+ * page puts the all-time top scorers there); "resultsGreen" gives the latest results a club-green header.
  */
 export function Standings({ league, t, day, short, top, resultsGreen }: {
   league: League; t: Awaited<ReturnType<typeof getTranslations<'site'>>>; day: Intl.DateTimeFormat; short: Intl.DateTimeFormat; top?: ReactNode; resultsGreen?: boolean;
