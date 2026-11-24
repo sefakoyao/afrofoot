@@ -3,6 +3,10 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – green top scorers and results, on the home page too (branch `phase2/team-green-cards`, release 0.70.1, no database change)
+- **Website → Team and home page:** the All-time top scorers card and the Latest results header are club green instead of black, with black text (white text is not readable on the club green); the third-place medal is black so it shows on green. The league table keeps its black header.
+- **Home page:** the All-time top scorers now also show there, above the latest results, as on the Team page (shared component `components/TopScorers.tsx`).
+
 ## Unreleased – standings on the Team page (branch `phase2/team-standings`, release 0.70.0, no database change)
 - **Website → Team:** a Standings section after the three team cards, as on the home page: the latest results and the league table (Palloliitto's when synced: e.g. "Season 2026 · final table", the club's row highlighted).
 - **All-time top scorers** now sit above the latest results in that section (before: in a corner of the squad). The squad uses the full width.

@@ -12,6 +12,7 @@ import { ButtonLink, Card, H2, Section, Tag } from '@/components/Page';
 import { Link } from '@/i18n/routing';
 import { deriveLeague, getLeagueData } from '@/lib/league';
 import { Standings } from '@/components/Standings';
+import { TopScorers, getTopScorers } from '@/components/TopScorers';
 import { STRIP } from '@/lib/sponsors';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -24,8 +25,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export const revalidate = 60;
 
 async function getHomeData() {
-  const [league, posts] = await Promise.all([getLeagueData(), getPosts(3)]);
-  return { league, posts };
+  const [league, posts, scorers] = await Promise.all([getLeagueData(), getPosts(3), getTopScorers()]);
+  return { league, posts, scorers };
 }
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -37,7 +38,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const when = new Intl.DateTimeFormat(intl, { dateStyle: 'full', timeStyle: 'short', timeZone: 'Europe/Helsinki' });
   const day = new Intl.DateTimeFormat(intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
   const short = new Intl.DateTimeFormat(intl, { day: '2-digit', month: '2-digit', timeZone: 'Europe/Helsinki' });
-  const { league: data, posts } = await getHomeData();
+  const { league: data, posts, scorers } = await getHomeData();
   const league = deriveLeague(data);
   const { next, results } = league;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL; // member app not live yet: the training tile is hidden without it
@@ -178,7 +179,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </Section>
 
-      <Standings league={league} t={t} day={day} short={short} />
+      <Standings league={league} t={t} day={day} short={short} resultsGreen top={scorers.length ? <TopScorers scorers={scorers} t={t} /> : undefined} />
 
 
       <Section>
