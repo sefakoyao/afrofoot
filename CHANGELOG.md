@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – standings on the Team page (branch `phase2/team-standings`, release 0.70.0, no database change)
+- **Website → Team:** a Standings section after the three team cards, as on the home page: the latest results and the league table (Palloliitto's when synced: e.g. "Season 2026 · final table", the club's row highlighted).
+- **All-time top scorers** now sit above the latest results in that section (before: in a corner of the squad). The squad uses the full width.
+- The home page is unchanged; both pages share one standings component (`components/Standings.tsx`, data in `lib/league.ts`).
+
 ## Unreleased – farewell posters with Palloliitto numbers (branch `phase2/farewell-palloliitto`, release 0.69.0, no database change)
 - **Admin → Website → Player announcement → Farewell:** when the player is linked to their Palloliitto entry (Admin → Palloliitto players), the seasons, games and goals come from Palloliitto: the official league and cup games the nightly sync stores (first to last season, total games, total goals). The poster then says "Official league and cup games · Palloliitto". Players who are not linked keep the app's own numbers (which also count friendlies).
 - **Former players from Palloliitto only:** players who never had an app account but played official games for the club can be chosen too ("From Palloliitto only" in the list). Players hidden by the club are never listed or drawn.

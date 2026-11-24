@@ -1,8 +1,11 @@
 import type { Metadata } from 'next';
 import { staticPageMeta } from '@/lib/seo';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { LOCALE_LABELS, type Locale } from '@afrofoot/i18n';
 import { ButtonLink, Card, H2, Hero, Section, Tag } from '@/components/Page';
 import { Squad, type SquadPlayer } from '@/components/Squad';
+import { Standings } from '@/components/Standings';
+import { deriveLeague, getLeagueData } from '@/lib/league';
 import { pick } from '@/lib/labels';
 import { getPublicClient } from '@/lib/supabase';
 
@@ -10,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return staticPageMeta((await params).locale, '/team', 'n_team', 'seo_team');
 }
 
-// Rebuilt at most once a minute, so a player's choice to appear (or not) and new Palloliitto statistics show without a deploy.
+// Rebuilt at most once a minute, so a player's choice to appear (or not), new results and Palloliitto statistics show without a deploy.
 export const revalidate = 60;
 
 type SquadRow = { id: string; display_name: string; position: string | null; shirt_number: number | null; goals: number | null; appearances: number | null; stats_season: number | null };
@@ -28,12 +31,12 @@ async function getTeamData(): Promise<{ squad: SquadRow[]; scorers: Scorer[] }> 
   return { squad: (sq.data ?? []) as SquadRow[], scorers: (ts.data ?? []) as Scorer[] };
 }
 
-/** Corner of the squad: the club's three all-time top scorers (black card with the logo band, medal colours from the logo). */
+/** The club's three all-time top scorers (black card with the logo band, medal colours from the logo), above the latest results. */
 function TopScorers({ scorers, t }: { scorers: Scorer[]; t: Awaited<ReturnType<typeof getTranslations<'site'>>> }) {
   const since = scorers[0]?.since_season;
   const medal = ['bg-gold text-fg', 'bg-white text-fg', 'bg-accent text-on-accent'];
   return (
-    <aside className="relative overflow-hidden rounded-card bg-fg text-white shadow-sm lg:sticky lg:top-28" aria-labelledby="ts-h" data-top-scorers>
+    <aside className="relative overflow-hidden rounded-card bg-fg text-white shadow-sm" aria-labelledby="ts-h" data-top-scorers>
       <div aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-logo-band rtl:-scale-x-100" />
       <div className="px-5 pb-2 pt-6">
         <h3 id="ts-h" className="font-display text-xl font-extrabold leading-tight">{t('ts_h')}</h3>
@@ -66,7 +69,11 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('site');
-  const { squad: rows, scorers } = await getTeamData();
+  const [{ squad: rows, scorers }, leagueData] = await Promise.all([getTeamData(), getLeagueData()]);
+  const league = deriveLeague(leagueData);
+  const intl = LOCALE_LABELS[(locale in LOCALE_LABELS ? locale : 'en') as Locale].intl;
+  const day = new Intl.DateTimeFormat(intl, { dateStyle: 'long', timeZone: 'Europe/Helsinki' });
+  const short = new Intl.DateTimeFormat(intl, { day: '2-digit', month: '2-digit', timeZone: 'Europe/Helsinki' });
   const squad: SquadPlayer[] = rows.map((p) => ({
     id: p.id, display_name: p.display_name, position: p.position, jersey_number: p.shirt_number, nationality: null,
     stats: p.appearances != null && p.stats_season ? t('sq_stats', { goals: p.goals ?? 0, games: p.appearances, season: p.stats_season }) : null,
@@ -84,17 +91,14 @@ export default async function TeamPage({ params }: { params: Promise<{ locale: s
             <div className="mt-4"><ButtonLink href="/juniors" ghost>{t('tm_view')}</ButtonLink></div></Card>
         </div>
       </Section>
+      {/* Results & standings, as on the home page, with the all-time top scorers above the latest results */}
+      <Standings league={league} t={t} day={day} short={short} top={scorers.length ? <TopScorers scorers={scorers} t={t} /> : undefined} />
       <Section id="squad">
         <H2>{t('sq_h')}</H2>
         {/* The club's players as registered with Palloliitto (public register), minus anyone who opted out (migration 0042). */}
-        <div className={scorers.length ? 'mt-1 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]' : ''}>
-          <div className={scorers.length ? 'lg:order-first' : ''}>
-            {squad.length ? (
-              <Squad players={squad} labels={pick(t, ['sq_all', 'position_gk', 'position_df', 'position_mf', 'position_fw'])} />
-            ) : <p className="mt-3 rounded-card border border-line bg-raised p-5 text-muted" data-squad-empty>{t('sq_empty')}</p>}
-          </div>
-          {scorers.length ? <div className="order-first mt-3 lg:order-none lg:mt-3"><TopScorers scorers={scorers} t={t} /></div> : null}
-        </div>
+        {squad.length ? (
+          <Squad players={squad} labels={pick(t, ['sq_all', 'position_gk', 'position_df', 'position_mf', 'position_fw'])} />
+        ) : <p className="mt-3 rounded-card border border-line bg-raised p-5 text-muted" data-squad-empty>{t('sq_empty')}</p>}
         <p className="mt-3 text-xs text-muted" data-squad-source>{t('sq_source')}</p>
       </Section>
     </>
