@@ -3778,5 +3778,14 @@
     "error": "Tallennus ei onnistunut. Yritä uudelleen.",
     "notInstalled": "Valmentajien vastaukset tarvitsevat tietokantapäivityksen 0072. Pyydä ylläpitäjää asentamaan se.",
     "coachesIn": "{count, plural, =0 {Ei vielä valmentajia mukana} one {# valmentaja mukana} other {# valmentajaa mukana}}"
+  },
+  "signReminder": {
+    "title": "Allekirjoita mahdollisimman pian",
+    "lead": "Seura tarvitsee nämä sinulta kauden jatkuessa. Se vie vain hetken.",
+    "contract": "Pelaajasopimuksesi odottaa allekirjoitustasi.",
+    "contractCta": "Allekirjoita sopimus",
+    "conduct": "Et ole vielä hyväksynyt toimintaohjetta.",
+    "conductCta": "Lue ja hyväksy",
+    "later": "Muistuta myöhemmin"
   }
 }

@@ -169,7 +169,8 @@ export function blanksIn(body: string): { text: string; fix: BlankFix }[] {
 
 /** The signed-in player's contracts (RLS: their own, never drafts), newest first. */
 export async function myContracts(db: SupabaseClient): Promise<Contract[]> {
-  const { data } = await db.from('player_contracts').select(CONTRACT_COLUMNS).order('starts_on', { ascending: false });
+  // without the under-18 columns (0068) on an older database; empty when contracts (0030) are not installed
+  const { data } = await readContracts((_, minor) => db.from('player_contracts').select(contractColumns(minor)).order('starts_on', { ascending: false }));
   return (data as Contract[] | null) ?? [];
 }
 
