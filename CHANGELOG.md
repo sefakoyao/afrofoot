@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – sign-in reminder for contracts and the Code of Conduct (branch `phase2/sign-reminder`, release 0.74.0, no database change)
+- **Pop-up when a player signs in** with paperwork still to do: "Please sign as soon as possible", listing the player contract waiting for their signature (**Sign the contract**) and/or the Code of Conduct not yet agreed (**Read and agree**). **Remind me later** (or Escape) closes it until the next sign-in; it never shows on the contract or Code of Conduct page itself. The small banners on the player pages stay until it is done.
+- **Player-coaches** get it in the coach area too (their player contract and the Code of Conduct); coaches who have not agreed to the Code of Conduct get the Code of Conduct item.
+- **Fix:** a player's own contracts are read without the under-18 columns on a database without migration 0068, so the contract reminder (banner and pop-up) also works there.
+
 ## Unreleased – coaches sign in and out (branch `phase2/coach-replies`, release 0.73.0, migration 0072)
 - **Coach home → "Will you be there?":** the next three weeks of trainings, games and team events of the teams the coach coaches, each with **I'm in / Maybe / Can't** (like the players' buttons), saved in place, and how many of the team's coaches are in.
 - Answers close when the event starts or if it is cancelled; admins can still correct them. The team's other coaches and the admins see the answers; players and other teams' coaches do not.

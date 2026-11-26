@@ -2,6 +2,10 @@ import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { AppShell, type NavItem } from '@/components/AppShell';
 import { requireArea } from '@/lib/auth';
+import { SignReminder } from '@/components/SignReminder';
+import { loadConductStatus } from '@/lib/conduct';
+import { myContracts } from '@/lib/contracts';
+import { isPlayerRole } from '@afrofoot/db';
 import { myTeams } from '@/lib/coach';
 import { permissionsOf } from '@/lib/permissions';
 import { getSupabase } from '@/lib/supabase/server';
@@ -45,12 +49,19 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/coach/conduct', label: tc('title'), icon: 'handshake' },
   ];
   const tbar = await getTranslations('nav');
+  // a player-coach also signs a player contract and the Code of Conduct: the same pop-up once per sign-in
+  const [conduct, contracts, tr] = await Promise.all([
+    supabase ? loadConductStatus(supabase, member.id) : null, supabase && isPlayerRole(member.role) ? myContracts(supabase) : [], getTranslations('signReminder'),
+  ]);
+  const toSign = contracts.find((c) => c.status === 'sent')?.id ?? null;
+  const reminder = <SignReminder userId={member.id} contractHref={toSign ? `/me/contract/${toSign}#sign` : null} conductHref={conduct?.version && !conduct.agreedAt ? '/coach/conduct#coaches' : null}
+    labels={{ title: tr('title'), lead: tr('lead'), contract: tr('contract'), contractCta: tr('contractCta'), conduct: tr('conduct'), conductCta: tr('conductCta'), later: tr('later') }} />;
   return (
     <AppShell area="coach" member={member} nav={nav} tabs={[
       { href: '/coach', label: tbar('barHome'), icon: 'home', exact: true },
       { href: '/coach/events', label: tbar('barEvents'), icon: 'calendar' },
       { href: '/coach/lineups', label: tbar('barLineups'), icon: 'lineup' },
       { href: '/coach/tasks', label: tbar('barTasks'), icon: 'tasks' },
-    ]}>{children}</AppShell>
+    ]}>{reminder}{children}</AppShell>
   );
 }

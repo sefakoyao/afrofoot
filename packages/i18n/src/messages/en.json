@@ -3778,5 +3778,14 @@
     "error": "Could not save. Try again.",
     "notInstalled": "Coach answers need the database update 0072 (coach replies). Ask an admin to install it.",
     "coachesIn": "{count, plural, =0 {No coach in yet} one {# coach in} other {# coaches in}}"
+  },
+  "signReminder": {
+    "title": "Please sign as soon as possible",
+    "lead": "The club needs these from you before the season goes on. It only takes a minute.",
+    "contract": "Your player contract is waiting for your signature.",
+    "contractCta": "Sign the contract",
+    "conduct": "You have not yet agreed to the Code of Conduct.",
+    "conductCta": "Read and agree",
+    "later": "Remind me later"
   }
 }

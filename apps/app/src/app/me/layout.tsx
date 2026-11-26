@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { AppShell } from '@/components/AppShell';
 import { PlayerTabs } from '@/components/PlayerTabs';
+import { SignReminder } from '@/components/SignReminder';
 import { requireArea } from '@/lib/auth';
 import { loadConductStatus } from '@/lib/conduct';
 import { myContracts } from '@/lib/contracts';
@@ -9,7 +10,7 @@ import { isolate } from '@/lib/format';
 import { loadPlayerSport } from '@/lib/player';
 import { getSupabase } from '@/lib/supabase/server';
 
-/** Player area: who you are (team, position, shirt), then the tabs; the Code of Conduct reminder shows until you agree. */
+/** Player area: who you are (team, position, shirt), then the tabs; the Code of Conduct and contract reminders (banners, and a pop-up once per sign-in) show until done. */
 export default async function Layout({ children }: { children: ReactNode }) {
   const member = await requireArea('me');
   const [t, ta, tpos, tn, supabase] = await Promise.all([getTranslations('me'), getTranslations('app'), getTranslations('position'), getTranslations('nav'), getSupabase()]);
@@ -17,6 +18,8 @@ export default async function Layout({ children }: { children: ReactNode }) {
     ? await Promise.all([supabase.rpc('my_payment_summary'), loadPlayerSport(supabase, member.id), loadConductStatus(supabase, member.id), myContracts(supabase)])
     : [null, null, null, []];
   const team = ((summary?.data as { team_name: string | null }[] | null) ?? [])[0]?.team_name ?? null;
+  const toSign = contracts.find((c) => c.status === 'sent')?.id ?? null;
+  const tr = await getTranslations('signReminder');
   return (
     <AppShell area="me" member={member} tabs={[
       { href: '/me', label: tn('barHome'), icon: 'home', exact: true },
@@ -31,6 +34,8 @@ export default async function Layout({ children }: { children: ReactNode }) {
           <p className="mt-0.5 text-sm text-muted md:mt-1 md:text-base" data-player-header>{t('team')}: <span className="font-semibold text-fg">{team ?? t('noTeam')}</span>
             {sport?.position ? <> · {tpos(sport.position)}</> : null}{sport?.shirt ? <> · <bdi dir="ltr">#{sport.shirt}</bdi></> : null}</p>
         </header>
+        <SignReminder userId={member.id} contractHref={toSign ? `/me/contract/${toSign}#sign` : null} conductHref={conduct?.version && !conduct.agreedAt ? '/me/conduct#players' : null}
+          labels={{ title: tr('title'), lead: tr('lead'), contract: tr('contract'), contractCta: tr('contractCta'), conduct: tr('conduct'), conductCta: tr('conductCta'), later: tr('later') }} />
         <PlayerTabs conductMissing={!!conduct?.version && !conduct.agreedAt} contractToSign={contracts.find((c) => c.status === 'sent')?.id ?? null} />
         <div>{children}</div>
       </div>
