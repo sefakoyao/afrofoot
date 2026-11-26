@@ -11,6 +11,7 @@ import { requireArea } from '@/lib/auth';
 import { dateFormats, isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { missingConsent } from '@/lib/conduct';
+import { loadPaperwork, type Paperwork } from '@/lib/paperwork';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: (await getTranslations('admin'))('membersTitle') };
@@ -61,12 +62,13 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   };
   const back = params({});
   const choices = assignableRoles(actor.role);
-  const noConduct = supabase ? await missingConsent(supabase, rows.filter((r) => isPlayerRole(r.role) && r.status === 'active').map((r) => r.id)) : new Set<string>();
   const tc = await getTranslations('conduct');
   // Player records of the listed members, for the "Invoices" link (invoices belong to player records).
   const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
   const playerOf = new Map((playerLinks ?? []).map((p) => [p.profile_id, p.id]));
-  const tInv = await getTranslations('inv');
+  // Contract, Code of Conduct and fees of the listed players, as chips that link to the right page
+  const paperwork = supabase ? await loadPaperwork(supabase, rows.filter((r) => isPlayerRole(r.role) && playerOf.get(r.id)).map((r) => ({ profileId: r.id, playerId: playerOf.get(r.id)! }))) : new Map<string, Paperwork>();
+  const euro = new Intl.NumberFormat(fmt.date.resolvedOptions().locale, { style: 'currency', currency: 'EUR' });
   // Approving with a group, and the bulk bar: the current season's teams, grouped Men / Women / Junior / Other.
   const [teams, { data: pendingRows }] = supabase ? await Promise.all([
     currentTeams(supabase),
@@ -161,6 +163,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                 <th scope="col" className="px-4 py-3 text-start">{t('colName')}</th>
                 <th scope="col" className="px-4 py-3 text-start">{t('colRole')}</th>
                 <th scope="col" className="px-4 py-3 text-start">{t('colStatus')}</th>
+                <th scope="col" className="px-4 py-3 text-start">{t('colPaperwork')}</th>
                 <th scope="col" className="px-4 py-3 text-start">{t('colJoined')}</th>
                 <th scope="col" className="px-4 py-3 text-start">{t('colActions')}</th>
               </tr>
@@ -178,13 +181,13 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                     <td className="px-4 py-3">
                       <p className="font-semibold">{name ? isolate(name) : <span className="text-muted">{t('noName')}</span>}
                         {m.id === actor.id ? <span className="ms-2 rounded-full bg-line px-2 text-xs">{t('you')}</span> : null}</p>
-                      {noConduct.has(m.id) ? <p className="mt-1"><span className="inline-block whitespace-nowrap rounded-full bg-danger px-2 py-0.5 text-xs font-bold text-white" data-conduct-flag>{tc('flag')}</span></p> : null}
                       <p className="text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email ?? m.phone}</bdi>{m.email ? null : <span className="ms-2 rounded-full bg-line px-2 text-xs" dir="auto">{t('phoneAccount')}</span>}</p>
                     </td>
                     <td className="px-4 py-3">{tr(mRole)}
                       <a href={`/admin/signin-help?member=${m.id}#help`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-signin-help-link>{t('signinHelp')}</a>
-                      {playerOf.get(m.id) ? <a href={`/admin/invoices?player=${playerOf.get(m.id)}#list-h`} className="mt-1 block text-xs font-semibold text-pitch underline underline-offset-2" data-invoices-link>{tInv('invoicesLink')}</a> : null}</td>
+                    </td>
                     <td className="px-4 py-3"><span className={`rounded-full px-2 py-0.5 text-xs font-bold ${STATUS_BADGE[m.status] ?? ''}`}>{ts(m.status)}</span></td>
+                    <td className="px-4 py-3">{isPlayerRole(mRole) ? <PaperworkChips pw={paperwork.get(m.id)} playerId={playerOf.get(m.id)} t={t} date={fmt.date} euro={euro} /> : null}</td>
                     <td className="whitespace-nowrap px-4 py-3">{fmt.date.format(new Date(m.created_at))}</td>
                     <td className="px-4 py-3">
                       {manageable ? (
@@ -217,6 +220,36 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           {page < pages ? <Link href={params({ page: page + 1 })} className="rounded-full border border-line px-4 py-2 font-semibold hover:border-accent">{t('next')}</Link> : <span />}
         </nav>
       ) : null}
+    </div>
+  );
+}
+
+const CHIP = 'inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-bold';
+const CONTRACT_CHIP: Record<string, string> = {
+  active: 'bg-accent/20 text-pitch', player_signed: 'bg-danger text-white', sent: 'bg-ink-950 text-white', draft: 'bg-line text-fg',
+  expired: 'bg-gold text-ink-950', terminated: 'bg-line text-muted',
+};
+const FEE_CHIP = { paid: 'bg-accent/20 text-pitch', unpaid: 'bg-gold text-ink-950', overdue: 'bg-danger text-white', none: 'bg-line text-muted' } as const;
+
+/**
+ * A player's paperwork at a glance: contract (link to it, or to Contracts for this player), Code of Conduct (agreed and
+ * when) and fees (link to the player's invoices). A part the database does not have yet is left out.
+ */
+function PaperworkChips({ pw, playerId, t, date, euro }: { pw?: Paperwork; playerId?: string; t: Awaited<ReturnType<typeof getTranslations<'admin'>>>; date: Intl.DateTimeFormat; euro: Intl.NumberFormat }) {
+  if (!playerId) return <span className="text-xs text-muted" data-paperwork="none">{t('pw_noPlayer')}</span>;
+  const c = pw?.contract, f = pw?.fees;
+  const link = (href: string, cls: string, text: string, data: Record<string, string>) => <a href={href} className={`${CHIP} ${cls} underline-offset-2 hover:underline`} {...data}>{text}<span aria-hidden="true" className="rtl:-scale-x-100">›</span></a>;
+  return (
+    <div className="grid gap-1" data-paperwork>
+      {c !== undefined ? (c
+        ? link(`/admin/contracts/${c.id}`, CONTRACT_CHIP[c.status] ?? 'bg-line', c.status === 'active' ? t('pw_contract_active', { date: date.format(new Date(c.endsOn)) }) : t(`pw_contract_${c.status}` as 'pw_contract_sent'), { 'data-pw-contract': c.status })
+        : link(`/admin/contracts?player=${playerId}`, 'border border-danger text-danger', t('pw_contract_none'), { 'data-pw-contract': 'none' })) : null}
+      {pw?.conduct !== undefined ? (pw.conduct
+        ? <span className={`${CHIP} bg-accent/20 text-pitch`} data-pw-conduct="ok">{t('pw_conduct_ok', { date: date.format(new Date(pw.conduct.at)) })}</span>
+        : link('/admin/members?conduct=missing', 'border border-danger text-danger', t('pw_conduct_missing'), { 'data-pw-conduct': 'missing', 'data-conduct-flag': '' })) : null}
+      {f ? link(`/admin/invoices?player=${playerId}#list-h`, FEE_CHIP[f.state],
+        f.state === 'overdue' ? t('pw_fees_overdue', { amount: euro.format(f.overdueCents / 100) }) : f.state === 'unpaid' ? t('pw_fees_unpaid', { amount: euro.format(f.openCents / 100) }) : t(`pw_fees_${f.state}`),
+        { 'data-pw-fees': f.state }) : null}
     </div>
   );
 }

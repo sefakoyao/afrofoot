@@ -1350,7 +1350,22 @@
     "qaEvent": "Event",
     "qaInvoice": "Invoice",
     "qaContract": "Contract",
-    "qaPoster": "Poster"
+    "qaPoster": "Poster",
+    "colPaperwork": "Paperwork",
+    "pw_noPlayer": "No player record yet",
+    "pw_contract_active": "Contract until {date}",
+    "pw_contract_sent": "Contract: waiting for the player",
+    "pw_contract_player_signed": "Contract: countersign",
+    "pw_contract_draft": "Contract: draft",
+    "pw_contract_expired": "Contract expired",
+    "pw_contract_terminated": "Contract ended",
+    "pw_contract_none": "No contract",
+    "pw_conduct_ok": "Code of Conduct ✓ {date}",
+    "pw_conduct_missing": "Code of Conduct missing",
+    "pw_fees_paid": "Fees paid",
+    "pw_fees_unpaid": "Unpaid {amount}",
+    "pw_fees_overdue": "Overdue {amount}",
+    "pw_fees_none": "No invoices"
   },
   "me": {
     "team": "Team",

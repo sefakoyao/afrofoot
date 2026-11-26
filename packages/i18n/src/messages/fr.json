@@ -1350,7 +1350,22 @@
     "qaEvent": "Événement",
     "qaInvoice": "Facture",
     "qaContract": "Contrat",
-    "qaPoster": "Affiche"
+    "qaPoster": "Affiche",
+    "colPaperwork": "Documents",
+    "pw_noPlayer": "Pas encore de fiche joueur",
+    "pw_contract_active": "Contrat jusqu'au {date}",
+    "pw_contract_sent": "Contrat : en attente du joueur",
+    "pw_contract_player_signed": "Contrat : à contresigner",
+    "pw_contract_draft": "Contrat : brouillon",
+    "pw_contract_expired": "Contrat expiré",
+    "pw_contract_terminated": "Contrat terminé",
+    "pw_contract_none": "Pas de contrat",
+    "pw_conduct_ok": "Code de conduite ✓ {date}",
+    "pw_conduct_missing": "Code de conduite manquant",
+    "pw_fees_paid": "Cotisations payées",
+    "pw_fees_unpaid": "Impayé {amount}",
+    "pw_fees_overdue": "En retard {amount}",
+    "pw_fees_none": "Aucune facture"
   },
   "me": {
     "team": "Équipe",
