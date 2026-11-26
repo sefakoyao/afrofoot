@@ -1395,7 +1395,8 @@
     "pw_s_fees_paid": "Maksettu",
     "pw_s_fees_unpaid": "Avoinna {amount}",
     "pw_s_fees_overdue": "Erääntynyt {amount}",
-    "pw_s_fees_none": "Ei lask."
+    "pw_s_fees_none": "Ei lask.",
+    "joinedOn": "liittyi {date}"
   },
   "me": {
     "team": "Joukkue",

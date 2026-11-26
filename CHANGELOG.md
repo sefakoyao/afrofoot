@@ -3,6 +3,9 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Members: more room for names (branch `phase2/members-wider-names`, release 0.72.1, no database change)
+- **Admin → Members:** the Role and Joined columns are gone on every screen size; the role and "joined 18 Nov" sit on a line under the email instead. Status, Paperwork and the actions column are a little narrower, so the member column is wider (about 360 px instead of 120–230 px) and names and emails are readable.
+
 ## Unreleased – Members page redesign (branch `phase2/members-redesign`, release 0.72.0, no database change)
 - **Admin → Members**, a cleaner page that fits the screen without sideways scrolling:
   - **Four tiles** for the whole club: waiting for approval, active members, Code of Conduct missing, fees overdue (amount and players). Each one filters the list.
