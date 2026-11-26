@@ -3762,5 +3762,21 @@
     "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple.",
     "groupApp": "Joueurs de l'application",
     "groupFed": "Seulement chez Palloliitto (ex. anciens joueurs)"
+  },
+  "coachReply": {
+    "title": "Serez-vous là ?",
+    "lead": "Inscrivez-vous ou désinscrivez-vous aux prochains événements de vos équipes, comme les joueurs. Les autres entraîneurs de l’équipe et les administrateurs voient votre réponse.",
+    "k_practice": "Entraînement",
+    "k_match": "Match",
+    "k_event": "Événement d’équipe",
+    "yes": "Présent",
+    "maybe": "Peut-être",
+    "no": "Absent",
+    "group": "Votre réponse",
+    "saved": "Enregistré.",
+    "closed": "Les réponses sont closes pour cet événement.",
+    "error": "Enregistrement impossible. Réessayez.",
+    "notInstalled": "Les réponses des entraîneurs nécessitent la mise à jour 0072 de la base de données. Demandez à un administrateur de l’installer.",
+    "coachesIn": "{count, plural, =0 {Aucun entraîneur inscrit} one {# entraîneur présent} other {# entraîneurs présents}}"
   }
 }

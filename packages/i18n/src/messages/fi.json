@@ -3762,5 +3762,21 @@
     "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla.",
     "groupApp": "Sovelluksen pelaajat",
     "groupFed": "Vain Palloliitosta (esim. entiset pelaajat)"
+  },
+  "coachReply": {
+    "title": "Oletko mukana?",
+    "lead": "Ilmoittaudu joukkueidesi seuraaviin tapahtumiin kuten pelaajat. Joukkueen muut valmentajat ja ylläpitäjät näkevät vastauksesi.",
+    "k_practice": "Harjoitus",
+    "k_match": "Ottelu",
+    "k_event": "Joukkueen tapahtuma",
+    "yes": "Mukana",
+    "maybe": "Ehkä",
+    "no": "En pääse",
+    "group": "Vastauksesi",
+    "saved": "Tallennettu.",
+    "closed": "Vastaukset on suljettu tähän tapahtumaan.",
+    "error": "Tallennus ei onnistunut. Yritä uudelleen.",
+    "notInstalled": "Valmentajien vastaukset tarvitsevat tietokantapäivityksen 0072. Pyydä ylläpitäjää asentamaan se.",
+    "coachesIn": "{count, plural, =0 {Ei vielä valmentajia mukana} one {# valmentaja mukana} other {# valmentajaa mukana}}"
   }
 }

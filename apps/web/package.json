@@ -1,6 +1,6 @@
 {
   "name": "@afrofoot/web",
-  "version": "0.72.1",
+  "version": "0.73.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",

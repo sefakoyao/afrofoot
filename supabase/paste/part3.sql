@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000039_saved_places.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, 20260101000070_coach_permissions.sql, 20260101000071_social_publishing.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000039_saved_places.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, 20260101000070_coach_permissions.sql, 20260101000071_social_publishing.sql, 20260101000072_coach_replies.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -5166,6 +5166,94 @@ on conflict (key) do nothing;
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.66.0','feature','Posting to Facebook, Instagram, LinkedIn and X',
   'Approved articles are posted to the club''s Facebook Page, Instagram, LinkedIn page and X account at their time, with the club''s picture. Admin → Website → Social media shows the connection, switches automatic posting on or off, and lists every post: posted (with a link), failed (with the reason and Retry), or waiting (Post now).','2026-11-22')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000072_coach_replies.sql =====
+-- 0072 Coaches sign in and out of their teams' events too. Release 0.73.0.
+-- A coach (or player-coach) answers I'm in / Maybe / Can't, with an optional note, for the trainings, games and team
+-- events (club_events) of the teams they coach this season, like players do. Players' answers stay where they are
+-- (session_attendance, match_availability); a coach who is not a player has no row there, so coaches' answers have their
+-- own table.
+--  * A coach writes only their own answer, only for an event of a team they coach (app.coaches_ts), only while the
+--    event is scheduled and has not started. Admins may correct any answer at any time.
+--  * Coaches of the team and admins read the answers. Every change is in the audit trail.
+-- Uses only functions from migrations 0007-0008 (app.coaches_ts, app.is_admin, app.role), so it also installs on a
+-- database without later updates; team events are answerable once club events (migration 0034) are installed.
+-- Safe to run more than once.
+
+create table if not exists coach_replies (
+  id uuid primary key default gen_random_uuid(),
+  event_kind text not null check (event_kind in ('practice', 'match', 'event')),
+  event_id uuid not null,
+  profile_id uuid not null references profiles(id) on delete cascade default auth.uid(),
+  availability text not null check (availability in ('yes', 'no', 'maybe')),
+  note text check (note is null or char_length(note) <= 300),
+  responded_at timestamptz not null default now(),
+  unique (event_kind, event_id, profile_id)
+);
+create index if not exists coach_replies_event on coach_replies (event_kind, event_id);
+alter table coach_replies enable row level security;
+revoke all on coach_replies from anon;
+
+-- The team, start and status of an event (null when it does not exist, or club events are not installed).
+create or replace function app.reply_event(p_kind text, p_id uuid, out team_season_id uuid, out starts_at timestamptz, out status text)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if p_kind = 'practice' then
+    select s.team_season_id, s.starts_at, s.status::text into team_season_id, starts_at, status from training_sessions s where s.id = p_id;
+  elsif p_kind = 'match' then
+    select m.team_season_id, m.kickoff_at, m.status::text into team_season_id, starts_at, status from matches m where m.id = p_id;
+  elsif p_kind = 'event' and to_regclass('public.club_events') is not null then
+    execute 'select e.team_season_id, e.starts_at, e.status::text from club_events e where e.id = $1' into team_season_id, starts_at, status using p_id;
+  end if;
+end $$;
+revoke all on function app.reply_event(text, uuid) from public, anon;
+grant execute on function app.reply_event(text, uuid) to authenticated;
+
+-- true when the signed-in coach coaches the team of this event (role::text: works before the player-coach role, 0045)
+create or replace function app.coaches_event(p_kind text, p_id uuid) returns boolean language sql stable security definer set search_path = public as $$
+  select coalesce(app.role()::text in ('coach', 'player_coach'), false)
+     and coalesce((select app.coaches_ts(e.team_season_id) from app.reply_event(p_kind, p_id) e where e.team_season_id is not null), false)
+$$;
+grant execute on function app.coaches_event(text, uuid) to authenticated;
+
+drop policy if exists admin_all on coach_replies;
+create policy admin_all on coach_replies for all to authenticated using (app.is_admin()) with check (app.is_admin());
+drop policy if exists coach_read on coach_replies;
+create policy coach_read on coach_replies for select to authenticated using (app.coaches_event(event_kind, event_id));
+drop policy if exists coach_own on coach_replies;
+create policy coach_own on coach_replies for insert to authenticated with check (profile_id = auth.uid() and app.is_active() and app.coaches_event(event_kind, event_id));
+drop policy if exists coach_own_update on coach_replies;
+create policy coach_own_update on coach_replies for update to authenticated
+  using (profile_id = auth.uid() and app.coaches_event(event_kind, event_id))
+  with check (profile_id = auth.uid() and app.is_active() and app.coaches_event(event_kind, event_id));
+
+-- The answer time is the database's; a coach's answer closes when the event starts or if it is cancelled.
+create or replace function app.guard_coach_reply() returns trigger language plpgsql security definer set search_path = public as $$
+declare e record;
+begin
+  if tg_op = 'UPDATE' and (new.event_kind, new.event_id, new.profile_id) is distinct from (old.event_kind, old.event_id, old.profile_id) then
+    raise exception 'An answer cannot be moved to another event or person' using errcode = 'check_violation';
+  end if;
+  new.responded_at := now();
+  if auth.uid() is null or app.is_admin() then return new; end if;
+  select * into e from app.reply_event(new.event_kind, new.event_id);
+  if e.team_season_id is null then raise exception 'No such event of a team' using errcode = 'check_violation'; end if;
+  if e.status is distinct from 'scheduled' or e.starts_at <= now() then
+    raise exception 'Replies are closed for this event' using errcode = 'check_violation';
+  end if;
+  return new;
+end $$;
+revoke all on function app.guard_coach_reply() from public, anon, authenticated;
+drop trigger if exists guard on coach_replies;
+create trigger guard before insert or update on coach_replies for each row execute function app.guard_coach_reply();
+drop trigger if exists audit on coach_replies;
+create trigger audit after insert or update or delete on coach_replies for each row execute function app.audit();
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.73.0','feature','Coaches sign in and out',
+  'Coaches answer I''m in / Maybe / Can''t for their teams'' trainings, games and team events on the Coach home, like players do. The other coaches of the team and admins see who is coming.','2026-11-26')
 on conflict (version) do nothing;
 
 

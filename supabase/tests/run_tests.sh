@@ -54,3 +54,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/D3_reply_counts.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D4_coach_permissions.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/A0_saved_places.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D5_social_publishing.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/D6_coach_replies.sql

@@ -3762,5 +3762,21 @@
     "noPlayers": "No players to choose yet: add players under People, or use the sample player to try the designs.",
     "groupApp": "Players in the app",
     "groupFed": "From Palloliitto only (e.g. former players)"
+  },
+  "coachReply": {
+    "title": "Will you be there?",
+    "lead": "Sign in or out of your teams’ next events, like the players. The other coaches of the team and the admins see your answer.",
+    "k_practice": "Training",
+    "k_match": "Game",
+    "k_event": "Team event",
+    "yes": "I'm in",
+    "maybe": "Maybe",
+    "no": "Can't",
+    "group": "Your answer",
+    "saved": "Saved.",
+    "closed": "Answers are closed for this event.",
+    "error": "Could not save. Try again.",
+    "notInstalled": "Coach answers need the database update 0072 (coach replies). Ask an admin to install it.",
+    "coachesIn": "{count, plural, =0 {No coach in yet} one {# coach in} other {# coaches in}}"
   }
 }

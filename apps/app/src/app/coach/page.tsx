@@ -7,6 +7,8 @@ import { isolate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { loadConductStatus } from '@/lib/conduct';
 import { PlayerGuideCard } from '@/components/PlayerGuideCard';
+import { CoachReply } from '@/components/CoachReply';
+import { coachEvents } from '@/lib/coachReplies';
 
 type Session = { id: string; title: string; starts_at: string; ends_at: string; status: string; team_season_id: string };
 
@@ -35,6 +37,10 @@ export default async function CoachHome() {
     loadConductStatus(supabase, member.id),
   ]) : [{ data: [] }, supabase ? await loadConductStatus(supabase, member.id) : null];
   const tm = await getTranslations('match');
+  // the coach's own answers: I'm in / Maybe / Can't for the next events of their teams (migration 0072)
+  const [mine, tr] = await Promise.all([supabase && ids.length ? coachEvents(supabase, member.id, ids) : Promise.resolve({ events: [], installed: true }), getTranslations('coachReply')]);
+  const kindLabel = { practice: tr('k_practice'), match: tr('k_match'), event: tr('k_event') } as const;
+  const replyLabels = { yes: tr('yes'), maybe: tr('maybe'), no: tr('no'), group: tr('group'), saved: tr('saved'), closed: tr('closed'), error: tr('error'), notInstalled: tr('notInstalled') };
   const tc = await getTranslations('conduct');
   const count = (id: string) => (roster ?? []).filter((r) => r.team_season_id === id).length;
 
@@ -69,6 +75,26 @@ export default async function CoachHome() {
                 <span><span className="font-semibold">{when.format(new Date(m.kickoff_at))}</span> · <bdi>{t('vsOpponent', { opponent: m.opponent })}</bdi><span className="block text-sm text-muted">{name.get(m.team_season_id)}</span></span>
                 <span className="text-sm font-bold text-pitch">{m.live_state !== 'not_started' && m.live_state !== 'full_time' ? tm('liveBadge') : tm('openMatchDay')} <span aria-hidden className="rtl-flip inline-block">→</span></span>
               </Link></li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {mine.events.length ? (
+        <section aria-labelledby="cr-h" className="rounded-card border-2 border-accent bg-raised p-5" data-coach-replies>
+          <h2 id="cr-h" className="font-display text-xl font-extrabold">{tr('title')}</h2>
+          <p className="mt-1 text-sm text-muted">{tr('lead')}</p>
+          {mine.installed ? null : <p role="alert" className="mt-2 rounded-card bg-gold p-2 text-sm font-semibold text-ink-950">{tr('notInstalled')}</p>}
+          <ul className="mt-3 grid gap-2">
+            {mine.events.map((e) => (
+              <li key={`${e.kind}-${e.id}`} className="grid gap-2 rounded-card border border-line bg-surface p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center" data-coach-event={`${e.kind}:${e.id}`}>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-wide text-pitch">{kindLabel[e.kind]} · {name.get(e.teamSeasonId)}</p>
+                  <p className="font-semibold"><span>{when.format(new Date(e.at))}</span> · <bdi>{e.kind === 'match' ? t('vsOpponent', { opponent: e.title }) : e.title}</bdi></p>
+                  <p className="text-xs text-muted" data-coaches-in={e.coachesIn}>{tr('coachesIn', { count: e.coachesIn })}</p>
+                </div>
+                {mine.installed ? <CoachReply kind={e.kind} eventId={e.id} mine={e.mine} labels={replyLabels} /> : null}
+              </li>
             ))}
           </ul>
         </section>
