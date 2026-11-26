@@ -163,13 +163,11 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
           <table className="w-full text-start text-sm md:table-fixed">
             <thead className="hidden border-b border-line bg-surface/60 text-[11px] uppercase tracking-widest text-muted md:table-header-group">
               <tr>
-                <th scope="col" className="w-12 px-4 py-3"><span className="sr-only">{t('selectCol')}</span></th>
+                <th scope="col" className="w-11 px-3 py-3"><span className="sr-only">{t('selectCol')}</span></th>
                 <th scope="col" className="px-3 py-3 text-start">{t('colMember')}</th>
-                <th scope="col" className="hidden w-36 px-3 py-3 text-start 2xl:table-cell">{t('colRole')}</th>
-                <th scope="col" className="w-28 px-3 py-3 text-start">{t('colStatus')}</th>
-                <th scope="col" className="w-72 px-3 py-3 text-start">{t('colPaperwork')}</th>
-                <th scope="col" className="hidden w-24 px-3 py-3 text-start 2xl:table-cell">{t('colJoined')}</th>
-                <th scope="col" className="w-44 px-4 py-3"><span className="sr-only">{t('colActions')}</span></th>
+                <th scope="col" className="w-24 px-2 py-3 text-start">{t('colStatus')}</th>
+                <th scope="col" className="w-60 px-2 py-3 text-start">{t('colPaperwork')}</th>
+                <th scope="col" className="w-36 px-3 py-3"><span className="sr-only">{t('colActions')}</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -182,7 +180,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                 return (
                   <tr key={m.id} data-member={m.email ?? m.phone} data-pending={m.status === 'pending' ? (m.email ?? m.phone) : undefined}
                     className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 p-3 hover:bg-accent/5 has-[input[data-select]:checked]:bg-accent/10 md:table-row md:p-0">
-                    <td className="md:w-12 md:px-4 md:py-3">{manageable && m.id !== actor.id
+                    <td className="md:px-3 md:py-3">{manageable && m.id !== actor.id
                       ? <input type="checkbox" name="ids" value={m.id} form="bulk-members" aria-label={t('selectMember', { name: name || m.email || m.phone || '' })} className="size-5 accent-accent" data-select />
                       : <span className="block size-5" />}</td>
                     <td className="min-w-0 md:px-3 md:py-3">
@@ -193,15 +191,14 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                             {m.id === actor.id ? <span className="rounded-full bg-line px-2 text-xs font-semibold">{t('you')}</span> : null}
                             <span className="md:hidden">{statusBadge}</span></p>
                           <p className="truncate text-xs text-muted" dir="ltr" style={{ textAlign: 'start' }}><bdi>{m.email ?? m.phone}</bdi>{m.email ? null : <span className="ms-2 rounded-full bg-line px-2" dir="auto">{t('phoneAccount')}</span>}
-                            <span className="2xl:hidden" dir="auto"> · {tr(mRole)}</span><span className="hidden md:inline 2xl:hidden" dir="auto"> · {fmts.dayMonth.format(new Date(m.created_at))}</span></p>
+                            </p>
+                          <p className="text-xs text-muted" dir="auto">{tr(mRole)}<span className="hidden md:inline"> · {t('joinedOn', { date: fmts.dayMonth.format(new Date(m.created_at)) })}</span></p>
                         </div>
                       </div>
                     </td>
-                    <td className="hidden whitespace-nowrap md:px-3 md:py-3 2xl:table-cell">{tr(mRole)}</td>
-                    <td className="hidden md:table-cell md:px-3 md:py-3">{statusBadge}</td>
-                    <td className="col-span-3 md:px-3 md:py-3">{isPlayerRole(mRole) ? <PaperworkChips pw={paperwork.get(m.id)} playerId={playerOf.get(m.id)} t={t} fmts={fmts} euro={euro} /> : null}</td>
-                    <td className="hidden whitespace-nowrap text-muted md:px-3 md:py-3 2xl:table-cell">{fmts.dayMonth.format(new Date(m.created_at))}</td>
-                    <td className="col-start-3 row-start-1 md:whitespace-nowrap md:px-4 md:py-3">
+                    <td className="hidden md:table-cell md:px-2 md:py-3">{statusBadge}</td>
+                    <td className="col-span-3 md:px-2 md:py-3">{isPlayerRole(mRole) ? <PaperworkChips pw={paperwork.get(m.id)} playerId={playerOf.get(m.id)} t={t} fmts={fmts} euro={euro} /> : null}</td>
+                    <td className="col-start-3 row-start-1 md:whitespace-nowrap md:px-3 md:py-3">
                       <div className="flex items-center justify-end gap-2">
                         {manageable && m.status === 'pending' ? (isPlayerRole(mRole) && teams.length ? (
                           <details className="relative" data-approve-menu>

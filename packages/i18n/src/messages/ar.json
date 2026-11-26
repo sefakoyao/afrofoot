@@ -1395,7 +1395,8 @@
     "pw_s_fees_paid": "مدفوع",
     "pw_s_fees_unpaid": "غير مدفوع {amount}",
     "pw_s_fees_overdue": "متأخر {amount}",
-    "pw_s_fees_none": "بلا فواتير"
+    "pw_s_fees_none": "بلا فواتير",
+    "joinedOn": "انضم في {date}"
   },
   "me": {
     "team": "الفريق",

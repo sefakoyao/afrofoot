@@ -1395,7 +1395,8 @@
     "pw_s_fees_paid": "Paid",
     "pw_s_fees_unpaid": "Unpaid {amount}",
     "pw_s_fees_overdue": "Overdue {amount}",
-    "pw_s_fees_none": "No inv."
+    "pw_s_fees_none": "No inv.",
+    "joinedOn": "joined {date}"
   },
   "me": {
     "team": "Team",
