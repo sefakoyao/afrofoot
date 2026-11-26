@@ -1350,7 +1350,22 @@
     "qaEvent": "Tapahtuma",
     "qaInvoice": "Lasku",
     "qaContract": "Sopimus",
-    "qaPoster": "Juliste"
+    "qaPoster": "Juliste",
+    "colPaperwork": "Paperit",
+    "pw_noPlayer": "Ei vielä pelaajatietoja",
+    "pw_contract_active": "Sopimus {date} asti",
+    "pw_contract_sent": "Sopimus: odottaa pelaajaa",
+    "pw_contract_player_signed": "Sopimus: allekirjoita",
+    "pw_contract_draft": "Sopimus: luonnos",
+    "pw_contract_expired": "Sopimus päättynyt",
+    "pw_contract_terminated": "Sopimus purettu",
+    "pw_contract_none": "Ei sopimusta",
+    "pw_conduct_ok": "Toimintaohje ✓ {date}",
+    "pw_conduct_missing": "Toimintaohje puuttuu",
+    "pw_fees_paid": "Maksut maksettu",
+    "pw_fees_unpaid": "Avoinna {amount}",
+    "pw_fees_overdue": "Erääntynyt {amount}",
+    "pw_fees_none": "Ei laskuja"
   },
   "me": {
     "team": "Joukkue",

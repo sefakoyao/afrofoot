@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Members: contract, Code of Conduct and fees at a glance (branch `phase2/members-paperwork`, release 0.71.0, no database change)
+- **Admin → Members:** a **Paperwork** column for players, with three chips:
+  - **Contract:** until (date) · countersign · waiting for the player · draft · expired · ended · no contract. Opens that contract, or Contracts for the player.
+  - **Code of Conduct:** ✓ with the date agreed, or missing (opens the list of everyone missing).
+  - **Fees:** paid · unpaid (open amount) · overdue (amount past due) · no invoices; partly paid invoices count only what is left. Opens the player's invoices.
+- Replaces the separate "Invoices" link and the red "Code of Conduct not agreed" badge under the name. A part the database does not have yet (e.g. contracts before migration 0030) is left out.
+
 ## Unreleased – green top scorers and results, on the home page too (branch `phase2/team-green-cards`, release 0.70.1, no database change)
 - **Website → Team and home page:** the All-time top scorers card and the Latest results header are club green instead of black, with black text (white text is not readable on the club green); the third-place medal is black so it shows on green. The league table keeps its black header.
 - **Home page:** the All-time top scorers now also show there, above the latest results, as on the Team page (shared component `components/TopScorers.tsx`).

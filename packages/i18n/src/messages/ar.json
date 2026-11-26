@@ -1350,7 +1350,22 @@
     "qaEvent": "فعالية",
     "qaInvoice": "فاتورة",
     "qaContract": "عقد",
-    "qaPoster": "ملصق"
+    "qaPoster": "ملصق",
+    "colPaperwork": "الوثائق",
+    "pw_noPlayer": "لا يوجد سجل لاعب بعد",
+    "pw_contract_active": "العقد حتى {date}",
+    "pw_contract_sent": "العقد: بانتظار اللاعب",
+    "pw_contract_player_signed": "العقد: بانتظار توقيعك",
+    "pw_contract_draft": "العقد: مسودة",
+    "pw_contract_expired": "انتهى العقد",
+    "pw_contract_terminated": "أُنهي العقد",
+    "pw_contract_none": "لا يوجد عقد",
+    "pw_conduct_ok": "مدونة السلوك ✓ {date}",
+    "pw_conduct_missing": "مدونة السلوك غير موقّعة",
+    "pw_fees_paid": "الرسوم مدفوعة",
+    "pw_fees_unpaid": "غير مدفوع {amount}",
+    "pw_fees_overdue": "متأخر {amount}",
+    "pw_fees_none": "لا توجد فواتير"
   },
   "me": {
     "team": "الفريق",
