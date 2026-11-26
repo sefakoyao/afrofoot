@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – coaches sign in and out (branch `phase2/coach-replies`, release 0.73.0, migration 0072)
+- **Coach home → "Will you be there?":** the next three weeks of trainings, games and team events of the teams the coach coaches, each with **I'm in / Maybe / Can't** (like the players' buttons), saved in place, and how many of the team's coaches are in.
+- Answers close when the event starts or if it is cancelled; admins can still correct them. The team's other coaches and the admins see the answers; players and other teams' coaches do not.
+- **Migration 0072 (run it once in the SQL Editor):** table `coach_replies` with rules (own answer only, own teams only, before the start), the answer time set by the database, and the audit trail. It uses only early database functions, so it installs even where later updates are missing; team events are answerable once club events (0034) are installed. 20 new database tests.
+
 ## Unreleased – Members: more room for names (branch `phase2/members-wider-names`, release 0.72.1, no database change)
 - **Admin → Members:** the Role and Joined columns are gone on every screen size; the role and "joined 18 Nov" sit on a line under the email instead. Status, Paperwork and the actions column are a little narrower, so the member column is wider (about 360 px instead of 120–230 px) and names and emails are readable.
 
