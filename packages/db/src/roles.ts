@@ -42,7 +42,7 @@ export const canEnter = (role: Role, area: Area): boolean => (AREA_ROLES[area] a
 
 export const ACCOUNT_STATUSES = ['pending', 'active', 'suspended'] as const;
 export type AccountStatus = (typeof ACCOUNT_STATUSES)[number];
-const ADMIN_ROLES: readonly Role[] = ['super_admin', 'club_admin'];
+export const ADMIN_ROLES: readonly Role[] = ['super_admin', 'club_admin'];
 export const isAdminRole = (r: Role): boolean => ADMIN_ROLES.includes(r);
 
 /** Player-coach (migration 0045): coaches a team and also plays, so both checks are true for that role. */
