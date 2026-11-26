@@ -3,6 +3,15 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Members page redesign (branch `phase2/members-redesign`, release 0.72.0, no database change)
+- **Admin → Members**, a cleaner page that fits the screen without sideways scrolling:
+  - **Four tiles** for the whole club: waiting for approval, active members, Code of Conduct missing, fees overdue (amount and players). Each one filters the list.
+  - **One search box and quick filters:** All, Players, Coaches, Admins, Pending, Paperwork missing (players without an active contract, without the Code of Conduct, or with fees overdue), with counts. Older links (?role=, ?status=, ?conduct=missing) still work.
+  - **Short tags** for the paperwork, with a key above the list and the full wording on hover: CTR ✓ 10/2028 · CTR: player · CTR: sign · CTR: draft · No CTR; CoC ✓ 21 Nov · No CoC; Paid · Unpaid €40 · Overdue €40 · No inv. (translated abbreviations in Finnish, French and Arabic).
+  - **Rows:** initials, name and email (the role and join date move into that line until the screen is very wide), status, paperwork; **Approve** stays visible (for a player with a team choice in a small menu), the rest is in a **⋯** menu: suspend or reactivate, change role, sign-in help.
+  - **On a phone** each member is a card.
+  - The separate "waiting for approval" panel is gone: pending members are in the list with Approve, and the Pending tile and filter find them.
+
 ## Unreleased – Members: contract, Code of Conduct and fees at a glance (branch `phase2/members-paperwork`, release 0.71.0, no database change)
 - **Admin → Members:** a **Paperwork** column for players, with three chips:
   - **Contract:** until (date) · countersign · waiting for the player · draft · expired · ended · no contract. Opens that contract, or Contracts for the player.
