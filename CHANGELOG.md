@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – Events page redesign (branch `phase2/events-modern`, release 0.75.0, no database change)
+- **Admin and Coach → Events:** upcoming trainings, games and other events now come first, in one list by date (Today, Tomorrow, Next 7 days, Later), in the Members page's layout: tiles (next 7 days, trainings, games, other events) and filters (type, cancelled, team) on top, then a table with a date block, type, time, place (Google Maps), team and the players' replies (in / out / no reply; a click shows the names and notes).
+- A **⋯ menu** on each row: open the training or game (coaches) or the team page (admins), open in Google Maps, cancel or restore an event.
+- **+ Add an event** is a button at the top; the form sits under the list. Saved places are shown as small cards with a map button. On phones the tiles fit in one row.
+
 ## Unreleased – sign-in reminder for contracts and the Code of Conduct (branch `phase2/sign-reminder`, release 0.74.0, no database change)
 - **Pop-up when a player signs in** with paperwork still to do: "Please sign as soon as possible", listing the player contract waiting for their signature (**Sign the contract**) and/or the Code of Conduct not yet agreed (**Read and agree**). **Remind me later** (or Escape) closes it until the next sign-in; it never shows on the contract or Code of Conduct page itself. The small banners on the player pages stay until it is done.
 - **Player-coaches** get it in the coach area too (their player contract and the Code of Conduct); coaches who have not agreed to the Code of Conduct get the Code of Conduct item.
