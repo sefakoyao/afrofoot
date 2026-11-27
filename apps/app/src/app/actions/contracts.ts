@@ -169,7 +169,7 @@ export async function signContract(fd: FormData): Promise<void> {
     p_guardian_name: g?.guardian_name ?? null, p_guardian_relation: g?.guardian_relation ?? null, p_guardian_phone: g?.guardian_phone ?? null,
     p_guardian_email: g?.guardian_email || null, p_guardian_sign: g?.guardian_sign ?? null,
   });
-  if (error) go(back, /guardian/i.test(error.message ?? '') ? 'r_guardian' : errKey(error));
+  if (error) go(back, /birth date/i.test(error.message ?? '') ? 'r_birth' : /guardian/i.test(error.message ?? '') ? 'r_guardian' : errKey(error));
   refresh();
   go('/me/membership', 'r_signed', '#contract');
 }

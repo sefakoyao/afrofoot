@@ -41,9 +41,9 @@ select t.check('an adult signs alone, as before', not t.raises($$select sign_con
 select t.login('fd100000-0000-0000-0000-000000000004');
 select t.check('without a birth date the status is unknown', my_minor_status() is null);
 select t.check('saying "under 18" without a birth date needs the guardian', t.raises($$select sign_contract('fd600000-0000-0000-0000-000000000004', 'Kojo Nodob', true, null, null, null, null, null)$$));
-select t.check('…and works with them', not t.raises($$select sign_contract('fd600000-0000-0000-0000-000000000004', 'Kojo Nodob', true, 'Kwesi Nodob', 'father', '+358401112222', null, 'Kwesi Nodob')$$));
+select t.check('…and since 0073 not even with them: a saved birth date is needed', t.raises($$select sign_contract('fd600000-0000-0000-0000-000000000004', 'Kojo Nodob', true, 'Kwesi Nodob', 'father', '+358401112222', null, 'Kwesi Nodob')$$));
 reset role;
-select t.check('…stored as a minor''s contract', (select is_minor and guardian_relation = 'father' from player_contracts where id = 'fd600000-0000-0000-0000-000000000004'));
+select t.check('…the contract still waits for the player', (select status::text = 'sent' from player_contracts where id = 'fd600000-0000-0000-0000-000000000004'));
 select t.check('the adult''s contract has no guardian', (select not is_minor and guardian_name is null from player_contracts where id = 'fd600000-0000-0000-0000-000000000003'));
 
 -- the club

@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { declineContract, signContract } from '@/app/actions/contracts';
+import { BirthDateForm } from '@/components/birth/BirthDate';
 import { SignaturePreview } from '@/components/SignaturePreview';
 import { ConductText } from '@/components/ConductText';
 import { ContractSignatures } from '@/components/ContractSignatures';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
+import { birthLabels, maxBirthDate } from '@/lib/birth';
 import { contractColumns, readContracts, STATUS_BADGE, shownStatus, type Contract } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
@@ -34,9 +36,13 @@ export default async function MyContractPage({ params, searchParams }: { params:
   const d = (iso: string) => fmt.date.format(new Date(`${iso}T12:00:00Z`));
   const fullName = `${member.firstName} ${member.lastName}`.trim();
   // 0068: under 18 → a parent or guardian signs too (true / false / null = birth date not known: the player answers)
-  const minor = c.status === 'sent' ? ((await supabase.rpc('my_minor_status')).data as boolean | null) : false;
+  // 0073: the player saves their birth date before signing (the sign form appears once it is saved)
+  const dob = c.status === 'sent' ? ((await supabase.from('players').select('date_of_birth').eq('id', c.player_id).maybeSingle()).data?.date_of_birth as string | null | undefined) ?? null : null;
+  const needBirth = c.status === 'sent' && !dob;
+  const minorRpc = c.status === 'sent' && dob ? await supabase.rpc('my_minor_status') : null;
+  const minor = c.status !== 'sent' ? false : !dob ? null : minorRpc?.error ? false : (minorRpc?.data as boolean | null);
   // the saved birth date behind "under 18", so a player can spot a wrong one and ask an admin to correct it
-  const birth = minor ? ((await supabase.from('players').select('date_of_birth').eq('id', c.player_id).maybeSingle()).data?.date_of_birth as string | null | undefined) ?? null : null;
+  const birth = minor ? dob : null;
   // prefill from the emergency contact when it is a parent or guardian
   const { data: priv } = c.status === 'sent' && minor !== false
     ? await supabase.from('player_private').select('emergency_name, emergency_phone, emergency_relation').eq('player_id', c.player_id).maybeSingle()
@@ -66,7 +72,13 @@ export default async function MyContractPage({ params, searchParams }: { params:
           <h2 id="sign-h" className="font-display text-xl font-extrabold">{t('signTitle')}</h2>
           {minor ? <div className="mt-2 rounded-card bg-gold p-3 text-sm text-ink-950" data-minor-note><p className="font-semibold">{t('minorNote')}</p>
             {birth ? <p className="mt-1" data-minor-birth>{t('minorBirth', { date: fmt.date.format(new Date(`${birth}T12:00:00Z`)) })}</p> : null}</div> : null}
-          <form action={signContract} className="mt-3 grid gap-4">
+          {needBirth ? (
+            <div className="mt-3 grid gap-3 rounded-card border-2 border-gold bg-surface p-4" data-birth-first>
+              <p className="font-semibold">{t('birthFirst')}</p>
+              <BirthDateForm labels={await birthLabels()} max={maxBirthDate()} />
+            </div>
+          ) : null}
+          {needBirth ? null : <form action={signContract} className="mt-3 grid gap-4">
             <input type="hidden" name="id" value={c.id} />
             <SignaturePreview label={t('typeName')} hint={t('typeNameHint', { name: fullName || '–' })} previewLabel={t('sigPreview')} placeholder={t('sigPreviewEmpty')} />
             {minor === null ? (
@@ -101,7 +113,7 @@ export default async function MyContractPage({ params, searchParams }: { params:
             </label>
             <button className="min-h-12 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:justify-self-start">{t('signButton')}</button>
             <p className="text-xs text-muted">{t('signRecord')}</p>
-          </form>
+          </form>}
           <details className="mt-5 border-t border-line pt-4">
             <summary className="cursor-pointer font-semibold">{t('declineTitle')}</summary>
             <form action={declineContract} className="mt-3 grid gap-3">

@@ -9,6 +9,7 @@ update profiles set role = 'player', status = 'active' where id in ('f9000000-00
 insert into players (id, profile_id, first_name, last_name) values
  ('f9500000-0000-0000-0000-000000000002', 'f9000000-0000-0000-0000-000000000002', 'Kwame', 'Owusu'),
  ('f9500000-0000-0000-0000-000000000003', 'f9000000-0000-0000-0000-000000000003', 'Esi', 'Boateng');
+update players set date_of_birth = date '1990-01-01' where date_of_birth is null;   -- 0073: signing needs a saved birth date
 update site_settings set value = value - 'signatory_name' - 'signatory_title' where key = 'contracts';
 
 select t.login('f9000000-0000-0000-0000-000000000001');

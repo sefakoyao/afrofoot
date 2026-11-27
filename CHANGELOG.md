@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – players enter their birth date; contract year from 1 December (branch `phase2/birth-self`, release 0.77.0, migration 0073)
+- **Players set their own birth date, once:** a pop-up at sign-in ("When were you born?", Later until the next sign-in) for players and player-coaches without one, an entry field on the profile, and on the contract page before signing. It decides whether a parent or guardian signs the contract with them. After that only an admin corrects it (Admin → Members → ⋯ → Birth date).
+- **The contract needs it:** the signing form appears once a birth date is saved; the "Are you under 18?" answer is gone.
+- **Contract year:** new contracts (admin form and automatic ones) run one year from 1 December to 30 November by default; from January to September the default start is the 1 December that began the current contract year.
+- **Migration 0073 (run it once in the SQL Editor):** players may set `date_of_birth` only while none is saved (1940 to 5 years ago), admins may correct it (audited), and a contract cannot be signed by the player without a saved birth date. Works on a database without contracts. 17 new database tests; the older contract tests now give their players a birth date.
+
 ## Unreleased – birth dates: correct them, see who is missing one (branch `phase2/contract-age`, release 0.76.0, no database change)
 - **Why:** the contract asks for a parent or guardian when the saved birth date makes the player under 18 (migration 0068). An adult with a wrong birth date could not sign alone, and the app had no place to correct it.
 - **Admin → Members:** a **"No DOB"** tag on players without a birth date (with a new **No birth date** filter), a yellow **"U18"** tag on players counted as under 18 (the saved date on hover), and **⋯ → Birth date** to correct it (calendar, 1940 to 5 years ago, checked on the server; old and new date kept in the audit trail).

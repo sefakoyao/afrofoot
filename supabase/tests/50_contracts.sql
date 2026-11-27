@@ -14,6 +14,7 @@ insert into team_seasons (id, team_id, season_id) values ('a4000000-0000-0000-00
 insert into players (id, profile_id, first_name, last_name) values
  ('a5000000-0000-0000-0000-000000000003', 'a1000000-0000-0000-0000-000000000003', 'Amadou', 'Diallo'),
  ('a5000000-0000-0000-0000-000000000004', 'a1000000-0000-0000-0000-000000000004', 'Other', 'Player');
+update players set date_of_birth = date '1990-01-01' where date_of_birth is null;   -- 0073: signing needs a saved birth date
 insert into team_players (team_season_id, player_id) values ('a4000000-0000-0000-0000-000000000001', 'a5000000-0000-0000-0000-000000000003');
 insert into staff_members (id, profile_id, first_name, last_name, type) values ('a6000000-0000-0000-0000-000000000002', 'a1000000-0000-0000-0000-000000000002', 'Cat', 'Coach', 'head_coach');
 insert into team_staff (team_season_id, staff_id) values ('a4000000-0000-0000-0000-000000000001', 'a6000000-0000-0000-0000-000000000002');
