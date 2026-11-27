@@ -8,6 +8,7 @@ import { dirOf, isLocale, DEFAULT_LOCALE } from '@afrofoot/i18n';
 import { AppFooter } from '@/components/AppFooter';
 import { NavProgress } from '@/components/NavProgress';
 import './globals.css';
+import { Telemetry } from '@/components/Telemetry';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', display: 'swap' });
@@ -40,6 +41,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <div className="flex-1">{children}</div>
           <AppFooter />
         </NextIntlClientProvider>
+        {/* cookie-free usage statistics and real-user speed (components/Telemetry) */}
+        <Telemetry />
       </body>
     </html>
   );
