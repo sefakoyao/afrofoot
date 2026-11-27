@@ -8,7 +8,7 @@ import { CREST_RATIO, DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, clubBand, photoP
 import { NEVERA_OTF } from '@/lib/poster-font';
 import { POSTER_FORMATS, UPLOAD_PATH, type PosterFormat } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
-import { TONES, tryoutPoster, type Tone } from './tryout';
+import { SCHEMES, TONES, tryoutPoster, type Scheme, type Tone } from './tryout';
 
 /**
  * A player announcement poster as a PNG (Admin → Website → Player announcement): "New signing" (welcome) or "Thank you"
@@ -51,8 +51,9 @@ export async function GET(req: NextRequest) {
     const pct = (k: string, d: number, max = 100) => (q.has(k) ? Math.max(0, Math.min(max, Math.round(Number(q.get(k)) || 0))) : d);
     const tone: Tone = (TONES as readonly string[]).includes(q.get('tone') ?? '') ? (q.get('tone') as Tone) : 'natural';
     const fx: Effect = (EFFECTS as readonly string[]).includes(q.get('fx') ?? '') ? (q.get('fx') as Effect) : 'none';
-    const ball = q.has('ball') ? q.get('ball') === '1' : !tPhoto;   // the ball by default only without a photo
-    return new ImageResponse(tryoutPoster({ format, W: TW, H: TH, origin: req.nextUrl.origin, crest: tCrest, photo: tPhoto, tone, fx, strength: pct('strength', DEFAULT_STRENGTH), shade: pct('shade', DEFAULT_SHADE, 90), ball,
+    const ball = q.has('ball') ? q.get('ball') === '1' : !tPhoto;
+    const scheme: Scheme = (SCHEMES as readonly string[]).includes(q.get('scheme') ?? '') ? (q.get('scheme') as Scheme) : 'gold';   // the ball by default only without a photo
+    return new ImageResponse(tryoutPoster({ format, W: TW, H: TH, origin: req.nextUrl.origin, crest: tCrest, photo: tPhoto, tone, scheme, fx, strength: pct('strength', DEFAULT_STRENGTH), shade: pct('shade', DEFAULT_SHADE, 90), ball,
       date, start: hhmm('start'), end: hhmm('end'),
       place: field('place'), address: field('address'), who: opt('who'), bring: opt('bring'), message: clean(q.get('msg'), ANNOUNCE_LIMITS.message) || DEFAULT_MESSAGE.tryout, signup: opt('signup') }),
     { width: TW, height: TH, fonts: FONTS, headers: q.get('download') === '1'

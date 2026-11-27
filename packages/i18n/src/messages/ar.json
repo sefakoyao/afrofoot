@@ -3818,7 +3818,12 @@
     "tBallOff": "بدون كرة",
     "tUploadTitle": "أضف صورتك",
     "tUploadLead": "JPG أو PNG بحد أقصى 8 ميغابايت. تناسب صورة عريضة للفريق أو التدريب أكثر؛ فهي تملأ الملصق كله.",
-    "tRemovePhoto": "حذف هذه الصورة"
+    "tRemovePhoto": "حذف هذه الصورة",
+    "tScheme": "الألوان",
+    "scheme_gold": "أصفر",
+    "scheme_green": "أخضر",
+    "scheme_white": "أبيض",
+    "scheme_night": "ليلي"
   },
   "coachReply": {
     "title": "هل ستحضر؟",

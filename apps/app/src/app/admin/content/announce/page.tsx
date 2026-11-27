@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { PosterPreview } from '@/components/admin/PosterPreview';
-import { TONES } from '@/app/api/content/announce/tryout';
+import { SCHEMES, TONES } from '@/app/api/content/announce/tryout';
 import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect, type Effect } from '@/lib/poster-art';
 import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
 import { requireArea } from '@/lib/auth';
@@ -45,12 +45,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const tf = Object.fromEntries((['date', 'start', 'end', 'place', 'address', 'who', 'bring', 'signup'] as const).map((k) => [k, one(sp[k]).slice(0, 80)])) as Record<'date' | 'start' | 'end' | 'place' | 'address' | 'who' | 'bring' | 'signup', string>;
   const bg = bgPhotos.some((p) => `media:${p}` === one(sp.bg)) ? one(sp.bg) : '';
   const tone = (TONES as readonly string[]).includes(one(sp.tone)) ? one(sp.tone) : 'natural';
+  const scheme = (SCHEMES as readonly string[]).includes(one(sp.scheme)) ? one(sp.scheme) : 'gold';
   const fx: Effect = (EFFECTS as readonly string[]).includes(one(sp.fx)) ? (one(sp.fx) as Effect) : 'none';
   const pct = (k: string, d: number, max = 100) => (sp[k] !== undefined ? String(Math.max(0, Math.min(max, Math.round(Number(one(sp[k])) || 0)))) : String(d));
   const strength = pct('strength', DEFAULT_STRENGTH), shade = pct('shade', DEFAULT_SHADE, 90);
   const ball = one(sp.ball) === '1' || one(sp.ball) === '0' ? one(sp.ball) : bg ? '0' : '1';
   const result = one(sp.result);
-  const q = new URLSearchParams({ kind, player, format, ...(kind === 'tryout' ? { bg, tone, fx, strength, shade, ball } : {}), ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
+  const q = new URLSearchParams({ kind, player, format, ...(kind === 'tryout' ? { scheme, bg, tone, fx, strength, shade, ball } : {}), ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
     ...Object.fromEntries(Object.entries(tf).filter(([, v]) => v)) });
   const pick = (name: string, value: string, checked: boolean, inner: React.ReactNode) => (
     <label className="relative"><input type="radio" name={name} value={value} defaultChecked={checked} className="peer sr-only" />{inner}</label>
@@ -104,6 +105,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
               <span className={chip}>{t(`f_${f}`)}<span className="text-xs font-normal text-muted">{POSTER_FORMATS[f].w}×{POSTER_FORMATS[f].h}</span></span>))}</div>
           </fieldset>
           <div className="grid gap-4" data-only="tryout" id="tryout-photo">
+            <fieldset className="grid gap-2" data-tryout-scheme><legend className="text-sm font-semibold">{t('tScheme')}</legend>
+              <div className="grid grid-cols-4 gap-2">{SCHEMES.map((x) => pick('scheme', x, x === scheme, <span className={`${chip} gap-1`}><span aria-hidden className="h-3 w-full rounded-full border border-line" style={{ background: ({ gold: 'linear-gradient(90deg,#0b0b0b 0 30%,#EDF70F 30%)', green: 'linear-gradient(90deg,#0b0b0b 0 30%,#3DAF2C 30%)', white: 'linear-gradient(90deg,#0b0b0b 0 30%,#ffffff 30%)', night: 'linear-gradient(90deg,#3DAF2C 0 12%,#0b0b0b 12%)' })[x] }} />{t(`scheme_${x}`)}</span>))}</div>
+            </fieldset>
             <fieldset className="grid gap-2" data-tryout-bg><legend className="text-sm font-semibold">{t('tBackground')}</legend>
               <div className="grid grid-cols-3 gap-2">
                 {pick('bg', '', !bg, <span className={`${tile} aspect-[4/5] items-end bg-[#145010]`}><span className="w-full bg-black/70 px-1 py-0.5 text-center text-[11px] font-bold text-white">{t('tPitch')}</span></span>)}

@@ -14,7 +14,7 @@ import { getSupabase } from '@/lib/supabase/server';
 const TYPES: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png' };
 // keep the poster's other choices (passed along as "keep", a query string) and set the new image where it belongs
 const PARAM: Record<UploadKind, string> = { bg: 'bg', sponsor: 'sponsor', player: 'photo' };
-const ANNOUNCE_KEEP = ['kind', 'format', 'date', 'start', 'end', 'place', 'address', 'who', 'bring', 'signup', 'msg', 'bg', 'tone', 'fx', 'strength', 'shade', 'ball'];
+const ANNOUNCE_KEEP = ['kind', 'format', 'scheme', 'date', 'start', 'end', 'place', 'address', 'who', 'bring', 'signup', 'msg', 'bg', 'tone', 'fx', 'strength', 'shade', 'ball'];
 const back = (fd: FormData, result: string, set?: [string, string], area: 'admin' | 'coach' = fd.get('area') === 'coach' ? 'coach' : 'admin') => {
   const keep = new URLSearchParams(String(fd.get('keep') ?? '').slice(0, 1500));
   if (fd.get('page') === 'announce') {   // the tryout poster (Player announcement): its typed lines may contain spaces

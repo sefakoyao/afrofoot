@@ -4,10 +4,23 @@ import type { PosterFormat } from '@/lib/poster';
 const GREEN = '#3DAF2C', GOLD = '#EDF70F', INK = '#0b0b0b';
 export const TONES = ['natural', 'green', 'mono'] as const;
 export type Tone = (typeof TONES)[number];
+/**
+ * Colour schemes, all in the club colours (green #3DAF2C, yellow #EDF70F, black, white; yellow only as a fill with black
+ * text or as text on black). "night" is the dark style of the Matchday and Farewell posters; the others set the tryout apart.
+ */
+export const SCHEMES = ['gold', 'green', 'white', 'night'] as const;
+export type Scheme = (typeof SCHEMES)[number];
+type Palette = { bar: string; text: string; label: string; rule: string; sub: string; edge: string; kickerBg: string; kickerFg: string; ctaBg: string; ctaFg: string };
+const PALETTES: Record<Scheme, Palette> = {
+  gold:  { bar: GOLD, text: INK, label: 'rgba(11,11,11,.62)', rule: INK, sub: 'rgba(11,11,11,.7)', edge: INK, kickerBg: GOLD, kickerFg: INK, ctaBg: '#ffffff', ctaFg: INK },
+  green: { bar: GREEN, text: INK, label: 'rgba(11,11,11,.62)', rule: INK, sub: 'rgba(11,11,11,.72)', edge: GOLD, kickerBg: GREEN, kickerFg: INK, ctaBg: GOLD, ctaFg: INK },
+  white: { bar: '#ffffff', text: INK, label: 'rgba(11,11,11,.55)', rule: GREEN, sub: 'rgba(11,11,11,.65)', edge: GREEN, kickerBg: '#ffffff', kickerFg: INK, ctaBg: GREEN, ctaFg: INK },
+  night: { bar: 'rgba(11,11,11,.86)', text: '#ffffff', label: GOLD, rule: GOLD, sub: 'rgba(255,255,255,.72)', edge: GREEN, kickerBg: 'transparent', kickerFg: GOLD, ctaBg: GOLD, ctaFg: INK },
+};
 
 export type TryoutPoster = {
   format: PosterFormat; W: number; H: number; origin: string; crest: string | null;
-  photo: string | null; tone: Tone; fx: Effect; strength: number; shade: number; ball: boolean;
+  photo: string | null; tone: Tone; scheme: Scheme; fx: Effect; strength: number; shade: number; ball: boolean;
   date: string; start: string; end: string; place: string; address: string; who: string; bring: string; message: string; signup: string;
 };
 
@@ -32,14 +45,14 @@ export function tryoutPoster(p: TryoutPoster) {
   const crestW = sq ? 104 : 128, crestH = Math.round(crestW * CREST_RATIO);
   const barH = sq ? 230 : story ? 300 : 270, barTop = H - barH - (sq ? 150 : story ? 300 : 190);
   const ball = sq ? 330 : story ? 560 : 460;
-  const a = p.shade / 100;
-  const label = (t: string) => <span style={{ display: 'flex', fontSize: sq ? 17 : 20, fontWeight: 900, letterSpacing: 4, color: GOLD }}>{t}</span>;
+  const a = p.shade / 100, c = PALETTES[p.scheme];
+  const label = (t: string) => <span style={{ display: 'flex', fontSize: sq ? 17 : 20, fontWeight: 900, letterSpacing: 4, color: c.label }}>{t}</span>;
   // date and time take the room they need on one line; the place gets the rest (and may wrap)
   const col = (l: string, v: string, sub: string | null, fill: boolean) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, ...(fill ? { flexGrow: 1, flexBasis: 0, minWidth: 0 } : { flexShrink: 0 }), paddingLeft: 22, borderLeft: `3px solid ${GOLD}` }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, ...(fill ? { flexGrow: 1, flexBasis: 0, minWidth: 0 } : { flexShrink: 0 }), paddingLeft: 22, borderLeft: `${p.scheme === 'night' ? 3 : 5}px solid ${c.rule}` }}>
       {label(l)}
       <span style={{ display: 'flex', fontSize: fill ? (sq ? 30 : story ? 42 : 36) : sq ? 34 : story ? 46 : 40, fontWeight: 900, lineHeight: 1.08, whiteSpace: fill ? 'normal' : 'nowrap' }}>{v}</span>
-      {sub ? <span style={{ display: 'flex', fontSize: sq ? 18 : 22, color: 'rgba(255,255,255,.72)' }}>{sub}</span> : null}
+      {sub ? <span style={{ display: 'flex', fontSize: sq ? 18 : 22, color: c.sub }}>{sub}</span> : null}
     </div>
   );
   const art = p.fx === 'none' ? null : effect(p.fx, W, H, p.strength, sq ? 0.66 : 0.6);
@@ -64,22 +77,22 @@ export function tryoutPoster(p: TryoutPoster) {
 
       {/* the title */}
       <div style={{ position: 'absolute', left: pad, top: sq ? 96 : story ? 170 : 110, display: 'flex', flexDirection: 'column' }}>
-        <span style={{ display: 'flex', fontSize: sq ? 22 : 26, fontWeight: 900, letterSpacing: 6, color: GOLD }}>NEW PLAYERS WANTED{year ? ` · ${year}` : ''}</span>
+        <div style={{ display: 'flex' }}><span style={{ display: 'flex', fontSize: sq ? 22 : 26, fontWeight: 900, letterSpacing: 6, color: c.kickerFg, background: c.kickerBg, ...(p.scheme === 'night' ? {} : { padding: '6px 16px', borderRadius: 8 }) }}>NEW PLAYERS WANTED{year ? ` · ${year}` : ''}</span></div>
         <span style={{ display: 'flex', fontFamily: 'Nevera', fontWeight: 400, fontSize: sq ? 96 : story ? 140 : 120, lineHeight: 1, marginTop: sq ? 14 : 20 }}>OPEN</span>
         <span style={{ display: 'flex', fontFamily: 'Nevera', fontWeight: 400, fontSize: sq ? 128 : story ? 188 : 164, lineHeight: 0.95 }}>TRYOUTS</span>
       </div>
 
       {/* the information bar: date, time, place; then who and what to bring */}
-      <div style={{ position: 'absolute', left: 0, top: barTop, width: W, height: barH, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: sq ? 18 : 24, padding: `0 ${pad}px`, background: 'rgba(11,11,11,.86)', borderTop: `6px solid ${GREEN}` }}>
+      <div style={{ position: 'absolute', left: 0, top: barTop, width: W, height: barH, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: sq ? 18 : 24, padding: `0 ${pad}px`, background: c.bar, color: c.text, borderTop: `8px solid ${c.edge}` }}>
         <div style={{ display: 'flex', gap: sq ? 20 : 28 }}>
           {col('DATE', dateLine, null, false)}
           {col('TIME', time, null, false)}
           {col('PLACE', p.place || 'TBA', p.address || null, true)}
         </div>
         {p.who || p.bring ? (
-          <div style={{ display: 'flex', gap: 34, fontSize: sq ? 18 : 22, color: 'rgba(255,255,255,.85)' }}>
-            {p.who ? <span style={{ display: 'flex' }}><span style={{ display: 'flex', color: GOLD, fontWeight: 900, letterSpacing: 3, marginRight: 12 }}>FOR</span>{p.who}</span> : null}
-            {p.bring ? <span style={{ display: 'flex' }}><span style={{ display: 'flex', color: GOLD, fontWeight: 900, letterSpacing: 3, marginRight: 12 }}>BRING</span>{p.bring}</span> : null}
+          <div style={{ display: 'flex', gap: 34, fontSize: sq ? 18 : 22, color: c.sub }}>
+            {p.who ? <span style={{ display: 'flex' }}><span style={{ display: 'flex', color: p.scheme === 'night' ? GOLD : c.text, fontWeight: 900, letterSpacing: 3, marginRight: 12 }}>FOR</span>{p.who}</span> : null}
+            {p.bring ? <span style={{ display: 'flex' }}><span style={{ display: 'flex', color: p.scheme === 'night' ? GOLD : c.text, fontWeight: 900, letterSpacing: 3, marginRight: 12 }}>BRING</span>{p.bring}</span> : null}
           </div>
         ) : null}
       </div>
@@ -87,7 +100,7 @@ export function tryoutPoster(p: TryoutPoster) {
       {/* the message and how to sign up */}
       <div style={{ position: 'absolute', left: pad, right: pad, top: barTop + barH + (sq ? 22 : 34), display: 'flex', flexDirection: 'column', gap: sq ? 14 : 20 }}>
         <span style={{ display: 'flex', fontSize: sq ? 26 : story ? 36 : 32, fontWeight: 900, lineHeight: 1.15 }}>{p.message}</span>
-        {p.signup ? <div style={{ display: 'flex' }}><span style={{ display: 'flex', alignItems: 'center', padding: sq ? '10px 22px' : '12px 26px', borderRadius: 999, background: GOLD, color: INK, fontSize: sq ? 22 : 26, fontWeight: 900 }}>{p.signup}</span></div> : null}
+        {p.signup ? <div style={{ display: 'flex' }}><span style={{ display: 'flex', alignItems: 'center', padding: sq ? '10px 22px' : '12px 26px', borderRadius: 999, background: c.ctaBg, color: c.ctaFg, fontSize: sq ? 22 : 26, fontWeight: 900 }}>{p.signup}</span></div> : null}
       </div>
 
       <div style={{ position: 'absolute', left: 0, bottom: 0, width: W, height: 12, display: 'flex', backgroundImage: `linear-gradient(90deg, ${GREEN}, ${GOLD})` }} />

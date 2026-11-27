@@ -3818,7 +3818,12 @@
     "tBallOff": "Sans ballon",
     "tUploadTitle": "Ajouter votre photo",
     "tUploadLead": "JPG ou PNG, 8 Mo au maximum. Une photo large d’équipe ou d’entraînement convient le mieux ; elle remplit toute l’affiche.",
-    "tRemovePhoto": "Supprimer cette photo"
+    "tRemovePhoto": "Supprimer cette photo",
+    "tScheme": "Couleurs",
+    "scheme_gold": "Jaune",
+    "scheme_green": "Vert",
+    "scheme_white": "Blanc",
+    "scheme_night": "Nuit"
   },
   "coachReply": {
     "title": "Serez-vous là ?",

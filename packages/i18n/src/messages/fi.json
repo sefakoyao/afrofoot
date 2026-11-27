@@ -3818,7 +3818,12 @@
     "tBallOff": "Ei palloa",
     "tUploadTitle": "Lisää oma kuva",
     "tUploadLead": "JPG tai PNG, enintään 8 Mt. Leveä joukkue- tai treenikuva toimii parhaiten; se täyttää koko julisteen.",
-    "tRemovePhoto": "Poista tämä kuva"
+    "tRemovePhoto": "Poista tämä kuva",
+    "tScheme": "Värit",
+    "scheme_gold": "Keltainen",
+    "scheme_green": "Vihreä",
+    "scheme_white": "Valkoinen",
+    "scheme_night": "Yö"
   },
   "coachReply": {
     "title": "Oletko mukana?",

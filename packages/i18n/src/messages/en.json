@@ -3818,7 +3818,12 @@
     "tBallOff": "No ball",
     "tUploadTitle": "Add your own photo",
     "tUploadLead": "JPG or PNG, at most 8 MB. A wide team or training photo works best; it fills the whole poster.",
-    "tRemovePhoto": "Remove this photo"
+    "tRemovePhoto": "Remove this photo",
+    "tScheme": "Colours",
+    "scheme_gold": "Yellow",
+    "scheme_green": "Green",
+    "scheme_white": "White",
+    "scheme_night": "Night"
   },
   "coachReply": {
     "title": "Will you be there?",
