@@ -117,25 +117,3 @@ export async function bulkMembers(fd: FormData): Promise<void> {
   back(fd, 'bulk', { a: approved, t: r.added, s: skipped + r.failed, ...(r.already ? { already: r.already } : {}), ...autoParams(c) });
 }
 
-/** YYYY-MM-DD from 1940 to 5 years ago (Helsinki), the range the club's registration forms accept too. */
-const birthDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((d) => {
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(new Date());
-  const max = `${Number(today.slice(0, 4)) - 5}${today.slice(4)}`;
-  return !Number.isNaN(Date.parse(`${d}T12:00:00Z`)) && d >= '1940-01-01' && d <= max;
-});
-
-/**
- * An admin corrects a player's birth date (it decides whether their contract needs a parent or guardian, migration
- * 0068). Runs as the admin: RLS admin_all allows it and the audit trigger on players keeps the old and new date.
- */
-export async function setBirthDate(fd: FormData): Promise<void> {
-  await requireArea('admin');
-  const p = z.object({ player_id: z.string().uuid(), date_of_birth: birthDate }).safeParse({ player_id: fd.get('player_id'), date_of_birth: fd.get('date_of_birth') });
-  if (!p.success) back(fd, 'birthInvalid');
-  const supabase = await getSupabase();
-  if (!supabase) back(fd, 'error');
-  const { data, error } = await supabase.from('players').update({ date_of_birth: p.data.date_of_birth }).eq('id', p.data.player_id).select('id');
-  if (error || !data?.length) back(fd, error?.code === '42501' ? 'notAllowed' : 'notFound');
-  revalidatePath('/admin/members');
-  back(fd, 'birthSaved');
-}

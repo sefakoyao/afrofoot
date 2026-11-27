@@ -9,6 +9,6 @@ export async function birthLabels() {
   const t = await getTranslations('birth');
   return {
     title: t('title'), lead: t('lead'), later: t('later'), label: t('label'), hint: t('hint'), save: t('save'), saved: t('saved'),
-    errors: { range: t('e_range'), already: t('e_already'), noPlayer: t('e_noPlayer'), failed: t('e_failed') },
+    errors: { range: t('e_range'), already: t('e_already'), noPlayer: t('e_noPlayer'), notReady: t('e_notReady'), failed: t('e_failed') },
   };
 }

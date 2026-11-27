@@ -1398,11 +1398,6 @@
     "pw_s_fees_none": "Pas de fact.",
     "joinedOn": "inscrit le {date}",
     "f_dob": "Sans date de naissance",
-    "birthDate": "Date de naissance",
-    "birthHint": "Détermine si le contrat doit aussi être signé par un parent ou tuteur (moins de 18 ans).",
-    "saveBirth": "Enregistrer la date",
-    "result_birthSaved": "Date de naissance enregistrée.",
-    "result_birthInvalid": "Choisissez une date de naissance entre 1940 et il y a 5 ans.",
     "pw_s_dob_missing": "Sans DDN",
     "pw_dob_missing": "Date de naissance manquante : elle est demandée au joueur à la connexion, et il ne peut pas signer de contrat sans elle",
     "pw_s_dob_minor": "U18",
@@ -1633,7 +1628,7 @@
     "webHide": "Me retirer du site du club",
     "webSaved": "Enregistré. Le site affiche le changement d’ici une minute.",
     "birthDate": "Date de naissance",
-    "birthAskAdmin": "Erreur ? Demandez à un administrateur de la corriger."
+    "birthAskAdmin": "Erreur ? Contactez le club."
   },
   "teams": {
     "title": "Équipes",
@@ -2231,7 +2226,7 @@
     "rowDraft": "Brouillon, pas encore envoyé",
     "rowCountersign": "Contresigner",
     "rowOpen": "Ouvrir",
-    "minorBirth": "Votre date de naissance enregistrée est le {date}. Si elle est fausse, demandez à un administrateur de la corriger avant de signer.",
+    "minorBirth": "Votre date de naissance enregistrée est le {date}. Si elle est fausse, contactez le club avant de signer.",
     "birthFirst": "Avant de signer : saisissez votre date de naissance. Elle détermine si un parent ou tuteur signe ce contrat avec vous.",
     "r_birth": "Saisissez votre date de naissance avant de signer le contrat."
   },
@@ -3827,15 +3822,16 @@
   },
   "birth": {
     "title": "Quelle est votre date de naissance ?",
-    "lead": "Votre date de naissance sert de garantie pour votre contrat de joueur : les joueurs de moins de 18 ans signent avec un parent ou tuteur. Vous la saisissez une fois ; ensuite, seul un administrateur peut la corriger.",
-    "later": "Plus tard",
+    "lead": "Votre date de naissance sert de garantie pour votre contrat de joueur : les joueurs de moins de 18 ans signent avec un parent ou tuteur. Saisissez-la une fois pour continuer ; elle ne peut plus être modifiée ensuite.",
+    "later": "Fermer pour l’instant",
     "label": "Date de naissance",
-    "hint": "Vérifiez-la bien : après l’enregistrement, seul un administrateur peut la modifier.",
+    "hint": "Vérifiez-la bien : elle ne peut plus être modifiée après l’enregistrement.",
     "save": "Enregistrer la date",
     "saved": "Enregistrée. Merci !",
     "e_range": "Choisissez une date de naissance entre 1940 et il y a 5 ans.",
-    "e_already": "Votre date de naissance est déjà enregistrée. Si elle est fausse, demandez à un administrateur de la corriger.",
-    "e_noPlayer": "Votre compte n’a pas encore de fiche joueur. Contactez un administrateur.",
-    "e_failed": "L’enregistrement a échoué. Réessayez."
+    "e_already": "Votre date de naissance est déjà enregistrée. Si elle est fausse, contactez le club.",
+    "e_noPlayer": "Votre compte n’a pas encore de fiche joueur. Contactez le club.",
+    "e_failed": "L’enregistrement a échoué. Réessayez.",
+    "e_notReady": "L’enregistrement des dates de naissance n’est pas encore activé. Réessayez plus tard ou prévenez le club."
   }
 }
