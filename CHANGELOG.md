@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – squad planner (branch `phase2/squad-planner`, release 0.82.0, migration 0076)
+- **Admin and Coach → Teams & events → Squad planner:** choose the team, the season (next season by default) and a formation (11 v 11 to 5 v 5). Every place gets a starter and two back-ups (drag, or tap a player and then a place); a player starts in one place only.
+- **Outlook per player** for the season: confirmed, likely, unsure, leaving; a signed contract covering the season counts as confirmed by itself. Try-out and join applicants are targets.
+- **What we need** per line (confirmed against starters and a back-up each, two keepers), **warnings** (keepers, empty places, no back-up, unsure starters, contracts ending, age, players without an outlook, players leaving) and **the best candidates** for the chosen place with the reasons (position, outlook, training attendance, Palloliitto games and goals, age).
+- **Analyse the squad:** the AI assistant (same key as the content assistant) writes strengths, gaps, what to do and risks; it gets player codes and numbers only, no names or contact details.
+- Admins plan every team, coaches the teams they coach; players never see plans. Saved in one step; changes in the audit trail.
+- **Migration 0076 (run it once in the SQL Editor):** `squad_plans`, `squad_plan_slots`, `squad_plan_players`, `app.plans_team`, `public.can_plan_team`, `public.save_squad_plan`. 19 new database tests.
+
 ## Unreleased – two-step sign-in for admins (branch `phase2/admin-mfa`, release 0.81.0, migration 0075)
 - **Admins** (club admins and super admins) confirm every sign-in with a 6-digit code from an authenticator app (Supabase Auth TOTP). The first time, the two-step screen shows a QR code (or a key to type) and asks for a first code; after that only the code.
 - **Enforced:** admin pages send to the two-step screen until the code is given; admin-only actions and picture routes check it (`isVerifiedAdmin`); and the database counts admin rights only on a confirmed session (migration 0075).
