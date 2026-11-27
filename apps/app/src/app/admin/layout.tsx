@@ -20,6 +20,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const shirtRequests = supabase ? (await supabase.from('jersey_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')).count ?? 0 : 0;
   // grouped sections that open and close (components/AreaNav): only the section holding the current page is open
   const people = t('navGroupPeople'), teamsGroup = t('navGroupTeams'), club = t('navGroupClub'), finance = tm('navGroup');
+  const tsq = await getTranslations('squad');
   const nav: NavItem[] = [
     { href: '/admin', label: t('navOverview'), icon: 'home' },
     { href: '/admin/requests', label: t('navRequests'), badge: requests, group: people, icon: 'inbox', groupIcon: 'users' },
@@ -30,6 +31,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     { href: '/admin/contracts', label: t('navContracts'), badge: toCountersign, group: people, icon: 'contract' },
     { href: '/admin/teams', label: t('navTeams'), group: teamsGroup, icon: 'team', groupIcon: 'ball' },
     { href: '/admin/events', label: t('navEvents'), group: teamsGroup, icon: 'calendar' },
+    { href: '/admin/squad', label: tsq('nav'), group: teamsGroup, icon: 'lineup' },
     { href: '/admin/places', label: tpl('nav'), group: teamsGroup, icon: 'pin' },
     { href: '/admin/palloliitto', label: tf('nav'), group: teamsGroup, icon: 'link' },
     { href: '/admin/shirts', label: t('navShirts'), badge: shirtRequests, group: teamsGroup, icon: 'shirt' },

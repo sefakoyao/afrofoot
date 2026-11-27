@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 /** Namespaces client components use. The rest of the messages stay on the server. */
-const CLIENT_NAMESPACES = ['auth', 'common', 'app', 'account', 'pp', 'me', 'availability', 'match', 'events', 'relation', 'places'] as const;
+const CLIENT_NAMESPACES = ['auth', 'common', 'app', 'account', 'pp', 'me', 'availability', 'match', 'events', 'relation', 'places', 'squad'] as const;
 const CLIENT_SITE_KEYS = ['bl_h', 'bl_how', 'bl_btn', 'bl_help'] as const;
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

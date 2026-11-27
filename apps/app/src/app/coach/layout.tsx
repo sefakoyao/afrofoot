@@ -34,12 +34,14 @@ export default async function Layout({ children }: { children: ReactNode }) {
   const tperm = await getTranslations('perm');
   const tplc = await getTranslations('places');
   // Overview, then the coach's teams grouped under "My teams", then the Code of Conduct
+  const tsq = await getTranslations('squad');
   const nav: NavItem[] = [
     { href: '/coach', label: t('navHome'), icon: 'home' },
     ...teams.map((x): NavItem => ({ href: `/coach/teams/${x.id}`, label: x.name, group: t('navMyTeams'), icon: 'team', groupIcon: 'users' })),
     { href: '/coach/events', label: ta('navEvents'), group: tev, icon: 'calendar', groupIcon: 'ball' },
     { href: '/coach/places', label: tplc('nav'), group: tev, icon: 'pin' },
     { href: '/coach/lineups', label: tl('nav'), group: tev, icon: 'lineup' },
+    { href: '/coach/squad', label: tsq('nav'), group: tev, icon: 'lineup' },
     { href: '/coach/requests', label: tcr('nav'), badge: newRequests, group: tev, icon: 'inbox' },
     { href: '/coach/tasks', label: ta('navTasks'), group: tev, icon: 'tasks' },
     ...(perms.has('contracts') ? [{ href: '/coach/contracts', label: tperm('contractsTitle'), group: tev, icon: 'contract' } as NavItem] : []),
