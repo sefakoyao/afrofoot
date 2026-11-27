@@ -13,19 +13,24 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * come from the club's data: shirt number (latest team), position, nationality, and for a farewell the seasons, games
  * (match squads of played games) and goals (not voided). The message, previous club and contract end are typed by the admin.
  */
-export const ANNOUNCE_KINDS = ['welcome', 'farewell'] as const;
+export const ANNOUNCE_KINDS = ['welcome', 'farewell', 'tryout'] as const;
+/** The kinds about one player (the tryout poster is about an event: date, time and place typed by the admin). */
+export const PLAYER_KINDS = ['welcome', 'farewell'] as const;
 export type AnnounceKind = (typeof ANNOUNCE_KINDS)[number];
 export const SAMPLE_PLAYER = 'sample';
 /** A player known only from Palloliitto's data: "fed:" and the service's player id. */
 export const FED_PREFIX = 'fed:';
 export const FED_ID = /^fed:[\w-]{1,60}$/;
 export type StatsSource = 'palloliitto' | 'app';
-export const ANNOUNCE_LIMITS = { message: 160, from: 40, until: 20 } as const;
+export const ANNOUNCE_LIMITS = { message: 160, from: 40, until: 20, place: 60, address: 80, who: 60, bring: 60, signup: 50 } as const;
 /** The line used when the admin leaves the message empty. */
 export const DEFAULT_MESSAGE: Record<AnnounceKind, string> = {
   welcome: 'Welcome to the club! We can’t wait to see you on the pitch.',
   farewell: 'Thank you for the shared memories.',
+  tryout: 'All levels welcome. Come and show us what you’ve got!',
 };
+/** The tryout poster's lines when the admin leaves them empty. */
+export const TRYOUT_DEFAULTS = { who: 'Men · Women · 16+', bring: 'Boots · Shin pads · Water', signup: 'Sign up: afrofoot.club/join' } as const;
 
 export type AnnouncePlayer = {
   firstName: string; lastName: string; shirt: number | null; position: string | null; nationality: string | null;

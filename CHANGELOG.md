@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – open tryout poster (branch `phase2/tryout-poster`, release 0.78.0, no database change)
+- **Admin → Website → Player announcement → Tryout:** a poster for open tryouts. The admin types the date (calendar), start and end time, place and address, who it is for, what to bring, how to sign up and the message (empty lines use an example, "-" leaves one out). Portrait, story and square, live preview and download.
+- **Design:** the title OPEN TRYOUTS in Nevera, a details bar with DATE · TIME · PLACE, FOR and BRING, the message and a sign-up button; the club band and crest as on the other posters.
+- **Colours:** Yellow (default), Green, White or Night (the dark Matchday style), all in the club colours.
+- **Background:** a floodlit pitch with a realistic 3D football, or the club's own photo, uploaded on the page (or on the Matchday poster page), in natural colours, club green or black and white, with the Matchday poster's effects (wave, ribbons, stripes, dots), strength and shade. The ball can be shown or hidden.
+
 ## Unreleased – birth date pop-up stays until saved; admin form removed (branch `phase2/birth-required`, release 0.77.1, no new database change)
 - **Pop-up until saved:** the "When were you born?" pop-up has no Later any more, cannot be closed with Escape or a click outside, and comes back on every page until the birth date is saved (player area, and the coach area for player-coaches).
 - **Honest message:** "already saved" only when the database says so. When the database cannot save it yet (migration 0073 not installed), the player reads "Saving birth dates is not switched on yet" and may close the pop-up for now, so nobody is locked out.
