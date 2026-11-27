@@ -4016,6 +4016,13 @@
     "ai_invalid": "Vastaus jäi kesken. Yritä uudelleen.",
     "ai_notAllowed": "Et voi suunnitella tätä joukkuetta.",
     "ai_api": "Analyysi ei onnistunut. Yritä uudelleen.",
-    "poolHint": "Vedä pelaaja kentälle tai napauta pelaajaa ja sitten paikkaa."
+    "poolHint": "Vedä pelaaja kentälle tai napauta pelaajaa ja sitten paikkaa.",
+    "starterLabel": "Avaus",
+    "backupLabel": "Varalla {n}",
+    "nobody": "— Ei ketään —",
+    "fitsHere": "Sopii tälle paikalle",
+    "otherPlayers": "Muut pelaajat",
+    "close": "Sulje",
+    "placedN": "Kentällä ({n}): heidän tilanteensa"
   }
 }
