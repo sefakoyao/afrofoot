@@ -4016,6 +4016,13 @@
     "ai_invalid": "The answer was not complete. Try again.",
     "ai_notAllowed": "You may not plan this team.",
     "ai_api": "The analysis did not work. Try again.",
-    "poolHint": "Drag a player onto the pitch, or tap a player and then a place."
+    "poolHint": "Drag a player onto the pitch, or tap a player and then a place.",
+    "starterLabel": "Starter",
+    "backupLabel": "Back-up {n}",
+    "nobody": "— Nobody —",
+    "fitsHere": "Fits this position",
+    "otherPlayers": "Other players",
+    "close": "Close",
+    "placedN": "On the pitch ({n}): their outlook"
   }
 }

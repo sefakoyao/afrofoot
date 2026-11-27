@@ -1,16 +1,15 @@
 'use client';
 
-import { useActionState, useMemo, useState, type DragEvent } from 'react';
+import { useActionState, useEffect, useMemo, useState, type DragEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { analysePlan, saveSquadPlan, type AnalysisState, type SaveState } from '@/app/actions/squad';
 import type { Formation, Line, Plan, PoolEntry, Status } from '@/lib/squad-plan';
 import { fit, gaps, outlookOf, suggest, warnings, type Outlook } from '@/lib/squad-score';
 
-const DEPTHS = 3;
-const OUTLOOK_STYLE: Record<Outlook, string> = {
-  confirmed: 'bg-accent text-on-accent', likely: 'bg-gold text-ink-950', unsure: 'bg-line text-fg', leaving: 'bg-danger text-white', target: 'bg-ink-950 text-white',
-};
-const DOT: Record<Outlook, string> = { confirmed: 'bg-accent', likely: 'bg-gold', unsure: 'bg-muted', leaving: 'bg-danger', target: 'bg-ink-950 ring-2 ring-white' };
+/** Starter, back-up 1 and back-up 2 each have their own colour on the pitch; the outlook is the dot in front of the name. */
+const DEPTH_STYLE = ['bg-ink-950 text-white ring-2 ring-white', 'bg-gold text-ink-950', 'bg-white text-ink-950'] as const;
+const DEPTH_SWATCH = ['bg-ink-950', 'bg-gold', 'bg-white border border-line'] as const;
+const DOT: Record<Outlook, string> = { confirmed: 'bg-accent ring-1 ring-white', likely: 'bg-gold ring-1 ring-ink-950/40', unsure: 'bg-muted', leaving: 'bg-danger', target: 'bg-ink-950 ring-1 ring-white' };
 const LEVEL: Record<'ok' | 'warn' | 'gap', string> = { ok: 'bg-accent/15 text-pitch', warn: 'bg-gold text-ink-950', gap: 'bg-danger/10 text-danger' };
 const surname = (n: string) => n.split(' ').slice(-1)[0] ?? n;
 type Board = Record<number, (string | null)[]>;
@@ -35,6 +34,8 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
   const [notes, setNotes] = useState(plan?.notes ?? '');
   const [picked, setPicked] = useState<string | null>(null);        // a pool player chosen to place by tapping
   const [place, setPlace] = useState<number>(1);                     // the place whose suggestions are shown
+  const [menu, setMenu] = useState<number | null>(null);             // the place whose menu (starter, back-ups) is open
+  useEffect(() => { if (menu === null) return; const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenu(null); }; window.addEventListener('keydown', esc); return () => window.removeEventListener('keydown', esc); }, [menu]);
   const [filter, setFilter] = useState<{ line: Line | ''; outlook: Outlook | ''; q: string; scope: 'team' | 'all' }>({ line: '', outlook: '', q: '', scope: 'team' });
   const [dirty, setDirty] = useState(false);
   const [saved, save, saving] = useActionState<SaveState, FormData>(saveSquadPlan, { status: 'idle' });
@@ -48,16 +49,15 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
   const onBoard = useMemo(() => new Set(Object.values(board).flat().filter((k): k is string => !!k)), [board]);
   const g = gaps(roles, pool, st), w = warnings(roles, boardMap, pool, st, year);
   const placeRole = form.slots.find((s) => s.slot === place)?.role ?? 'MF';
-  // candidates: not already in this place, and not starting in another place (they can still be added as a back-up by hand)
-  const starting = new Set(Object.values(board).map((c) => c[0]).filter((k): k is string => !!k));
-  const suggestions = suggest(pool, placeRole, st, new Set([...(board[place] ?? []).filter((k): k is string => !!k), ...starting]), 4);
+  // candidates: players not on the pitch yet (each player has one place: starter or back-up)
+  const suggestions = suggest(pool, placeRole, st, onBoard, 4);
 
   const touch = () => setDirty(true);
   const put = (key: string, slot: number, depth: number) => {
     setBoard((b) => {
       const next: Board = { ...b };
-      // a player starts in one place only: as a starter here, they leave any other starting place
-      if (depth === 0) for (const [s, c] of Object.entries(next)) if (Number(s) !== slot && c[0] === key) next[Number(s)] = [null, ...c.slice(1)];
+      // each player has one place on the pitch: placed here, they leave wherever they were
+      for (const [s, c] of Object.entries(next)) if (Number(s) !== slot && c.includes(key)) next[Number(s)] = c.map((k) => (k === key ? null : k));
       const cells = [...(next[slot] ?? [null, null, null])];
       const was = cells.indexOf(key);
       if (was >= 0) cells[was] = cells[depth] ?? null;            // moving within the place: swap
@@ -67,6 +67,8 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
     });
     setPicked(null); setPlace(slot); touch();
   };
+  // the menu on a place: choose the starter or a back-up, or empty it
+  const choose = (slot: number, depth: number, key: string) => (key ? put(key, slot, depth) : remove(slot, depth));
   const remove = (slot: number, depth: number) => { setBoard((b) => { const c = [...(b[slot] ?? [null, null, null])]; c[depth] = null; return { ...b, [slot]: c }; }); touch(); };
   const setOutlook = (key: string, status: Status | '') => {
     setStatuses((s) => { const n = { ...s }; if (status) n[key] = { status, note: s[key]?.note ?? '' }; else delete n[key]; return n; }); touch();
@@ -78,7 +80,7 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
   };
   const drop = (e: DragEvent, slot: number, depth: number) => { e.preventDefault(); const k = e.dataTransfer.getData('text/plain'); if (byKey.has(k)) put(k, slot, depth); };
 
-  const shown = pool.filter((p) => (filter.scope === 'all' || p.inTeam || p.kind !== 'player' || statuses[p.key])
+  const shown = pool.filter((p) => !onBoard.has(p.key) && (filter.scope === 'all' || p.inTeam || p.kind !== 'player' || statuses[p.key])
     && (!filter.line || p.line === filter.line || p.second === filter.line) && (!filter.outlook || outlookOf(p, st) === filter.outlook)
     && (!filter.q || p.name.toLowerCase().includes(filter.q.toLowerCase())))
     .sort((a, b) => Number(b.inTeam) - Number(a.inTeam) || (a.kind === 'player' ? 0 : 1) - (b.kind === 'player' ? 0 : 1) || a.name.localeCompare(b.name));
@@ -102,11 +104,41 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
     const o = outlookOf(p, st);
     return (
       <span draggable onDragStart={(e) => e.dataTransfer.setData('text/plain', p.key)} title={`${p.name} · ${t(`o_${o}`)}`}
-        className={`flex min-w-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold shadow ${depth === 0 ? OUTLOOK_STYLE[o] : 'bg-white/90 text-ink-950'}`} data-cell={`${slot}-${depth + 1}`} data-key={p.key}>
-        {depth ? <span aria-hidden className={`size-2 shrink-0 rounded-full ${DOT[o]}`} /> : null}
+        className={`flex min-w-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold shadow ${DEPTH_STYLE[depth]}`} data-cell={`${slot}-${depth + 1}`} data-key={p.key} data-depth={depth + 1}>
+        <span aria-hidden className={`size-2 shrink-0 rounded-full ${DOT[o]}`} />
         <bdi className="truncate">{surname(p.name)}</bdi>
         <button type="button" onClick={(e) => { e.stopPropagation(); remove(slot, depth); }} aria-label={t('remove', { name: p.name })} className="ms-0.5 opacity-60 hover:opacity-100">×</button>
       </span>
+    );
+  };
+
+  // the menu that opens from a place: three choices, players who fit the place first, players placed elsewhere left out
+  const placeMenu = (slot: number, role: Line, x: number, y: number) => {
+    const cells = board[slot] ?? [null, null, null];
+    const free = pool.filter((p) => !onBoard.has(p.key) && outlookOf(p, st) !== 'leaving');
+    const fits = free.filter((p) => p.line === role || p.second === role).sort((a, b) => (fit(b, role, outlookOf(b, st))?.score ?? 0) - (fit(a, role, outlookOf(a, st))?.score ?? 0));
+    const others = free.filter((p) => !fits.includes(p) && p.kind === 'player' && role !== 'GK' && p.line !== 'GK').sort((a, b) => a.name.localeCompare(b.name));
+    const label = (p: PoolEntry) => `${p.name}${p.kind !== 'player' ? ` (${t('o_target')})` : ''} · ${t(`o_${outlookOf(p, st)}`)}`;
+    const side = x < 30 ? 'start-0' : x > 70 ? 'end-0' : 'left-1/2 -translate-x-1/2';
+    return (
+      <div role="dialog" aria-label={t('placeLabel', { role: t(`line_${role}`), n: slot })} className={`absolute z-30 grid w-64 gap-2 rounded-card border border-line bg-raised p-3 text-start text-fg shadow-2xl ${side} ${y > 55 ? 'bottom-full mb-2' : 'top-full mt-2'}`} data-place-menu={slot}>
+        <div className="flex items-center justify-between gap-2"><p className="font-display font-extrabold">{t('line_' + role as 'line_GK')} · {slot}</p>
+          <button type="button" onClick={() => setMenu(null)} aria-label={t('close')} className="grid size-7 place-items-center rounded-full hover:bg-surface" data-menu-close>×</button></div>
+        {[0, 1, 2].map((d) => {
+          const cur = cells[d] ? byKey.get(cells[d]!) : undefined;
+          return (
+            <label key={d} className="grid gap-1 text-xs font-bold">
+              <span className="inline-flex items-center gap-1.5"><span aria-hidden className={`h-3 w-5 rounded-full ${DEPTH_SWATCH[d]}`} />{d ? t('backupLabel', { n: d }) : t('starterLabel')}</span>
+              <select value={cells[d] ?? ''} onChange={(e) => choose(slot, d, e.target.value)} className="min-h-9 rounded-control border border-line bg-raised px-2 text-sm font-normal" data-menu-select={d + 1}>
+                <option value="">{t('nobody')}</option>
+                {cur ? <option value={cur.key}>{label(cur)}</option> : null}
+                {fits.length ? <optgroup label={t('fitsHere')}>{fits.map((p) => <option key={p.key} value={p.key}>{label(p)}</option>)}</optgroup> : null}
+                {others.length ? <optgroup label={t('otherPlayers')}>{others.map((p) => <option key={p.key} value={p.key}>{label(p)}</option>)}</optgroup> : null}
+              </select>
+            </label>
+          );
+        })}
+      </div>
     );
   };
 
@@ -121,7 +153,7 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
           </select>
         </div>
         {picked ? <p role="status" className="rounded-card bg-accent/15 p-2 text-sm font-semibold text-pitch">{t('pickHint', { name: byKey.get(picked)?.name ?? '' })}</p> : null}
-        <div className="relative mx-auto aspect-[4/5] w-full max-w-[42rem] overflow-hidden rounded-card border-4 border-white/70 shadow-inner" dir="ltr"
+        <div className="relative mx-auto aspect-[4/5] w-full max-w-[42rem] rounded-card border-4 border-white/70 shadow-inner" dir="ltr"
           style={{ background: 'repeating-linear-gradient(0deg, #2f8f22 0 10%, #349a26 10% 20%)' }} data-pitch>
           <div aria-hidden className="absolute inset-x-[18%] top-0 h-[14%] border-2 border-t-0 border-white/50" /><div aria-hidden className="absolute inset-x-[18%] bottom-0 h-[14%] border-2 border-b-0 border-white/50" />
           <div aria-hidden className="absolute inset-x-0 top-1/2 border-t-2 border-white/50" /><div aria-hidden className="absolute left-1/2 top-1/2 size-[22%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/50" />
@@ -129,22 +161,26 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
             const cells = cellsOf(s.slot), starter = cells[0];
             const weak = !starter || ['unsure', 'leaving', 'target'].includes(starter ? outlookOf(starter, st) : 'unsure');
             return (
-              <div key={s.slot} className="absolute flex w-[23%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5" style={{ left: `${s.x}%`, top: `${s.y}%` }} data-place={s.slot}>
-                <button type="button" onClick={() => (picked ? put(picked, s.slot, 0) : setPlace(s.slot))} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, s.slot, 0)}
+              <div key={s.slot} className="absolute flex w-[23%] -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-0.5" style={{ left: `${s.x}%`, top: `${s.y}%`, zIndex: menu === s.slot ? 40 : undefined }} data-place={s.slot}>
+                <button type="button" onClick={() => { if (picked) put(picked, s.slot, 0); else { setPlace(s.slot); setMenu(menu === s.slot ? null : s.slot); } }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, s.slot, 0)} aria-expanded={menu === s.slot}
                   className={`grid size-11 place-items-center rounded-full border-2 font-display text-xs font-black shadow-lg sm:size-12 ${place === s.slot ? 'border-gold ring-4 ring-gold/40' : 'border-white'} ${starter ? 'bg-ink-950 text-white' : weak ? 'border-dashed bg-white/20 text-white' : ''}`}
                   aria-label={t('placeLabel', { role: t(`line_${s.role}`), n: s.slot })} data-place-button={s.slot}>{t(`short_${s.role}`)}</button>
                 {starter ? chip(starter, s.slot, 0) : <span className="rounded-full bg-black/40 px-2 text-[10px] font-bold text-white">{t('empty')}</span>}
                 <div className="flex w-full flex-col items-center gap-0.5">
                   {[1, 2].map((d) => cells[d] ? <div key={d} className="max-w-full">{chip(cells[d]!, s.slot, d)}</div> : (
-                    <button key={d} type="button" onClick={() => (picked ? put(picked, s.slot, d) : setPlace(s.slot))} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, s.slot, d)}
+                    <button key={d} type="button" onClick={() => { if (picked) put(picked, s.slot, d); else { setPlace(s.slot); setMenu(s.slot); } }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => drop(e, s.slot, d)}
                       className="rounded-full border border-dashed border-white/60 px-2 text-[10px] font-semibold text-white/80 hover:bg-white/10" data-backup-slot={`${s.slot}-${d + 1}`}>{t('backupN', { n: d })}</button>
                   ))}
                 </div>
+                {menu === s.slot ? placeMenu(s.slot, s.role, s.x, s.y) : null}
               </div>
             );
           })}
         </div>
-        <p className="flex flex-wrap gap-3 text-xs text-muted">{(['confirmed', 'likely', 'unsure', 'leaving', 'target'] as const).map((o) => <span key={o} className="inline-flex items-center gap-1"><span aria-hidden className={`size-2.5 rounded-full ${DOT[o]}`} />{t(`o_${o}`)}</span>)}</p>
+        <div className="grid gap-1 text-xs text-muted" data-legend>
+          <p className="flex flex-wrap gap-3">{[0, 1, 2].map((d) => <span key={d} className="inline-flex items-center gap-1 font-semibold text-fg"><span aria-hidden className={`h-3 w-5 rounded-full ${DEPTH_SWATCH[d]}`} />{d ? t('backupLabel', { n: d }) : t('starterLabel')}</span>)}</p>
+          <p className="flex flex-wrap gap-3">{(['confirmed', 'likely', 'unsure', 'leaving', 'target'] as const).map((o) => <span key={o} className="inline-flex items-center gap-1"><span aria-hidden className={`size-2.5 rounded-full ${DOT[o]}`} />{t(`o_${o}`)}</span>)}</p>
+        </div>
         <label className="grid gap-1 text-sm font-semibold">{t('notes')}
           <textarea value={notes} onChange={(e) => { setNotes(e.target.value); touch(); }} maxLength={2000} rows={3} className="rounded-control border border-line bg-raised p-2 font-normal" /></label>
         <form action={(fd) => { fd.set('plan', payload()); setDirty(false); return save(fd); }} className="flex flex-wrap items-center gap-3">
@@ -254,6 +290,23 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
             );
           })}
         </ul>
+        {onBoard.size ? (
+          <details className="rounded-control bg-surface p-3" data-placed>
+            <summary className="cursor-pointer text-sm font-semibold">{t('placedN', { n: onBoard.size })}</summary>
+            <ul className="mt-2 grid gap-1.5 sm:grid-cols-[repeat(auto-fill,minmax(15rem,1fr))]">
+              {[...onBoard].map((k) => byKey.get(k)).filter((p): p is PoolEntry => !!p).sort((a, b) => a.name.localeCompare(b.name)).map((p) => (
+                <li key={p.key} className="flex items-center gap-2 text-sm" data-placed-entry={p.key}>
+                  <span aria-hidden className={`size-2.5 shrink-0 rounded-full ${DOT[outlookOf(p, st)]}`} /><bdi className="min-w-0 flex-1 truncate font-semibold">{p.name}</bdi>
+                  {p.kind === 'player' && !p.contractConfirmed ? (
+                    <select value={statuses[p.key]?.status ?? ''} onChange={(e) => setOutlook(p.key, e.target.value as Status | '')} aria-label={t('outlookFor', { name: p.name })} className="min-h-8 rounded-full border border-line bg-raised px-2 text-xs" data-outlook={p.key}>
+                      <option value="">{t('o_unset')}</option>{(['confirmed', 'likely', 'unsure', 'leaving'] as const).map((x) => <option key={x} value={x}>{t(`o_${x}`)}</option>)}
+                    </select>
+                  ) : <span className="text-xs text-muted">{t(`o_${outlookOf(p, st)}`)}</span>}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
       </section>
 
     </div>

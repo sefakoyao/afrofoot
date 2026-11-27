@@ -4016,6 +4016,13 @@
     "ai_invalid": "La réponse était incomplète. Réessayez.",
     "ai_notAllowed": "Vous ne pouvez pas planifier cette équipe.",
     "ai_api": "L’analyse a échoué. Réessayez.",
-    "poolHint": "Faites glisser un joueur sur le terrain, ou touchez un joueur puis un poste."
+    "poolHint": "Faites glisser un joueur sur le terrain, ou touchez un joueur puis un poste.",
+    "starterLabel": "Titulaire",
+    "backupLabel": "Remplaçant {n}",
+    "nobody": "— Personne —",
+    "fitsHere": "Adapté à ce poste",
+    "otherPlayers": "Autres joueurs",
+    "close": "Fermer",
+    "placedN": "Sur le terrain ({n}) : leur situation"
   }
 }
