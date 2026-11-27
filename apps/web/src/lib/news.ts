@@ -11,11 +11,12 @@ const FALLBACKS = ['/images/hero-team.jpg', '/images/montel-deal.jpg'];
  * Cover picture: a picture shipped with the site ("/news/…", e.g. the articles imported from the old website), the uploaded
  * file in the public-media bucket, else a club photo. `remote` tells the caller to use a plain <img>.
  */
-export function cover(post: Pick<Post, 'cover_path'>, index: number): { src: string; remote: boolean } {
-  if (post.cover_path?.startsWith('/news/')) return { src: post.cover_path, remote: false };
+export function cover(post: Pick<Post, 'cover_path'>, index: number): { src: string; remote: boolean; poster: boolean } {
+  if (post.cover_path?.startsWith('/news/')) return { src: post.cover_path, remote: false, poster: false };
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (post.cover_path && base) return { src: `${base}/storage/v1/object/public/public-media/${post.cover_path}`, remote: true };
-  return { src: FALLBACKS[index % FALLBACKS.length]!, remote: false };
+  // a poster published from the app (migration 0074) is shown whole, never cropped
+  if (post.cover_path && base) return { src: `${base}/storage/v1/object/public/public-media/${post.cover_path}`, remote: true, poster: post.cover_path.startsWith('posters/published/') };
+  return { src: FALLBACKS[index % FALLBACKS.length]!, remote: false, poster: false };
 }
 
 export const POST_COLUMNS = 'id,slug,title,excerpt,cover_path,published_at,translations';

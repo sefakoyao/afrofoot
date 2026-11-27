@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { PosterPreview } from '@/components/admin/PosterPreview';
+import { PublishPanel } from '@/components/admin/PublishPanel';
+import { publishPanel } from '@/lib/publish-ui';
 import { SCHEMES, TONES } from '@/app/api/content/announce/tryout';
 import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect, type Effect } from '@/lib/poster-art';
 import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
@@ -51,6 +53,16 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const strength = pct('strength', DEFAULT_STRENGTH), shade = pct('shade', DEFAULT_SHADE, 90);
   const ball = one(sp.ball) === '1' || one(sp.ball) === '0' ? one(sp.ball) : bg ? '0' : '1';
   const result = one(sp.result);
+  // Publish (0074): the article's title and text to start from, for the poster the page shows now
+  const pub = await publishPanel(supabase);
+  const name = (() => { const a = players.find((x) => x.id === player); if (a) return `${a.first_name} ${a.last_name}`; return fedOnly.find((x) => x.id === player)?.name ?? ''; })();
+  const tryDate = /^\d{4}-\d{2}-\d{2}$/.test(tf.date) ? new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(`${tf.date}T12:00:00Z`)) : '';
+  const defaults = kind === 'tryout'
+    ? { title: `Open tryouts${tryDate ? ` – ${tryDate}` : ''}`, text: [msg || DEFAULT_MESSAGE.tryout, [tryDate, tf.start ? (tf.end ? `${tf.start}–${tf.end}` : tf.start) : '', [tf.place, tf.address].filter(Boolean).join(', ')].filter(Boolean).join(' · '), tf.signup || TRYOUT_DEFAULTS.signup].filter(Boolean).join('\n\n') }
+    : kind === 'welcome'
+      ? { title: name ? `Welcome to Afro Foot Club, ${name}!` : 'Welcome to Afro Foot Club!', text: [msg || DEFAULT_MESSAGE.welcome, from ? `${name || 'Our new signing'} joins from ${from}.` : ''].filter(Boolean).join(' ') }
+      : { title: name ? `Thank you, ${name}` : 'Thank you', text: msg || DEFAULT_MESSAGE.farewell };
+  const isSample = kind !== 'tryout' && player === SAMPLE_PLAYER;
   const q = new URLSearchParams({ kind, player, format, ...(kind === 'tryout' ? { scheme, bg, tone, fx, strength, shade, ball } : {}), ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
     ...Object.fromEntries(Object.entries(tf).filter(([, v]) => v)) });
   const pick = (name: string, value: string, checked: boolean, inner: React.ReactNode) => (
@@ -145,6 +157,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
           {result ? <p role={result === 'p_uploaded' || result === 'p_removed' ? 'status' : 'alert'} className={`w-full rounded-card p-3 text-sm font-semibold ${result === 'p_uploaded' || result === 'p_removed' ? 'bg-accent/15 text-pitch' : 'bg-danger/10 text-danger'}`} data-upload-result>{tp(result as 'p_uploaded')}</p> : null}
           <PosterPreview formId="announce-form" initial={q.toString()} alt={t('previewAlt')} download={t('download')} loading={t('loading')} story={format === 'story'} endpoint="/api/content/announce" />
           <p className="max-w-xl rounded-card bg-gold p-2 text-center text-xs font-semibold text-ink-950" data-sample-note>{t('sampleNote')}</p>
+          {pub.allowed ? <PublishPanel key={q.toString()} formId="announce-form" source="announce" defaults={defaults} platforms={pub.platforms} labels={pub.labels} siteUrl={pub.siteUrl} sample={isSample} /> : null}
           {kind === 'tryout' ? (
             <div className="grid w-full gap-2 border-t border-line pt-4" data-tryout-upload>
               <h2 className="font-display text-lg font-extrabold">{t('tUploadTitle')}</h2>

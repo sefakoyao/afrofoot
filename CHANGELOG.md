@@ -3,6 +3,14 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – publish posters to the website and social media (branch `phase2/publish-posters`, release 0.79.0, migration 0074)
+- **Publish** under the poster preview on Admin → Website → Matchday poster and Player announcement (new signing, farewell, open tryout), for admins and communications people: the article's title and text (started from the poster's details), the platforms (Facebook, Instagram, LinkedIn, X; switched-on ones ticked), optional texts per platform, now or later.
+- **Website:** a news article with the poster as its picture; the article shows the whole poster, the News list shows it uncropped.
+- **Social media:** a post per chosen platform with the poster itself as the picture (not the headline card), sent now or at the chosen time by the 10-minute job; listed on Admin → Website → Social media. A story-size poster is published in the portrait size.
+- **Open tryouts** also go on the public club calendar.
+- If publishing fails, nothing is published and the form keeps its choices. The sample player or game cannot be published.
+- **Migration 0074 (run it once in the SQL Editor):** `social_posts.image_path` (the published poster, cannot be changed by people), `public.publish_poster` (publishers only: article, posts and tryout event in one go). Needs 0071. 18 new database tests.
+
 ## Unreleased – open tryout poster (branch `phase2/tryout-poster`, release 0.78.0, no database change)
 - **Admin → Website → Player announcement → Tryout:** a poster for open tryouts. The admin types the date (calendar), start and end time, place and address, who it is for, what to bring, how to sign up and the message (empty lines use an example, "-" leaves one out). Portrait, story and square, live preview and download.
 - **Design:** the title OPEN TRYOUTS in Nevera, a details bar with DATE · TIME · PLACE, FOR and BRING, the message and a sign-up button; the club band and crest as on the other posters.

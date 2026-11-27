@@ -10,7 +10,15 @@ export function NewsCard({ post, index, locale, date, readMore }: { post: Post; 
   return (
     <article className="group flex flex-col overflow-hidden rounded-card border border-line bg-raised shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl motion-reduce:transition-none">
       <Link href={`/news/${post.slug}`} className="relative block aspect-[16/9] overflow-hidden" tabIndex={-1} aria-hidden>
-        {img.remote
+        {img.poster ? (
+          // a published poster: whole, over a blurred copy of itself (never cropped)
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- remote storage URL */}
+            <img src={img.src} alt="" loading="lazy" className="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-xl" />
+            {/* eslint-disable-next-line @next/next/no-img-element -- remote storage URL */}
+            <img src={img.src} alt="" loading="lazy" className="relative mx-auto h-full w-auto object-contain shadow-2xl transition duration-500 group-hover:scale-105 motion-reduce:transition-none" data-card-poster />
+          </>
+        ) : img.remote
           // eslint-disable-next-line @next/next/no-img-element -- remote storage URL, host differs per environment
           ? <img src={img.src} alt="" loading="lazy" className="size-full object-cover transition duration-500 group-hover:scale-105 motion-reduce:transition-none" />
           : <Image src={img.src} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105 motion-reduce:transition-none" />}

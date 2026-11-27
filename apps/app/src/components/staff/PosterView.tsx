@@ -4,6 +4,8 @@ import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { may, type Scope } from '@/lib/staff';
 import { supabaseEnv } from '@/lib/env';
 import { PosterPreview } from '@/components/admin/PosterPreview';
+import { PublishPanel } from '@/components/admin/PublishPanel';
+import { publishPanel } from '@/lib/publish-ui';
 import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect } from '@/lib/poster-art';
 import { POSTER_FORMATS, POSTER_LAYOUTS, POSTER_TITLES, SAMPLE_MATCH, UPLOAD_KINDS, posterGames, type PosterFormat, type PosterLayout, type UploadKind } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
@@ -54,6 +56,7 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
   if (!supabase) return null;
   const tag = isLocale(locale) ? LOCALE_LABELS[locale].intl : 'en-GB';
   const when = new Intl.DateTimeFormat(tag, { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: TIME_ZONE });
+  const pub = await publishPanel(supabase);
   const games = await posterGames(supabase, admin ? undefined : scope.teams.map((x) => x.id));
   // a real game when one has a lineup, else the sample (preview only, nothing stored, players never see it)
   const match = one(sp.match) === SAMPLE_MATCH || games.some((g) => g.id === one(sp.match)) ? one(sp.match) : (games.find((g) => g.kickoff > new Date().toISOString()) ?? games.at(-1))?.id ?? SAMPLE_MATCH;
@@ -166,6 +169,10 @@ export async function PosterView({ sp, scope }: { sp: Record<string, string | st
             <PosterPreview formId="poster-form" initial={q.toString()} alt={t('previewAlt')} download={t('download')} loading={t('loading')} story={format === 'story'} />
             {match === SAMPLE_MATCH ? <p className="max-w-xl rounded-card bg-gold p-2 text-center text-xs font-semibold text-ink-950" data-sample-note>{t('sampleNote')}</p> : null}
             <p className="max-w-xl text-center text-xs text-muted">{t('namesNote')}</p>
+            {pub.allowed ? <PublishPanel key={q.toString()} formId="poster-form" source="xi" platforms={pub.platforms} labels={pub.labels} siteUrl={pub.siteUrl} sample={match === SAMPLE_MATCH}
+              defaults={(() => { const g = games.find((x) => x.id === match); if (!g) return { title: 'Matchday', text: '' };
+                const when = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Helsinki' }).format(new Date(g.kickoff));
+                return { title: `Matchday: ${g.homeAway === 'away' ? `${g.opponent} vs ${g.team}` : `${g.team} vs ${g.opponent}`}`, text: `Kick-off ${when}. Here is our starting XI – come and support us!` }; })()} /> : null}
           </section>
         </div>
       )}
