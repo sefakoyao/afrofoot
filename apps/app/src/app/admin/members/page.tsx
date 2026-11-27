@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ADMIN_ROLES, assignableRoles, canManageMember, COACH_ROLES, isPlayerRole, isRole, PLAYER_ROLES, type Role, ROLES } from '@afrofoot/db';
-import { bulkMembers, setBirthDate, updateMember } from '@/app/actions/members';
+import { bulkMembers, updateMember } from '@/app/actions/members';
 import { BulkBar } from '@/components/admin/BulkBar';
 import { ContractsNote } from '@/components/admin/ContractsNote';
 import { TeamSelect } from '@/components/admin/TeamSelect';
@@ -17,8 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const PAGE_SIZE = 25;
-const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged', 'birthSaved'];
-const RESULTS_ERR = ['notAllowed', 'lastSuper', 'notFound', 'invalid', 'error', 'approveNoName', 'approveNotPlayer', 'bulkNone', 'bulkNoTeam', 'birthInvalid'];
+const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged'];
+const RESULTS_ERR = ['notAllowed', 'lastSuper', 'notFound', 'invalid', 'error', 'approveNoName', 'approveNotPlayer', 'bulkNone', 'bulkNoTeam'];
 const STATUS_BADGE: Record<string, string> = { active: 'bg-accent/20 text-pitch', pending: 'bg-ink-950 text-white', suspended: 'bg-danger/15 text-danger' };
 
 type Search = Record<string, string | string[] | undefined>;
@@ -90,8 +90,6 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
     return `/admin/members${u.size ? `?${u}` : ''}`;
   };
   const back = params({});
-  const todayH = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(new Date());
-  const maxBirth = `${Number(todayH.slice(0, 4)) - 5}${todayH.slice(4)}`;
   const choices = assignableRoles(actor.role);
   const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
   const playerOf = new Map((playerLinks ?? []).map((p) => [p.profile_id, p.id]));
@@ -231,16 +229,6 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                                       </select></label>
                                     <button className="min-h-9 rounded-full border border-fg px-3 font-semibold hover:bg-fg hover:text-raised">{t('saveRole')}</button>
                                   </form>
-                                  {isPlayerRole(mRole) && playerOf.get(m.id) ? (
-                                    <form action={setBirthDate} className="grid gap-1.5 border-t border-line pt-2" data-birth-form>
-                                      <input type="hidden" name="player_id" value={playerOf.get(m.id)} /><input type="hidden" name="back" value={back} />
-                                      <label className="grid gap-1 text-xs font-semibold">{t('birthDate')}
-                                        <input type="date" name="date_of_birth" required min="1940-01-01" max={maxBirth} defaultValue={paperwork.get(m.id)?.birth?.date ?? ''}
-                                          aria-label={`${t('birthDate')}: ${name || m.email || m.phone || ''}`} className="min-h-9 rounded-control border border-line bg-raised px-2 font-normal" /></label>
-                                      <span className="text-[11px] leading-snug text-muted">{t('birthHint')}</span>
-                                      <button className="min-h-9 rounded-full border border-fg px-3 font-semibold hover:bg-fg hover:text-raised" data-birth-save>{t('saveBirth')}</button>
-                                    </form>
-                                  ) : null}
                                 </>
                               ) : <span className="text-xs text-muted">{t('onlySuper')}</span>}
                               <a href={`/admin/signin-help?member=${m.id}#help`} className="text-sm font-semibold text-pitch underline underline-offset-2" data-signin-help-link>{t('signinHelp')}</a>

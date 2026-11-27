@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { requireMember } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase/server';
 
-export type BirthState = { status: 'idle' } | { status: 'ok' } | { status: 'error'; error: 'range' | 'already' | 'noPlayer' | 'failed' };
+export type BirthState = { status: 'idle' } | { status: 'ok' } | { status: 'error'; error: 'range' | 'already' | 'noPlayer' | 'notReady' | 'failed' };
 
 /** 1940-01-01 to 5 years ago (Helsinki): the same range as the database (app.birth_date_ok, migration 0073). */
 const birthDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((d) => {
@@ -27,8 +27,13 @@ export async function setMyBirthDate(_: BirthState, fd: FormData): Promise<Birth
   if (!me) return { status: 'error', error: 'noPlayer' };
   if (me.date_of_birth) return { status: 'error', error: 'already' };
   const { data, error } = await supabase.from('players').update({ date_of_birth: p.data }).eq('id', me.id).is('date_of_birth', null).select('id');
-  if (error) return { status: 'error', error: error.code === '23514' ? 'range' : error.code === '42501' ? 'already' : 'failed' };
-  if (!data?.length) return { status: 'error', error: 'already' };
+  if (error) {
+    // "already saved" only when the database says so (guard_birth_date); any other refusal means the database is not
+    // ready for it yet (migration 0073 not installed: the generic column rule refuses) — never blame the player
+    console.error('[birth] save refused', { code: error.code, message: error.message });
+    return { status: 'error', error: error.code === '23514' ? 'range' : /already saved/i.test(error.message ?? '') ? 'already' : error.code === '42501' ? 'notReady' : 'failed' };
+  }
+  if (!data?.length) return { status: 'error', error: 'notReady' };
   revalidatePath('/', 'layout');
   return { status: 'ok' };
 }

@@ -1398,11 +1398,6 @@
     "pw_s_fees_none": "No inv.",
     "joinedOn": "joined {date}",
     "f_dob": "No birth date",
-    "birthDate": "Birth date",
-    "birthHint": "Decides whether the contract needs a parent or guardian (under 18).",
-    "saveBirth": "Save birth date",
-    "result_birthSaved": "Birth date saved.",
-    "result_birthInvalid": "Choose a birth date between 1940 and 5 years ago.",
     "pw_s_dob_missing": "No DOB",
     "pw_dob_missing": "Birth date missing: the player is asked for it at sign-in and cannot sign a contract without it",
     "pw_s_dob_minor": "U18",
@@ -1633,7 +1628,7 @@
     "webHide": "Remove me from the club website",
     "webSaved": "Saved. The website shows the change within a minute.",
     "birthDate": "Birth date",
-    "birthAskAdmin": "Wrong? Ask an admin to correct it."
+    "birthAskAdmin": "Wrong? Contact the club."
   },
   "teams": {
     "title": "Teams",
@@ -2231,7 +2226,7 @@
     "rowDraft": "Draft, not sent yet",
     "rowCountersign": "Countersign",
     "rowOpen": "Open",
-    "minorBirth": "Your saved birth date is {date}. If that is wrong, ask an admin to correct it before you sign.",
+    "minorBirth": "Your saved birth date is {date}. If that is wrong, contact the club before you sign.",
     "birthFirst": "Before you sign: enter your birth date. It decides whether a parent or guardian signs this contract with you.",
     "r_birth": "Enter your birth date before you sign the contract."
   },
@@ -3827,15 +3822,16 @@
   },
   "birth": {
     "title": "When were you born?",
-    "lead": "Your birth date is used as a safeguard for your player contract: players under 18 sign together with a parent or guardian. You enter it once; after that only an admin can correct it.",
-    "later": "Later",
+    "lead": "Your birth date is used as a safeguard for your player contract: players under 18 sign together with a parent or guardian. Enter it once to continue; it cannot be changed afterwards.",
+    "later": "Close for now",
     "label": "Birth date",
-    "hint": "Check it carefully: only an admin can change it after you save.",
+    "hint": "Check it carefully: it cannot be changed after you save.",
     "save": "Save birth date",
     "saved": "Saved. Thank you!",
     "e_range": "Choose a birth date between 1940 and 5 years ago.",
-    "e_already": "Your birth date is already saved. If it is wrong, ask an admin to correct it.",
-    "e_noPlayer": "Your account has no player record yet. Ask an admin.",
-    "e_failed": "It could not be saved. Try again."
+    "e_already": "Your birth date is already saved. If it is wrong, contact the club.",
+    "e_noPlayer": "Your account has no player record yet. Contact the club.",
+    "e_failed": "It could not be saved. Try again.",
+    "e_notReady": "Saving birth dates is not switched on yet. Please try again later or tell the club."
   }
 }

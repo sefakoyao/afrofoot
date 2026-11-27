@@ -3,6 +3,11 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – birth date pop-up stays until saved; admin form removed (branch `phase2/birth-required`, release 0.77.1, no new database change)
+- **Pop-up until saved:** the "When were you born?" pop-up has no Later any more, cannot be closed with Escape or a click outside, and comes back on every page until the birth date is saved (player area, and the coach area for player-coaches).
+- **Honest message:** "already saved" only when the database says so. When the database cannot save it yet (migration 0073 not installed), the player reads "Saving birth dates is not switched on yet" and may close the pop-up for now, so nobody is locked out.
+- **Admin → Members:** the birth date field is removed from the ⋯ menu; the No DOB and U18 tags and the No birth date filter stay. Player texts now say "contact the club" when a saved date is wrong (the database still lets an admin correct it with SQL).
+
 ## Unreleased – players enter their birth date; contract year from 1 December (branch `phase2/birth-self`, release 0.77.0, migration 0073)
 - **Players set their own birth date, once:** a pop-up at sign-in ("When were you born?", Later until the next sign-in) for players and player-coaches without one, an entry field on the profile, and on the contract page before signing. It decides whether a parent or guardian signs the contract with them. After that only an admin corrects it (Admin → Members → ⋯ → Birth date).
 - **The contract needs it:** the signing form appears once a birth date is saved; the "Are you under 18?" answer is gone.
