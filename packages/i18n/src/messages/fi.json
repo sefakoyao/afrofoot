@@ -1401,7 +1401,10 @@
     "pw_s_dob_missing": "Ei SA",
     "pw_dob_missing": "Syntymäaika puuttuu: pelaajalta kysytään sitä kirjautuessa, eikä hän voi allekirjoittaa sopimusta ilman sitä",
     "pw_s_dob_minor": "U18",
-    "pw_dob_minor": "Alle 18 (syntynyt {date}): myös huoltaja allekirjoittaa sopimuksen"
+    "pw_dob_minor": "Alle 18 (syntynyt {date}): myös huoltaja allekirjoittaa sopimuksen",
+    "mfaReset": "Nollaa kaksivaiheinen kirjautuminen",
+    "mfaResetHint": "Kadonnut tai uusi puhelin: hän ottaa sen käyttöön uudelleen seuraavalla kirjautumisella.",
+    "result_mfaReset": "Kaksivaiheinen kirjautuminen nollattu. Hän ottaa sen käyttöön uudelleen seuraavalla kirjautumisella."
   },
   "me": {
     "team": "Joukkue",
@@ -3896,5 +3899,26 @@
     "e_notAllowed": "Vain ylläpitäjät ja viestintävastaavat voivat julkaista.",
     "e_invalid": "Tarkista tiedot ja yritä uudelleen.",
     "e_failed": "Julkaisu ei onnistunut. Yritä uudelleen."
+  },
+  "mfa": {
+    "title": "Kaksivaiheinen kirjautuminen",
+    "leadSetup": "Ylläpitäjien tilit suojataan toisella vaiheella: 6-numeroisella koodilla puhelimesi todennussovelluksesta. Ota se käyttöön kerran; sen jälkeen syötä koodi aina kirjautuessasi.",
+    "leadVerify": "Syötä 6-numeroinen koodi todennussovelluksesta avataksesi ylläpitosivut.",
+    "step1": "Asenna puhelimeesi todennussovellus",
+    "apps": "Esimerkiksi Google Authenticator, Microsoft Authenticator tai 1Password.",
+    "step2": "Lisää sovelluksessa tili ja skannaa tämä QR-koodi",
+    "secretLabel": "Etkö voi skannata? Kirjoita tämä avain",
+    "step3": "Syötä sovelluksen näyttämä 6-numeroinen koodi",
+    "code": "6-numeroinen koodi",
+    "codeHint": "Koodi vaihtuu 30 sekunnin välein.",
+    "verify": "Vahvista",
+    "verifying": "Tarkistetaan…",
+    "signOut": "Kirjaudu ulos",
+    "why": "Ylläpitäjät näkevät jäsenten henkilö- ja maksutiedot, joten heidän tileihinsä tarvitaan muutakin kuin salasana.",
+    "lost": "Puhelin hukassa? Pyydä pääylläpitäjää nollaamaan kaksivaiheinen kirjautumisesi.",
+    "enrollError": "Kaksivaiheista kirjautumista ei voitu aloittaa. Yritä hetken päästä uudelleen.",
+    "e_code": "Syötä sovelluksen 6 numeroa.",
+    "e_wrong": "Koodi on väärä tai vanhentunut. Syötä sovelluksen uusin koodi.",
+    "e_failed": "Ei onnistunut. Yritä uudelleen."
   }
 }

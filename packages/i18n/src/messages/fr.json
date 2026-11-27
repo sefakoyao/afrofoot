@@ -1401,7 +1401,10 @@
     "pw_s_dob_missing": "Sans DDN",
     "pw_dob_missing": "Date de naissance manquante : elle est demandée au joueur à la connexion, et il ne peut pas signer de contrat sans elle",
     "pw_s_dob_minor": "U18",
-    "pw_dob_minor": "Moins de 18 ans (né le {date}) : un parent ou tuteur signe aussi le contrat"
+    "pw_dob_minor": "Moins de 18 ans (né le {date}) : un parent ou tuteur signe aussi le contrat",
+    "mfaReset": "Réinitialiser la connexion en deux étapes",
+    "mfaResetHint": "Téléphone perdu ou nouveau : il la reconfigure à sa prochaine connexion.",
+    "result_mfaReset": "Connexion en deux étapes réinitialisée. Elle sera reconfigurée à la prochaine connexion."
   },
   "me": {
     "team": "Équipe",
@@ -3896,5 +3899,26 @@
     "e_notAllowed": "Seuls les administrateurs et la communication peuvent publier.",
     "e_invalid": "Vérifiez les détails et réessayez.",
     "e_failed": "La publication a échoué. Réessayez."
+  },
+  "mfa": {
+    "title": "Connexion en deux étapes",
+    "leadSetup": "Les comptes administrateurs sont protégés par une deuxième étape : un code à 6 chiffres d’une application d’authentification sur votre téléphone. Configurez-la une fois ; ensuite, saisissez le code à chaque connexion.",
+    "leadVerify": "Saisissez le code à 6 chiffres de votre application d’authentification pour ouvrir les pages d’administration.",
+    "step1": "Installez une application d’authentification sur votre téléphone",
+    "apps": "Par exemple Google Authenticator, Microsoft Authenticator ou 1Password.",
+    "step2": "Dans l’application, ajoutez un compte et scannez ce code QR",
+    "secretLabel": "Impossible de scanner ? Saisissez cette clé",
+    "step3": "Saisissez le code à 6 chiffres affiché par l’application",
+    "code": "Code à 6 chiffres",
+    "codeHint": "Le code change toutes les 30 secondes.",
+    "verify": "Confirmer",
+    "verifying": "Vérification…",
+    "signOut": "Se déconnecter",
+    "why": "Les administrateurs voient les données personnelles et de paiement des membres : leurs comptes demandent plus qu’un mot de passe.",
+    "lost": "Téléphone perdu ? Demandez à un super administrateur de réinitialiser votre connexion en deux étapes.",
+    "enrollError": "La connexion en deux étapes n’a pas pu démarrer. Réessayez dans un instant.",
+    "e_code": "Saisissez les 6 chiffres de l’application.",
+    "e_wrong": "Ce code est incorrect ou expiré. Saisissez le dernier code de l’application.",
+    "e_failed": "Cela n’a pas fonctionné. Réessayez."
   }
 }

@@ -3,8 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { isAdminRole } from '@afrofoot/db';
-import { requireMember } from '@/lib/auth';
+import { requireMember, isVerifiedAdmin } from '@/lib/auth';
 import { googleMapsSearch } from '@/lib/locations';
 import { PLACE_FIELDS, placeSchema } from '@/lib/places';
 import { getSupabase } from '@/lib/supabase/server';
@@ -27,7 +26,7 @@ async function writer(fd: FormData, adminOnly = false) {
   const member = await requireMember();
   const supabase = await getSupabase();
   if (!supabase) back(fd, 'r_error');
-  const admin = isAdminRole(member.role);
+  const admin = isVerifiedAdmin(member);
   if (!(admin || (!adminOnly && member.role === 'coach'))) back(fd, 'r_notAllowed');
   return { member, supabase };
 }

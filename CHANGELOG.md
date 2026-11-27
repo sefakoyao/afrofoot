@@ -3,6 +3,13 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – two-step sign-in for admins (branch `phase2/admin-mfa`, release 0.81.0, migration 0075)
+- **Admins** (club admins and super admins) confirm every sign-in with a 6-digit code from an authenticator app (Supabase Auth TOTP). The first time, the two-step screen shows a QR code (or a key to type) and asks for a first code; after that only the code.
+- **Enforced:** admin pages send to the two-step screen until the code is given; admin-only actions and picture routes check it (`isVerifiedAdmin`); and the database counts admin rights only on a confirmed session (migration 0075).
+- **Lost phone:** a super admin resets an admin's two-step sign-in in Admin → Members → ⋯ (kept in the audit trail); they set it up again at the next sign-in.
+- Players and coaches sign in as before.
+- **Migration 0075 (run it in the SQL Editor after the deploy):** `app.mfa_ok()`; `app.is_admin()` and `app.is_super()` require the token's `aal2` when token claims are present (service role, migrations and tests unchanged). 11 new database tests.
+
 ## Unreleased – visitor statistics, speed and social media tracking (branch `phase2/analytics`, release 0.80.0, no database change)
 - **Statistics:** Vercel Web Analytics on the app too (the website already had it): page views, visitors, top pages, where visitors come from, countries, devices. No cookies, no personal data; ids in addresses (a contract, a player, a game) are counted as ":id" and only campaign tags are kept from a link's query.
 - **Speed:** Vercel Speed Insights on the website and the app: real loading speed from visitors' own devices (Core Web Vitals), page by page.

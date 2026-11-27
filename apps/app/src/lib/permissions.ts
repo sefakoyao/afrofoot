@@ -1,7 +1,7 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { isAdminRole, isCoachRole } from '@afrofoot/db';
-import { getMember, type Member } from '@/lib/auth';
+import { isCoachRole } from '@afrofoot/db';
+import { getMember, type Member, isVerifiedAdmin } from '@/lib/auth';
 import { getSupabase } from '@/lib/supabase/server';
 
 /**
@@ -24,7 +24,7 @@ export async function permissionsOf(db: SupabaseClient, profileId: string): Prom
 export async function staffWith(permission: Permission): Promise<{ member: Member; supabase: SupabaseClient; area: 'admin' | 'coach' } | null> {
   const [member, supabase] = await Promise.all([getMember(), getSupabase()]);
   if (!member || member.status !== 'active' || !supabase) return null;
-  if (isAdminRole(member.role)) return { member, supabase, area: 'admin' };
+  if (isVerifiedAdmin(member)) return { member, supabase, area: 'admin' };
   if (isCoachRole(member.role) && (await permissionsOf(supabase, member.id)).has(permission)) return { member, supabase, area: 'coach' };
   return null;
 }

@@ -1,5 +1,5 @@
 -- Afro Foot 2.0 database setup, part 3 of 3. Paste into Supabase > SQL Editor and click Run. Run the parts in order, once each.
--- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000039_saved_places.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, 20260101000070_coach_permissions.sql, 20260101000071_social_publishing.sql, 20260101000072_coach_replies.sql, 20260101000073_birth_date_self.sql, 20260101000074_publish_posters.sql, seed.sql
+-- Contains: 20260101000015_locations_events_enrolment.sql, 20260101000016_versions_revisions.sql, 20260101000017_membership_fees.sql, 20260101000018_release_0_11_0.sql, 20260101000019_fees_invoices_sponsor_packages.sql, 20260101000020_release_0_12_1.sql, 20260101000021_insurance_prices.sql, 20260101000022_fee_status_signin_block.sql, 20260101000023_lineup_templates.sql, 20260101000024_phone_country_code.sql, 20260101000025_enrolment_nationality_code.sql, 20260101000026_release_0_15_0.sql, 20260101000027_automatic_invoices.sql, 20260101000028_code_of_conduct.sql, 20260101000029_event_replies.sql, 20260101000030_player_contracts.sql, 20260101000031_match_day.sql, 20260101000032_lineup_board.sql, 20260101000033_social_sign_in.sql, 20260101000034_events_public_schedule.sql, 20260101000035_phone_sign_up.sql, 20260101000036_invoice_after_consents.sql, 20260101000037_automatic_contracts.sql, 20260101000038_amateur_contract.sql, 20260101000039_saved_places.sql, 20260101000040_federation_sync.sql, 20260101000041_squad_consent_stats.sql, 20260101000042_squad_from_palloliitto.sql, 20260101000043_top_scorers.sql, 20260101000044_signin_help.sql, 20260101000045_player_coach.sql, 20260101000046_requests_inbox.sql, 20260101000047_match_details.sql, 20260101000048_email_notifications.sql, 20260101000049_football_quiz.sql, 20260101000050_quiz_more.sql, 20260101000051_signin_log.sql, 20260101000052_contract_signatory.sql, 20260101000053_past_due_lines.sql, 20260101000054_finance.sql, 20260101000055_balance_invoices.sql, 20260101000056_partial_payments.sql, 20260101000057_shirt_numbers.sql, 20260101000058_contact_robot_check.sql, 20260101000059_shirt_set.sql, 20260101000060_invoice_schedule.sql, 20260101000061_opponents.sql, 20260101000062_event_tasks.sql, 20260101000063_season_invoices.sql, 20260101000064_content_assistant.sql, 20260101000065_merge_accounts.sql, 20260101000066_coach_requests.sql, 20260101000067_duplicate_accounts.sql, 20260101000068_minor_contracts.sql, 20260101000069_reply_counts.sql, 20260101000070_coach_permissions.sql, 20260101000071_social_publishing.sql, 20260101000072_coach_replies.sql, 20260101000073_birth_date_self.sql, 20260101000074_publish_posters.sql, 20260101000075_admin_mfa.sql, seed.sql
 
 
 -- ===== 20260101000015_locations_events_enrolment.sql =====
@@ -5405,6 +5405,31 @@ grant execute on function public.publish_poster(text, text, text, text, text[], 
 insert into app_releases (version, kind, title, notes, released_at) values
  ('0.79.0','feature','Publish posters',
   'The Matchday poster and the Player announcement page (new signing, farewell, open tryout) have a Publish button: a news article on the website with the poster as its picture, posts on the chosen social media now or at a set time with the poster as the image, and open tryouts on the club calendar.','2026-11-27')
+on conflict (version) do nothing;
+
+
+-- ===== 20260101000075_admin_mfa.sql =====
+-- 0075 Two-step sign-in (MFA) for admins. Release 0.81.0.
+-- Admins (club admins and super admins) confirm every sign-in with a 6-digit code from an authenticator app (Supabase
+-- Auth TOTP); the app asks for it before the admin pages open. This makes the database agree: admin rights count only on
+-- a session confirmed with the code (the token's "aal" is "aal2"). Without the code an admin's session works like a
+-- member's own account (their profile, their two-step setup), nothing more.
+-- Sessions without token claims (the service role, migrations, database tests) are not affected. Safe to run more than once.
+-- Run it after the app with the two-step sign-in screens is live (release 0.81.0), or admins lose their rights until then.
+
+create or replace function app.mfa_ok() returns boolean language sql stable set search_path = public as $$
+  select coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'aal', 'aal2') = 'aal2'
+$$;
+grant execute on function app.mfa_ok() to authenticated;
+
+create or replace function app.is_admin() returns boolean language sql stable security definer set search_path = public as
+$$ select coalesce(app.role() in ('super_admin','club_admin'), false) and app.mfa_ok() $$;
+create or replace function app.is_super() returns boolean language sql stable security definer set search_path = public as
+$$ select coalesce(app.role() = 'super_admin', false) and app.mfa_ok() $$;
+
+insert into app_releases (version, kind, title, notes, released_at) values
+ ('0.81.0','security','Two-step sign-in for admins',
+  'Admins confirm every sign-in with a 6-digit code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password …). The first time, they scan a QR code. A super admin can reset it for an admin who lost their phone.','2026-11-27')
 on conflict (version) do nothing;
 
 

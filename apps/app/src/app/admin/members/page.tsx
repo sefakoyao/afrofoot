@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ADMIN_ROLES, assignableRoles, canManageMember, COACH_ROLES, isPlayerRole, isRole, PLAYER_ROLES, type Role, ROLES } from '@afrofoot/db';
 import { bulkMembers, updateMember } from '@/app/actions/members';
+import { resetMfa } from '@/app/actions/mfa';
 import { BulkBar } from '@/components/admin/BulkBar';
 import { ContractsNote } from '@/components/admin/ContractsNote';
 import { TeamSelect } from '@/components/admin/TeamSelect';
@@ -17,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const PAGE_SIZE = 25;
-const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged'];
+const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged', 'mfaReset'];
 const RESULTS_ERR = ['notAllowed', 'lastSuper', 'notFound', 'invalid', 'error', 'approveNoName', 'approveNotPlayer', 'bulkNone', 'bulkNoTeam'];
 const STATUS_BADGE: Record<string, string> = { active: 'bg-accent/20 text-pitch', pending: 'bg-ink-950 text-white', suspended: 'bg-danger/15 text-danger' };
 
@@ -231,6 +232,13 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                                   </form>
                                 </>
                               ) : <span className="text-xs text-muted">{t('onlySuper')}</span>}
+                              {actor.role === 'super_admin' && m.id !== actor.id && ADMIN_ROLES.includes(mRole) ? (
+                                <form action={resetMfa} className="grid gap-1 border-t border-line pt-2" data-mfa-reset>
+                                  <input type="hidden" name="id" value={m.id} />
+                                  <button className="min-h-9 rounded-full border border-danger px-3 text-sm font-semibold text-danger hover:bg-danger/10">{t('mfaReset')}</button>
+                                  <span className="text-[11px] leading-snug text-muted">{t('mfaResetHint')}</span>
+                                </form>
+                              ) : null}
                               <a href={`/admin/signin-help?member=${m.id}#help`} className="text-sm font-semibold text-pitch underline underline-offset-2" data-signin-help-link>{t('signinHelp')}</a>
                             </div>
                           </details>
