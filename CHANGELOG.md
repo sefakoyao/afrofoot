@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – birth dates: correct them, see who is missing one (branch `phase2/contract-age`, release 0.76.0, no database change)
+- **Why:** the contract asks for a parent or guardian when the saved birth date makes the player under 18 (migration 0068). An adult with a wrong birth date could not sign alone, and the app had no place to correct it.
+- **Admin → Members:** a **"No DOB"** tag on players without a birth date (with a new **No birth date** filter), a yellow **"U18"** tag on players counted as under 18 (the saved date on hover), and **⋯ → Birth date** to correct it (calendar, 1940 to 5 years ago, checked on the server; old and new date kept in the audit trail).
+- **Contract (under 18):** the player sees their saved birth date and is told to ask an admin if it is wrong.
+- **Profile → Details:** the birth date is shown (read-only) with "Wrong? Ask an admin to correct it." Players still cannot change it themselves (database rule).
+
 ## Unreleased – Events page redesign (branch `phase2/events-modern`, release 0.75.0, no database change)
 - **Admin and Coach → Events:** upcoming trainings, games and other events now come first, in one list by date (Today, Tomorrow, Next 7 days, Later), in the Members page's layout: tiles (next 7 days, trainings, games, other events) and filters (type, cancelled, team) on top, then a table with a date block, type, time, place (Google Maps), team and the players' replies (in / out / no reply; a click shows the names and notes).
 - A **⋯ menu** on each row: open the training or game (coaches) or the team page (admins), open in Google Maps, cancel or restore an event.
