@@ -35,6 +35,8 @@ export default async function MyContractPage({ params, searchParams }: { params:
   const fullName = `${member.firstName} ${member.lastName}`.trim();
   // 0068: under 18 → a parent or guardian signs too (true / false / null = birth date not known: the player answers)
   const minor = c.status === 'sent' ? ((await supabase.rpc('my_minor_status')).data as boolean | null) : false;
+  // the saved birth date behind "under 18", so a player can spot a wrong one and ask an admin to correct it
+  const birth = minor ? ((await supabase.from('players').select('date_of_birth').eq('id', c.player_id).maybeSingle()).data?.date_of_birth as string | null | undefined) ?? null : null;
   // prefill from the emergency contact when it is a parent or guardian
   const { data: priv } = c.status === 'sent' && minor !== false
     ? await supabase.from('player_private').select('emergency_name, emergency_phone, emergency_relation').eq('player_id', c.player_id).maybeSingle()
@@ -62,7 +64,8 @@ export default async function MyContractPage({ params, searchParams }: { params:
       {c.status === 'sent' ? (
         <section className="rounded-card border-2 border-accent bg-raised p-6" aria-labelledby="sign-h" id="sign">
           <h2 id="sign-h" className="font-display text-xl font-extrabold">{t('signTitle')}</h2>
-          {minor ? <p className="mt-2 rounded-card bg-gold p-3 text-sm font-semibold text-ink-950" data-minor-note>{t('minorNote')}</p> : null}
+          {minor ? <div className="mt-2 rounded-card bg-gold p-3 text-sm text-ink-950" data-minor-note><p className="font-semibold">{t('minorNote')}</p>
+            {birth ? <p className="mt-1" data-minor-birth>{t('minorBirth', { date: fmt.date.format(new Date(`${birth}T12:00:00Z`)) })}</p> : null}</div> : null}
           <form action={signContract} className="mt-3 grid gap-4">
             <input type="hidden" name="id" value={c.id} />
             <SignaturePreview label={t('typeName')} hint={t('typeNameHint', { name: fullName || '–' })} previewLabel={t('sigPreview')} placeholder={t('sigPreviewEmpty')} />

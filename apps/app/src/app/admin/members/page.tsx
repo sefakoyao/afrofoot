@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { ADMIN_ROLES, assignableRoles, canManageMember, COACH_ROLES, isPlayerRole, isRole, PLAYER_ROLES, type Role, ROLES } from '@afrofoot/db';
-import { bulkMembers, updateMember } from '@/app/actions/members';
+import { bulkMembers, setBirthDate, updateMember } from '@/app/actions/members';
 import { BulkBar } from '@/components/admin/BulkBar';
 import { ContractsNote } from '@/components/admin/ContractsNote';
 import { TeamSelect } from '@/components/admin/TeamSelect';
@@ -17,8 +17,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const PAGE_SIZE = 25;
-const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged'];
-const RESULTS_ERR = ['notAllowed', 'lastSuper', 'notFound', 'invalid', 'error', 'approveNoName', 'approveNotPlayer', 'bulkNone', 'bulkNoTeam'];
+const RESULTS_OK = ['approve', 'approvedToTeam', 'suspend', 'reactivate', 'roleChanged', 'unchanged', 'birthSaved'];
+const RESULTS_ERR = ['notAllowed', 'lastSuper', 'notFound', 'invalid', 'error', 'approveNoName', 'approveNotPlayer', 'bulkNone', 'bulkNoTeam', 'birthInvalid'];
 const STATUS_BADGE: Record<string, string> = { active: 'bg-accent/20 text-pitch', pending: 'bg-ink-950 text-white', suspended: 'bg-danger/15 text-danger' };
 
 type Search = Record<string, string | string[] | undefined>;
@@ -33,7 +33,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
 
   // ---------- filters: search, one quick filter (pill), page ----------
   const q = cleanQuery(one(sp.q));
-  const FILTERS = ['players', 'coaches', 'admins', 'pending', 'suspended', 'active', 'paperwork', 'conduct', 'overdue'] as const;
+  const FILTERS = ['players', 'coaches', 'admins', 'pending', 'suspended', 'active', 'paperwork', 'conduct', 'overdue', 'dob'] as const;
   type Filter = (typeof FILTERS)[number];
   // older links: ?role=…, ?status=…, ?conduct=missing
   const legacyRole = ROLES.find((r) => r === one(sp.role));
@@ -47,10 +47,11 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
   const activeIds = (activePlayers ?? []).map((r) => r.id as string);
   const { data: allLinks } = supabase && activeIds.length ? await supabase.from('players').select('id, profile_id').in('profile_id', activeIds) : { data: [] };
   const clubPw = supabase ? await loadPaperwork(supabase, (allLinks ?? []).map((p) => ({ profileId: p.profile_id as string, playerId: p.id as string }))) : new Map<string, Paperwork>();
-  const cocMissing = new Set<string>(), overdue = new Set<string>(), missing = new Set<string>();
+  const cocMissing = new Set<string>(), overdue = new Set<string>(), missing = new Set<string>(), noDob = new Set<string>();
   let overdueCents = 0;
   for (const [id, pw] of clubPw) {
     if (pw.conduct === null) cocMissing.add(id);
+    if (pw.birth && !pw.birth.date) noDob.add(id);
     if (pw.fees?.state === 'overdue') { overdue.add(id); overdueCents += pw.fees.overdueCents; }
     const noContract = pw.contract !== undefined && (pw.contract === null || pw.contract.status !== 'active');
     if (noContract || pw.conduct === null || pw.fees?.state === 'overdue') missing.add(id);
@@ -71,6 +72,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
     else if (f === 'conduct') query = query.in('id', only(cocMissing));
     else if (f === 'overdue') query = query.in('id', only(overdue));
     else if (f === 'paperwork') query = query.in('id', only(missing));
+    else if (f === 'dob') query = query.in('id', only(noDob));
   }
   const counted = (fn: (x: NonNullable<typeof query>) => NonNullable<typeof query>) =>
     supabase ? fn(supabase.from('profiles').select('id', { count: 'exact', head: true }) as unknown as NonNullable<typeof query>).then((r) => r.count ?? 0) : Promise.resolve(0);
@@ -88,6 +90,8 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
     return `/admin/members${u.size ? `?${u}` : ''}`;
   };
   const back = params({});
+  const todayH = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(new Date());
+  const maxBirth = `${Number(todayH.slice(0, 4)) - 5}${todayH.slice(4)}`;
   const choices = assignableRoles(actor.role);
   const { data: playerLinks } = supabase && rows.length ? await supabase.from('players').select('id, profile_id').in('profile_id', rows.map((r) => r.id)) : { data: [] };
   const playerOf = new Map((playerLinks ?? []).map((p) => [p.profile_id, p.id]));
@@ -142,7 +146,7 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
         </form>
         <nav aria-label={t('filters')} className="flex flex-wrap gap-2" data-member-filters>
           {pill('', t('f_all'), nAll)}{pill('players', t('f_players'), nPlayers)}{pill('coaches', t('f_coaches'), nCoaches)}{pill('admins', t('f_admins'), nAdmins)}
-          {pill('pending', t('f_pending'), nPending, true)}{pill('paperwork', t('f_paperwork'), missing.size, true)}
+          {pill('pending', t('f_pending'), nPending, true)}{pill('paperwork', t('f_paperwork'), missing.size, true)}{pill('dob', t('f_dob'), noDob.size, true)}
         </nav>
       </div>
       <p className="-mt-2 px-1 text-xs text-muted" data-pw-legend>{t('pw_legend')}</p>
@@ -227,6 +231,16 @@ export default async function MembersPage({ searchParams }: { searchParams: Prom
                                       </select></label>
                                     <button className="min-h-9 rounded-full border border-fg px-3 font-semibold hover:bg-fg hover:text-raised">{t('saveRole')}</button>
                                   </form>
+                                  {isPlayerRole(mRole) && playerOf.get(m.id) ? (
+                                    <form action={setBirthDate} className="grid gap-1.5 border-t border-line pt-2" data-birth-form>
+                                      <input type="hidden" name="player_id" value={playerOf.get(m.id)} /><input type="hidden" name="back" value={back} />
+                                      <label className="grid gap-1 text-xs font-semibold">{t('birthDate')}
+                                        <input type="date" name="date_of_birth" required min="1940-01-01" max={maxBirth} defaultValue={paperwork.get(m.id)?.birth?.date ?? ''}
+                                          aria-label={`${t('birthDate')}: ${name || m.email || m.phone || ''}`} className="min-h-9 rounded-control border border-line bg-raised px-2 font-normal" /></label>
+                                      <span className="text-[11px] leading-snug text-muted">{t('birthHint')}</span>
+                                      <button className="min-h-9 rounded-full border border-fg px-3 font-semibold hover:bg-fg hover:text-raised" data-birth-save>{t('saveBirth')}</button>
+                                    </form>
+                                  ) : null}
                                 </>
                               ) : <span className="text-xs text-muted">{t('onlySuper')}</span>}
                               <a href={`/admin/signin-help?member=${m.id}#help`} className="text-sm font-semibold text-pitch underline underline-offset-2" data-signin-help-link>{t('signinHelp')}</a>
@@ -288,6 +302,8 @@ function PaperworkChips({ pw, playerId, t, fmts, euro }: { pw?: Paperwork; playe
         f.state === 'overdue' ? t('pw_s_fees_overdue', { amount: euro(f.overdueCents) }) : f.state === 'unpaid' ? t('pw_s_fees_unpaid', { amount: euro(f.openCents) }) : t(`pw_s_fees_${f.state}`),
         f.state === 'overdue' ? t('pw_fees_overdue', { amount: euro(f.overdueCents) }) : f.state === 'unpaid' ? t('pw_fees_unpaid', { amount: euro(f.openCents) }) : t(`pw_fees_${f.state}`),
         { 'data-pw-fees': f.state }) : null}
+      {pw?.birth && !pw.birth.date ? tag('/admin/members?f=dob', 'border border-danger bg-raised text-danger', t('pw_s_dob_missing'), t('pw_dob_missing'), { 'data-pw-dob': 'missing' }) : null}
+      {pw?.birth?.date && pw.birth.minor ? tag(null, 'bg-gold text-ink-950', t('pw_s_dob_minor'), t('pw_dob_minor', { date: fmts.date.format(new Date(`${pw.birth.date}T12:00:00Z`)) }), { 'data-pw-dob': 'minor' }) : null}
     </div>
   );
 }

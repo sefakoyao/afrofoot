@@ -1382,7 +1382,7 @@
     "colMember": "Jäsen",
     "approveNow": "Hyväksy nyt",
     "moreActions": "Lisää toimintoja: {name}",
-    "pw_legend": "SOP sopimus · TO toimintaohje · lask. laskut — vie hiiri tunnisteen päälle lisätietoja varten, avaa klikkaamalla",
+    "pw_legend": "CTR sopimus · CoC toimintaohjeet · inv. laskut · SA syntymäaika · U18 alle 18 — vie osoitin tunnisteen päälle nähdäksesi tiedot, klikkaa avataksesi",
     "pw_s_contract_active": "SOP ✓ {date}",
     "pw_s_contract_sent": "SOP: pelaaja",
     "pw_s_contract_player_signed": "SOP: allekirj.",
@@ -1396,7 +1396,17 @@
     "pw_s_fees_unpaid": "Avoinna {amount}",
     "pw_s_fees_overdue": "Erääntynyt {amount}",
     "pw_s_fees_none": "Ei lask.",
-    "joinedOn": "liittyi {date}"
+    "joinedOn": "liittyi {date}",
+    "f_dob": "Ei syntymäaikaa",
+    "birthDate": "Syntymäaika",
+    "birthHint": "Ratkaisee, tarvitaanko sopimukseen huoltajan allekirjoitus (alle 18).",
+    "saveBirth": "Tallenna syntymäaika",
+    "result_birthSaved": "Syntymäaika tallennettu.",
+    "result_birthInvalid": "Valitse syntymäaika vuoden 1940 ja viiden vuoden takaisen päivän väliltä.",
+    "pw_s_dob_missing": "Ei SA",
+    "pw_dob_missing": "Syntymäaika puuttuu: pelaajalta kysytään allekirjoittaessa, onko hän alle 18",
+    "pw_s_dob_minor": "U18",
+    "pw_dob_minor": "Alle 18 (syntynyt {date}): myös huoltaja allekirjoittaa sopimuksen"
   },
   "me": {
     "team": "Joukkue",
@@ -1621,7 +1631,9 @@
     "webWhat": "Verkkosivujen pelaajalista näyttää seuran pelaajat Palloliiton julkisesta pelaajarekisteristä: nimi, pelinumero, pelipaikka sekä sarjamaalit ja -ottelut (ei koskaan syntymävuotta tai kansalaisuutta). Voit poistaa itsesi milloin tahansa; poisto tulee voimaan, kun seura on yhdistänyt tilisi Palloliiton rekisteröintiisi.",
     "webShow": "Näytä minut taas seuran verkkosivuilla",
     "webHide": "Poista minut seuran verkkosivuilta",
-    "webSaved": "Tallennettu. Muutos näkyy verkkosivuilla minuutin kuluessa."
+    "webSaved": "Tallennettu. Muutos näkyy verkkosivuilla minuutin kuluessa.",
+    "birthDate": "Syntymäaika",
+    "birthAskAdmin": "Väärin? Pyydä ylläpitäjää korjaamaan."
   },
   "teams": {
     "title": "Joukkueet",
@@ -2218,7 +2230,8 @@
     "rowSent": "Lähetetty {date}: odottaa pelaajaa",
     "rowDraft": "Luonnos, ei vielä lähetetty",
     "rowCountersign": "Vahvista",
-    "rowOpen": "Avaa"
+    "rowOpen": "Avaa",
+    "minorBirth": "Tallennettu syntymäaikasi on {date}. Jos se on väärin, pyydä ylläpitäjää korjaamaan se ennen allekirjoitusta."
   },
   "match": {
     "title": "Ottelupäivä",

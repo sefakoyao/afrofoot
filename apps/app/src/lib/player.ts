@@ -8,14 +8,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface PlayerSport {
   id: string; position: string | null; secondaryPosition: string | null; preferredFoot: string | null;
-  heightCm: number | null; weightKg: number | null; shirt: number | null;
+  heightCm: number | null; weightKg: number | null; shirt: number | null; birthDate: string | null;
   teams: { name: string; division: string | null }[];
   phone: string | null; emergencyName: string | null; emergencyRelation: string | null; emergencyPhone: string | null;
 }
 
 export async function loadPlayerSport(db: SupabaseClient, profileId: string): Promise<PlayerSport | null> {
   const { data: p } = await db.from('players')
-    .select('id, position, secondary_position, preferred_foot, height_cm, weight_kg').eq('profile_id', profileId).maybeSingle();
+    .select('id, position, secondary_position, preferred_foot, height_cm, weight_kg, date_of_birth').eq('profile_id', profileId).maybeSingle();
   if (!p) return null;
   const [{ data: priv }, { data: roster }] = await Promise.all([
     db.from('player_private').select('phone, emergency_name, emergency_relation, emergency_phone').eq('player_id', p.id).maybeSingle(),
@@ -24,7 +24,7 @@ export async function loadPlayerSport(db: SupabaseClient, profileId: string): Pr
   ]);
   return {
     id: p.id, position: p.position, secondaryPosition: p.secondary_position, preferredFoot: p.preferred_foot,
-    heightCm: p.height_cm, weightKg: p.weight_kg, shirt: (roster?.[0]?.jersey_number as number | null | undefined) ?? null,
+    heightCm: p.height_cm, weightKg: p.weight_kg, birthDate: p.date_of_birth ?? null, shirt: (roster?.[0]?.jersey_number as number | null | undefined) ?? null,
     teams: ((roster ?? []) as unknown as { team_seasons: { division: string | null; teams: { name: string } } }[]).map((r) => ({ name: r.team_seasons.teams.name, division: r.team_seasons.division })),
     phone: priv?.phone ?? null, emergencyName: priv?.emergency_name ?? null, emergencyRelation: priv?.emergency_relation ?? null, emergencyPhone: priv?.emergency_phone ?? null,
   };

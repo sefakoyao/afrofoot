@@ -11,7 +11,12 @@ import { shownStatus, type ContractStatus } from './contracts';
  */
 export type ContractState = { id: string; status: ContractStatus | 'expired'; endsOn: string } | null;
 export type FeeState = { state: 'paid' | 'unpaid' | 'overdue' | 'none'; openCents: number; overdueCents: number };
-export type Paperwork = { contract?: ContractState; conduct?: { at: string } | null; fees?: FeeState };
+/** The birth date decides whether a contract needs a parent or guardian (migration 0068); null = not saved. */
+export type BirthState = { date: string | null; minor: boolean };
+export type Paperwork = { contract?: ContractState; conduct?: { at: string } | null; fees?: FeeState; birth?: BirthState };
+
+/** Under 18 on the given Helsinki day (YYYY-MM-DD), as app.is_minor does in the database. */
+export const isMinorOn = (birth: string, today: string) => birth > `${Number(today.slice(0, 4)) - 18}${today.slice(4)}`;
 
 const helsinkiToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Helsinki' }).format(new Date());
 
@@ -20,11 +25,12 @@ export async function loadPaperwork(db: SupabaseClient, members: { profileId: st
   if (!members.length) return out;
   const playerIds = members.map((m) => m.playerId), profileIds = members.map((m) => m.profileId);
   const today = helsinkiToday();
-  const [contracts, version, payments] = await Promise.all([
+  const [contracts, version, payments, births] = await Promise.all([
     db.from('player_contracts').select('id, player_id, status, ends_on, created_at').in('player_id', playerIds).not('status', 'in', '(cancelled,declined)').order('created_at', { ascending: false }),
     currentConduct(db).catch(() => null),
     db.from('payments').select('player_id, status, amount_cents, paid_cents, due_on').in('player_id', playerIds)
       .then((r) => (r.error?.code === '42703' ? db.from('payments').select('player_id, status, amount_cents, due_on').in('player_id', playerIds) : r)),   // before 0056
+    db.from('players').select('id, date_of_birth').in('id', playerIds),
   ]);
   const byPlayer = new Map(members.map((m) => [m.playerId, m.profileId]));
 
@@ -58,6 +64,14 @@ export async function loadPaperwork(db: SupabaseClient, members: { profileId: st
       f.openCents += open;
       if (r.due_on && r.due_on < today) f.overdueCents += open;
       f.state = f.overdueCents ? 'overdue' : 'unpaid';
+    }
+  }
+
+  // birth date: missing, or under 18 (the contract then needs a parent or guardian)
+  if (!births.error) {
+    for (const r of (births.data ?? []) as { id: string; date_of_birth: string | null }[]) {
+      const p = out.get(byPlayer.get(r.id) ?? '');
+      if (p) p.birth = { date: r.date_of_birth, minor: !!r.date_of_birth && isMinorOn(r.date_of_birth, today) };
     }
   }
   return out;
