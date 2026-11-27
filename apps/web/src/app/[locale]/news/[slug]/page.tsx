@@ -53,12 +53,16 @@ export default async function NewsPostPage({ params }: { params: Promise<{ local
         <Link href="/news" className="font-semibold text-pitch underline">← {t('allnews')}</Link>
         <time className="mt-6 block text-sm text-muted" dateTime={post.published_at}>{date}</time>
         <h1 dir="auto" className="mt-1 font-display text-4xl font-black leading-tight md:text-5xl">{title}</h1>
-        <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-card">
+        {img.poster ? (
+          // a published poster: the whole picture, at its own size
+          // eslint-disable-next-line @next/next/no-img-element -- remote storage URL, host differs per environment
+          <img src={img.src} alt={title} className="mx-auto mt-6 w-full max-w-xl rounded-card shadow-xl" data-news-poster />
+        ) : <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-card">
           {img.remote
             // eslint-disable-next-line @next/next/no-img-element -- remote storage URL, host differs per environment
             ? <img src={img.src} alt="" className="size-full object-cover" />
             : <Image src={img.src} alt="" fill sizes="(min-width: 768px) 768px, 100vw" className="object-cover" priority />}
-        </div>
+        </div>}
         {post.excerpt ? <p dir="auto" className="mt-6 text-xl text-muted">{localized(post.excerpt, post.translations, l, 'excerpt')}</p> : null}
         <ArticleBody markdown={post.body_md ?? ''} />
       </article>
