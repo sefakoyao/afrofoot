@@ -1,9 +1,9 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 import type { ReactNode } from 'react';
-import { isAdminRole, isCoachRole } from '@afrofoot/db';
+import { isCoachRole } from '@afrofoot/db';
 import { coachesTeam } from '@/lib/coach';
-import { getMember } from '@/lib/auth';
+import { getMember, isVerifiedAdmin } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, broadcastRow, clubBand, effect, photoEdge, photoPlaceholder, pitchLines, shirtIcon, type Effect } from '@/lib/poster-art';
 import { NEVERA_OTF } from '@/lib/poster-font';
@@ -50,12 +50,12 @@ const PLAN = { portrait: { title: 128, top: 378, footer: 190 }, story: { title: 
 
 export async function GET(req: NextRequest) {
   const member = await getMember();
-  if (!member || member.status !== 'active' || !(isAdminRole(member.role) || isCoachRole(member.role))) return new Response('Not allowed', { status: 403 });
+  if (!member || member.status !== 'active' || !(isVerifiedAdmin(member) || isCoachRole(member.role))) return new Response('Not allowed', { status: 403 });
   const q = req.nextUrl.searchParams;
   const id = q.get('match') ?? '';
   const isSample = id === SAMPLE_MATCH;
   // a coach: only games of a team they coach (a player-coach can also read their own team's games as a player)
-  if (!isAdminRole(member.role) && !isSample) {
+  if (!isVerifiedAdmin(member) && !isSample) {
     const db = await getSupabase();
     const ts = db && /^[0-9a-f-]{36}$/.test(id) ? (await db.from('matches').select('team_season_id').eq('id', id).maybeSingle()).data?.team_season_id : null;
     if (!db || !ts || !(await coachesTeam(db, member.id, ts))) return new Response('Not allowed', { status: 403 });

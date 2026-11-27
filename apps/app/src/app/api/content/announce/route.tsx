@@ -1,8 +1,7 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
-import { isAdminRole } from '@afrofoot/db';
 import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, FED_ID, SAMPLE_PLAYER, loadAnnouncePlayer, loadPalloliittoPlayer, samplePlayer, type AnnounceKind } from '@/lib/announce';
-import { getMember } from '@/lib/auth';
+import { getMember, isVerifiedAdmin } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, clubBand, photoPlaceholder, type Effect } from '@/lib/poster-art';
 import { NEVERA_OTF } from '@/lib/poster-font';
@@ -34,7 +33,7 @@ async function dataUrl(url: string | null): Promise<string | null> {
 
 export async function GET(req: NextRequest) {
   const member = await getMember();
-  if (!member || member.status !== 'active' || !isAdminRole(member.role)) return new Response('Not allowed', { status: 403 });
+  if (!member || member.status !== 'active' || !isVerifiedAdmin(member)) return new Response('Not allowed', { status: 403 });
   const q = req.nextUrl.searchParams;
   const kind: AnnounceKind = (ANNOUNCE_KINDS as readonly string[]).includes(q.get('kind') ?? '') ? (q.get('kind') as AnnounceKind) : 'welcome';
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';

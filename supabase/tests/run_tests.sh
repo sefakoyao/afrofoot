@@ -57,3 +57,4 @@ psql -v ON_ERROR_STOP=1 -d $DB -f tests/D5_social_publishing.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D6_coach_replies.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D7_birth_date.sql
 psql -v ON_ERROR_STOP=1 -d $DB -f tests/D8_publish_posters.sql
+psql -v ON_ERROR_STOP=1 -d $DB -f tests/D9_admin_mfa.sql

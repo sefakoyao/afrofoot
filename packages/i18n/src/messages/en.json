@@ -1401,7 +1401,10 @@
     "pw_s_dob_missing": "No DOB",
     "pw_dob_missing": "Birth date missing: the player is asked for it at sign-in and cannot sign a contract without it",
     "pw_s_dob_minor": "U18",
-    "pw_dob_minor": "Under 18 (born {date}): a parent or guardian signs the contract too"
+    "pw_dob_minor": "Under 18 (born {date}): a parent or guardian signs the contract too",
+    "mfaReset": "Reset two-step sign-in",
+    "mfaResetHint": "For a lost or new phone: they set it up again at their next sign-in.",
+    "result_mfaReset": "Two-step sign-in reset. They set it up again at their next sign-in."
   },
   "me": {
     "team": "Team",
@@ -3896,5 +3899,26 @@
     "e_notAllowed": "Only admins and communications people can publish.",
     "e_invalid": "Check the details and try again.",
     "e_failed": "Publishing did not work. Try again."
+  },
+  "mfa": {
+    "title": "Two-step sign-in",
+    "leadSetup": "Admin accounts are protected with a second step: a 6-digit code from an authenticator app on your phone. Set it up once; after that, enter the code each time you sign in.",
+    "leadVerify": "Enter the 6-digit code from your authenticator app to open the admin pages.",
+    "step1": "Install an authenticator app on your phone",
+    "apps": "For example Google Authenticator, Microsoft Authenticator or 1Password.",
+    "step2": "In the app, add an account and scan this QR code",
+    "secretLabel": "Can't scan? Type this key instead",
+    "step3": "Enter the 6-digit code the app shows",
+    "code": "6-digit code",
+    "codeHint": "The code changes every 30 seconds.",
+    "verify": "Confirm",
+    "verifying": "Checking…",
+    "signOut": "Sign out",
+    "why": "Admins can see members' personal and payment details, so their accounts need more than a password.",
+    "lost": "Lost your phone? Ask a super admin to reset your two-step sign-in.",
+    "enrollError": "Two-step sign-in could not be started. Try again in a moment.",
+    "e_code": "Enter the 6 digits from the app.",
+    "e_wrong": "That code is not right or has expired. Enter the newest code from the app.",
+    "e_failed": "It did not work. Try again."
   }
 }
