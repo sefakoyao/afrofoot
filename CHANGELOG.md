@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – squad planner: place menus, role colours (branch `phase2/squad-menus`, release 0.82.1, no database change)
+- **Menu on each place:** tap a position marker to choose the Starter, Back-up 1 and Back-up 2 from lists (players who fit the place first, ranked; then other players; "Nobody" empties it). Escape or × closes it. Dragging and tap-to-place still work.
+- **One place per player:** a placed player leaves the player list, the menus and the suggestions; placing them elsewhere moves them; emptying a spot brings them back. Their outlook stays editable under "On the pitch".
+- **Colours by role:** starter black, back-up 1 yellow, back-up 2 white; the outlook is the dot before the name. Legend under the pitch.
+- **Analysis** moved to the bottom of the page, full width, with its points in two columns.
+
 ## Unreleased – squad planner (branch `phase2/squad-planner`, release 0.82.0, migration 0076)
 - **Admin and Coach → Teams & events → Squad planner:** choose the team, the season (next season by default) and a formation (11 v 11 to 5 v 5). Every place gets a starter and two back-ups (drag, or tap a player and then a place); a player starts in one place only.
 - **Outlook per player** for the season: confirmed, likely, unsure, leaving; a signed contract covering the season counts as confirmed by itself. Try-out and join applicants are targets.
