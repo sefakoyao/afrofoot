@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { PosterPreview } from '@/components/admin/PosterPreview';
-import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
+import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
 import { POSTER_FORMATS, type PosterFormat } from '@/lib/poster';
@@ -35,7 +35,10 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(one(sp.format) as PosterFormat) ? (one(sp.format) as PosterFormat) : 'portrait';
   const photo = photos.some((p) => `media:${p}` === one(sp.photo)) ? one(sp.photo) : '';
   const msg = one(sp.msg).slice(0, ANNOUNCE_LIMITS.message), from = one(sp.from).slice(0, ANNOUNCE_LIMITS.from), until = one(sp.until).slice(0, ANNOUNCE_LIMITS.until);
-  const q = new URLSearchParams({ kind, player, format, ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}) });
+  // the tryout poster's own fields (an event: date, times, place; empty lines use the defaults, "-" leaves one out)
+  const tf = Object.fromEntries((['date', 'start', 'end', 'place', 'address', 'who', 'bring', 'signup'] as const).map((k) => [k, one(sp[k]).slice(0, 80)])) as Record<'date' | 'start' | 'end' | 'place' | 'address' | 'who' | 'bring' | 'signup', string>;
+  const q = new URLSearchParams({ kind, player, format, ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
+    ...Object.fromEntries(Object.entries(tf).filter(([, v]) => v)) });
   const pick = (name: string, value: string, checked: boolean, inner: React.ReactNode) => (
     <label className="relative"><input type="radio" name={name} value={value} defaultChecked={checked} className="peer sr-only" />{inner}</label>
   );
@@ -47,23 +50,37 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
         <p className="mt-1 max-w-3xl text-muted">{t('lead')}</p>
       </header>
       {/* fields that belong to one kind only: shown by the chosen kind */}
-      <style>{`[data-announce-form]:has(input[name=kind][value=farewell]:checked) [data-only=welcome],[data-announce-form]:has(input[name=kind][value=welcome]:checked) [data-only=farewell]{display:none}[data-announce]:not(:has(option[value=sample]:checked)) [data-sample-note]{display:none}`}</style>
+      <style>{`${ANNOUNCE_KINDS.map((k) => `[data-announce-form]:has(input[name=kind][value=${k}]:checked) [data-only]:not([data-only~=${k}])`).join(',')}{display:none}[data-announce-form]:has(input[name=kind][value=tryout]:checked)~section [data-sample-note]{display:none}[data-announce]:not(:has(option[value=sample]:checked)) [data-sample-note]{display:none}`}</style>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:items-start" data-announce>
         <form id="announce-form" method="get" className="grid min-w-0 gap-4 rounded-card border border-line bg-raised p-5" data-announce-form>
           <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('kind')}</legend>
-            <div className="grid grid-cols-2 gap-2">{ANNOUNCE_KINDS.map((k) => pick('kind', k, k === kind, <span className={chip}>{t(`k_${k}`)}</span>))}</div>
+            <div className="grid grid-cols-3 gap-2">{ANNOUNCE_KINDS.map((k) => pick('kind', k, k === kind, <span className={chip}>{t(`k_${k}`)}</span>))}</div>
           </fieldset>
-          <label className="grid gap-1 text-sm font-semibold">{t('player')}
+          <label className="grid gap-1 text-sm font-semibold" data-only="welcome farewell">{t('player')}
             <select name="player" defaultValue={player} className={field} data-announce-player>
               <option value={SAMPLE_PLAYER}>{t('samplePlayer')}</option>
               {players.length ? <optgroup label={t('groupApp')}>{players.map((p) => <option key={p.id} value={p.id}>{p.last_name}, {p.first_name}</option>)}</optgroup> : null}
               {fedOnly.length ? <optgroup label={t('groupFed')}>{fedOnly.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}</optgroup> : null}
             </select>
             <span className="text-xs font-normal text-muted">{players.length || fedOnly.length ? t('publicNote') : t('noPlayers')}</span></label>
+          <div className="grid gap-3" data-only="tryout" data-tryout-fields>
+            <label className="grid gap-1 text-sm font-semibold">{t('tDate')}<input type="date" name="date" defaultValue={tf.date} className={field} data-tryout-date /></label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="grid gap-1 text-sm font-semibold">{t('tStart')}<input type="time" name="start" defaultValue={tf.start} className={field} /></label>
+              <label className="grid gap-1 text-sm font-semibold">{t('tEnd')}<input type="time" name="end" defaultValue={tf.end} className={field} /></label>
+            </div>
+            <label className="grid gap-1 text-sm font-semibold">{t('tPlace')}<input name="place" maxLength={ANNOUNCE_LIMITS.place} defaultValue={tf.place} className={field} placeholder={t('tPlaceHint')} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('tAddress')}<input name="address" maxLength={ANNOUNCE_LIMITS.address} defaultValue={tf.address} className={field} placeholder={t('tAddressHint')} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('tWho')}<input name="who" maxLength={ANNOUNCE_LIMITS.who} defaultValue={tf.who} className={field} placeholder={TRYOUT_DEFAULTS.who} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('tBring')}<input name="bring" maxLength={ANNOUNCE_LIMITS.bring} defaultValue={tf.bring} className={field} placeholder={TRYOUT_DEFAULTS.bring} /></label>
+            <label className="grid gap-1 text-sm font-semibold">{t('tSignup')}<input name="signup" maxLength={ANNOUNCE_LIMITS.signup} defaultValue={tf.signup} className={field} placeholder={TRYOUT_DEFAULTS.signup} /></label>
+            <p className="text-xs text-muted">{t('tLinesHint')}</p>
+          </div>
           <label className="grid gap-1 text-sm font-semibold">{t('message')}
             <textarea name="msg" rows={3} maxLength={ANNOUNCE_LIMITS.message} defaultValue={msg} className={`${field} py-2`} dir="auto" data-announce-msg />
             <span className="text-xs font-normal text-muted" data-only="welcome">{t('messageHint', { text: DEFAULT_MESSAGE.welcome })}</span>
-            <span className="text-xs font-normal text-muted" data-only="farewell">{t('messageHint', { text: DEFAULT_MESSAGE.farewell })}</span></label>
+            <span className="text-xs font-normal text-muted" data-only="farewell">{t('messageHint', { text: DEFAULT_MESSAGE.farewell })}</span>
+            <span className="text-xs font-normal text-muted" data-only="tryout">{t('messageHint', { text: DEFAULT_MESSAGE.tryout })}</span></label>
           <div className="grid gap-3 sm:grid-cols-2" data-only="welcome">
             <label className="grid gap-1 text-sm font-semibold">{t('from')}<input name="from" maxLength={ANNOUNCE_LIMITS.from} defaultValue={from} className={field} placeholder={t('fromHint')} /></label>
             <label className="grid gap-1 text-sm font-semibold">{t('until')}<input name="until" maxLength={ANNOUNCE_LIMITS.until} defaultValue={until} className={field} placeholder={t('untilHint')} /></label>
@@ -73,7 +90,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
             <div className="flex flex-wrap gap-2">{(Object.keys(POSTER_FORMATS) as PosterFormat[]).map((f) => pick('format', f, f === format,
               <span className={chip}>{t(`f_${f}`)}<span className="text-xs font-normal text-muted">{POSTER_FORMATS[f].w}×{POSTER_FORMATS[f].h}</span></span>))}</div>
           </fieldset>
-          <fieldset className="grid gap-2" data-announce-photo><legend className="text-sm font-semibold">{t('photo')}</legend>
+          <fieldset className="grid gap-2" data-announce-photo><legend className="text-sm font-semibold">{t('photo')}<span className="font-normal text-muted" data-only="tryout"> · {t('tPhotoHint')}</span></legend>
             <div className="grid grid-cols-3 gap-2">
               {pick('photo', '', !photo, <span className={`${tile} aspect-[4/5] items-center justify-center bg-surface text-xs font-bold`}>{t('none')}</span>)}
               {photos.map((p) => pick('photo', `media:${p}`, `media:${p}` === photo, <span className={`${tile} aspect-[4/5]`} style={{ backgroundImage: `url(${url(p)})` }} />))}

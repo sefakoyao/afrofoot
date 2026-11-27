@@ -3763,7 +3763,7 @@
   },
   "announce": {
     "title": "Pelaajatiedote",
-    "lead": "Juliste uuden pelaajan tervetulotoivotukseen tai seurasta lähtevän pelaajan kiittämiseen, ottelujulisteen tyyliin. Valitse pelaaja ja kuva, muokkaa viestiä ja lataa kuva someen.",
+    "lead": "Juliste uuden pelaajan tervetulotoivotukseen, lähtevän pelaajan kiittämiseen tai avoimien kokeilutreenien mainostamiseen ottelujulisteen tyyliin. Täytä tiedot ja lataa kuva someen.",
     "kind": "Tiedote",
     "k_welcome": "Uusi pelaaja",
     "k_farewell": "Hyvästit",
@@ -3793,7 +3793,20 @@
     "sampleNote": "Esimerkkipelaaja: kokeile ulkoasuja; julisteessa lukee SAMPLE.",
     "noPlayers": "Valittavia pelaajia ei vielä ole: lisää pelaajat kohdassa Ihmiset tai kokeile ulkoasuja esimerkkipelaajalla.",
     "groupApp": "Sovelluksen pelaajat",
-    "groupFed": "Vain Palloliitosta (esim. entiset pelaajat)"
+    "groupFed": "Vain Palloliitosta (esim. entiset pelaajat)",
+    "k_tryout": "Kokeilutreenit",
+    "tDate": "Päivä",
+    "tStart": "Alkaa",
+    "tEnd": "Päättyy (valinnainen)",
+    "tPlace": "Paikka",
+    "tPlaceHint": "esim. Ala-Malmin liikuntapuisto",
+    "tAddress": "Osoite (valinnainen)",
+    "tAddressHint": "esim. Kenttätie 1, Helsinki",
+    "tWho": "Kenelle",
+    "tBring": "Mukaan",
+    "tSignup": "Ilmoittautuminen",
+    "tLinesHint": "Tyhjä rivi käyttää näytettyä esimerkkiä; kirjoita - jättääksesi rivin pois.",
+    "tPhotoHint": "valinnainen: joukkuekuva pallon sijaan"
   },
   "coachReply": {
     "title": "Oletko mukana?",

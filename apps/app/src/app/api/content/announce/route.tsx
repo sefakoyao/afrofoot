@@ -1,13 +1,14 @@
 import { ImageResponse } from 'next/og';
 import type { NextRequest } from 'next/server';
 import { isAdminRole } from '@afrofoot/db';
-import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, FED_ID, SAMPLE_PLAYER, loadAnnouncePlayer, loadPalloliittoPlayer, samplePlayer, type AnnounceKind } from '@/lib/announce';
+import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, FED_ID, SAMPLE_PLAYER, loadAnnouncePlayer, loadPalloliittoPlayer, samplePlayer, type AnnounceKind } from '@/lib/announce';
 import { getMember } from '@/lib/auth';
 import { FONT_BLACK_WOFF, FONT_BOLD } from '@/lib/invoice/assets';
 import { CREST_RATIO, clubBand, photoPlaceholder } from '@/lib/poster-art';
 import { NEVERA_OTF } from '@/lib/poster-font';
 import { POSTER_FORMATS, UPLOAD_PATH, type PosterFormat } from '@/lib/poster';
 import { getSupabase } from '@/lib/supabase/server';
+import { tryoutPoster } from './tryout';
 
 /**
  * A player announcement poster as a PNG (Admin → Website → Player announcement): "New signing" (welcome) or "Thank you"
@@ -37,6 +38,22 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams;
   const kind: AnnounceKind = (ANNOUNCE_KINDS as readonly string[]).includes(q.get('kind') ?? '') ? (q.get('kind') as AnnounceKind) : 'welcome';
   const format: PosterFormat = (Object.keys(POSTER_FORMATS) as PosterFormat[]).includes(q.get('format') as PosterFormat) ? (q.get('format') as PosterFormat) : 'portrait';
+  const { w: TW, h: TH } = POSTER_FORMATS[format];
+  if (kind === 'tryout') {
+    // an event, not a player: date, times, place and lines typed by the admin (empty lines use the defaults)
+    const field = (k: keyof typeof ANNOUNCE_LIMITS) => clean(q.get(k), ANNOUNCE_LIMITS[k]);
+    const opt = (k: 'who' | 'bring' | 'signup') => (q.has(k) && q.get(k) === '-' ? '' : field(k) || TRYOUT_DEFAULTS[k]);   // "-" leaves the line out
+    const hhmm = (k: string) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(q.get(k) ?? '') ? q.get(k)! : '');
+    const tPhotoPath = q.get('photo')?.startsWith('media:') ? q.get('photo')!.slice(6) : '';
+    const tBase = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/+$/, '');
+    const [tPhoto, tCrest] = await Promise.all([dataUrl(UPLOAD_PATH.test(tPhotoPath) && tBase ? `${tBase}/storage/v1/object/public/public-media/${tPhotoPath}` : null), dataUrl(`${req.nextUrl.origin}/afc-logo.png`)]);
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(q.get('date') ?? '') ? q.get('date')! : '';
+    return new ImageResponse(tryoutPoster({ format, W: TW, H: TH, origin: req.nextUrl.origin, crest: tCrest, photo: tPhoto, date, start: hhmm('start'), end: hhmm('end'),
+      place: field('place'), address: field('address'), who: opt('who'), bring: opt('bring'), message: clean(q.get('msg'), ANNOUNCE_LIMITS.message) || DEFAULT_MESSAGE.tryout, signup: opt('signup') }),
+    { width: TW, height: TH, fonts: FONTS, headers: q.get('download') === '1'
+      ? { 'Content-Disposition': `attachment; filename="tryout-${date || 'date'}-${format}.png"`, 'Cache-Control': 'no-store' }
+      : { 'Cache-Control': 'private, max-age=60' } });
+  }
   const id = q.get('player') ?? SAMPLE_PLAYER;
   const isSample = id === SAMPLE_PLAYER;
   const isFed = FED_ID.test(id);

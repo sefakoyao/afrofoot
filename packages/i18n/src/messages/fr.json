@@ -3763,7 +3763,7 @@
   },
   "announce": {
     "title": "Annonce joueur",
-    "lead": "Une affiche pour accueillir un nouveau joueur ou remercier un joueur qui quitte le club, dans le style de l'affiche de match. Choisissez le joueur et une photo, modifiez le message, puis téléchargez l'image pour les réseaux sociaux.",
+    "lead": "Une affiche pour accueillir un nouveau joueur, remercier celui qui quitte le club ou annoncer une détection ouverte, dans le style de l’affiche de match. Remplissez les détails, puis téléchargez l’image pour les réseaux sociaux.",
     "kind": "Annonce",
     "k_welcome": "Nouvelle recrue",
     "k_farewell": "Départ",
@@ -3793,7 +3793,20 @@
     "sampleNote": "Joueur exemple : essayez les designs ici ; l'affiche porte la mention SAMPLE.",
     "noPlayers": "Aucun joueur à choisir pour l'instant : ajoutez des joueurs dans Personnes, ou essayez les designs avec le joueur exemple.",
     "groupApp": "Joueurs de l'application",
-    "groupFed": "Seulement chez Palloliitto (ex. anciens joueurs)"
+    "groupFed": "Seulement chez Palloliitto (ex. anciens joueurs)",
+    "k_tryout": "Détection",
+    "tDate": "Date",
+    "tStart": "Début",
+    "tEnd": "Fin (facultatif)",
+    "tPlace": "Lieu",
+    "tPlaceHint": "ex. Ala-Malmin liikuntapuisto",
+    "tAddress": "Adresse (facultatif)",
+    "tAddressHint": "ex. Kenttätie 1, Helsinki",
+    "tWho": "Pour qui",
+    "tBring": "À apporter",
+    "tSignup": "Comment s’inscrire",
+    "tLinesHint": "Une ligne vide utilise l’exemple affiché ; tapez - pour retirer une ligne.",
+    "tPhotoHint": "facultatif : une photo d’équipe à la place du ballon"
   },
   "coachReply": {
     "title": "Serez-vous là ?",
