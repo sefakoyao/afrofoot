@@ -38,7 +38,7 @@ importers:
         specifier: 1.5.0
         version: 1.5.0(next@15.5.29(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@vercel/speed-insights':
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1(next@15.5.29(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       bwip-js:
         specifier: 4.5.1
@@ -120,7 +120,7 @@ importers:
         specifier: 1.5.0
         version: 1.5.0(next@15.5.29(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       '@vercel/speed-insights':
-        specifier: ^2.1.1
+        specifier: 2.1.1
         version: 2.1.1(next@15.5.29(@opentelemetry/api@1.10.0)(@types/node@22.20.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
       next:
         specifier: ^15.1.0
