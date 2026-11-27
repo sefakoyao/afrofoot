@@ -1,6 +1,6 @@
 import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { defaultEnd, fillTemplate, hasBlanks, loadContractSettings, type ContractSettings } from './contracts';
+import { defaultEnd, defaultStart, fillTemplate, hasBlanks, loadContractSettings, type ContractSettings } from './contracts';
 import { loadBilling } from './invoice/data';
 
 const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Helsinki' });
@@ -57,7 +57,7 @@ export async function autoContracts(db: SupabaseClient, teamSeasonId: string, pl
   if (settings.auto === 'off') return result;
   const facts = await teamFacts(db, teamSeasonId);
   if (!facts) return result;
-  const start = facts.seasonStarts > today() ? facts.seasonStarts : today();
+  const start = defaultStart(today());   // the contract year: 1 December – 30 November
   const [{ data: current }, { data: accounts }] = await Promise.all([
     db.from('player_contracts').select('player_id').in('player_id', ids).in('status', ['draft', 'sent', 'player_signed', 'active']).gte('ends_on', start),
     db.from('players').select('id, profile_id').in('id', ids),

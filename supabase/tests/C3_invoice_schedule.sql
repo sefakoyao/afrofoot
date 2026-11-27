@@ -10,6 +10,7 @@ update profiles set role = 'player', status = 'active' where id in ('f1000000-00
 insert into players (id, profile_id, first_name, last_name) values
  ('f1500000-0000-0000-0000-000000000002', 'f1000000-0000-0000-0000-000000000002', 'Kobby', 'One'),
  ('f1500000-0000-0000-0000-000000000003', 'f1000000-0000-0000-0000-000000000003', 'Abena', 'Two');
+update players set date_of_birth = date '1990-01-01' where date_of_birth is null;   -- 0073: signing needs a saved birth date
 update seasons set is_current = false;
 insert into seasons (id, name, starts_on, ends_on, is_current) values ('f1200000-0000-0000-0000-000000000001', 'Is season', '2026-11-01', '2027-10-31', true);
 insert into membership_plans (id, name, amount_cents, period) values ('f1300000-0000-0000-0000-000000000001', 'Is monthly', 2000, 'month');

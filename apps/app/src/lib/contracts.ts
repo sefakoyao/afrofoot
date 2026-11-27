@@ -44,11 +44,20 @@ export const STATUS_BADGE: Record<ContractStatus | 'expired', string> = {
 export const shownStatus = (c: Pick<Contract, 'status' | 'ends_on'>, today: string): ContractStatus | 'expired' =>
   c.status === 'active' && c.ends_on < today ? 'expired' : c.status;
 
-/** Default end of the term: 31 October (end of the Finnish season) of the last season covered. */
+/**
+ * The club's contract year runs from 1 December to 30 November. Default start: the coming 1 December from October on
+ * (contracts for the next season), otherwise the 1 December that began the current contract year.
+ */
+export function defaultStart(today: string): string {
+  const y = Number(today.slice(0, 4)), m = Number(today.slice(5, 7));
+  return `${m >= 10 ? y : y - 1}-12-01`;
+}
+
+/** Default end of the term: 30 November at the end of the last contract year covered (1 year from 1 December). */
 export function defaultEnd(startsOn: string, years: number): string {
   const y = Number(startsOn.slice(0, 4));
-  const firstSeasonEnd = startsOn.slice(5) <= '10-31' ? y : y + 1;
-  return `${firstSeasonEnd + years - 1}-10-31`;
+  const firstYearEnd = startsOn.slice(5) >= '12-01' ? y + 1 : y;
+  return `${firstYearEnd + years - 1}-11-30`;
 }
 
 /** Latest allowed end for the chosen number of years (database check: ends_on <= starts_on + years). */

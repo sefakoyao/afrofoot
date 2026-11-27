@@ -1404,7 +1404,7 @@
     "result_birthSaved": "Syntymäaika tallennettu.",
     "result_birthInvalid": "Valitse syntymäaika vuoden 1940 ja viiden vuoden takaisen päivän väliltä.",
     "pw_s_dob_missing": "Ei SA",
-    "pw_dob_missing": "Syntymäaika puuttuu: pelaajalta kysytään allekirjoittaessa, onko hän alle 18",
+    "pw_dob_missing": "Syntymäaika puuttuu: pelaajalta kysytään sitä kirjautuessa, eikä hän voi allekirjoittaa sopimusta ilman sitä",
     "pw_s_dob_minor": "U18",
     "pw_dob_minor": "Alle 18 (syntynyt {date}): myös huoltaja allekirjoittaa sopimuksen"
   },
@@ -2059,7 +2059,7 @@
     "yearsN": "{count, plural, one {# vuosi} other {# vuotta}}",
     "startsOn": "Alkaa",
     "endsOn": "Päättyy",
-    "endsOnHint": "Jätä tyhjäksi: viimeisen kauden 31.10.",
+    "endsOnHint": "Jätä tyhjäksi: 30.11. – yksi sopimusvuosi (1.12.–30.11.) kutakin valittua vuotta kohti.",
     "newTitle": "Uusi sopimus",
     "newLead": "Luonnos tehdään pohjasta, ja pelaaja, joukkue ja päivämäärät täytetään valmiiksi. Voit muokata sitä ennen lähettämistä.",
     "createDraft": "Luo luonnos",
@@ -2231,7 +2231,9 @@
     "rowDraft": "Luonnos, ei vielä lähetetty",
     "rowCountersign": "Vahvista",
     "rowOpen": "Avaa",
-    "minorBirth": "Tallennettu syntymäaikasi on {date}. Jos se on väärin, pyydä ylläpitäjää korjaamaan se ennen allekirjoitusta."
+    "minorBirth": "Tallennettu syntymäaikasi on {date}. Jos se on väärin, pyydä ylläpitäjää korjaamaan se ennen allekirjoitusta.",
+    "birthFirst": "Ennen allekirjoitusta: syötä syntymäaikasi. Se ratkaisee, allekirjoittaako huoltaja sopimuksen kanssasi.",
+    "r_birth": "Syötä syntymäaikasi ennen sopimuksen allekirjoittamista."
   },
   "match": {
     "title": "Ottelupäivä",
@@ -3822,5 +3824,18 @@
     "conduct": "Et ole vielä hyväksynyt toimintaohjetta.",
     "conductCta": "Lue ja hyväksy",
     "later": "Muistuta myöhemmin"
+  },
+  "birth": {
+    "title": "Milloin olet syntynyt?",
+    "lead": "Syntymäaikaasi käytetään pelaajasopimuksen varmistuksena: alle 18-vuotiaat allekirjoittavat yhdessä huoltajan kanssa. Syötät sen kerran; sen jälkeen vain ylläpitäjä voi korjata sen.",
+    "later": "Myöhemmin",
+    "label": "Syntymäaika",
+    "hint": "Tarkista se huolella: tallennuksen jälkeen vain ylläpitäjä voi muuttaa sitä.",
+    "save": "Tallenna syntymäaika",
+    "saved": "Tallennettu. Kiitos!",
+    "e_range": "Valitse syntymäaika vuoden 1940 ja viiden vuoden takaisen päivän väliltä.",
+    "e_already": "Syntymäaikasi on jo tallennettu. Jos se on väärin, pyydä ylläpitäjää korjaamaan se.",
+    "e_noPlayer": "Tililläsi ei ole vielä pelaajatietoja. Ota yhteys ylläpitäjään.",
+    "e_failed": "Tallennus ei onnistunut. Yritä uudelleen."
   }
 }

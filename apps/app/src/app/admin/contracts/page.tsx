@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { createContract, saveContractSettings, saveTemplate } from '@/app/actions/contracts';
 import { ResultBanner } from '@/components/ResultBanner';
 import { requireArea } from '@/lib/auth';
-import { CONTRACT_DEFAULTS, CONTRACT_STATUSES, STATUS_BADGE, readContracts, loadContractSettings, shownStatus, type ContractStatus } from '@/lib/contracts';
+import { CONTRACT_DEFAULTS, CONTRACT_STATUSES, STATUS_BADGE, defaultStart, readContracts, loadContractSettings, shownStatus, type ContractStatus } from '@/lib/contracts';
 import { dateFormats } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase/server';
 import { helsinkiToday } from '@/lib/time';
@@ -133,7 +133,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
               ))}
             </div>
           </fieldset>
-          <label className="grid gap-1 text-sm font-semibold">{t('startsOn')}<input name="starts_on" type="date" required defaultValue={today} className={input} /></label>
+          <label className="grid gap-1 text-sm font-semibold">{t('startsOn')}<input name="starts_on" type="date" required defaultValue={defaultStart(today)} className={input} /></label>
           <label className="grid gap-1 text-sm font-semibold">{t('endsOn')}<input name="ends_on" type="date" className={input} />
             <span className="text-xs font-normal text-muted">{t('endsOnHint')}</span></label>
           <button className="min-h-11 rounded-full bg-accent px-6 font-display font-bold text-on-accent hover:brightness-110 sm:col-span-2 sm:justify-self-start">{t('createDraft')}</button>

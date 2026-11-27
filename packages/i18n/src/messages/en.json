@@ -1404,7 +1404,7 @@
     "result_birthSaved": "Birth date saved.",
     "result_birthInvalid": "Choose a birth date between 1940 and 5 years ago.",
     "pw_s_dob_missing": "No DOB",
-    "pw_dob_missing": "Birth date missing: the player is asked whether they are under 18 when signing",
+    "pw_dob_missing": "Birth date missing: the player is asked for it at sign-in and cannot sign a contract without it",
     "pw_s_dob_minor": "U18",
     "pw_dob_minor": "Under 18 (born {date}): a parent or guardian signs the contract too"
   },
@@ -2059,7 +2059,7 @@
     "yearsN": "{count, plural, one {# year} other {# years}}",
     "startsOn": "Starts on",
     "endsOn": "Ends on",
-    "endsOnHint": "Leave empty for 31 October of the last season.",
+    "endsOnHint": "Leave empty for 30 November: one contract year (1 December – 30 November) per year chosen.",
     "newTitle": "New contract",
     "newLead": "The draft starts from the template with the player, team and dates filled in. You can edit it before sending.",
     "createDraft": "Create draft",
@@ -2231,7 +2231,9 @@
     "rowDraft": "Draft, not sent yet",
     "rowCountersign": "Countersign",
     "rowOpen": "Open",
-    "minorBirth": "Your saved birth date is {date}. If that is wrong, ask an admin to correct it before you sign."
+    "minorBirth": "Your saved birth date is {date}. If that is wrong, ask an admin to correct it before you sign.",
+    "birthFirst": "Before you sign: enter your birth date. It decides whether a parent or guardian signs this contract with you.",
+    "r_birth": "Enter your birth date before you sign the contract."
   },
   "match": {
     "title": "Match day",
@@ -3822,5 +3824,18 @@
     "conduct": "You have not yet agreed to the Code of Conduct.",
     "conductCta": "Read and agree",
     "later": "Remind me later"
+  },
+  "birth": {
+    "title": "When were you born?",
+    "lead": "Your birth date is used as a safeguard for your player contract: players under 18 sign together with a parent or guardian. You enter it once; after that only an admin can correct it.",
+    "later": "Later",
+    "label": "Birth date",
+    "hint": "Check it carefully: only an admin can change it after you save.",
+    "save": "Save birth date",
+    "saved": "Saved. Thank you!",
+    "e_range": "Choose a birth date between 1940 and 5 years ago.",
+    "e_already": "Your birth date is already saved. If it is wrong, ask an admin to correct it.",
+    "e_noPlayer": "Your account has no player record yet. Ask an admin.",
+    "e_failed": "It could not be saved. Try again."
   }
 }

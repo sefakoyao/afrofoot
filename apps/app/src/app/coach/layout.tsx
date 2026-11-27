@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { AppShell, type NavItem } from '@/components/AppShell';
 import { requireArea } from '@/lib/auth';
+import { BirthPrompt } from '@/components/birth/BirthDate';
 import { SignReminder } from '@/components/SignReminder';
+import { birthLabels, maxBirthDate } from '@/lib/birth';
 import { loadConductStatus } from '@/lib/conduct';
 import { myContracts } from '@/lib/contracts';
 import { isPlayerRole } from '@afrofoot/db';
@@ -54,7 +56,10 @@ export default async function Layout({ children }: { children: ReactNode }) {
     supabase ? loadConductStatus(supabase, member.id) : null, supabase && isPlayerRole(member.role) ? myContracts(supabase) : [], getTranslations('signReminder'),
   ]);
   const toSign = contracts.find((c) => c.status === 'sent')?.id ?? null;
-  const reminder = <SignReminder userId={member.id} contractHref={toSign ? `/me/contract/${toSign}#sign` : null} conductHref={conduct?.version && !conduct.agreedAt ? '/coach/conduct#coaches' : null}
+  // 0073: a player-coach without a saved birth date is asked for it first
+  const myPlayer = supabase && isPlayerRole(member.role) ? (await supabase.from('players').select('date_of_birth').eq('profile_id', member.id).maybeSingle()).data : null;
+  const needsBirth = !!myPlayer && !myPlayer.date_of_birth;
+  const reminder = needsBirth ? <BirthPrompt userId={member.id} max={maxBirthDate()} labels={await birthLabels()} /> : <SignReminder userId={member.id} contractHref={toSign ? `/me/contract/${toSign}#sign` : null} conductHref={conduct?.version && !conduct.agreedAt ? '/coach/conduct#coaches' : null}
     labels={{ title: tr('title'), lead: tr('lead'), contract: tr('contract'), contractCta: tr('contractCta'), conduct: tr('conduct'), conductCta: tr('conductCta'), later: tr('later') }} />;
   return (
     <AppShell area="coach" member={member} nav={nav} tabs={[

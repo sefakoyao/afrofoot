@@ -7,6 +7,7 @@ update profiles set role = 'club_admin', status = 'active' where id = 'a6000000-
 update profiles set role = 'player', status = 'active' where id = 'a6000000-0000-0000-0000-000000000002';
 insert into players (id, profile_id, first_name, last_name) values ('a6100000-0000-0000-0000-000000000001', 'a6000000-0000-0000-0000-000000000002', 'Ic', 'Player');
 insert into players (id, first_name, last_name) values ('a6100000-0000-0000-0000-000000000002', 'No', 'Account');
+update players set date_of_birth = date '1990-01-01' where date_of_birth is null;   -- 0073: signing needs a saved birth date
 insert into seasons (id, name, starts_on, ends_on) values ('a6200000-0000-0000-0000-000000000001', 'Ic season', current_date - 30, current_date + 400);
 insert into membership_plans (id, name, amount_cents, period) values ('a6300000-0000-0000-0000-000000000001', 'Ic monthly', 2500, 'month');
 insert into memberships (id, player_id, plan_id, season_id, status, auto_renew, next_due_on) values
