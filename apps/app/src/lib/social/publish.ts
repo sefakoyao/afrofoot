@@ -5,6 +5,7 @@ import { postImage } from './image';
 import { linkedinConfig, postLinkedIn } from './linkedin';
 import { metaConfig, postFacebook, postInstagram } from './meta';
 import { postX, xMissing } from './x';
+import { tagLinks } from './utm';
 
 /**
  * Sends the queued social posts (social_posts, migrations 0064 and 0071) with the service role. A post is claimed in the
@@ -36,13 +37,14 @@ export async function switchedOn(db: SupabaseClient): Promise<AutoPlatform[]> {
 
 async function send(db: SupabaseClient, row: Row): Promise<boolean> {
   let r: Posted;
+  const caption = tagLinks(row.caption, row.platform);   // campaign tags on the club's links (lib/social/utm.ts)
   try {
-    if (row.platform === 'facebook') r = await postFacebook(row.caption, imageUrlFor(row.id));
-    else if (row.platform === 'instagram') r = await postInstagram(row.caption, imageUrlFor(row.id));
+    if (row.platform === 'facebook') r = await postFacebook(caption, imageUrlFor(row.id));
+    else if (row.platform === 'instagram') r = await postInstagram(caption, imageUrlFor(row.id));
     else if (row.platform === 'linkedin' || row.platform === 'x') {
       const img = await postImage(db, row.id);
       if (!img) throw new SocialError('The article is not published');
-      r = row.platform === 'linkedin' ? await postLinkedIn(row.caption, img.jpeg, img.title) : await postX(row.caption, img.jpeg);
+      r = row.platform === 'linkedin' ? await postLinkedIn(caption, img.jpeg, img.title) : await postX(caption, img.jpeg);
     } else throw new SocialError('This platform is not connected yet');
   } catch (e) {
     const error = (e instanceof SocialError ? e.message : 'Unexpected error while posting').slice(0, 500);

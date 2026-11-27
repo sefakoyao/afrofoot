@@ -3,13 +3,13 @@ import type { ReactNode } from 'react';
 import { Figtree, Cairo } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Analytics } from '@vercel/analytics/next';
 import { notFound } from 'next/navigation';
 import { LOCALES, dirOf, isLocale } from '@afrofoot/i18n';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { OG_IMAGE, SITE_NAME, SITE_URL, jsonLd, pageMeta } from '@/lib/seo';
 import '../globals.css';
+import { Telemetry } from '@/components/Telemetry';
 
 const figtree = Figtree({ subsets: ['latin', 'latin-ext'], variable: '--font-body', display: 'swap' });
 const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic', display: 'swap' });
@@ -62,8 +62,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
           <Footer />
         </NextIntlClientProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(CLUB_LD) }} />
-        {/* Cookie-free visitor statistics (Vercel Web Analytics); sends nothing outside a Vercel deployment. */}
-        <Analytics />
+        {/* Cookie-free visitor statistics and real-user speed (Vercel Web Analytics, Speed Insights); nothing is sent outside a Vercel deployment. */}
+        <Telemetry />
       </body>
     </html>
   );

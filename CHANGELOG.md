@@ -3,6 +3,12 @@
 Format: [Semantic Versioning](https://semver.org). The same history lives in the database table `app_releases`
 (shown to admins in the app) and every edit of a website page or news post is kept in `content_revisions`.
 
+## Unreleased – visitor statistics, speed and social media tracking (branch `phase2/analytics`, release 0.80.0, no database change)
+- **Statistics:** Vercel Web Analytics on the app too (the website already had it): page views, visitors, top pages, where visitors come from, countries, devices. No cookies, no personal data; ids in addresses (a contract, a player, a game) are counted as ":id" and only campaign tags are kept from a link's query.
+- **Speed:** Vercel Speed Insights on the website and the app: real loading speed from visitors' own devices (Core Web Vitals), page by page.
+- **Social media impact:** links to the club's site in social posts get campaign tags when they are sent (utm_source = the platform, utm_medium = social, utm_campaign = the article), so the statistics show the visits each platform and each post brought.
+- To switch on: Vercel → each project (website and app) → Analytics → Enable, and Speed Insights → Enable.
+
 ## Unreleased – publish posters to the website and social media (branch `phase2/publish-posters`, release 0.79.0, migration 0074)
 - **Publish** under the poster preview on Admin → Website → Matchday poster and Player announcement (new signing, farewell, open tryout), for admins and communications people: the article's title and text (started from the poster's details), the platforms (Facebook, Instagram, LinkedIn, X; switched-on ones ticked), optional texts per platform, now or later.
 - **Website:** a news article with the poster as its picture; the article shows the whole poster, the News list shows it uncropped.
