@@ -3806,7 +3806,19 @@
     "tBring": "À apporter",
     "tSignup": "Comment s’inscrire",
     "tLinesHint": "Une ligne vide utilise l’exemple affiché ; tapez - pour retirer une ligne.",
-    "tPhotoHint": "facultatif : une photo d’équipe à la place du ballon"
+    "tBackground": "Fond",
+    "tPitch": "Terrain",
+    "tUploadHint": "Utilisez votre propre photo : téléversez-la sous l’aperçu (ou sur la page de l’affiche de match).",
+    "tTone": "Couleurs de la photo",
+    "tone_natural": "Naturel",
+    "tone_green": "Vert du club",
+    "tone_mono": "Noir et blanc",
+    "tBall": "Ballon",
+    "tBallOn": "Afficher le ballon",
+    "tBallOff": "Sans ballon",
+    "tUploadTitle": "Ajouter votre photo",
+    "tUploadLead": "JPG ou PNG, 8 Mo au maximum. Une photo large d’équipe ou d’entraînement convient le mieux ; elle remplit toute l’affiche.",
+    "tRemovePhoto": "Supprimer cette photo"
   },
   "coachReply": {
     "title": "Serez-vous là ?",

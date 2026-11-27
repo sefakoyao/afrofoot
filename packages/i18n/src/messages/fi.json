@@ -3806,7 +3806,19 @@
     "tBring": "Mukaan",
     "tSignup": "Ilmoittautuminen",
     "tLinesHint": "Tyhjä rivi käyttää näytettyä esimerkkiä; kirjoita - jättääksesi rivin pois.",
-    "tPhotoHint": "valinnainen: joukkuekuva pallon sijaan"
+    "tBackground": "Tausta",
+    "tPitch": "Kenttä",
+    "tUploadHint": "Käytä omaa kuvaa: lataa se esikatselun alla (tai ottelujulisteen sivulla).",
+    "tTone": "Kuvan värit",
+    "tone_natural": "Luonnollinen",
+    "tone_green": "Seuran vihreä",
+    "tone_mono": "Mustavalkoinen",
+    "tBall": "Pallo",
+    "tBallOn": "Näytä pallo",
+    "tBallOff": "Ei palloa",
+    "tUploadTitle": "Lisää oma kuva",
+    "tUploadLead": "JPG tai PNG, enintään 8 Mt. Leveä joukkue- tai treenikuva toimii parhaiten; se täyttää koko julisteen.",
+    "tRemovePhoto": "Poista tämä kuva"
   },
   "coachReply": {
     "title": "Oletko mukana?",

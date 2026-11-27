@@ -3806,7 +3806,19 @@
     "tBring": "What to bring",
     "tSignup": "How to sign up",
     "tLinesHint": "Empty lines use the example shown; type - to leave a line out.",
-    "tPhotoHint": "optional: a team photo instead of the ball"
+    "tBackground": "Background",
+    "tPitch": "Pitch",
+    "tUploadHint": "Use your own photo: upload it below the preview (or on the Matchday poster page).",
+    "tTone": "Photo colours",
+    "tone_natural": "Natural",
+    "tone_green": "Club green",
+    "tone_mono": "Black & white",
+    "tBall": "Ball",
+    "tBallOn": "Show the ball",
+    "tBallOff": "No ball",
+    "tUploadTitle": "Add your own photo",
+    "tUploadLead": "JPG or PNG, at most 8 MB. A wide team or training photo works best; it fills the whole poster.",
+    "tRemovePhoto": "Remove this photo"
   },
   "coachReply": {
     "title": "Will you be there?",

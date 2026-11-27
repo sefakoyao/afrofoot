@@ -169,72 +169,81 @@ const pentagon = (cx: number, cy: number, r: number, rot: number) =>
   Array.from({ length: 5 }, (_, i) => { const a = rot + (i * 2 * Math.PI) / 5; return [cx + r * Math.cos(a), cy + r * Math.sin(a)] as const; });
 
 /** A classic football: white with black panels and seams, a soft shadow and a highlight, slightly turned. */
-export function football(size: number, turn = -0.25): string {
-  const c = size / 2, R = size / 2 - 2, pr = R * 0.3;
-  const P = (x: number, y: number) => `${x.toFixed(1)},${y.toFixed(1)}`;
-  const sw = (size * 0.014).toFixed(1);
-  const seam = (x1: number, y1: number, x2: number, y2: number) => `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${INK}" stroke-width="${sw}" stroke-linecap="round"/>`;
-  const inner = pentagon(c, c, pr, -Math.PI / 2 + turn);
-  let body = `<polygon points="${inner.map(([x, y]) => P(x, y)).join(' ')}" fill="${INK}"/>`;
-  for (let i = 0; i < 5; i++) {
-    // the next black panels lie beyond the middle panel's corners, seen at an angle (squashed towards the edge)
-    const a = -Math.PI / 2 + turn + (i * 2 * Math.PI) / 5, cos = Math.cos(a), sin = Math.sin(a);
-    const d = R * 0.86, k = 0.5;                                          // distance from the middle, radial squash
-    const at = (u: number, v: number) => [c + (d + u * k) * cos - v * sin, c + (d + u * k) * sin + v * cos] as const;   // u: outwards, v: sideways
-    const outer = Array.from({ length: 5 }, (_, j) => { const b = Math.PI + (j * 2 * Math.PI) / 5; return at(pr * 1.05 * Math.cos(b), pr * 1.05 * Math.sin(b)); });
-    body += `<polygon points="${outer.map(([x, y]) => P(x, y)).join(' ')}" fill="${INK}"/>`;
-    body += seam(inner[i]![0], inner[i]![1], outer[0]![0], outer[0]![1]);                       // middle corner → next panel
-    for (const j of [1, 4]) {                                                                     // its side corners → the rim
-      const [x, y] = outer[j]!, dx = x - c, dy = y - c, l = Math.hypot(dx, dy) || 1;
-      body += seam(x, y, c + (dx / l) * R * 1.05, c + (dy / l) * R * 1.05);
+export function football(size: number, spin = 0): string {
+  // a real ball's geometry: the truncated icosahedron (12 black pentagons, 20 white hexagons) on a sphere, turned in
+  // 3D and seen from the front, so panels curve and shrink towards the edge; then light, shade and a ground shadow
+  const phi = (1 + Math.sqrt(5)) / 2;
+  type V = [number, number, number];
+  const norm = (v: V): V => { const l = Math.hypot(...v); return [v[0] / l, v[1] / l, v[2] / l]; };
+  const ico: V[] = [];
+  for (const a of [-1, 1]) for (const b of [-phi, phi]) ico.push([0, a, b], [a, b, 0], [b, 0, a]);
+  const rot = (v: V): V => {   // tilt and turn the ball so a pentagon sits slightly off centre
+    const ax = 0.42, ay = -0.62 + spin, az = 0.18;
+    let [x, y, z] = v;
+    [y, z] = [y * Math.cos(ax) - z * Math.sin(ax), y * Math.sin(ax) + z * Math.cos(ax)];
+    [x, z] = [x * Math.cos(ay) + z * Math.sin(ay), -x * Math.sin(ay) + z * Math.cos(ay)];
+    [x, y] = [x * Math.cos(az) - y * Math.sin(az), x * Math.sin(az) + y * Math.cos(az)];
+    return [x, y, z];
+  };
+  const S = size, R = S * 0.46, cx = S / 2, cy = S * 0.47;
+  const proj = (v: V) => {   // front half: as is; the back half folds onto the outline
+    if (v[2] >= 0) return [cx + v[0] * R, cy - v[1] * R] as const;
+    const l = Math.hypot(v[0], v[1]) || 1;
+    return [cx + (v[0] / l) * R, cy - (v[1] / l) * R] as const;
+  };
+  const slerp = (a: V, b: V, t: number): V => norm([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
+  const arc = (a: V, b: V, n = 8) => Array.from({ length: n + 1 }, (_, k) => slerp(a, b, k / n));
+  const pts = (vs: V[]) => vs.map((v) => { const [x, y] = proj(v); return `${x.toFixed(1)},${y.toFixed(1)}`; }).join(' ');
+  let panels = '', seams = '';
+  const edge = new Set<string>();
+  for (let i = 0; i < 12; i++) {
+    const v = ico[i]!;
+    const nb = ico.filter((n, k) => k !== i && Math.abs(Math.hypot(n[0] - v[0], n[1] - v[1], n[2] - v[2]) - 2) < 1e-6);
+    // the pentagon's corners, one third of the way to each neighbour, in order around v
+    const u = norm(nb[0]!.map((x, k) => x - v[k]!) as V), w = norm([v[1] * u[2] - v[2] * u[1], v[2] * u[0] - v[0] * u[2], v[0] * u[1] - v[1] * u[0]]);
+    const corners = nb.map((n) => norm(rot(norm([v[0] + (n[0] - v[0]) / 3, v[1] + (n[1] - v[1]) / 3, v[2] + (n[2] - v[2]) / 3]))))
+      .map((c, k) => ({ c, n: nb[k]!, a: Math.atan2(...((): [number, number] => { const d = nb[k]!.map((x, q) => x - v[q]!) as V; return [d[0] * w[0] + d[1] * w[1] + d[2] * w[2], d[0] * u[0] + d[1] * u[1] + d[2] * u[2]]; })()) }))
+      .sort((p, q) => p.a - q.a);
+    const centre = rot(norm(v));
+    if (centre[2] > -0.35) {
+      const outline: V[] = [];
+      corners.forEach((p, k) => outline.push(...arc(p.c, corners[(k + 1) % 5]!.c).slice(0, -1)));
+      panels += `<polygon points="${pts(outline)}" fill="url(#pk)"/>`;
+    }
+    // the seams between hexagons: from each pentagon corner to the next pentagon's matching corner
+    for (const p of corners) {
+      const n = p.n, key = [ico.indexOf(v), ico.indexOf(n)].sort().join('-');
+      if (edge.has(key)) continue; edge.add(key);
+      const far = rot(norm([n[0] + (v[0] - n[0]) / 3, n[1] + (v[1] - n[1]) / 3, n[2] + (v[2] - n[2]) / 3]));
+      const line = arc(p.c, far, 6).filter((q) => q[2] > 0.02);
+      if (line.length > 1) seams += `<polyline points="${pts(line)}"/>`;
     }
   }
-  return svg(size, size, `<defs><clipPath id="b"><circle cx="${c}" cy="${c}" r="${R}"/></clipPath>
-    <radialGradient id="s" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#fff"/><stop offset="0.7" stop-color="#e8e8e8"/><stop offset="1" stop-color="#a9a9a9"/></radialGradient>
-    <radialGradient id="h" cx="0.32" cy="0.26" r="0.35"><stop offset="0" stop-color="#fff" stop-opacity="0.75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
-    <circle cx="${c}" cy="${c}" r="${R}" fill="url(#s)"/><g clip-path="url(#b)">${body}</g>
-    <circle cx="${c}" cy="${c}" r="${R}" fill="url(#h)"/><circle cx="${c}" cy="${c}" r="${R - 1}" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="2"/>`);
+  const sw = (S * 0.007).toFixed(2);
+  return svg(S, S, `<defs>
+    <clipPath id="b"><circle cx="${cx}" cy="${cy}" r="${R}"/></clipPath>
+    <radialGradient id="w" cx="0.36" cy="0.3" r="0.85"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="#eceeea"/><stop offset="0.85" stop-color="#b9bdb6"/><stop offset="1" stop-color="#7d8279"/></radialGradient>
+    <radialGradient id="pk" gradientUnits="userSpaceOnUse" cx="${cx - R * 0.3}" cy="${cy - R * 0.4}" r="${R * 1.5}"><stop offset="0" stop-color="#3a3d42"/><stop offset="0.6" stop-color="#16181b"/><stop offset="1" stop-color="#050506"/></radialGradient>
+    <radialGradient id="rim" cx="0.5" cy="0.5" r="0.5"><stop offset="0.7" stop-color="#000" stop-opacity="0"/><stop offset="0.93" stop-color="#000" stop-opacity="0.28"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></radialGradient>
+    <radialGradient id="spec" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff" stop-opacity="0.9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="sh" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#000" stop-opacity="0.65"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+    <ellipse cx="${cx + R * 0.12}" cy="${cy + R * 1.0}" rx="${R * 0.95}" ry="${R * 0.16}" fill="url(#sh)"/>
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#w)"/>
+    <g clip-path="url(#b)">${panels}<g fill="none" stroke="#3b3f3a" stroke-opacity="0.75" stroke-width="${sw}" stroke-linecap="round">${seams}</g></g>
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#rim)"/>
+    <ellipse cx="${cx - R * 0.34}" cy="${cy - R * 0.42}" rx="${R * 0.3}" ry="${R * 0.2}" transform="rotate(-30 ${cx - R * 0.34} ${cy - R * 0.42})" fill="url(#spec)" opacity="0.7"/>`);
 }
 
 /**
- * The tryout poster's background: a floodlit pitch seen from above, with mown stripes, the halfway line and centre circle,
- * a penalty box at the bottom, corner arcs, and the dotted curve of a ball's flight. dark: 0–1, how much it fades to black.
+ * The tryout poster's background when no photo is chosen: grass under floodlights, mown in stripes, with the halfway
+ * line and centre circle faintly visible.
  */
 export function tryoutPitch(w: number, h: number): string {
-  const line = 'stroke="rgba(255,255,255,0.28)" stroke-width="5" fill="none"';
   let stripes = '';
-  for (let i = -2; i < 14; i++) stripes += `<polygon points="${i * 150},0 ${i * 150 + 75},0 ${i * 150 + 75 + h * 0.35},${h} ${i * 150 + h * 0.35},${h}" fill="rgba(255,255,255,0.035)"/>`;
-  const cy = h * 0.34, r = w * 0.22;
+  for (let i = 0; i < 12; i++) stripes += `<rect x="0" y="${(h / 12) * i}" width="${w}" height="${h / 24}" fill="rgba(255,255,255,0.035)"/>`;
+  const line = 'stroke="rgba(255,255,255,0.13)" stroke-width="6" fill="none"';
   return svg(w, h, `<defs>
-    <radialGradient id="flood" cx="0.72" cy="0.18" r="0.9"><stop offset="0" stop-color="#2f9a22"/><stop offset="0.45" stop-color="#16520f"/><stop offset="1" stop-color="${INK}"/></radialGradient>
-    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0.45" stop-color="${INK}" stop-opacity="0"/><stop offset="1" stop-color="${INK}" stop-opacity="0.92"/></linearGradient></defs>
+    <radialGradient id="flood" cx="0.7" cy="0.25" r="0.95"><stop offset="0" stop-color="#2c8a20"/><stop offset="0.5" stop-color="#145010"/><stop offset="1" stop-color="#06140a"/></radialGradient></defs>
     <rect width="${w}" height="${h}" fill="url(#flood)"/>${stripes}
-    <line x1="0" y1="${cy}" x2="${w}" y2="${cy}" ${line}/><circle cx="${w * 0.62}" cy="${cy}" r="${r}" ${line}/><circle cx="${w * 0.62}" cy="${cy}" r="8" fill="rgba(255,255,255,0.35)"/>
-    <rect x="${w * 0.18}" y="${h * 0.8}" width="${w * 0.64}" height="${h * 0.24}" ${line}/><rect x="${w * 0.36}" y="${h * 0.92}" width="${w * 0.28}" height="${h * 0.12}" ${line}/>
-    <path d="M${w * 0.4},${h * 0.8} A${w * 0.12},${w * 0.12} 0 0 1 ${w * 0.6},${h * 0.8}" ${line}/>
-    <path d="M0,${h * 0.06} A40,40 0 0 0 40,${h * 0.06 - 40}" ${line}/><path d="M${w},${h * 0.06} A40,40 0 0 1 ${w - 40},${h * 0.06 - 40}" ${line}/>
-    <path d="M${w * 0.08},${h * 0.62} Q${w * 0.45},${h * 0.1} ${w * 0.86},${h * 0.2}" stroke="rgba(237,247,15,0.55)" stroke-width="5" stroke-dasharray="2 22" stroke-linecap="round" fill="none"/>
-    <rect width="${w}" height="${h}" fill="url(#fade)"/>`);
-}
-
-/** Training cones in a row (the drill line under the date): orange-free, in the club colours, with a shadow. */
-export function cones(w: number, h: number, n = 5): string {
-  let s = '';
-  for (let i = 0; i < n; i++) {
-    const cx = (w / n) * (i + 0.5), b = h * 0.92, cw = h * 0.5, col = i % 2 ? GOLD : GREEN;
-    s += `<ellipse cx="${cx}" cy="${b}" rx="${cw * 0.75}" ry="${h * 0.07}" fill="rgba(0,0,0,0.35)"/>`
-      + `<polygon points="${cx - cw / 2},${b} ${cx + cw / 2},${b} ${cx + cw * 0.12},${h * 0.1} ${cx - cw * 0.12},${h * 0.1}" fill="${col}"/>`
-      + `<rect x="${cx - cw * 0.66}" y="${b - h * 0.08}" width="${cw * 1.32}" height="${h * 0.1}" rx="${h * 0.03}" fill="${col}"/>`
-      + `<polygon points="${cx - cw * 0.3},${h * 0.55} ${cx + cw * 0.3},${h * 0.55} ${cx + cw * 0.24},${h * 0.66} ${cx - cw * 0.24},${h * 0.66}" fill="#fff" fill-opacity="0.85"/>`;
-  }
-  return svg(w, h, s);
-}
-
-/** A small map pin, clock or calendar icon for the tryout details (white on transparent). */
-export function detailIcon(kind: 'pin' | 'clock' | 'cal', size: number): string {
-  const s = `stroke="${INK}" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"`;
-  const body = kind === 'pin' ? `<path d="M32 58 C32 58 12 38 12 24 A20 20 0 0 1 52 24 C52 38 32 58 32 58 Z" ${s}/><circle cx="32" cy="24" r="7" ${s}/>`
-    : kind === 'clock' ? `<circle cx="32" cy="32" r="24" ${s}/><path d="M32 18 V32 L42 38" ${s}/>`
-    : `<rect x="8" y="12" width="48" height="44" rx="6" ${s}/><path d="M8 26 H56 M20 6 V16 M44 6 V16" ${s}/>`;
-  return svg(size, size, `<g transform="scale(${(size / 64).toFixed(4)})">${body}</g>`);
+    <line x1="0" y1="${h * 0.42}" x2="${w}" y2="${h * 0.42}" ${line}/><circle cx="${w * 0.7}" cy="${h * 0.42}" r="${w * 0.24}" ${line}/>`);
 }

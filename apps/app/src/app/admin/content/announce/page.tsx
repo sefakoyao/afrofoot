@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { removePosterPhoto, uploadPosterPhoto } from '@/app/actions/poster';
 import { PosterPreview } from '@/components/admin/PosterPreview';
+import { TONES } from '@/app/api/content/announce/tryout';
+import { DEFAULT_SHADE, DEFAULT_STRENGTH, EFFECTS, effect, type Effect } from '@/lib/poster-art';
 import { ANNOUNCE_KINDS, ANNOUNCE_LIMITS, DEFAULT_MESSAGE, TRYOUT_DEFAULTS, SAMPLE_PLAYER, announceablePlayers, palloliittoOnlyPlayers, type AnnounceKind } from '@/lib/announce';
 import { requireArea } from '@/lib/auth';
 import { supabaseEnv } from '@/lib/env';
@@ -22,11 +25,14 @@ const field = 'min-h-11 w-full min-w-0 rounded-control border border-line bg-rai
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireArea('admin');
   const sp = await searchParams;
-  const [t, supabase] = await Promise.all([getTranslations('announce'), getSupabase()]);
+  const [t, tp, supabase] = await Promise.all([getTranslations('announce'), getTranslations('poster'), getSupabase()]);
   if (!supabase) return null;
   const [players, fedOnly] = await Promise.all([announceablePlayers(supabase), palloliittoOnlyPlayers(supabase)]);
   const { data: files } = await supabase.storage.from('public-media').list('posters/player', { limit: 30, sortBy: { column: 'created_at', order: 'desc' } });
   const photos = (files ?? []).filter((f) => /\.(jpg|jpeg|png)$/.test(f.name)).map((f) => `posters/player/${f.name}`);
+  // the tryout poster's own photo: the club's background photos (uploaded here or on the Matchday poster) and player photos
+  const { data: bgFiles } = await supabase.storage.from('public-media').list('posters/bg', { limit: 30, sortBy: { column: 'created_at', order: 'desc' } });
+  const bgPhotos = [...(bgFiles ?? []).filter((f) => /\.(jpg|jpeg|png)$/.test(f.name)).map((f) => `posters/bg/${f.name}`), ...photos];
   const base = supabaseEnv()?.url;
   const url = (p: string) => (base ? `${base}/storage/v1/object/public/public-media/${p}` : '');
 
@@ -37,7 +43,14 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const msg = one(sp.msg).slice(0, ANNOUNCE_LIMITS.message), from = one(sp.from).slice(0, ANNOUNCE_LIMITS.from), until = one(sp.until).slice(0, ANNOUNCE_LIMITS.until);
   // the tryout poster's own fields (an event: date, times, place; empty lines use the defaults, "-" leaves one out)
   const tf = Object.fromEntries((['date', 'start', 'end', 'place', 'address', 'who', 'bring', 'signup'] as const).map((k) => [k, one(sp[k]).slice(0, 80)])) as Record<'date' | 'start' | 'end' | 'place' | 'address' | 'who' | 'bring' | 'signup', string>;
-  const q = new URLSearchParams({ kind, player, format, ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
+  const bg = bgPhotos.some((p) => `media:${p}` === one(sp.bg)) ? one(sp.bg) : '';
+  const tone = (TONES as readonly string[]).includes(one(sp.tone)) ? one(sp.tone) : 'natural';
+  const fx: Effect = (EFFECTS as readonly string[]).includes(one(sp.fx)) ? (one(sp.fx) as Effect) : 'none';
+  const pct = (k: string, d: number, max = 100) => (sp[k] !== undefined ? String(Math.max(0, Math.min(max, Math.round(Number(one(sp[k])) || 0)))) : String(d));
+  const strength = pct('strength', DEFAULT_STRENGTH), shade = pct('shade', DEFAULT_SHADE, 90);
+  const ball = one(sp.ball) === '1' || one(sp.ball) === '0' ? one(sp.ball) : bg ? '0' : '1';
+  const result = one(sp.result);
+  const q = new URLSearchParams({ kind, player, format, ...(kind === 'tryout' ? { bg, tone, fx, strength, shade, ball } : {}), ...(photo ? { photo } : {}), ...(msg ? { msg } : {}), ...(from ? { from } : {}), ...(until ? { until } : {}),
     ...Object.fromEntries(Object.entries(tf).filter(([, v]) => v)) });
   const pick = (name: string, value: string, checked: boolean, inner: React.ReactNode) => (
     <label className="relative"><input type="radio" name={name} value={value} defaultChecked={checked} className="peer sr-only" />{inner}</label>
@@ -90,7 +103,32 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
             <div className="flex flex-wrap gap-2">{(Object.keys(POSTER_FORMATS) as PosterFormat[]).map((f) => pick('format', f, f === format,
               <span className={chip}>{t(`f_${f}`)}<span className="text-xs font-normal text-muted">{POSTER_FORMATS[f].w}×{POSTER_FORMATS[f].h}</span></span>))}</div>
           </fieldset>
-          <fieldset className="grid gap-2" data-announce-photo><legend className="text-sm font-semibold">{t('photo')}<span className="font-normal text-muted" data-only="tryout"> · {t('tPhotoHint')}</span></legend>
+          <div className="grid gap-4" data-only="tryout" id="tryout-photo">
+            <fieldset className="grid gap-2" data-tryout-bg><legend className="text-sm font-semibold">{t('tBackground')}</legend>
+              <div className="grid grid-cols-3 gap-2">
+                {pick('bg', '', !bg, <span className={`${tile} aspect-[4/5] items-end bg-[#145010]`}><span className="w-full bg-black/70 px-1 py-0.5 text-center text-[11px] font-bold text-white">{t('tPitch')}</span></span>)}
+                {bgPhotos.map((p) => pick('bg', `media:${p}`, `media:${p}` === bg, <span className={`${tile} aspect-[4/5]`} style={{ backgroundImage: `url(${url(p)})` }} />))}
+              </div>
+              <span className="text-xs text-muted">{t('tUploadHint')}</span>
+            </fieldset>
+            <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('tTone')}</legend>
+              <div className="grid grid-cols-3 gap-2">{TONES.map((x) => pick('tone', x, x === tone, <span className={chip}>{t(`tone_${x}`)}</span>))}</div>
+            </fieldset>
+            <fieldset className="grid gap-2" data-pick-effect><legend className="text-sm font-semibold">{tp('effect')}</legend>
+              <div className="grid grid-cols-5 gap-1.5">{EFFECTS.map((e) => { const art = effect(e, 160, 200, 100, 0.55); return pick('fx', e, e === fx,
+                <span className={`${tile} aspect-[4/5] flex-col items-stretch justify-end bg-ink-950 bg-cover`} style={art ? { backgroundImage: `url(${art})` } : undefined}>
+                  <span className="bg-black/70 px-0.5 py-0.5 text-center text-[10px] font-bold leading-tight text-white">{tp(`fx_${e}`)}</span></span>); })}</div>
+              <label className="grid gap-1 text-sm font-semibold">{tp('strength')}
+                <input type="range" name="strength" min={0} max={100} step={5} defaultValue={strength} className="w-full accent-accent" /></label>
+            </fieldset>
+            <label className="grid gap-1 text-sm font-semibold">{tp('shade')}
+              <input type="range" name="shade" min={0} max={90} step={5} defaultValue={shade} className="w-full accent-accent" />
+              <span className="text-xs font-normal text-muted">{tp('shadeHint')}</span></label>
+            <fieldset className="grid gap-2"><legend className="text-sm font-semibold">{t('tBall')}</legend>
+              <div className="grid grid-cols-2 gap-2">{pick('ball', '1', ball === '1', <span className={chip}>{t('tBallOn')}</span>)}{pick('ball', '0', ball === '0', <span className={chip}>{t('tBallOff')}</span>)}</div>
+            </fieldset>
+          </div>
+          <fieldset className="grid gap-2" data-announce-photo data-only="welcome farewell"><legend className="text-sm font-semibold">{t('photo')}</legend>
             <div className="grid grid-cols-3 gap-2">
               {pick('photo', '', !photo, <span className={`${tile} aspect-[4/5] items-center justify-center bg-surface text-xs font-bold`}>{t('none')}</span>)}
               {photos.map((p) => pick('photo', `media:${p}`, `media:${p}` === photo, <span className={`${tile} aspect-[4/5]`} style={{ backgroundImage: `url(${url(p)})` }} />))}
@@ -100,8 +138,24 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
           <noscript><button className="min-h-11 justify-self-start rounded-full border-2 border-fg px-5 font-bold">{t('update')}</button></noscript>
         </form>
         <section className="grid justify-items-center gap-3 rounded-card border border-line bg-raised p-5" aria-label={t('preview')}>
+          {result ? <p role={result === 'p_uploaded' || result === 'p_removed' ? 'status' : 'alert'} className={`w-full rounded-card p-3 text-sm font-semibold ${result === 'p_uploaded' || result === 'p_removed' ? 'bg-accent/15 text-pitch' : 'bg-danger/10 text-danger'}`} data-upload-result>{tp(result as 'p_uploaded')}</p> : null}
           <PosterPreview formId="announce-form" initial={q.toString()} alt={t('previewAlt')} download={t('download')} loading={t('loading')} story={format === 'story'} endpoint="/api/content/announce" />
           <p className="max-w-xl rounded-card bg-gold p-2 text-center text-xs font-semibold text-ink-950" data-sample-note>{t('sampleNote')}</p>
+          {kind === 'tryout' ? (
+            <div className="grid w-full gap-2 border-t border-line pt-4" data-tryout-upload>
+              <h2 className="font-display text-lg font-extrabold">{t('tUploadTitle')}</h2>
+              <form action={uploadPosterPhoto} className="flex flex-wrap items-end gap-3">
+                <input type="hidden" name="keep" value={q.toString()} /><input type="hidden" name="page" value="announce" /><input type="hidden" name="kind" value="bg" />
+                <input type="file" name="photo" accept="image/jpeg,image/png" required className="min-w-0 text-sm" />
+                <button className="min-h-10 rounded-full border-2 border-fg px-4 font-bold">{tp('upload')}</button>
+              </form>
+              <p className="text-xs text-muted">{t('tUploadLead')}</p>
+              {bg && bg.startsWith('media:posters/bg/') ? (
+                <form action={removePosterPhoto}><input type="hidden" name="path" value={bg.slice(6)} /><input type="hidden" name="keep" value={q.toString()} /><input type="hidden" name="page" value="announce" />
+                  <button className="min-h-9 rounded-full border border-danger px-3 text-xs font-bold text-danger hover:bg-danger/10">{t('tRemovePhoto')}</button></form>
+              ) : null}
+            </div>
+          ) : null}
         </section>
       </div>
     </div>
