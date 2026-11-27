@@ -229,25 +229,6 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
           ) : <p className="mt-2 text-sm font-semibold text-danger" data-no-suggestions>{t('noCandidates')}</p>}
           {(() => { const s = cellsOf(place)[0]; const f = s ? fit(s, placeRole, outlookOf(s, st)) : null; return s ? <p className="mt-2 text-xs text-muted">{t('currentStarter', { name: s.name, score: f?.score ?? 0 })}</p> : null; })()}
         </section>
-        <section className="rounded-card border border-line bg-raised p-4" aria-labelledby="ai-h" data-analysis>
-          <h2 id="ai-h" className="font-display text-lg font-extrabold">{t('aiTitle')}</h2>
-          <p className="text-xs text-muted">{t('aiLead')}</p>
-          {canAnalyse ? (
-            <form action={(fd) => { fd.set('team', teamId); fd.set('facts', facts()); return analyse(fd); }} className="mt-2">
-              <button disabled={analysing} className="min-h-10 rounded-full border-2 border-fg px-4 text-sm font-bold hover:bg-fg hover:text-white disabled:opacity-60" data-analyse>{analysing ? t('analysing') : t('analyse')}</button>
-            </form>
-          ) : <p className="mt-2 text-sm text-muted">{t('aiOff')}</p>}
-          {ai.status === 'error' ? <p role="alert" className="mt-2 text-sm font-semibold text-danger">{t(`ai_${ai.error}` as 'ai_api')}</p> : null}
-          {ai.status === 'ok' ? (
-            <div className="mt-3 grid gap-3 text-sm" data-analysis-result>
-              <p className="font-semibold">{withNames(ai.analysis.summary)}</p>
-              {(['strengths', 'gaps', 'recruit', 'risks'] as const).map((k) => ai.analysis[k].length ? (
-                <div key={k}><p className="text-xs font-black uppercase tracking-widest text-muted">{t(`ai_${k}`)}</p>
-                  <ul className="mt-1 grid list-disc gap-1 ps-5">{ai.analysis[k].map((x, i) => <li key={i}>{withNames(x)}</li>)}</ul></div>
-              ) : null)}
-            </div>
-          ) : null}
-        </section>
       </aside>
       {/* ===== the pool ===== */}
       <section className="grid content-start gap-3 rounded-card border border-line bg-raised p-4 xl:col-span-2" aria-labelledby="pool-h">
@@ -309,6 +290,25 @@ export function SquadPlanner({ teamId, teamName, year, formations, pool, plan, c
         ) : null}
       </section>
 
+      <section className="rounded-card border border-line bg-raised p-4 xl:col-span-2" aria-labelledby="ai-h" data-analysis>
+        <h2 id="ai-h" className="font-display text-lg font-extrabold">{t('aiTitle')}</h2>
+        <p className="text-xs text-muted">{t('aiLead')}</p>
+        {canAnalyse ? (
+          <form action={(fd) => { fd.set('team', teamId); fd.set('facts', facts()); return analyse(fd); }} className="mt-2">
+            <button disabled={analysing} className="min-h-10 rounded-full border-2 border-fg px-4 text-sm font-bold hover:bg-fg hover:text-white disabled:opacity-60" data-analyse>{analysing ? t('analysing') : t('analyse')}</button>
+          </form>
+        ) : <p className="mt-2 text-sm text-muted">{t('aiOff')}</p>}
+        {ai.status === 'error' ? <p role="alert" className="mt-2 text-sm font-semibold text-danger">{t(`ai_${ai.error}` as 'ai_api')}</p> : null}
+        {ai.status === 'ok' ? (
+          <div className="mt-3 grid gap-3 text-sm md:grid-cols-2" data-analysis-result>
+            <p className="font-semibold md:col-span-2">{withNames(ai.analysis.summary)}</p>
+            {(['strengths', 'gaps', 'recruit', 'risks'] as const).map((k) => ai.analysis[k].length ? (
+              <div key={k}><p className="text-xs font-black uppercase tracking-widest text-muted">{t(`ai_${k}`)}</p>
+                <ul className="mt-1 grid list-disc gap-1 ps-5">{ai.analysis[k].map((x, i) => <li key={i}>{withNames(x)}</li>)}</ul></div>
+            ) : null)}
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }
