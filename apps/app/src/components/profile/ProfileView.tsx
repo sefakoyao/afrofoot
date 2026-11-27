@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { setReminderEmails, setWebsiteListing } from '@/app/actions/player';
 import { MyShirtNumber } from '@/components/MyShirtNumber';
 import type { Member } from '@/lib/auth';
+import { dateFormats } from '@/lib/format';
 import { loadPlayerSport } from '@/lib/player';
 import { relationLabel } from '@/lib/relations';
 import { getSupabase } from '@/lib/supabase/server';
@@ -50,7 +51,7 @@ export async function ProfileView({ member, sp, back }: { member: Member; sp: Se
 /** The player part of the profile (players and player-coaches). */
 async function PlayerSections({ member, sp, back }: { member: Member; sp: Search; back: ProfileBack }) {
   const [t, tm, tpos, trel, supabase] = await Promise.all([getTranslations('pp'), getTranslations('me'), getTranslations('position'), getTranslations('relation'), getSupabase()]);
-  const sport = supabase ? await loadPlayerSport(supabase, member.id) : null;
+  const [sport, fmt] = await Promise.all([supabase ? loadPlayerSport(supabase, member.id) : null, dateFormats()]);
   // own photo (storage, own folder): a short-lived signed address
   const { data: me } = supabase ? await supabase.from('players').select('id, photo_path, website_hidden').eq('profile_id', member.id).maybeSingle() : { data: null };
   const saved = sp.website === 'saved';
@@ -68,6 +69,9 @@ async function PlayerSections({ member, sp, back }: { member: Member; sp: Search
             <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-3">
               <div><dt className="text-muted">{t('team')}</dt>
                 <dd className="font-semibold">{sport.teams.length ? sport.teams.map((x, i) => <span key={i} className="block"><bdi>{x.name}</bdi>{x.division ? <span className="font-normal text-muted"> · {x.division}</span> : null}</span>) : notSet}</dd></div>
+              <div data-birth-date={sport.birthDate ?? ''}><dt className="text-muted">{t('birthDate')}</dt>
+                <dd className="font-semibold">{sport.birthDate ? fmt.date.format(new Date(`${sport.birthDate}T12:00:00Z`)) : notSet}
+                  <span className="block text-xs font-normal text-muted">{t('birthAskAdmin')}</span></dd></div>
               <div><dt className="text-muted">{t('position')}</dt><dd className="font-semibold">{sport.position ? tpos(sport.position) : notSet}</dd></div>
               <div><dt className="text-muted">{t('secondaryPosition')}</dt><dd className="font-semibold">{sport.secondaryPosition ? tpos(sport.secondaryPosition) : notSet}</dd></div>
               <div><dt className="text-muted">{t('shirt')}</dt><dd className="font-semibold" dir="ltr" style={{ textAlign: 'start' }}>{sport.shirt ? `#${sport.shirt}` : notSet}</dd></div>

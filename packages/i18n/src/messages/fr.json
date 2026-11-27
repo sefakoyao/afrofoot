@@ -1382,7 +1382,7 @@
     "colMember": "Membre",
     "approveNow": "Approuver",
     "moreActions": "Plus d’actions pour {name}",
-    "pw_legend": "CTR contrat · CdC code de conduite · fact. factures — survolez une étiquette pour le détail, cliquez pour l’ouvrir",
+    "pw_legend": "CTR contrat · CoC code de conduite · inv. factures · DDN date de naissance · U18 moins de 18 ans — survolez une étiquette pour les détails, cliquez pour l’ouvrir",
     "pw_s_contract_active": "CTR ✓ {date}",
     "pw_s_contract_sent": "CTR : joueur",
     "pw_s_contract_player_signed": "CTR : à signer",
@@ -1396,7 +1396,17 @@
     "pw_s_fees_unpaid": "Impayé {amount}",
     "pw_s_fees_overdue": "Retard {amount}",
     "pw_s_fees_none": "Pas de fact.",
-    "joinedOn": "inscrit le {date}"
+    "joinedOn": "inscrit le {date}",
+    "f_dob": "Sans date de naissance",
+    "birthDate": "Date de naissance",
+    "birthHint": "Détermine si le contrat doit aussi être signé par un parent ou tuteur (moins de 18 ans).",
+    "saveBirth": "Enregistrer la date",
+    "result_birthSaved": "Date de naissance enregistrée.",
+    "result_birthInvalid": "Choisissez une date de naissance entre 1940 et il y a 5 ans.",
+    "pw_s_dob_missing": "Sans DDN",
+    "pw_dob_missing": "Date de naissance manquante : on demande au joueur s’il a moins de 18 ans à la signature",
+    "pw_s_dob_minor": "U18",
+    "pw_dob_minor": "Moins de 18 ans (né le {date}) : un parent ou tuteur signe aussi le contrat"
   },
   "me": {
     "team": "Équipe",
@@ -1621,7 +1631,9 @@
     "webWhat": "L’effectif du site présente les joueurs du club d’après la liste publique de Palloliitto : nom, numéro, poste, buts et matchs de championnat (jamais l’année de naissance ni la nationalité). Vous pouvez vous retirer à tout moment ; cela s’applique dès que le club a relié votre compte à votre enregistrement Palloliitto.",
     "webShow": "M’afficher à nouveau sur le site du club",
     "webHide": "Me retirer du site du club",
-    "webSaved": "Enregistré. Le site affiche le changement d’ici une minute."
+    "webSaved": "Enregistré. Le site affiche le changement d’ici une minute.",
+    "birthDate": "Date de naissance",
+    "birthAskAdmin": "Erreur ? Demandez à un administrateur de la corriger."
   },
   "teams": {
     "title": "Équipes",
@@ -2218,7 +2230,8 @@
     "rowSent": "Envoyé le {date} : en attente du joueur",
     "rowDraft": "Brouillon, pas encore envoyé",
     "rowCountersign": "Contresigner",
-    "rowOpen": "Ouvrir"
+    "rowOpen": "Ouvrir",
+    "minorBirth": "Votre date de naissance enregistrée est le {date}. Si elle est fausse, demandez à un administrateur de la corriger avant de signer."
   },
   "match": {
     "title": "Jour de match",

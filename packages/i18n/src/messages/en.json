@@ -1382,7 +1382,7 @@
     "colMember": "Member",
     "approveNow": "Approve now",
     "moreActions": "More actions for {name}",
-    "pw_legend": "CTR contract · CoC Code of Conduct · inv. invoices — hover a tag for details, click it to open",
+    "pw_legend": "CTR contract · CoC Code of Conduct · inv. invoices · DOB birth date · U18 under 18 — hover a tag for details, click it to open",
     "pw_s_contract_active": "CTR ✓ {date}",
     "pw_s_contract_sent": "CTR: player",
     "pw_s_contract_player_signed": "CTR: sign",
@@ -1396,7 +1396,17 @@
     "pw_s_fees_unpaid": "Unpaid {amount}",
     "pw_s_fees_overdue": "Overdue {amount}",
     "pw_s_fees_none": "No inv.",
-    "joinedOn": "joined {date}"
+    "joinedOn": "joined {date}",
+    "f_dob": "No birth date",
+    "birthDate": "Birth date",
+    "birthHint": "Decides whether the contract needs a parent or guardian (under 18).",
+    "saveBirth": "Save birth date",
+    "result_birthSaved": "Birth date saved.",
+    "result_birthInvalid": "Choose a birth date between 1940 and 5 years ago.",
+    "pw_s_dob_missing": "No DOB",
+    "pw_dob_missing": "Birth date missing: the player is asked whether they are under 18 when signing",
+    "pw_s_dob_minor": "U18",
+    "pw_dob_minor": "Under 18 (born {date}): a parent or guardian signs the contract too"
   },
   "me": {
     "team": "Team",
@@ -1621,7 +1631,9 @@
     "webWhat": "The squad on the website lists the club's players from Palloliitto's public player list: name, shirt number, position, and league goals and games (never birth year or nationality). You can remove yourself at any time; it applies as soon as the club has linked your account to your Palloliitto registration.",
     "webShow": "Show me on the club website again",
     "webHide": "Remove me from the club website",
-    "webSaved": "Saved. The website shows the change within a minute."
+    "webSaved": "Saved. The website shows the change within a minute.",
+    "birthDate": "Birth date",
+    "birthAskAdmin": "Wrong? Ask an admin to correct it."
   },
   "teams": {
     "title": "Teams",
@@ -2218,7 +2230,8 @@
     "rowSent": "Sent on {date}: waiting for the player",
     "rowDraft": "Draft, not sent yet",
     "rowCountersign": "Countersign",
-    "rowOpen": "Open"
+    "rowOpen": "Open",
+    "minorBirth": "Your saved birth date is {date}. If that is wrong, ask an admin to correct it before you sign."
   },
   "match": {
     "title": "Match day",
